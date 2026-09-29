@@ -12,26 +12,43 @@ import { SupervisionPagina } from "../../features/supervision/index.js";
 import { InformesPagina } from "../../features/informes/index.js";
 import { ConfiguracionPagina } from "../../features/configuracion/index.js";
 import { AuditoriaPagina } from "../../features/auditoria/index.js";
+import {
+  LoginPagina,
+  MiCuentaPagina,
+} from "../../features/autenticacion/index.js";
+import { UsuariosPagina } from "../../features/usuarios/index.js";
+import { usuarios } from "../configuracion/servicios.js";
+import { AccesoProtegido } from "./AccesoProtegido.jsx";
 
 export function RutasAplicacion() {
   return (
     <Routes>
-      <Route element={<LayoutComercial />}>
-        <Route index element={<Navigate to="/inicio" replace />} />
-        <Route
-          path="inicio"
-          element={<InicioPagina accesos={accesosInicio} />}
-        />
-        <Route path="registros" element={<RegistrosInicialesPagina />} />
-        <Route path="prospectos" element={<ProspectosPagina />} />
-        <Route path="oportunidades" element={<OportunidadesPagina />} />
-        <Route path="gestiones" element={<GestionesPagina />} />
-        <Route path="acciones" element={<ProximasAccionesPagina />} />
-        <Route path="supervision" element={<SupervisionPagina />} />
-        <Route path="informes" element={<InformesPagina />} />
-        <Route path="configuracion" element={<ConfiguracionPagina />} />
-        <Route path="auditoria" element={<AuditoriaPagina />} />
-        <Route path="*" element={<PaginaNoEncontrada />} />
+      <Route path="login" element={<LoginPagina />} />
+      <Route element={<AccesoProtegido />}>
+        <Route element={<LayoutComercial />}>
+          <Route index element={<Navigate to="/inicio" replace />} />
+          <Route
+            path="inicio"
+            element={<InicioPagina accesos={accesosInicio} />}
+          />
+          <Route path="registros" element={<RegistrosInicialesPagina />} />
+          <Route path="prospectos" element={<ProspectosPagina />} />
+          <Route path="oportunidades" element={<OportunidadesPagina />} />
+          <Route path="gestiones" element={<GestionesPagina />} />
+          <Route path="acciones" element={<ProximasAccionesPagina />} />
+          <Route path="mi-cuenta" element={<MiCuentaPagina />} />
+          <Route element={<AccesoProtegido soloAdministrador />}>
+            <Route
+              path="usuarios"
+              element={<UsuariosPagina gestion={usuarios} />}
+            />
+            <Route path="supervision" element={<SupervisionPagina />} />
+            <Route path="informes" element={<InformesPagina />} />
+            <Route path="configuracion" element={<ConfiguracionPagina />} />
+            <Route path="auditoria" element={<AuditoriaPagina />} />
+          </Route>
+          <Route path="*" element={<PaginaNoEncontrada />} />
+        </Route>
       </Route>
     </Routes>
   );

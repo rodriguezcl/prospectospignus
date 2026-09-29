@@ -12,7 +12,7 @@ Organizar por funcionalidades, con alta cohesión, bajo acoplamiento, composici�
 - `src/shared/ui`: componentes visuales reutilizados, navegación y estilos Mazer.
 - `public/mazer`: distribución del proveedor y licencia, separada de personalizaciones.
 
-No existen todavía capas de dominio, aplicación ni infraestructura. No crear carpetas vacías, repositorios ficticios, proveedores globales preventivos ni datos comerciales simulados.
+Las features `autenticacion` y `usuarios` incorporan dominio, aplicación e infraestructura porque ya existe una frontera real con Supabase. El cliente compartido vive en `src/infrastructure/supabase`; la composición explícita se realiza desde `app/configuracion/servicios.js` mediante entradas `composicion.js` de cada feature. Las demás features siguen siendo presentación. No crear carpetas vacías, repositorios ficticios ni datos comerciales simulados.
 
 ## Dependencias e imports
 
@@ -33,7 +33,7 @@ Crear una feature cuando haya una responsabilidad funcional con dueño claro. Un
 
 Crear dominio al aparecer reglas comerciales independientes de la UI. Crear un caso de uso cuando se coordinen reglas y operaciones. Crear un contrato de repositorio cuando haya una frontera real de persistencia: métodos mínimos, funciones/JSDoc posibles, sin exigir clases. Implementar el adaptador específico dentro de la feature y conectarlo desde app.
 
-Un futuro cliente Supabase compartido pertenecerá a `src/infrastructure`; un adaptador comercial a `features/<funcionalidad>/infrastructure`. Una única creación del cliente, sin consultas dispersas en JSX. No instalarlo ni crear variables de entorno antes de necesitarlo.
+El cliente Supabase compartido pertenece a `src/infrastructure`; cada adaptador a `features/<funcionalidad>/infrastructure`. Una única creación del cliente, sin consultas dispersas en JSX. La entrada pública de composición es exclusiva para app; presentación no importa esa entrada. Las rutas protegidas y el menú consumen la API pública de autenticación; usuarios recibe su caso de uso como propiedad, sin importar otra feature.
 
 ## Estado, errores y seguridad
 
@@ -41,7 +41,7 @@ Estado de UI local y composición. Context solo cuando sea global; evaluar el es
 
 Distinguir errores de validación, dominio, autenticación/autorización, infraestructura e inesperados. Los adaptadores traducen fallos externos; presentación muestra mensajes comprensibles sin secretos ni detalles internos. Crear tipos o clases al existir consumidores reales.
 
-Ocultar enlaces no autoriza operaciones. La futura integración aplicará RLS y validaciones servidor. Nunca exponer service_role ni secretos en VITE_*. No hay autenticación ni autorización implementadas actualmente.
+Ocultar enlaces no autoriza operaciones. La integración de acceso utiliza Supabase Auth, RLS para perfiles y una Edge Function que exige administrador activo para crear cuentas. Nunca exponer service_role ni secretos en VITE_*. La activación y las pruebas reales de servidor se describen en `docs/AUTENTICACION.md`; no confundir el código local con un despliegue completado.
 
 ## Routing y accesibilidad
 

@@ -4,8 +4,29 @@ import { menu } from "../navegacion/menu.js";
 import { MenuLateral } from "../../shared/ui/navegacion/MenuLateral.jsx";
 import { BarraSuperior } from "../../shared/ui/layout/BarraSuperior.jsx";
 import { PiePagina } from "../../shared/ui/layout/PiePagina.jsx";
+import { Link } from "react-router-dom";
+import {
+  esAdministrador,
+  useSesion,
+} from "../../features/autenticacion/index.js";
 
 export function LayoutComercial() {
+  const { perfil, acceso } = useSesion();
+  const [errorSalida, cambiarErrorSalida] = useState("");
+  const [saliendo, cambiarSaliendo] = useState(false);
+  const menuPermitido = menu.filter(
+    (grupo) => !grupo.soloAdministrador || esAdministrador(perfil),
+  );
+  async function salir() {
+    cambiarSaliendo(true);
+    cambiarErrorSalida("");
+    try {
+      await acceso.salir();
+    } catch (error) {
+      cambiarErrorSalida(error.message);
+      cambiarSaliendo(false);
+    }
+  }
   const [movil, cambiarMovil] = useState(
     () => window.matchMedia("(max-width: 1199px)").matches,
   );
@@ -40,7 +61,7 @@ export function LayoutComercial() {
     const actual = menu
       .flatMap((grupo) => grupo.elementos)
       .find((elemento) => elemento.ruta === ubicacion.pathname);
-    document.title = `${actual?.titulo || "Página no encontrada"} · Prospectos Pignus`;
+    document.title = `${actual?.titulo || (ubicacion.pathname === "/mi-cuenta" ? "Mi cuenta" : "Página no encontrada")} · Prospectos Pignus`;
     contenido.current?.focus({ preventScroll: true });
     window.scrollTo(0, 0);
   }, [ubicacion]);
@@ -91,7 +112,7 @@ export function LayoutComercial() {
         Saltar al contenido
       </a>
       <MenuLateral
-        grupos={menu}
+        grupos={menuPermitido}
         abierto={abierto}
         cerrar={cerrarMenu}
         navegar={() => {
@@ -105,6 +126,21 @@ export function LayoutComercial() {
       )}
       <main id="main" inert={movil && abierto}>
         <BarraSuperior
+          cuenta={
+            <div className="cuenta-barra">
+              <Link to="/mi-cuenta">
+                {perfil.nombre} ·{" "}
+                {perfil.rol === "administrador" ? "Administrador" : "Vendedor"}
+              </Link>
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={salir}
+                disabled={saliendo}
+              >
+                {saliendo ? "Cerrando…" : "Cerrar sesión"}
+              </button>
+            </div>
+          }
           referencia={boton}
           abierto={abierto}
           alternar={() =>
@@ -114,6 +150,11 @@ export function LayoutComercial() {
           }
         />
         <div ref={contenido} id="contenido" tabIndex={-1}>
+          {errorSalida && (
+            <div className="alert alert-danger" role="alert">
+              {errorSalida}
+            </div>
+          )}
           <Outlet />
         </div>
         <PiePagina />

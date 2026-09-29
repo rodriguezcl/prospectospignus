@@ -1,0 +1,10 @@
+project_id = "prospectospignus"
+
+[auth]
+enable_signup = false
+minimum_password_length = 12
+
+[functions.crear-usuario]
+# getUser(token) verifica la sesión en Auth antes de usar cualquier privilegio.
+# Esta configuración permite las claves publishable modernas; no elimina la validación del manejador.
+verify_jwt = false

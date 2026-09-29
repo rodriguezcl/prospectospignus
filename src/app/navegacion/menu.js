@@ -37,6 +37,7 @@ export const menu = [
   },
   {
     grupo: "GESTIÓN DEL EQUIPO",
+    soloAdministrador: true,
     elementos: [
       {
         ruta: "/supervision",
@@ -52,12 +53,14 @@ export const menu = [
   },
   {
     grupo: "ADMINISTRACIÓN",
+    soloAdministrador: true,
     elementos: [
       {
         ruta: "/configuracion",
         titulo: "Configuración",
         icono: "bi-gear-fill",
       },
+      { ruta: "/usuarios", titulo: "Usuarios", icono: "bi-person-plus-fill" },
       {
         ruta: "/auditoria",
         titulo: "Auditoría",

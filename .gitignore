@@ -2,3 +2,7 @@ node_modules/
 dist/
 proveedores/mazer-original/
 *.log
+.env
+.env.*
+!.env.example
+supabase/.temp/

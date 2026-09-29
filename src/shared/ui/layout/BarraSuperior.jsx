@@ -1,4 +1,4 @@
-export function BarraSuperior({ abierto, alternar, referencia }) {
+export function BarraSuperior({ abierto, alternar, referencia, cuenta }) {
   return (
     <header className="barra-superior">
       <button
@@ -13,7 +13,9 @@ export function BarraSuperior({ abierto, alternar, referencia }) {
         ☰
       </button>
       <span>Espacio comercial</span>
-      <span className="badge bg-light-primary">Vista preliminar</span>
+      {cuenta || (
+        <span className="badge bg-light-primary">Vista preliminar</span>
+      )}
     </header>
   );
 }

@@ -1,0 +1,83 @@
+.acceso-plataforma {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.acceso-presentacion {
+  background: #354f9f;
+  color: #e4eaff;
+  padding: clamp(32px, 5vw, 80px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 60px;
+}
+.acceso-marca {
+  color: white;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 4px;
+}
+.acceso-marca small {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 3px;
+  margin-top: 8px;
+}
+.acceso-presentacion h2 {
+  color: white;
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: 1.2;
+  margin: 20px 0;
+}
+.acceso-etiqueta {
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+.acceso-formulario {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 70px;
+  padding: clamp(24px, 6vw, 100px);
+  background: white;
+}
+.acceso-formulario > div {
+  width: 100%;
+  max-width: 440px;
+  margin: auto;
+}
+.acceso-formulario h1 {
+  margin-bottom: 16px;
+}
+.acceso-formulario form {
+  margin-top: 32px;
+}
+.acceso-ayuda {
+  color: #68758c;
+  font-size: 13px;
+  margin-top: 26px;
+}
+.acceso-formulario > small {
+  text-align: center;
+}
+@media (max-width: 800px) {
+  .acceso-plataforma {
+    grid-template-columns: 1fr;
+  }
+  .acceso-presentacion {
+    padding: 24px;
+    gap: 0;
+  }
+  .acceso-presentacion > div,
+  .acceso-presentacion > small {
+    display: none;
+  }
+  .acceso-formulario {
+    padding: 32px 24px;
+    gap: 40px;
+  }
+  .acceso-formulario > div {
+    margin: 0 auto;
+  }
+}

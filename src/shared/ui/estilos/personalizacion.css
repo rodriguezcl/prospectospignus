@@ -1,6 +1,24 @@
 :root {
   --bs-body-bg: #f4f6fa;
 }
+.cuenta-barra {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+@media (max-width: 650px) {
+  .barra-superior {
+    flex-wrap: wrap;
+    padding: 12px 0;
+  }
+  .cuenta-barra {
+    width: 100%;
+    justify-content: space-between;
+    margin: 0;
+  }
+}
 body {
   background: #f4f6fa;
 }

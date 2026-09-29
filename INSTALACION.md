@@ -15,9 +15,9 @@ La terminal informa la dirección local. Para generar la distribución: `npm run
 
 ## Alcance
 
-Navegación en español, menú adaptable a móvil y escritorio, inicio y pantallas informativas para los módulos del documento rector. No hay autenticación, base de datos, registros comerciales ni métricas simuladas. Los menús administrativos son una vista de desarrollo; los permisos reales deberán implementarse en servidor.
+Navegación en español, menú adaptable e interfaz comercial inicial. Login con Supabase Auth y roles administrador/vendedor; alta de usuarios reservada al administrador. Para activar la conexión, aplicar la migración y desplegar la función según `docs/AUTENTICACION.md`. Sin configuración el acceso permanece bloqueado. Los módulos comerciales continúan como pantallas informativas.
 
-No se implementan todavía formularios, exportaciones, asignación ni cambios de estado. React Router usa fragmentos de URL (`#/prospectos`) para permitir recarga y navegación atrás/adelante sin reglas SPA adicionales del servidor. Los enlaces anteriores (`#prospectos`) siguen funcionando. No se realizó despliegue ni configuración remota de Vercel.
+Hay formularios de login, creación de cuentas y cambio de contraseña propio; todavía no hay formularios ni operaciones comerciales. React Router usa fragmentos de URL (`#/prospectos`) para permitir recarga y navegación atrás/adelante sin reglas SPA adicionales del servidor. Los enlaces anteriores (`#prospectos`) siguen funcionando. No se realizó despliegue ni configuración remota de Vercel.
 
 ## Plantilla
 
