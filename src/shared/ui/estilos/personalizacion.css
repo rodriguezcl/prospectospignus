@@ -1,0 +1,354 @@
+:root {
+  --bs-body-bg: #f4f6fa;
+}
+body {
+  background: #f4f6fa;
+}
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem 1.8rem 1rem !important;
+}
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: #25396f;
+  line-height: 1.2;
+}
+.marca small {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 1px;
+  font-weight: 400;
+  margin-top: 5px;
+}
+.marca-simbolo {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  background: #435ebe;
+  color: white;
+  border-radius: 13px;
+  font-size: 29px;
+}
+.sidebar-wrapper .menu {
+  padding: 0 1.4rem;
+}
+.sidebar-wrapper .menu .sidebar-title {
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  color: #8992a9;
+  margin-top: 1.6rem;
+}
+.sidebar-wrapper .menu .sidebar-link {
+  font-size: 14px;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+}
+.nota-menu {
+  margin: 2rem;
+  font-size: 12px;
+  color: #66738b;
+}
+.nota-menu small {
+  display: block;
+  margin-top: 5px;
+  font-size: 10px;
+}
+.punto {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background: #38a684;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+#main {
+  padding: 0 3rem;
+}
+.barra-superior {
+  min-height: 83px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid #e4e8f1;
+  margin-bottom: 38px;
+  font-size: 13px;
+  color: #738099;
+}
+.barra-superior .badge {
+  margin-left: auto;
+  font-weight: 500;
+}
+.sobretitulo {
+  font-size: 11px;
+  letter-spacing: 1.8px;
+  color: #77849e;
+  font-weight: 700;
+}
+h1 {
+  font-size: clamp(28px, 3vw, 39px);
+  line-height: 1.25;
+  letter-spacing: -1px;
+}
+.page-heading p.text-muted {
+  margin-top: 15px;
+  font-size: 14px;
+}
+.bienvenida {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  background: #435ebe;
+  border-radius: 16px;
+  padding: 32px 38px;
+  margin-bottom: 35px;
+  overflow: hidden;
+}
+.bienvenida h2 {
+  color: white;
+  font-size: 25px;
+  line-height: 1.35;
+}
+.bienvenida p {
+  color: #e0e6ff;
+  font-size: 13px;
+  margin: 14px 0 22px;
+}
+.bienvenida .badge {
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.figura {
+  font-size: 85px;
+  color: #e2e8ff;
+  background: #ffffff12;
+  border: 1px solid #ffffff20;
+  width: 170px;
+  height: 170px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.encabezado-seccion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.encabezado-seccion h2 {
+  font-size: 19px;
+  margin: 0;
+}
+.encabezado-seccion span {
+  font-size: 12px;
+}
+.accesos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.acceso {
+  padding: 25px;
+  border: 1px solid #e9edf5;
+  transition:
+    transform 0.15s,
+    border-color 0.15s;
+}
+.acceso:hover {
+  transform: translateY(-3px);
+  border-color: #435ebe;
+}
+.icono-acceso {
+  display: inline-grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  background: #edf0fc;
+  border-radius: 12px;
+  color: #435ebe;
+  font-size: 21px;
+  margin-bottom: 19px;
+}
+.acceso h3 {
+  font-size: 16px;
+}
+.acceso p {
+  font-size: 13px;
+  color: #7c879e;
+  min-height: 40px;
+}
+.enlace-acceso {
+  font-size: 12px;
+  font-weight: 700;
+}
+.aviso {
+  display: flex;
+  gap: 15px;
+  border: 1px solid #dfe5f1;
+  padding: 20px;
+  border-radius: 10px;
+  color: #6f7d96;
+  font-size: 13px;
+}
+.aviso strong {
+  color: #435572;
+}
+.aviso p {
+  margin: 5px 0 0;
+}
+footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 35px 0 20px;
+  font-size: 11px;
+  color: #8c96a9;
+}
+.estado-vacio {
+  text-align: center;
+  padding: 60px 25px;
+}
+.estado-vacio h2 {
+  font-size: 24px;
+}
+.estado-vacio p {
+  color: #7c879e;
+}
+.funciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+#abrir-menu,
+#cerrar-menu {
+  display: block;
+}
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid #e2a132;
+  outline-offset: 4px;
+}
+@media (max-width: 1199px) {
+  #main {
+    margin-left: 0;
+    padding: 0 24px;
+  }
+  #sidebar .sidebar-wrapper {
+    left: -300px;
+    transition: left 0.2s;
+  }
+  #abrir-menu,
+  #cerrar-menu {
+    display: block;
+  }
+  .menu-abierto #sidebar .sidebar-wrapper {
+    left: 0;
+  }
+  .menu-abierto #fondo-menu {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: #18264277;
+    border: 0;
+    z-index: 9;
+  }
+}
+@media (max-width: 650px) {
+  #main {
+    padding: 0 18px;
+  }
+  .barra-superior {
+    margin-bottom: 25px;
+    min-height: 65px;
+  }
+  .bienvenida {
+    padding: 26px;
+  }
+  .bienvenida h2 {
+    font-size: 22px;
+  }
+  .figura {
+    display: none;
+  }
+  .accesos {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .acceso p {
+    min-height: 0;
+  }
+  .encabezado-seccion span {
+    display: none;
+  }
+  footer {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+.estructura .menu {
+  list-style: none;
+}
+.lista-grupo {
+  list-style: none;
+  padding: 0;
+}
+.titulo-grupo {
+  display: block;
+}
+.sidebar-wrapper .menu .sidebar-link.seleccionada {
+  background: #435ebe;
+  color: white;
+}
+.sidebar-wrapper .menu .sidebar-link.seleccionada i {
+  color: white;
+}
+.estructura.menu-oculto #sidebar .sidebar-wrapper {
+  left: -300px;
+  visibility: hidden;
+}
+.estructura.menu-visible #sidebar .sidebar-wrapper {
+  left: 0;
+  visibility: visible;
+}
+.estructura.menu-oculto #main {
+  margin-left: 0;
+}
+#fondo-menu {
+  position: fixed;
+  inset: 0;
+  background: #18264277;
+  z-index: 9;
+}
+.saltar-contenido {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  z-index: 20;
+  padding: 12px;
+  background: white;
+}
+.saltar-contenido:focus {
+  top: 8px;
+}
+@media (min-width: 1200px) {
+  .estructura.menu-visible #main {
+    margin-left: 300px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
