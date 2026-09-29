@@ -1,0 +1,196 @@
+# Prospectos Pignus — Documento rector V1.4
+
+**Fecha:** 28 de septiembre de 2026  
+**Estado:** especificación de producto autónomo para análisis y desarrollo.  
+**Idioma del documento y del producto:** español en pantallas, estados, mensajes, ayuda, informes, especificaciones, nombres de dominio e identificadores nuevos de código y datos. Se permiten únicamente nombres propios, direcciones de fuentes y convenciones técnicas externas que no controla el proyecto (por ejemplo, el identificador oficial de zona horaria).  
+**Propósito:** construir desde cero **Prospectos Pignus**, sistema de prospección y desarrollo de oportunidades de venta por vendedor, diseñado a partir de necesidades del equipo comercial y de patrones documentados de EspoCRM.
+
+## 1. Principios del producto
+
+1. **Prospectos Pignus es un proyecto propio y autónomo**, con identidad, datos, permisos, métricas y ciclo de vida definidos en este documento.
+2. Su alcance es la captación de registros iniciales, calificación de Prospectos, desarrollo de Oportunidades y evaluación del desempeño comercial del equipo.
+3. Los criterios de negocio son: aislamiento por cartera, atribución de creador y responsable, origen de los registros iniciales, deduplicación, responsable principal único, gestiones verificables, seguimiento, pérdidas justificadas e historial auditable.
+4. EspoCRM es referencia funcional y técnica, no dependencia, plantilla de código ni autorización para copiar su implementación. Catálogos y umbrales propuestos son configurables.
+5. El producto no implementa procesos posteriores al resultado de la prospección. La condición Ganada es un resultado comercial declarado, con significado y métricas propios.
+
+## 2. Hallazgos útiles de EspoCRM y límites
+
+| Patrón documentado | Aplicación en Pignus | Límite de la comparación |
+| --- | --- | --- |
+| En EspoCRM, un contacto potencial puede convertirse en cuenta, contacto u oportunidad y conserva sus vínculos | Conservar identidad e historial al calificar un registro inicial | Pignus distingue registro inicial, Prospecto y Oportunidad; no crear una entidad Cliente por esta conversión |
+| Oportunidades con etapas configurables, tablero por columnas y cierres ganados o perdidos | Proceso comercial claro con fecha de transición y responsable | El cierre registra un resultado comercial declarado y validado por reglas del servidor |
+| Llamadas, reuniones, tareas y panel de actividades | Gestiones y próxima acción visibles por vendedor | Registrar una nota no equivale a un contacto efectivo |
+| Funciones con acceso a registros propios, del equipo o generales; permisos por campo | Aislar cartera desde el servidor y limitar datos sensibles | En EspoCRM, combinar roles puede ampliar permisos; diseñar pruebas específicas de aislamiento |
+| Paneles básicos de ventas | Panel de supervisión sencillo | Los reportes configurables de EspoCRM pertenecen al paquete avanzado de EspoCRM; Pignus implementará sus propias métricas |
+| Las reglas automáticas de EspoCRM permiten distribuir contactos potenciales | Asignación por turnos con auditoría y concurrencia | Esas herramientas figuran en el paquete avanzado de EspoCRM; nuestra regla es independiente |
+| Administrador de entidades, campos, relaciones, interfaz de programación y control de cambios simultáneos | Modelo explícito, interfaz de programación estable y edición segura | No copiar componentes internos; adoptar patrones solo cuando resuelvan un requisito |
+
+**Fuentes oficiales revisadas:** [Gestión comercial](https://docs.espocrm.com/user-guide/sales-management/), [Actividades y calendario](https://docs.espocrm.com/user-guide/activities-and-calendar/), [Funciones y permisos](https://docs.espocrm.com/administration/roles-management/), [Tableros](https://docs.espocrm.com/administration/dashboards/), [Informes](https://docs.espocrm.com/user-guide/reports/), [Administrador de entidades](https://docs.espocrm.com/administration/entity-manager/), [Captación desde formularios](https://docs.espocrm.com/administration/web-to-lead/), [Control de cambios simultáneos](https://docs.espocrm.com/user-guide/optimistic-concurrency-control/), [Interfaz de programación](https://docs.espocrm.com/development/api/), [repositorio oficial](https://github.com/espocrm/espocrm). Consulta: 28-09-2026. Las inferencias y las reglas de Pignus de este documento son propuestas propias, no afirmaciones sobre EspoCRM.
+
+## 3. Preguntas que el producto debe responder
+
+- ¿Cuántos registros iniciales registró **cada vendedor** hoy, por semana y por mes? Distinguir quién los cargó de quien quedó como responsable.
+- ¿Cuántos se calificaron como Prospectos, cuántos originaron Oportunidades y en qué etapa están?
+- ¿Cuál fue el último contacto efectivo? ¿Qué acción quedó comprometida y cuándo vence?
+- ¿Cuántos registros iniciales se descartaron y cuántas Oportunidades se perdieron, en qué etapa, por qué motivo y a quién estaban asignados al cerrarse?
+- ¿Cuántas Oportunidades se ganaron comercialmente por vendedor y por período?
+- ¿Qué proporción de la cohorte captada en un mes se ganó a los 30, 60 y 90 días y cuántos siguen abiertos?
+- ¿Qué vendedores, orígenes, zonas y motivos requieren atención, sin incentivar la carga de registros vacíos o duplicados?
+
+La gerencia debe poder abrir cada cifra y ver el conjunto de registros que la produjo, con permisos y filtros coherentes.
+
+## 4. Alcance y límites
+
+**Primera entrega funcional:** usuarios y funciones de acceso; registros iniciales creados manualmente o captados por canales identificados; creador y responsable; asignación; calificación a Prospecto; Oportunidades; gestiones y próxima acción; etapas; resultado Ganada y Perdida con motivo y trazabilidad; auditoría; tableros y exportación autorizada. Todas estas capacidades funcionan dentro de Prospectos Pignus.
+
+**Evolución posible dentro del producto:** jornadas comerciales puerta a puerta, campañas, formularios de captación, referencia o adjunto de propuestas comerciales, objetivos y paneles avanzados. Una visita comercial puede registrarse como gestión; las actividades de campo incluidas en este documento son exclusivamente comerciales.
+
+**Fuera de alcance:** alta y administración de Clientes operativos; contratos, firmas y autorizaciones contractuales; coordinación y ejecución técnicas; relevamientos técnicos; reservas; inventario; cobranza; facturación; comisiones; motor de presupuestos/precios; envío automático de WhatsApp; geolocalización continua o vigilancia del personal. Se registra solamente una referencia comercial a la propuesta cuando exista. Ninguno de esos procesos es requisito para usar Prospectos Pignus o cerrar una Oportunidad.
+
+## 5. Lenguaje común y entidades
+
+| Entidad | Significado y vínculo mínimo |
+| --- | --- |
+| Usuario | Identidad autenticada; puede tener funciones de acceso múltiples y estado de elegibilidad para recibir registros iniciales |
+| Registro inicial | Ingreso no calificado; origen, fecha, creador y responsable asignado o Sin asignar |
+| Prospecto | Registro inicial contactado y calificado con posibilidad comercial real; conserva `id_registro_inicial` e identidad propia |
+| Identidad prospectada | Nombre de persona o empresa y datos de contacto necesarios para el seguimiento; no crea un Cliente operativo |
+| Ubicación comercial | Dirección o zona de interés para la oportunidad, cuando se conoce; no crea un domicilio operativo |
+| Oportunidad | Necesidad comercial concreta de un Prospecto; tiene responsable, etapa, posible ubicación e historial |
+| Gestión | Interacción o intento registrado: llamada, WhatsApp, visita, reunión, correo electrónico, tarea, nota; resultado y fecha |
+| Próxima acción | Compromiso de seguimiento con dueño, plazo, estado y relación a registro inicial/Prospecto/Oportunidad |
+| Evento de etapa | Transición inmutable con estado previo/nuevo, fecha, actor, motivo y versión |
+| Pérdida | Evento de cierre perdido con motivo normalizado, etapa al perder y observación opcional |
+| Reasignación | Cambio autorizado de responsable; conserva responsable anterior y siguiente |
+| Resultado comercial | Ganada, Perdida o reactivación; indica desenlace de prospección, no situación contractual u operativa |
+| Auditoría | Rastro inmutable de cambios relevantes, diferente de la nota libre del vendedor |
+
+**Relaciones esenciales:** registro inicial 0..1 Prospecto; Prospecto 0..N Oportunidades; Oportunidad 0..N Gestiones y eventos de etapa; cada Oportunidad abierta tiene exactamente un Responsable Comercial Principal. Una visita puerta a puerta puede no producir un registro inicial. Una Oportunidad perdida reactivada conserva su cierre anterior y genera un nuevo ciclo medible; una necesidad sustancialmente nueva exige otra Oportunidad.
+
+Los nombres conceptuales no obligan a nombres físicos específicos; diseñar el modelo de datos del proyecto nuevo según estas invariantes.
+
+## 6. Captación, calificación y asignación
+
+1. Al crear un registro inicial registrar `creado_en` del servidor, `creado_por`, `origen`, identificador estable e identificador externo y clave para evitar duplicados por reintentos si proviene de importación. Si lo crea un vendedor para sí, `creado_por` y responsable inicial coinciden; en entradas centrales pueden diferir.
+2. Datos mínimos para convertirlo a Prospecto: nombre o razón social, teléfono, dirección, primer contacto y evaluación de posibilidad real. Un registro inicial preliminar puede tener datos incompletos; el tablero de carga separa **brutos** y **válidos**, con reglas visibles. Evitar métricas que recompensen duplicados o fichas vacías.
+3. Primer contacto significa interacción efectiva con respuesta humana; intento sin respuesta se registra como gestión, pero no califica automáticamente el registro inicial. Un registro inicial puede cerrarse como descartado sin volverse Prospecto, con motivo propio y sin contarse como Oportunidad Perdida.
+4. Los registros iniciales de la bandeja común se distribuyen por turnos entre vendedores activos, disponibles y habilitados. Si no hay elegibles, quedan Sin asignar con alerta. Una asignación manual posterior prevalece. La selección y actualización son atómicas y auditadas.
+5. Coincidencias por teléfono, nombre y ubicación advierten posible duplicado y se revisan sin bloquear automáticamente la prospección; una coincidencia de otra cartera no revela la ficha completa al vendedor.
+6. Registrar origen con valores configurables: puerta a puerta, WhatsApp, llamada, sitio web, Instagram, Facebook, oficina, referido, campaña, cliente existente y otro. No sobrescribir el origen histórico al cambiar la atribución comercial.
+
+## 7. Proceso comercial y resultados de prospección
+
+Proceso comercial base de la **Oportunidad**: `Nuevo → Contactado → Necesidad identificada → Propuesta presentada → Seguimiento / Negociación → Ganada / Perdida`. Se permiten saltos justificados y cada transición crea evento. registro inicial, Prospecto y Oportunidad son conceptos distintos. Las etapas describen avance de la **gestión del vendedor**, no procesos contractuales, de coordinación o técnicos. La propuesta puede ser un documento generado fuera del sistema; aquí basta referencia y fecha de presentación.
+
+- **Ganada:** el prospecto confirma al vendedor que acepta la propuesta o desea avanzar con la contratación. Registrar canal de confirmación (llamada, WhatsApp, correo electrónico, presencial u otro), fecha, resumen y actor; adjuntar referencia si existe. Es un **resultado de la oportunidad comercial**, declarado por el vendedor y sujeto a revisión gerencial, sin verificar firma ni cobro. Una propuesta solamente enviada no basta.
+- **Perdida:** motivo obligatorio del catálogo configurable: precio; eligió competencia; no interesado; no responde; fuera de zona; no cumple requisitos; decisión postergada; otro. `Otro` exige explicación. `No responde` exige intentos documentados y plazo configurables. Conservar etapa previa, responsable y fecha del servidor.
+- **Corrección:** si una declaración de Ganada/Perdida fue errónea, el supervisor puede corregirla con motivo y auditoría; el evento original permanece. La corrección se refleja en indicadores con fecha de corte clara.
+- **Reactivación:** una necesidad sustancialmente idéntica puede iniciar otro ciclo de una Oportunidad Perdida, conservando `id_ciclo` y motivo originales. Una nueva necesidad o ubicación requiere otra Oportunidad. No duplicar una Ganada por reabrir la ficha.
+
+El servidor valida estados, motivos y permisos. El tablero no presenta Ganada como venta contratada, facturada, instalada o activa.
+
+## 8. Gestiones y disciplina comercial
+
+Una Gestión registra tipo, resultado, fecha efectiva, fecha de registro, actor, responsable al momento y entidad vinculada. Tipos iniciales: llamada, WhatsApp, visita, reunión, correo electrónico, nota y tarea. Resultados: contacto efectivo, sin respuesta, cita acordada, información enviada, seguimiento pendiente y otro. Las notas internas y tareas administrativas no cuentan como contacto efectivo; una importación retrospectiva se etiqueta para distinguirla de actividad capturada en tiempo real.
+
+Próxima acción: plazo, responsable y estado (`pendiente`, `realizada`, `cancelada`), con evento de finalización. Toda Oportunidad abierta deberá tener próxima acción o excepción justificada (configurable para primer ingreso). Alertas mínimas por seguimiento vencido desde que esta función exista. Mostrar lista diaria, últimos contactos y antigüedad sin gestión; no permitir que editar una descripción reinicie el reloj de actividad.
+
+**Correcciones:** no borrar ni sobrescribir gestiones cerradas sin rastro. Una corrección registra autor, motivo, fecha y relación al evento anterior. Acciones retroactivas se identifican para no manipular indicadores.
+
+## 9. Permisos y privacidad
+
+| Capacidad | Vendedor | Supervisor comercial | Gerencia | Administrador del sistema |
+| --- | --- | --- | --- | --- |
+| Ver oportunidades | Propias y excepciones puntuales | Equipo autorizado | Global según política | Para soporte autorizado |
+| Crear registro inicial y Gestión | Propios | Según alcance | Según alcance | Según alcance |
+| Avanzar etapa y declarar resultado | Propias, con reglas | Corregir con auditoría | Consultar | Configurar reglas, sin atribuirse resultados |
+| Reasignar cartera | Solicitar | Aprobar según política | Según política | Ejecutar cambios autorizados |
+| Métricas | Propias | Equipo | Global | Solo si se autoriza |
+| Exportar datos personales | No por defecto | Autorización explícita | Autorización explícita | Autorización explícita |
+
+Aplicar controles en **cada punto de acceso, consulta y evento**, y seguridad por filas cuando corresponda. Varias funciones de acceso no deben ampliar accidentalmente cartera o acceso a campos. Las excepciones por Oportunidad no dan acceso a toda la cartera anterior. Consultas de duplicados, búsquedas, agregados y exportaciones deben respetar aislamiento. Registrar accesos/descargas sensibles cuando sea pertinente.
+
+## 10. Modelo de eventos y consistencia
+
+Cada cambio crítico añade evento con `id_evento`, `id_registro`, `id_ciclo` cuando aplique, tipo, `ocurrido_en` según el reloj del servidor, expresado en tiempo universal coordinado, `registrado_en`, actor, responsable antes/después, `anterior/nuevo`, motivo, `id_correlacion`, fuente y versión de esquema. Mantener estado actual como proyección para lectura; usar eventos para reconstruir cierres, atribuciones y métricas. No usar notas editables como fuente contable.
+
+Transacciones atómicas para la asignación por turnos, el cambio de responsable y el cierre. Cada reintento de captura debe conservar la clave de operación para evitar duplicados. Control de versión en edición simultánea: ante conflicto, rechazar con estado actual y permitir resolverlo; jamás sobrescribir silenciosamente. Índices y restricciones para claves de reintento único y búsqueda de posibles duplicados. Reintentos de captura o guardado deben producir una sola consecuencia; los errores quedan visibles y recuperables para usuarios autorizados.
+
+**Autonomía de datos:** Prospectos Pignus crea y gobierna sus propios registros y eventos. Las referencias o adjuntos de propuestas comerciales tienen permisos propios y no sustituyen un sistema de presupuestación.
+
+## 11. Métricas: contrato semántico
+
+**Zona horaria de negocio:** `America/Argentina/Cordoba`. Guardar fechas y horas en tiempo universal coordinado; filtrar días y meses por límites locales `[inicio, fin)`. Nunca agrupar por zona horaria del navegador. Los filtros básicos son rango, vendedor, equipo, origen, zona y estado; toda tarjeta abre su detalle y exporta solo con permiso.
+
+| Indicador | Numerador / regla | Denominador / atribución |
+| --- | --- | --- |
+| Registros iniciales cargados por día | Registros iniciales creados en el día, incluso si se reasignan | Atribuir a `creado_por`; excluir duplicados anulados de la vista **válidos** sin borrar el bruto |
+| Prospectos calificados | registros iniciales convertidos a Prospecto durante período | Atribuir responsable al momento del evento; mantener creador como dimensión independiente |
+| Oportunidades creadas | Primer ciclo creado en período | Una por necesidad concreta; no contar visitas ni gestiones |
+| Ganadas del período | Primer resultado Ganada declarado y vigente ocurrido en período | Atribuir responsable **al cierre**; una vez por ciclo de oportunidad |
+| Perdidas del período | Eventos de cierre perdido del período, separados por ciclo | Atribuir responsable al cierre y etapa previa; no incluir registros iniciales descartados |
+| Conversión de cohorte de Oportunidades | Cohorte de Oportunidades creada en período que alcanzó el cierre Ganada hasta fecha de corte | Todas las Oportunidades de la cohorte, incluidas abiertas; mostrar corte y maduración |
+| Tasa de cierre ganado | Ganadas del período | Ganadas + Perdidas del período (solo cierres); nunca llamarla conversión de cohorte |
+| Conversión de captación | Registros iniciales válidos captados en la cohorte que originaron alguna Oportunidad Ganada hasta corte | Registros iniciales válidos de la cohorte; deduplicar por registro inicial incluso si hay varias Oportunidades |
+| Pérdidas por motivo | Cierres perdidos del período/ciclo con cada motivo | Todos los cierres perdidos del mismo conjunto; categoría desconocida solo para datos migrados |
+| Sin primera gestión | Registros iniciales sin contacto efectivo | Registros iniciales creados y asignados, con tiempo desde asignación |
+| Seguimientos vencidos | Acciones pendientes cuyo plazo es anterior a ahora | Contar acciones y registros distintos por separado |
+| Inactividad | Oportunidades abiertas sin contacto efectivo durante `cantidad_de_dias` días | `cantidad_de_dias` configurable (inicial sugerido: 5 días); distinguir nunca contactadas |
+| Tiempo a primera gestión | Instante de primer contacto efectivo menos asignación | Mediana y percentiles, excluyendo aún no contactados pero mostrando su cantidad |
+| Tiempo hasta cierre | Hito de cierre menos creación de Oportunidad | Separar ganadas y perdidas; mediana además de promedio |
+| Correcciones de resultado | Cierres corregidos durante el período | Mostrar resultado original y vigente; explicar el ajuste sin borrar historia |
+
+**Reglas de reporte:** `Ganadas / registros iniciales captados en el mismo mes` no es una tasa de conversión válida cuando las cohortes difieren. Mostrar simultáneamente **actividad del mes**, **cierres del mes** y **conversión por cohorte con corte a los 30, 60 y 90 días**. Para cohorte reciente, indicar `en curso` y no comparar como definitiva con una cohorte madura. En vistas por vendedor distinguir atribución de captación (`creado_por`), dueño al momento de calificar y dueño al cierre; reasignaciones no reescriben resultados históricos. Filtros combinados se aplican con definiciones estables y constan en la exportación. Si denominador es cero, mostrar `—`, no 0%.
+
+**Ejemplo inventado para verificar fórmulas, no dato real:** en septiembre se captan 100 registros iniciales válidos, nacen 60 Oportunidades, se cierran 12 ganadas y 18 perdidas (sin importar su mes de creación). Tasa de cierre ganado de septiembre = `12/(12+18)=40%`. La conversión de la cohorte de 60 Oportunidades de septiembre se calcula mirando **solo esas 60** a una fecha de corte; no se puede deducir del 40%.
+
+## 12. Interfaces mínimas
+
+**Vendedor, móvil:** crear registro inicial en pocos pasos, detectar coincidencia sin revelar otra cartera, ver cartera y acciones de hoy, registrar gestión con resultado y próxima acción, ver proceso comercial e historial, solicitar reasignación y corregir un resultado según permisos. Mostrar estado de sincronización y evitar doble envío.
+
+**Supervisor y gerente, escritorio:** tablero con filtros y fecha de corte, carga diaria por creador, embudo por cohortes, evolución por vendedor, motivos de pérdida, cartera sin contacto y seguimientos vencidos; cada indicador abre lista verificable. Comparar equipos teniendo en cuenta volumen y antigüedad de cohortes. Permitir anotaciones de decisiones gerenciales fuera de los eventos de negocio.
+
+**Supervisor:** bandeja Sin asignar, revisión de posibles duplicados, reasignaciones, correcciones justificadas e historial de auditoría. Las funciones visibles son orientativas; el servidor determina los permisos.
+
+## 13. Criterios de aceptación prioritarios
+
+1. **Carga diaria:** un registro inicial creado por A a las 23:55 de Córdoba aparece en el día local correcto; si luego se asigna a B, la carga de A no cambia.
+2. **Brutos y válidos:** un registro inicial incompleto cuenta en bruto, no en captación válida; completarlo no altera su fecha original.
+3. **Calificación:** un intento sin respuesta no crea Prospecto. Contacto efectivo, posibilidad real y datos mínimos sí permiten calificar conservando el registro inicial.
+4. **Pérdida:** no se cierra una Oportunidad sin motivo; `Otro` exige detalle. Quedan etapa y responsable al cierre.
+5. **Ganada:** propuesta enviada sin respuesta no gana. Confirmación del prospecto registrada con canal y resumen sí cierra la oportunidad una sola vez; no exige contrato.
+6. **Autonomía:** crear, gestionar, ganar, perder y reportar funciona con datos y reglas propios del producto.
+7. **Corrección:** un resultado corregido conserva el evento original, registra actor/motivo y ajusta la vista vigente sin reescribir historia.
+8. **Cohorte:** cierres en octubre de Oportunidades creadas en septiembre actualizan la cohorte septiembre, no el denominador de octubre.
+9. **Reasignación:** cambia la bandeja actual; creador, dueño histórico y dueño al cierre se conservan.
+10. **Privacidad:** A no accede a ficha, teléfono, gestiones, adjuntos ni búsquedas de B; posible duplicado solo informa coincidencia y vía de revisión.
+11. **Concurrencia:** dos altas con igual clave de reintento único producen una; asignadores simultáneos no dejan doble dueño; ediciones conflictivas no se pisan.
+12. **Auditoría:** cierre, motivo, corrección y reasignación guardan actor, fecha y evidencia sin borrado ordinario.
+13. **Tablero:** cada cifra coincide con su detalle según rango, zona, atribución y permisos; denominador cero muestra `—`.
+14. **Independencia semántica:** Ganada informa aceptación comercial declarada; no declara contrato, cobro, instalación, activación, reserva técnica ni facturación.
+
+## 14. Entrega incremental
+
+**Paso 0 — diseño del proyecto nuevo:** esquema conceptual, modelo de eventos, contrato de métricas, autorización, experiencia de uso de vendedores y tablero gerencial. Usar este documento como especificación y EspoCRM como referencia de patrones.
+
+**Paso 1 — núcleo comercial:** identidad y permisos, registro inicial, asignación, Prospecto, Oportunidad, gestiones, próxima acción, resultado ganado/perdido, auditoría. Verificar privacidad y concurrencia.
+
+**Paso 2 — métricas gerenciales:** cohortes, atribuciones, motivos, alertas y detalle de cada número. Validar cierres cruzados entre meses con datos sintéticos.
+
+**Paso 3 — evolución autónoma:** captación multicanal, campañas, jornadas comerciales, objetivos, adjuntos y reportes avanzados según necesidades reales.
+
+**Puerta de salida del diseño:** entregar arquitectura propuesta de Prospectos Pignus, esquema, interfaz de programación, matriz de permisos, diccionario de métricas y plan verificable. Registrar decisiones abiertas sin bloquear las funcionalidades autónomas.
+
+## 15. Instrucción reutilizable para Codex
+
+> Diseñá Prospectos Pignus como proyecto nuevo. Usá exclusivamente este documento para sus reglas de negocio y la documentación oficial de EspoCRM como referencia de patrones. No reproduzcas código de EspoCRM. Entregá primero arquitectura propuesta, modelo de datos y eventos, flujo de experiencia de uso, permisos, fórmulas de métricas, decisiones pendientes y plan incremental con verificaciones de privacidad y concurrencia. Ganada es una confirmación comercial registrada por el vendedor y auditable por su supervisor; el producto no implementa contratos ni procesos posteriores de entrega o ejecución.
+
+## 16. Decisiones pendientes de validación gerencial
+
+- Campos mínimos para registrar la confirmación de Ganada y política de revisión de resultados declarados por vendedores.
+- Definición de registro inicial válido y objetivos diarios, tratamiento de duplicados y cargas originadas por administración.
+- Plazo e intentos mínimos para `No responde`, período de alerta y política de próxima acción.
+- Alcance de Supervisor, Gerencia y administrador del sistema; permisos de exportación y retención de datos comerciales.
+- Si se incorporan importaciones históricas, cómo representar fechas, responsables y motivos desconocidos sin fabricar datos.
+
+**Fin.**
