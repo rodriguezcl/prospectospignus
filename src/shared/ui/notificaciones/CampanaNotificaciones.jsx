@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { mostrarFecha } from "../domain/circuito.js";
+const mostrarFecha = (fecha) =>
+  new Intl.DateTimeFormat("es-AR", {
+    dateStyle: "short",
+    timeStyle: "short",
+    timeZone: "America/Argentina/Cordoba",
+  }).format(new Date(fecha));
 export function CampanaNotificaciones({ gestion }) {
   const [abierta, abrir] = useState(false);
   const [filas, guardar] = useState([]);
@@ -56,17 +61,14 @@ export function CampanaNotificaciones({ gestion }) {
           <div className="card-body">
             <h2 className="h5">Notificaciones</h2>
             <p>
-              Leer un aviso no resuelve la oportunidad. Actualización cada 30
-              segundos.
+              Leer un aviso no modifica el caso ni la promoción. Actualización
+              cada 30 segundos.
             </p>
             {error && <p role="alert">{error}</p>}
             {!error && !filas.length && <p>No tenés avisos sin leer.</p>}
             {filas.map((n) => (
               <div className="border-bottom py-2" key={n.id}>
-                <Link
-                  to={`/prospectos?id=${n.oportunidad_id}`}
-                  onClick={() => abrir(false)}
-                >
+                <Link to={n.destino} onClick={() => abrir(false)}>
                   {n.mensaje}
                 </Link>
                 <small className="d-block">{mostrarFecha(n.creado_en)}</small>

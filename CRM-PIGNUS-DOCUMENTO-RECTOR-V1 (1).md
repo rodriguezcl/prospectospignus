@@ -226,4 +226,14 @@ La interfaz unifica Prospectos y Oportunidades bajo «Prospectos»: una ficha po
 
 El filtro mensual usa cierre del servidor en Córdoba; para importaciones sin fecha exacta usa el mes conocido, expresamente identificado. No se inventan fechas, condiciones o visitas. Un cierre nuevo de un caso histórico reactivado pertenece al nuevo mes de cierre, sin alterar el resultado original de septiembre. Gestiones y Próximas acciones generales continúan pendientes; el historial y la próxima acción existentes se mantienen en la ficha.
 
+## 20. Promociones y simplificación del menú
+
+Se retiran los accesos independientes Gestiones y Próximas acciones, sin borrar el historial ni los compromisos de las fichas de Prospectos. Los enlaces antiguos llevan a Prospectos.
+
+Promociones comunica información oficial del administrador al equipo: título, descripción, condiciones/precios/bonificaciones, vigencia inclusiva por fechas de Córdoba y destinatarios (vendedores, agentes o ambos). Administración crea borradores, edita, publica y archiva; vendedores/agentes consultan y descargan únicamente publicaciones dirigidas a su rol. Al publicar se generan avisos internos persistentes para los destinatarios activos. Volver a borrador o archivar retira inmediatamente la consulta del equipo. Editar una publicación requiere pasarla a borrador y volver a publicarla; no se sobrescriben condiciones de ventas anteriores.
+
+Adjuntos privados: PDF, JPG/JPEG, PNG y WebP, hasta 20 MB cada uno y diez adjuntos no retirados por promoción. No se aceptan SVG, HTML ni ejecutables. Los archivos pendientes de transferencia bloquean la publicación; confirmar una carga verifica su existencia, MIME y tamaño en Storage. La validación de firma en navegador ayuda a detectar errores, pero no constituye análisis antivirus. Los adjuntos no se sobrescriben: se retiran lógicamente y sus cambios conservan auditoría. Su eliminación física no forma parte de esta entrega.
+
+La lista inicial muestra vigentes; próximas y vencidas tienen filtros y etiquetas explícitos. Las publicaciones vencidas siguen disponibles para consulta histórica de sus destinatarios; nunca se presentan como oferta vigente. Las descargas requieren sesión y permisos actuales, sin enlaces públicos. No puede revocarse una copia ya descargada por un usuario autorizado. No hay envíos a clientes, motor de precios ni cambios automáticos de estados comerciales.
+
 **Fin.**

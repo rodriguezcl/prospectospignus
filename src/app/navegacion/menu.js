@@ -29,14 +29,9 @@ export const menu = [
         icono: "bi-check-circle-fill",
       },
       {
-        ruta: "/gestiones",
-        titulo: "Gestiones",
-        icono: "bi-chat-left-text-fill",
-      },
-      {
-        ruta: "/acciones",
-        titulo: "Próximas acciones",
-        icono: "bi-calendar-check-fill",
+        ruta: "/promociones",
+        titulo: "Promociones",
+        icono: "bi-megaphone-fill",
       },
     ],
   },

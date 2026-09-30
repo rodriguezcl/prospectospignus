@@ -5,8 +5,8 @@ import { MenuLateral } from "../../shared/ui/navegacion/MenuLateral.jsx";
 import { BarraSuperior } from "../../shared/ui/layout/BarraSuperior.jsx";
 import { PiePagina } from "../../shared/ui/layout/PiePagina.jsx";
 import { Link } from "react-router-dom";
-import { CampanaNotificaciones } from "../../features/oportunidades/index.js";
-import { oportunidades } from "../configuracion/servicios.js";
+import { CampanaNotificaciones } from "../../shared/ui/notificaciones/CampanaNotificaciones.jsx";
+import { avisos } from "../configuracion/servicios.js";
 import {
   esAdministrador,
   useSesion,
@@ -130,7 +130,7 @@ export function LayoutComercial() {
         <BarraSuperior
           cuenta={
             <div className="cuenta-barra">
-              <CampanaNotificaciones key={perfil.id} gestion={oportunidades} />
+              <CampanaNotificaciones key={perfil.id} gestion={avisos} />
               <Link to="/mi-cuenta">
                 {perfil.nombre} ·{" "}
                 {perfil.rol === "administrador"

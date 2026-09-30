@@ -6,8 +6,7 @@ import { accesosInicio } from "../navegacion/menu.js";
 import { RegistrosInicialesPagina } from "../../features/registros-iniciales/index.js";
 import { OportunidadesPagina } from "../../features/oportunidades/index.js";
 import { VentasPagina } from "../../features/ventas/index.js";
-import { GestionesPagina } from "../../features/gestiones/index.js";
-import { ProximasAccionesPagina } from "../../features/proximas-acciones/index.js";
+import { PromocionesPagina } from "../../features/promociones/index.js";
 import { SupervisionPagina } from "../../features/supervision/index.js";
 import { InformesPagina } from "../../features/informes/index.js";
 import { ConfiguracionPagina } from "../../features/configuracion/index.js";
@@ -24,6 +23,7 @@ import {
   resumenInicio,
   oportunidades,
   ventas,
+  promociones,
 } from "../configuracion/servicios.js";
 import { AccesoProtegido } from "./AccesoProtegido.jsx";
 
@@ -89,8 +89,24 @@ export function RutasAplicacion() {
               <VentasPagina key={perfil?.id} gestion={ventas} perfil={perfil} />
             }
           />
-          <Route path="gestiones" element={<GestionesPagina />} />
-          <Route path="acciones" element={<ProximasAccionesPagina />} />
+          <Route
+            path="promociones"
+            element={
+              <PromocionesPagina
+                key={perfil?.id}
+                gestion={promociones}
+                perfil={perfil}
+              />
+            }
+          />
+          <Route
+            path="gestiones"
+            element={<Navigate to="/prospectos" replace />}
+          />
+          <Route
+            path="acciones"
+            element={<Navigate to="/prospectos" replace />}
+          />
           <Route path="mi-cuenta" element={<MiCuentaPagina />} />
           <Route element={<AccesoProtegido soloAdministrador />}>
             <Route

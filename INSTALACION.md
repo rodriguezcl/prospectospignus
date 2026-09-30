@@ -62,6 +62,20 @@ resultados. Fecha exacta, visita, canal y condiciones desconocidas permanecen
 sin informar. Probar filtros, paginación, enlace al historial y móvil con sesión
 real. Las pruebas automatizadas utilizan exclusivamente una base local efímera.
 
+## Promociones — activación
+
+Antes de desplegar esta entrega, aplicar una sola vez y en este orden:
+
+1. `supabase/migrations/202609300011_promociones.sql`.
+2. `supabase/storage/promociones.sql` (requiere Storage de Supabase).
+
+**Ambos scripts aplicados en `sjoounysrvxreazgbjkv` el 30/09/2026. No repetirlos en ese proyecto.** Verificados bucket privado, límite de 20 MB, cuatro MIME permitidos, siete políticas de Storage, RLS en las cuatro tablas y ausencia de ejecución anónima de la RPC. La carga/descarga completa con sesión de la aplicación sigue pendiente de prueba; no se publicaron promociones de prueba al equipo.
+El segundo crea el bucket privado `promociones`; si ya existe, detenerse y revisar su origen en lugar de sobrescribirlo. No requiere nuevas claves ni permisos de administrador en el navegador. La app usa la sesión existente. La documentación oficial del modelo privado y descarga autenticada está en https://supabase.com/docs/guides/storage/buckets/fundamentals.
+
+Prueba de aceptación real posterior: como administrador crear borrador, cargar un PDF y una imagen conocidos, publicar para agentes y comprobar aviso y descarga con agente; el vendedor no debe ver ficha, archivo ni aviso. Publicar para ambos y verificar vendedor. Archivar/revertir a borrador debe bloquear futuras descargas del equipo, incluso con la ruta conocida. Probar cuenta inactiva, anónimo, archivo mayor a 20 MB, tipos no permitidos, interrupción de carga y reintento. Comprobar también móvil, navegación y el historial de Prospectos después de retirar los dos accesos.
+
+Los archivos incompletos o retirados permanecen asociados al historial; no se eliminan automáticamente ni se promete liberar almacenamiento al archivar. Cualquier purga física futura requiere alcance y autorización explícitos, usando la API de Storage, nunca borrando filas de `storage.objects` directamente. La cuenta o plan de Supabase puede imponer cuotas adicionales. Una copia descargada no se puede revocar.
+
 ## Plantilla
 
 - Documentación: https://zuramai.github.io/mazer/docs/index.html
