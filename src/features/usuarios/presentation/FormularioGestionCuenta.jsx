@@ -94,6 +94,7 @@ export function FormularioGestionCuenta({
                   defaultValue={cuenta.rol}
                 >
                   <option value="vendedor">Vendedor</option>
+                  <option value="agente">Agente</option>
                   <option value="administrador">Administrador</option>
                 </select>
                 <small>

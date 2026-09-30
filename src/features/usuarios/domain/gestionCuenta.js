@@ -21,7 +21,7 @@ export function validarGestionCuenta({ id, version, accion, ...datos }) {
       datos.nombre.trim().length > 100
     )
       throw new Error("El nombre debe tener entre 2 y 100 caracteres.");
-    if (!["administrador", "vendedor"].includes(datos.rol))
+    if (!["administrador", "vendedor", "agente"].includes(datos.rol))
       throw new Error("Seleccioná un rol válido.");
     cambios.nombre = datos.nombre.trim();
     cambios.rol = datos.rol;

@@ -58,7 +58,7 @@ export function crearManejador({
         typeof clave !== "string" ||
         clave.length < 10 ||
         clave.length > 128 ||
-        !["administrador", "vendedor"].includes(rol)
+        !["administrador", "vendedor", "agente"].includes(rol)
       )
         return responder(400, { error: "Datos de cuenta inválidos." });
       const usuario = await crearCuenta({

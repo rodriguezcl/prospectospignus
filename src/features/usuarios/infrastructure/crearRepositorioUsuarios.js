@@ -21,6 +21,8 @@ export function crearRepositorioUsuarios(cliente) {
       });
       if (!error) return;
       const mensajes = {
+        CUENTA_TRABAJO_PENDIENTE:
+          "Reasigná sus oportunidades abiertas antes de cambiar el rol o desactivar la cuenta.",
         CUENTA_ACCESO: "Solo un administrador activo puede gestionar cuentas.",
         CUENTA_DATOS: "Revisá los datos de la cuenta.",
         CUENTA_MOTIVO: "Ingresá un motivo de entre 5 y 500 caracteres.",

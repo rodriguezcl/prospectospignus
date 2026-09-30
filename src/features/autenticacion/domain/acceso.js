@@ -1,4 +1,5 @@
 export const roles = Object.freeze({
+  agente: "agente",
   administrador: "administrador",
   vendedor: "vendedor",
 });

@@ -9,11 +9,24 @@ const cuenta = {
   rol: "vendedor",
 };
 
+test("administración puede crear Agente; Agente no puede crear cuentas", async () => {
+  const { manejar, creadas } = preparar();
+  assert.equal(
+    (await manejar(solicitud({ ...cuenta, rol: "agente" }))).status,
+    201,
+  );
+  assert.equal(creadas[0].rol, "agente");
+  const restringido = preparar({ perfil: { activo: true, rol: "agente" } });
+  assert.equal((await restringido.manejar(solicitud(cuenta))).status, 403);
+});
+
 test("servidor admite contraseñas de 10 a 128 caracteres", async () => {
   for (const longitud of [9, 10, 11, 12, 128, 129]) {
     const { manejar, creadas } = preparar();
     const valida = longitud >= 10 && longitud <= 128;
-    const respuesta = await manejar(solicitud({ ...cuenta, clave: "a".repeat(longitud) }));
+    const respuesta = await manejar(
+      solicitud({ ...cuenta, clave: "a".repeat(longitud) }),
+    );
     assert.equal(respuesta.status, valida ? 201 : 400);
     assert.equal(creadas.length, valida ? 1 : 0);
   }

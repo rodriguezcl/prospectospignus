@@ -13,6 +13,8 @@ test("solo perfiles activos con rol conocido tienen acceso", () => {
   ])
     assert.equal(tieneAcceso(perfil), false);
   assert.equal(tieneAcceso({ activo: true, rol: "vendedor" }), true);
+  assert.equal(tieneAcceso({ activo: true, rol: "agente" }), true);
+  assert.equal(esAdministrador({ activo: true, rol: "agente" }), false);
   assert.equal(esAdministrador({ activo: true, rol: "vendedor" }), false);
   assert.equal(esAdministrador({ activo: true, rol: "administrador" }), true);
 });

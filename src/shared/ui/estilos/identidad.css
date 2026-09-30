@@ -247,3 +247,26 @@ footer,
   width: min(100%, 360px);
   padding: 8px 12px 18px;
 }
+.notificaciones {
+  position: relative;
+}
+.notificaciones-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: min(390px, 90vw);
+  max-height: 70vh;
+  overflow-y: auto;
+  z-index: 1050;
+}
+.texto-con-saltos {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 767px) {
+  .notificaciones-panel {
+    position: fixed;
+    top: 80px;
+    right: 5vw;
+  }
+}

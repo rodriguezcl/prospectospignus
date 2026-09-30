@@ -22,6 +22,7 @@ import {
   usuarios,
   registros,
   resumenInicio,
+  oportunidades,
 } from "../configuracion/servicios.js";
 import { AccesoProtegido } from "./AccesoProtegido.jsx";
 
@@ -54,8 +55,22 @@ export function RutasAplicacion() {
               />
             }
           />
-          <Route path="prospectos" element={<ProspectosPagina />} />
-          <Route path="oportunidades" element={<OportunidadesPagina />} />
+          <Route
+            path="prospectos"
+            element={
+              <ProspectosPagina key={perfil?.id} gestion={oportunidades} />
+            }
+          />
+          <Route
+            path="oportunidades"
+            element={
+              <OportunidadesPagina
+                key={perfil?.id}
+                gestion={oportunidades}
+                perfil={perfil}
+              />
+            }
+          />
           <Route path="gestiones" element={<GestionesPagina />} />
           <Route path="acciones" element={<ProximasAccionesPagina />} />
           <Route path="mi-cuenta" element={<MiCuentaPagina />} />

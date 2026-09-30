@@ -1,6 +1,7 @@
-# Prospectos Pignus — Documento rector V1.4
+# Prospectos Pignus — Documento rector V1.5
 
-**Fecha:** 28 de septiembre de 2026  
+**Fecha:** 30 de septiembre de 2026
+
 **Estado:** especificación de producto autónomo para análisis y desarrollo.  
 **Idioma del documento y del producto:** español en pantallas, estados, mensajes, ayuda, informes, especificaciones, nombres de dominio e identificadores nuevos de código y datos. Se permiten únicamente nombres propios, direcciones de fuentes y convenciones técnicas externas que no controla el proyecto (por ejemplo, el identificador oficial de zona horaria).  
 **Propósito:** construir desde cero **Prospectos Pignus**, sistema de prospección y desarrollo de oportunidades de venta por vendedor, diseñado a partir de necesidades del equipo comercial y de patrones documentados de EspoCRM.
@@ -192,5 +193,19 @@ Transacciones atómicas para la asignación por turnos, el cambio de responsable
 - Plazo e intentos mínimos para `No responde`, período de alerta y política de próxima acción.
 - Alcance de Supervisor, Gerencia y administrador del sistema; permisos de exportación y retención de datos comerciales.
 - Si se incorporan importaciones históricas, cómo representar fechas, responsables y motivos desconocidos sin fabricar datos.
+
+## 17. Criterio confirmado: Agente, visita y recuperación (30-09-2026)
+
+El rol Agente recibe contactos, califica registros y coordina visitas con vendedores activos. El vendedor también puede captar y calificar registros propios. La calificación exige respuesta humana, teléfono, dirección y posibilidad comercial concreta; conserva el registro original y crea un Prospecto con identidad propia.
+
+Una oportunidad tiene un responsable actual y conserva captador, vendedor de visita y responsable del cierre. El vendedor registra el resultado de la visita, las condiciones finales ofrecidas y las objeciones: no se exige registrar ofertas A/B/C ni una cantidad de ofertas. Las bonificaciones y negociaciones presenciales son parte de su modalidad comercial.
+
+Derivar a recuperación conserva la misma oportunidad abierta. Se asigna al agente activo y disponible con menos recuperaciones pendientes, con desempate aleatorio. La disponibilidad se declara explícitamente; no significa conexión al navegador. Si no hay agentes operativos, queda en la bandeja común pendiente de asignación, excepción controlada al responsable obligatorio. Agentes y administración ven esa bandeja y pueden solicitar distribución; no pueden apropiarse de casos asignados a otro agente. Administración puede reasignar con motivo.
+
+El agente registra una propuesta final y el resultado: aceptación comercial (Ganada), rechazo final justificado (Perdida) o seguimiento con fecha. Una visita no realizada se reprograma; ausencia de respuesta no implica pérdida. No se habilita pérdida por «no responde» hasta definir sus umbrales. Las pérdidas irreversibles anteriores a recuperación requieren justificación. Ganada exige canal, fecha y resumen de aceptación; no significa instalación realizada ni incorpora gestión operativa.
+
+Las notificaciones internas persistentes avisan de asignación de visita y recuperación. Marcar leída no resuelve la oportunidad. Estado, responsable, historial y notificación se guardan juntos con versión y clave de reintento. No se promete aviso externo ni con el navegador cerrado.
+
+Agente no administra cuentas ni consulta indiscriminadamente carteras de vendedores. Accede a oportunidades propias y a la cola de recuperación; el vendedor participante conserva acceso de lectura a su oportunidad después de derivarla. Los indicadores de cierres cuentan una oportunidad una vez y distinguen captación, visita y cierre. Las cuentas con responsabilidad abierta no pueden cambiar de rol ni desactivarse hasta reasignar sus casos. El administrador actual cumple la supervisión comercial autorizada, sin crear roles adicionales en esta entrega.
 
 **Fin.**

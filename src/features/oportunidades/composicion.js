@@ -1,0 +1,4 @@
+import { crearGestionOportunidades } from "./application/crearGestionOportunidades.js";
+import { crearRepositorioOportunidades } from "./infrastructure/crearRepositorioOportunidades.js";
+export const componerOportunidades = (cliente) =>
+  crearGestionOportunidades(crearRepositorioOportunidades(cliente));

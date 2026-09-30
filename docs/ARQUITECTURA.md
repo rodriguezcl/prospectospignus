@@ -57,6 +57,10 @@ Menú móvil con foco inicial, contención de Tab, Escape, fondo inerte y restau
 
 ## Verificación y evolución
 
+El circuito de calificación, visita y recuperación pertenece a `oportunidades`, con dominio puro, casos de uso y adaptador RPC. La página de consulta `prospectos` recibe el puerto de lectura desde `app`, sin importar internals de otra feature. La calificación crea un Prospecto independiente y una oportunidad por necesidad. Los eventos de oportunidad representan las gestiones de esta entrega; las pantallas generales de Gestiones y Próximas acciones no se reemplazan por un segundo almacenamiento. La próxima acción y el historial se consultan en Oportunidades.
+
+La migración 006 extiende Agente en perfiles, altas y gestión de cuentas, conserva el bloqueo compartido de cambios de elegibilidad y agrega protección de cuentas con actividad. RLS restringe carteras y habilita la cola común de recuperación para agentes. Las escrituras transaccionales requieren versión y UUID de operación; no hay DML directo desde el navegador. La campana consulta avisos persistentes cada 30 segundos y al recuperar foco; no usa notificaciones push externas. Las lecturas paginadas y los errores de migración pendiente son explícitos.
+
 Ejecutar `npm run build`, `npm test` y cualquier lint que exista. Verificar rutas, atrás/adelante, refresh, 404, consola y layout a diferentes anchos. No hay lint configurado todavía. Probar reglas sin React y casos de uso sin Supabase cuando aparezcan; evitar tests que solo reproduzcan código.
 
 Antes de cada implementación: identificar dominio, capa, abstracción existente y dirección de dependencias. Documentar excepciones. Preservar cambios preexistentes; no desplegar ni modificar servicios remotos sin alcance autorizado.

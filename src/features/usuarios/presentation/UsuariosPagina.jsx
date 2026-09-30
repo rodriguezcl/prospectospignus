@@ -165,6 +165,7 @@ export function UsuariosPagina({ gestion }) {
                     defaultValue="vendedor"
                   >
                     <option value="vendedor">Vendedor</option>
+                    <option value="agente">Agente</option>
                     <option value="administrador">Administrador</option>
                   </select>
                   <small>El administrador puede crear otras cuentas.</small>
@@ -235,7 +236,9 @@ export function UsuariosPagina({ gestion }) {
                       <td>
                         {cuenta.rol === "administrador"
                           ? "Administrador"
-                          : "Vendedor"}
+                          : cuenta.rol === "agente"
+                            ? "Agente"
+                            : "Vendedor"}
                       </td>
                       <td>{cuenta.activo ? "Activa" : "Inactiva"}</td>
                       <td>
