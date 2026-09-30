@@ -17,11 +17,11 @@ La terminal informa la dirección local. Para generar la distribución: `npm run
 
 Navegación en español, menú adaptable e interfaz comercial inicial. Login con Supabase Auth y roles administrador/vendedor; alta de usuarios reservada al administrador. Para activar la conexión, aplicar las migraciones y desplegar la función según `docs/AUTENTICACION.md`. Sin configuración el acceso permanece bloqueado. Registros iniciales incluye operaciones reales; los demás módulos comerciales continúan como pantallas informativas.
 
-Hay formularios de login, creación de cuentas, cambio de contraseña propio y registros iniciales. React Router usa fragmentos de URL (`#/prospectos`) para permitir recarga y navegación atrás/adelante sin reglas SPA adicionales del servidor. Los enlaces anteriores (`#prospectos`) siguen funcionando. No se realizó despliegue ni configuración remota de Vercel.
+Hay formularios de login, creación de cuentas, cambio de contraseña propio y registros iniciales. React Router usa fragmentos de URL (`#/prospectos`) para permitir recarga y navegación atrás/adelante sin reglas SPA adicionales del servidor. Los enlaces anteriores (`#prospectos`) siguen funcionando. El proyecto Hobby `prospectospignus` en Vercel está conectado a `main`; cada push inicia un despliegue. Los cambios locales no se publican hasta confirmar commit y despliegue.
 
 ## Registros iniciales — primera entrega
 
-Activación: aplicar `supabase/migrations/202609290003_registros_iniciales.sql` después de las dos migraciones de acceso. Aplicada y verificada en el proyecto `sjoounysrvxreazgbjkv` el 29/09/2026 (tres tablas con RLS, sin acceso anónimo ni escrituras directas para authenticated, y 11 orígenes). No repetirla en ese proyecto. En instalaciones nuevas no se aplica automáticamente al iniciar Vite. Si falta, la pantalla lo informa; no hay persistencia simulada ni datos de demostración. En Windows puede iniciarse con `npm.cmd run dev -- --port 5174 --strictPort`.
+Activación: aplicar `supabase/migrations/202609290003_registros_iniciales.sql` después de las dos migraciones de acceso. Aplicada y verificada en el proyecto `sjoounysrvxreazgbjkv` el 29/09/2026 (tres tablas con RLS, sin acceso anónimo ni escrituras directas para authenticated, y 11 orígenes). No repetirla en ese proyecto. En instalaciones nuevas no se aplica automáticamente al iniciar Vite. Si falta, la pantalla lo informa; no hay persistencia simulada. El lote de demostración autorizado se documenta por separado más abajo. En Windows puede iniciarse con `npm.cmd run dev -- --port 5174 --strictPort`.
 
 - Carga manual con nombre/empresa y origen obligatorios; teléfono, correo, dirección/zona y observaciones opcionales. La ficha preliminar no constituye un Prospecto ni una captación validada para métricas.
 - Vendedor activo: crea para sí y solo lee/edita su cartera. Administrador activo: consulta todas las fichas y asigna manualmente a perfiles activos o deja Sin asignar. No hay acceso anónimo ni escritura directa en tablas desde el navegador.
@@ -33,6 +33,10 @@ Activación: aplicar `supabase/migrations/202609290003_registros_iniciales.sql` 
 Fuera de esta primera entrega: calificación, descarte, advertencias de posibles duplicados, distribución automática por turnos, importaciones, exportaciones y métricas de registros válidos. No se han flexibilizado permisos para anticipar esas funciones.
 
 Verificación: `npm test` ejecuta las migraciones reales en PostgreSQL embebido y cubre aislamiento, perfiles inactivos, reasignación y pérdida de acceso, auditoría, entradas inválidas, reintentos y versiones en conflicto. Después de activar en Supabase, probar con administrador y dos vendedores: crear ficha, editar, filtrar, paginar, abrir URL directa, reasignar con motivo, confirmar que el anterior responsable pierde acceso e intentar una edición simultánea en dos pestañas. Confirmar también móvil, refresh y errores de conexión. Las pruebas locales no sustituyen esta validación real.
+
+## Demostración y resumen mensual
+
+Inicio incorpora el resumen de registros brutos por mes, día, origen y creador, respetando RLS y la zona de Córdoba. Requiere `202609300004_demostracion_y_resumen.sql`, aplicada en el proyecto el 29/09/2026. Datos sintéticos, cuentas sin acceso y procedimiento de limpieza: `docs/DEMOSTRACION.md`. La aplicación sigue usando datos de Supabase; no hay cifras precargadas en la interfaz. Publicar los cambios del frontend es un paso separado de cargar el lote.
 
 ## Plantilla
 

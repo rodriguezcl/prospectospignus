@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { EncabezadoPagina } from "../../../shared/ui/contenido/EncabezadoPagina.jsx";
+import { EstadisticasMensuales } from "./EstadisticasMensuales.jsx";
 
-export function InicioPagina({ accesos }) {
+export function InicioPagina({ accesos, gestion, perfil }) {
   return (
     <>
       <EncabezadoPagina
@@ -15,6 +16,7 @@ export function InicioPagina({ accesos }) {
         }
         descripcion="Organizá tu cartera, registrá tus gestiones y mantené el seguimiento al día."
       />
+      <EstadisticasMensuales gestion={gestion} perfil={perfil} />
       <section className="bienvenida">
         <div>
           <span className="badge bg-white text-primary mb-3">
@@ -54,9 +56,9 @@ export function InicioPagina({ accesos }) {
         <div>
           <strong>Estamos preparando tu espacio comercial</strong>
           <p>
-            La navegación está disponible. Las métricas y los registros
-            aparecerán cuando se conecte el servidor y se configure el acceso de
-            usuarios.
+            Los registros iniciales y su resumen mensual ya están conectados.
+            Calificación, oportunidades y métricas de ventas se incorporarán en
+            las próximas etapas.
           </p>
         </div>
       </div>

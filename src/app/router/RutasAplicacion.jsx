@@ -18,7 +18,11 @@ import {
   useSesion,
 } from "../../features/autenticacion/index.js";
 import { UsuariosPagina } from "../../features/usuarios/index.js";
-import { usuarios, registros } from "../configuracion/servicios.js";
+import {
+  usuarios,
+  registros,
+  resumenInicio,
+} from "../configuracion/servicios.js";
 import { AccesoProtegido } from "./AccesoProtegido.jsx";
 
 export function RutasAplicacion() {
@@ -31,7 +35,14 @@ export function RutasAplicacion() {
           <Route index element={<Navigate to="/inicio" replace />} />
           <Route
             path="inicio"
-            element={<InicioPagina accesos={accesosInicio} />}
+            element={
+              <InicioPagina
+                key={perfil?.id}
+                accesos={accesosInicio}
+                gestion={resumenInicio}
+                perfil={perfil}
+              />
+            }
           />
           <Route
             path="registros"

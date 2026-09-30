@@ -1,5 +1,5 @@
 const campos =
-  "id,nombre,telefono,correo,ubicacion,observaciones,origen,responsable_id,creado_por,creado_en,actualizado_en,version";
+  "id,nombre,telefono,correo,ubicacion,observaciones,origen,responsable_id,creado_por,creado_en,actualizado_en,version,lote_demostracion";
 function comprobar(error) {
   if (!error) return;
   if (["42P01", "PGRST205", "PGRST202"].includes(error.code))

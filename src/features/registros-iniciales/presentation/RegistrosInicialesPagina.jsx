@@ -204,6 +204,13 @@ export function RegistrosInicialesPagina({ gestion, perfil }) {
                     ? "Detalle y edición"
                     : "Crear registro inicial"}
                 </h2>
+                {detalle.lote_demostracion && (
+                  <p className="alert alert-warning">
+                    DEMO · Persona y teléfono ficticios. No contactar. La
+                    dirección es una referencia pública, no un domicilio
+                    personal.
+                  </p>
+                )}
                 {!!detalle.version && (
                   <p>
                     Creado por {nombrePerfil(detalle.creado_por)} ·{" "}
@@ -215,7 +222,7 @@ export function RegistrosInicialesPagina({ gestion, perfil }) {
                   onSubmit={guardar}
                   aria-busy={guardando}
                 >
-                  <fieldset disabled={guardando}>
+                  <fieldset disabled={guardando || !!detalle.lote_demostracion}>
                     <div className="row g-3">
                       {camposRegistro.map((campo) => (
                         <div
@@ -493,7 +500,14 @@ export function RegistrosInicialesPagina({ gestion, perfil }) {
                     <tbody>
                       {lista.registros.map((r) => (
                         <tr key={r.id}>
-                          <td>{r.nombre}</td>
+                          <td>
+                            {r.nombre}{" "}
+                            {r.lote_demostracion && (
+                              <span className="badge bg-warning text-dark">
+                                DEMO
+                              </span>
+                            )}
+                          </td>
                           <td>{r.telefono || "—"}</td>
                           <td>{nombreOrigen(r.origen)}</td>
                           <td>{nombrePerfil(r.responsable_id)}</td>

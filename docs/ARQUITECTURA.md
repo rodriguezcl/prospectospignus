@@ -18,6 +18,8 @@ Registros iniciales recibe el perfil desde la composición de rutas, sin importa
 
 ## Dependencias e imports
 
+`inicio` incorpora dominio, aplicación e infraestructura para el resumen mensual real bajo RLS. La carga sintética explícitamente autorizada se mantiene fuera del frontend y de las migraciones automáticas, en `supabase/demostracion`, con manifiesto y limpieza acotada (ver `docs/DEMOSTRACION.md`). No es un backend simulado.
+
 1. `app` compone las APIs públicas de features y los componentes compartidos. En el futuro conectará también las implementaciones de infraestructura.
 2. `presentation` depende de su aplicación/dominio y de UI compartida; nunca de adaptadores Supabase.
 3. `application` coordina casos de uso y define los puertos externos que estos necesitan; depende del dominio, no de SDK externos.
