@@ -1,11 +1,17 @@
-export function combinarAvisos(oportunidades, promociones) {
+export function combinarAvisos(oportunidades, promociones, agenda) {
   return {
     async notificaciones() {
-      const [comerciales, ofertas] = await Promise.all([
+      const [comerciales, ofertas, actividades] = await Promise.all([
         oportunidades.notificaciones(),
         promociones.notificaciones(),
+        agenda ? agenda.notificaciones() : [],
       ]);
       return [
+        ...actividades.map((n) => ({
+          ...n,
+          id: `agenda:${n.id}`,
+          destino: `/agenda?id=${n.actividad_id}`,
+        })),
         ...comerciales.map((n) => ({
           ...n,
           id: `caso:${n.id}`,
@@ -22,6 +28,7 @@ export function combinarAvisos(oportunidades, promociones) {
     },
     leer(id) {
       const [tipo, numero] = id.split(":");
+      if (tipo === "agenda") return agenda.leer(numero);
       return tipo === "promo"
         ? promociones.leer(numero)
         : oportunidades.leer(numero);

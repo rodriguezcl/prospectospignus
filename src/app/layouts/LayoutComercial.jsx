@@ -16,9 +16,14 @@ export function LayoutComercial() {
   const { perfil, acceso } = useSesion();
   const [errorSalida, cambiarErrorSalida] = useState("");
   const [saliendo, cambiarSaliendo] = useState(false);
-  const menuPermitido = menu.filter(
-    (grupo) => !grupo.soloAdministrador || esAdministrador(perfil),
-  );
+  const menuPermitido = menu
+    .filter((grupo) => !grupo.soloAdministrador || esAdministrador(perfil))
+    .map((grupo) => ({
+      ...grupo,
+      elementos: grupo.elementos.filter(
+        (e) => !e.roles || e.roles.includes(perfil.rol),
+      ),
+    }));
   async function salir() {
     cambiarSaliendo(true);
     cambiarErrorSalida("");

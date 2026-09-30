@@ -1,0 +1,115 @@
+.agenda-controles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.agenda-controles label {
+  flex: 1 1 200px;
+}
+.agenda-formulario {
+  border: 1px solid var(--bs-primary, #133e20);
+}
+.agenda-referencia {
+  border-left: 4px solid #39784b;
+  padding: 0.7rem 1rem;
+  background: #eaf4ed;
+  color: #133e20;
+  border-radius: 0.4rem;
+}
+.agenda-timeline {
+  list-style: none;
+  padding: 0;
+  position: relative;
+}
+.agenda-timeline::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  border-left: 2px dashed #94b29c;
+}
+.agenda-hito {
+  width: 50%;
+  padding-right: 1.6rem;
+  position: relative;
+}
+.agenda-hito:nth-child(even) {
+  margin-left: 50%;
+  padding-right: 0;
+  padding-left: 1.6rem;
+}
+.agenda-hito::before {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  right: -8px;
+  top: 1.4rem;
+  background: #39784b;
+  border: 3px solid #eaf4ed;
+}
+.agenda-hito:nth-child(even)::before {
+  left: -6px;
+  right: auto;
+}
+.agenda-hito .card {
+  border: 1px solid #d8e5dc;
+  margin-bottom: 1.2rem;
+}
+.agenda-en_curso .card {
+  border-left: 4px solid #39784b;
+}
+.agenda-cancelada .card {
+  border-left: 4px solid #747b77;
+}
+.agenda-ahora {
+  position: relative;
+  text-align: center;
+  background: #eaf4ed;
+  color: #133e20;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+.agenda-texto {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.agenda-semana {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
+  gap: 1.25rem;
+}
+.agenda-semana .agenda-hito {
+  width: 100%;
+  margin-left: 0;
+  padding-left: 1.4rem;
+  padding-right: 0;
+}
+.agenda-semana .agenda-timeline::before {
+  left: 5px;
+}
+.agenda-semana .agenda-hito::before {
+  left: -1px;
+  right: auto;
+}
+@media (max-width: 767px) {
+  .agenda-hito,
+  .agenda-hito:nth-child(even) {
+    width: 100%;
+    margin-left: 0;
+    padding-left: 1.4rem;
+    padding-right: 0;
+  }
+  .agenda-timeline::before {
+    left: 5px;
+  }
+  .agenda-hito::before,
+  .agenda-hito:nth-child(even)::before {
+    left: -1px;
+    right: auto;
+  }
+}

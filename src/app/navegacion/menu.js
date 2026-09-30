@@ -9,6 +9,12 @@ export const menu = [
         icono: "bi-grid-fill",
       },
       {
+        ruta: "/agenda",
+        titulo: "Agenda",
+        icono: "bi-calendar-week",
+        roles: ["vendedor", "administrador"],
+      },
+      {
         ruta: "/registros",
         titulo: "Registros iniciales",
         icono: "bi-inbox-fill",

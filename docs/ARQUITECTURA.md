@@ -80,3 +80,15 @@ La feature `promociones` incorpora validación pura, coordinación de carga, ada
 Descarga autenticada como Blob, sin URLs públicas ni previsualización ejecutable de documentos. El navegador guarda la copia solicitada; revocar acceso no elimina copias previas. La aplicación comprueba firma/MIME/extensión y el servidor restringe MIME, tamaño y extensión; no ofrece escaneo antivirus. Es necesaria una prueba real del servicio Storage, además de las pruebas SQL sobre su contrato local.
 
 La campana es UI compartida, sin dependencia de features. `app` combina los puertos públicos de avisos comerciales y promociones, normaliza IDs/destinos y limita a 50. No hay imports cruzados entre features. Se retiran las páginas informativas de Gestiones/Próximas acciones y se redirigen sus rutas a Prospectos; no se altera el historial existente.
+
+## Agenda y timeline
+
+`agenda` tiene reglas puras de calendario/franjas, aplicación que valida escrituras, adaptador Supabase y presentación diaria/semanal. Administración consulta el timeline por vendedor; no declara actividad en su nombre. Puede cancelar pendientes con motivo para resolver bajas. Agente coordina exclusivamente desde Prospectos y no consulta anotaciones generales. RLS también protege eventos y consultas paginadas; la visibilidad del menú no es el control de acceso.
+
+La migración 012 incorpora actividades, eventos inmutables y confirmaciones de lectura de recordatorios. Escrituras por RPC con versión y UUID de operación, identidad del servidor y bloqueo compartido 740127 con cuentas/asignación. No hay DML directo del navegador. Cuentas vinculadas conservan historia y cuentas con agenda pendiente deben resolverla antes de desactivarse/cambiar rol.
+
+La integración usa un trigger transaccional sobre eventos comerciales nuevos: crear/reprogramar/reasignar una visita cancela la programación anterior pendiente y genera otra para el vendedor correspondiente, preservando actividades realizadas. No importa internals de oportunidades en JavaScript ni transforma una venta en prueba de una visita realizada. Las fechas comerciales siguen teniendo su único punto de edición en Prospectos. No se reconstruye el histórico ni se retrocargan visitas previas a la activación.
+
+Recordatorios calculados para programaciones propias desde 30 minutos antes hasta 24 horas después; confirmación de lectura por actividad/versión. `app` agrega este puerto a la campana. Consultas cada 30 segundos y al recuperar foco, sin push externo, cron ni seguimiento en segundo plano. Una reprogramación produce una versión o actividad nueva; leer no finaliza. Errores de migración pendiente son explícitos.
+
+Días en Córdoba, rangos semanales de siete días, intervalos sin duplicación en medianoche. La franja 08:00–17:00 es referencial. Vista ordenada, no escala de duración; actividades entre días aparecen en cada día que abarcan y no se suman como actividades distintas en métricas comerciales. No se computan horas trabajadas a partir de duración declarada. La aplicación mantiene el formulario abierto sin sobrescribirlo durante el refresco; un cambio concurrente se rechaza por versión.

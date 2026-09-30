@@ -236,4 +236,18 @@ Adjuntos privados: PDF, JPG/JPEG, PNG y WebP, hasta 20 MB cada uno y diez adjunt
 
 La lista inicial muestra vigentes; próximas y vencidas tienen filtros y etiquetas explícitos. Las publicaciones vencidas siguen disponibles para consulta histórica de sus destinatarios; nunca se presentan como oferta vigente. Las descargas requieren sesión y permisos actuales, sin enlaces públicos. No puede revocarse una copia ya descargada por un usuario autorizado. No hay envíos a clientes, motor de precios ni cambios automáticos de estados comerciales.
 
+## 21. Agenda compartida y timeline diario (criterio confirmado)
+
+Agenda ayuda al vendedor a planificar y registrar su jornada; administración consulta esa misma información como timeline. Se comunica explícitamente que es una agenda laboral compartida, no privada. Son actividades declaradas, no prueba de presencia, geolocalización ni asistencia. Sin anotaciones significa «Sin actividad registrada», no inactividad laboral.
+
+Cada vendedor consulta y gestiona solamente su agenda. Administración ve todas y puede cancelar pendientes con motivo, pero no iniciar ni dar por realizada una actividad en nombre del vendedor. Agente coordina visitas desde Prospectos; esa coordinación aparece automáticamente en la agenda del vendedor sin habilitar acceso a sus notas generales.
+
+Actividades: visita comercial, llamada, puerta a puerta, reunión, traslado, tarea administrativa y otra. Título, nota/lugar, inicio y fin previsto opcional; vínculo comercial opcional que no crea un registro inicial. Se puede programar a futuro o cargar una actividad realizada con inicio, fin y resultado. Estados: Programada, En curso, Realizada y Cancelada. Iniciar registra el horario actual declarado; finalizar exige horarios no futuros y resultado. Una programación vencida muestra «Pendiente de actualizar», sin convertirse automáticamente en realizada o incumplida.
+
+Reprogramaciones, cancelaciones y correcciones conservan motivo e historial; no se elimina la actividad. Se distingue horario previsto, horario declarado, instante de carga del servidor y última modificación. Las visitas coordinadas se reprograman desde Prospectos para no crear calendarios contradictorios. Su sustitución cancela la programación anterior pendiente y conserva el historial de vendedor/horario; no modifica una actividad ya realizada. Registrar o cancelar una actividad de Agenda no gana, pierde ni cambia por sí mismo el estado comercial del prospecto.
+
+08:00–17:00 es solo referencia de gerencia, nunca un bloqueo. Se permiten todos los horarios, incluidos pedidos excepcionales de clientes, sin autorización especial. La vista diaria diferencia realizadas dentro, fuera o abarcando ambas franjas, sin duplicar una misma actividad en ese día. Programaciones no se contabilizan como ejecución; no se infieren horas efectivamente trabajadas. Actividades que cruzan medianoche se muestran en ambos días correspondientes, sin crear otra entidad.
+
+Primera entrega: vista diaria/semanal del vendedor, selección de vendedor y timeline de administración, actualización cada 30 segundos con la plataforma abierta y recordatorios internos en campana. No promete recordatorios con el navegador cerrado. Las nuevas visitas coordinadas a partir de la activación se integran transaccionalmente; no se inventan actividades a partir del histórico de septiembre ni se reconstruyen visitas anteriores.
+
 **Fin.**

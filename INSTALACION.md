@@ -82,3 +82,16 @@ Los archivos incompletos o retirados permanecen asociados al historial; no se el
 - Distribución: https://github.com/zuramai/mazer/releases/tag/v2.3.1
 - Recursos necesarios distribuidos localmente en `public/mazer`.
 - Licencia MIT de Mazer incluida junto a sus recursos. Las personalizaciones se mantienen separadas de los archivos del proveedor.
+## Agenda y timeline — migración 012
+
+Migración `supabase/migrations/202609300012_agenda.sql` aplicada en `sjoounysrvxreazgbjkv` el 30/09/2026, después de 011. No repetirla en ese proyecto. Verificados: tres tablas con RLS, sin ejecución anónima de la RPC ni inserción directa de authenticated, trigger de integración instalado y cero actividades al activar. No requiere Storage ni tareas programadas. No modifica oportunidades existentes ni crea actividades históricas. Las visitas nuevas/reprogramadas desde Prospectos a partir de su activación se incorporan automáticamente.
+
+Pruebas de aceptación con sesiones reales después de activar:
+
+1. Vendedor: programar una visita a las 19:30, cargar una realizada, iniciar/finalizar, corregir con motivo y consultar historial. Comprobar una actividad 16:30–17:30 y otra que cruce medianoche.
+2. Otro vendedor no debe poder consultar ni modificar esos IDs; Agente tampoco. Administrador consulta y puede cancelar pendientes, pero no declarar realización.
+3. Agente coordina una visita desde Prospectos: aparece una sola actividad aunque se reintente. Reprogramar/reasignar conserva el evento anterior y actualiza el vendedor destinatario sin declarar una realización.
+4. Campana: actividad programada próxima (30 minutos) o pendiente reciente (24 horas) genera recordatorio; marcar leído no finaliza. No hay notificación fuera de la plataforma.
+5. Dos pestañas editan la misma versión: la segunda recibe conflicto; conservar los datos del formulario. Verificar agenda diaria/semanal en móvil y escritorio, navegación, recarga y actualización periódica.
+
+Las pruebas automatizadas usan PostgreSQL local aislado y render de componentes; no equivalen a una prueba con sesiones reales del servicio. Resolver/cancelar la agenda pendiente antes de desactivar o cambiar rol de una cuenta. No se borra el historial.

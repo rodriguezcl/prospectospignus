@@ -7,6 +7,7 @@ import { RegistrosInicialesPagina } from "../../features/registros-iniciales/ind
 import { OportunidadesPagina } from "../../features/oportunidades/index.js";
 import { VentasPagina } from "../../features/ventas/index.js";
 import { PromocionesPagina } from "../../features/promociones/index.js";
+import { AgendaPagina } from "../../features/agenda/index.js";
 import { SupervisionPagina } from "../../features/supervision/index.js";
 import { InformesPagina } from "../../features/informes/index.js";
 import { ConfiguracionPagina } from "../../features/configuracion/index.js";
@@ -24,6 +25,7 @@ import {
   oportunidades,
   ventas,
   promociones,
+  agenda,
 } from "../configuracion/servicios.js";
 import { AccesoProtegido } from "./AccesoProtegido.jsx";
 
@@ -40,6 +42,12 @@ export function RutasAplicacion() {
       <Route element={<AccesoProtegido />}>
         <Route element={<LayoutComercial />}>
           <Route index element={<Navigate to="/inicio" replace />} />
+          <Route
+            path="agenda"
+            element={
+              <AgendaPagina key={perfil?.id} gestion={agenda} perfil={perfil} />
+            }
+          />
           <Route
             path="inicio"
             element={

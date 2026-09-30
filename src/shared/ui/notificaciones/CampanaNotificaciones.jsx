@@ -61,8 +61,8 @@ export function CampanaNotificaciones({ gestion }) {
           <div className="card-body">
             <h2 className="h5">Notificaciones</h2>
             <p>
-              Leer un aviso no modifica el caso ni la promoción. Actualización
-              cada 30 segundos.
+              Leer un aviso no modifica el caso, la promoción ni la actividad.
+              Actualización cada 30 segundos.
             </p>
             {error && <p role="alert">{error}</p>}
             {!error && !filas.length && <p>No tenés avisos sin leer.</p>}

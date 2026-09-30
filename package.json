@@ -7,7 +7,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "posttest": "node --test src/features/promociones/domain/promocion.test.js src/features/promociones/presentation/PromocionesPagina.test.js supabase/tests/promociones.test.js",
+    "posttest": "node --test src/features/promociones/domain/promocion.test.js src/features/promociones/presentation/PromocionesPagina.test.js supabase/tests/promociones.test.js src/features/agenda/domain/actividad.test.js src/features/agenda/presentation/AgendaPagina.test.js supabase/tests/agenda.test.js",
     "test": "node --test src/app/router/compatibilidadHash.test.js src/features/autenticacion/domain/acceso.test.js src/features/autenticacion/application/crearAcceso.test.js src/features/usuarios/domain/cuenta.test.js src/features/usuarios/domain/gestionCuenta.test.js src/features/registros-iniciales/domain/registro.test.js src/features/inicio/domain/resumen.test.js src/features/inicio/presentation/GraficoRegistros.test.js src/features/oportunidades/domain/circuito.test.js src/features/oportunidades/presentation/FormularioOportunidad.test.js src/features/ventas/presentation/VentasPagina.test.js supabase/functions/crear-usuario/manejador.test.js supabase/tests/acceso.test.js supabase/tests/registros.test.js supabase/tests/demostracion.test.js supabase/tests/gestion-cuentas.test.js supabase/tests/oportunidades.test.js supabase/tests/historico.test.js"
   },
   "devDependencies": {
