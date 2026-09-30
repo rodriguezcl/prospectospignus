@@ -220,6 +220,8 @@ El responsable activo o administración pueden reactivar una Perdida con motivo 
 
 ## 19. Navegación unificada y ventas concretadas
 
+El acceso independiente «Recuperación comercial» se muestra solo a Agente y Administrador. Un vendedor que abre su ruta directamente vuelve a Prospectos, conservando la referencia a la ficha. El vendedor sigue pudiendo derivar casos y consultar estado e historial de aquellos en los que participó desde Prospectos; no gestiona la recuperación asignada al agente. Esto no amplía ni recorta los permisos de lectura por participación del servidor.
+
 La interfaz unifica Prospectos y Oportunidades bajo «Prospectos»: una ficha por necesidad comercial, con visitas, seguimiento, recuperación e historial. Se conservan las entidades y relaciones internas para permitir varias necesidades por persona. «Recuperación comercial» es un acceso filtrado al mismo circuito, no otra copia ni una función del módulo general Gestiones.
 
 «Ventas concretadas» muestra automáticamente los casos actualmente Ganados, una vez por caso. Administración ve todos; cada vendedor y agente ve los atribuidos a sí mismo como responsable al cierre. El actor que registra el resultado no recibe atribución por ese solo hecho. El vendedor de visita conserva consulta de la ficha si el agente cierra, pero no se duplica esa venta en su listado propio. Se muestran condiciones aceptadas, canal, responsable y vendedor de visita si constan, fecha de cierre e historial vinculado. Ganada no acredita contrato, instalación ni cobro.

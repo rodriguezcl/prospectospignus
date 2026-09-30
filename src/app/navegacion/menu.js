@@ -1,4 +1,5 @@
 // Configuración del producto; visibilidad no equivale a autorización.
+export const rolesRecuperacion = ["agente", "administrador"];
 export const menu = [
   {
     grupo: "ESPACIO COMERCIAL",
@@ -28,6 +29,7 @@ export const menu = [
         ruta: "/recuperacion",
         titulo: "Recuperación comercial",
         icono: "bi-kanban-fill",
+        roles: rolesRecuperacion,
       },
       {
         ruta: "/ventas",

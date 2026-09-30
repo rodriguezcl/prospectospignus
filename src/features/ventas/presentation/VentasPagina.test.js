@@ -9,7 +9,7 @@ import { MemoryRouter } from "react-router-dom";
 import { crearConsultaVentas } from "../infrastructure/crearConsultaVentas.js";
 import { menu } from "../../../app/navegacion/menu.js";
 
-function componente(ruta) {
+function componente(ruta, observarRedireccion = false) {
   const compilado = buildSync({
     entryPoints: [fileURLToPath(new URL(ruta, import.meta.url))],
     bundle: true,
@@ -20,17 +20,63 @@ function componente(ruta) {
     external: ["react", "react/jsx-runtime", "react-router-dom"],
   });
   const modulo = { exports: {} };
+  const cargar = createRequire(import.meta.url);
   new Function("require", "module", "exports", compilado.outputFiles[0].text)(
-    createRequire(import.meta.url),
+    (nombre) =>
+      observarRedireccion && nombre === "react-router-dom"
+        ? {
+            ...cargar(nombre),
+            Navigate: ({ to, replace }) =>
+              createElement("span", {
+                "data-destino": to.pathname + to.search,
+                "data-reemplazar": String(replace),
+              }),
+          }
+        : cargar(nombre),
     modulo,
     modulo.exports,
   );
   return modulo.exports;
 }
 const { VentasPagina, FilasVentas } = componente("./VentasPagina.jsx");
-const { OportunidadesPagina } = componente(
-  "../../oportunidades/index.js",
+const { OportunidadesPagina } = componente("../../oportunidades/index.js");
+const { RecuperacionComercial } = componente(
+  "../../../app/router/RecuperacionComercial.jsx",
+  true,
 );
+
+test("recuperación: menú y ruta exclusivos de agente/administrador; vendedor conserva Prospectos", () => {
+  const entrada = menu
+    .flatMap((g) => g.elementos)
+    .find((e) => e.ruta === "/recuperacion");
+  assert.deepEqual(entrada.roles, ["agente", "administrador"]);
+  for (const rol of ["vendedor", "agente", "administrador"]) {
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        { initialEntries: ["/recuperacion?id=caso"] },
+        createElement(RecuperacionComercial, {
+          gestion: {},
+          perfil: { id: rol, rol, activo: true },
+        }),
+      ),
+    );
+    assert.equal(
+      html.includes('data-destino="/prospectos?id=caso"'),
+      rol === "vendedor",
+    );
+    assert.equal(html.includes('data-reemplazar="true"'), rol === "vendedor");
+    assert.equal(html.includes("Recuperación comercial"), rol !== "vendedor");
+  }
+  const html = dibujar(
+    createElement(OportunidadesPagina, {
+      gestion: {},
+      perfil: { id: "vendedor", rol: "vendedor", activo: true },
+    }),
+  );
+  assert.ok(html.includes("Prospectos"));
+  assert.ok(html.includes('value="recuperacion"'));
+});
 const dibujar = (elemento) =>
   renderToStaticMarkup(createElement(MemoryRouter, null, elemento));
 

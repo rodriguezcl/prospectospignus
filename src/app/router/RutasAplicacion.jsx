@@ -28,6 +28,7 @@ import {
   agenda,
 } from "../configuracion/servicios.js";
 import { AccesoProtegido } from "./AccesoProtegido.jsx";
+import { RecuperacionComercial } from "./RecuperacionComercial.jsx";
 
 function OportunidadesAnteriores() {
   const { search } = useLocation();
@@ -82,9 +83,8 @@ export function RutasAplicacion() {
           <Route
             path="recuperacion"
             element={
-              <OportunidadesPagina
+              <RecuperacionComercial
                 key={`recuperacion-${perfil?.id}`}
-                soloRecuperacion
                 gestion={oportunidades}
                 perfil={perfil}
               />
