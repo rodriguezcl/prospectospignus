@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { seleccionarRegistros } from "../domain/resumen.js";
+import { GraficoRegistros } from "./GraficoRegistros.jsx";
 
 export function EstadisticasMensuales({ gestion, perfil }) {
   const [mes, cambiarMes] = useState("2026-09");
@@ -139,43 +140,56 @@ export function EstadisticasMensuales({ gestion, perfil }) {
           </div>
           <div className="row g-3">
             {grupos.map((grupo) => (
-              <div className="col-lg-4" key={grupo.campo}>
+              <div
+                className={grupo.campo === "dia" ? "col-12" : "col-lg-6"}
+                key={grupo.campo}
+              >
                 <section className="card card-body">
                   <h3 className="h5">{grupo.titulo}</h3>
-                  <div style={{ maxHeight: "22rem", overflowY: "auto" }}>
-                    <table className="table table-sm">
-                      <thead>
-                        <tr>
-                          <th scope="col">
-                            {grupo.campo === "dia" ? "Día" : "Categoría"}
-                          </th>
-                          <th scope="col">Cantidad</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {grupo.valores.map((g) => (
-                          <tr key={g.valor}>
-                            <td>{grupo.nombre(g.valor)}</td>
-                            <td>
-                              <button
-                                className="btn btn-sm btn-outline-primary"
-                                onClick={() =>
-                                  seleccionar(
-                                    grupo.campo,
-                                    g.valor,
-                                    `${grupo.titulo}: ${grupo.nombre(g.valor)}`,
-                                  )
-                                }
-                                aria-label={`Ver ${g.cantidad} registros: ${grupo.nombre(g.valor)}`}
-                              >
-                                {g.cantidad}
-                              </button>
-                            </td>
+                  <GraficoRegistros
+                    grupo={grupo}
+                    filtro={filtro}
+                    seleccionar={seleccionar}
+                  />
+                  <details className="mt-3">
+                    <summary className="text-primary">
+                      Ver tabla: {grupo.titulo}
+                    </summary>
+                    <div style={{ maxHeight: "22rem", overflowY: "auto" }}>
+                      <table className="table table-sm">
+                        <thead>
+                          <tr>
+                            <th scope="col">
+                              {grupo.campo === "dia" ? "Día" : "Categoría"}
+                            </th>
+                            <th scope="col">Cantidad</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody>
+                          {grupo.valores.map((g) => (
+                            <tr key={g.valor}>
+                              <td>{grupo.nombre(g.valor)}</td>
+                              <td>
+                                <button
+                                  className="btn btn-sm btn-outline-primary"
+                                  onClick={() =>
+                                    seleccionar(
+                                      grupo.campo,
+                                      g.valor,
+                                      `${grupo.titulo}: ${grupo.nombre(g.valor)}`,
+                                    )
+                                  }
+                                  aria-label={`Ver ${g.cantidad} registros: ${grupo.nombre(g.valor)}`}
+                                >
+                                  {g.cantidad}
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </details>
                   {!grupo.valores.length && <p>Sin registros.</p>}
                 </section>
               </div>
