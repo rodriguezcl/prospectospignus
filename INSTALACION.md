@@ -15,9 +15,24 @@ La terminal informa la dirección local. Para generar la distribución: `npm run
 
 ## Alcance
 
-Navegación en español, menú adaptable e interfaz comercial inicial. Login con Supabase Auth y roles administrador/vendedor; alta de usuarios reservada al administrador. Para activar la conexión, aplicar la migración y desplegar la función según `docs/AUTENTICACION.md`. Sin configuración el acceso permanece bloqueado. Los módulos comerciales continúan como pantallas informativas.
+Navegación en español, menú adaptable e interfaz comercial inicial. Login con Supabase Auth y roles administrador/vendedor; alta de usuarios reservada al administrador. Para activar la conexión, aplicar las migraciones y desplegar la función según `docs/AUTENTICACION.md`. Sin configuración el acceso permanece bloqueado. Registros iniciales incluye operaciones reales; los demás módulos comerciales continúan como pantallas informativas.
 
-Hay formularios de login, creación de cuentas y cambio de contraseña propio; todavía no hay formularios ni operaciones comerciales. React Router usa fragmentos de URL (`#/prospectos`) para permitir recarga y navegación atrás/adelante sin reglas SPA adicionales del servidor. Los enlaces anteriores (`#prospectos`) siguen funcionando. No se realizó despliegue ni configuración remota de Vercel.
+Hay formularios de login, creación de cuentas, cambio de contraseña propio y registros iniciales. React Router usa fragmentos de URL (`#/prospectos`) para permitir recarga y navegación atrás/adelante sin reglas SPA adicionales del servidor. Los enlaces anteriores (`#prospectos`) siguen funcionando. No se realizó despliegue ni configuración remota de Vercel.
+
+## Registros iniciales — primera entrega
+
+Activación: aplicar `supabase/migrations/202609290003_registros_iniciales.sql` después de las dos migraciones de acceso. Aplicada y verificada en el proyecto `sjoounysrvxreazgbjkv` el 29/09/2026 (tres tablas con RLS, sin acceso anónimo ni escrituras directas para authenticated, y 11 orígenes). No repetirla en ese proyecto. En instalaciones nuevas no se aplica automáticamente al iniciar Vite. Si falta, la pantalla lo informa; no hay persistencia simulada ni datos de demostración. En Windows puede iniciarse con `npm.cmd run dev -- --port 5174 --strictPort`.
+
+- Carga manual con nombre/empresa y origen obligatorios; teléfono, correo, dirección/zona y observaciones opcionales. La ficha preliminar no constituye un Prospecto ni una captación validada para métricas.
+- Vendedor activo: crea para sí y solo lee/edita su cartera. Administrador activo: consulta todas las fichas y asigna manualmente a perfiles activos o deja Sin asignar. No hay acceso anónimo ni escritura directa en tablas desde el navegador.
+- Listado paginado de 20 filas, búsqueda por nombre, filtros por origen y (administrador) responsable; detalle enlazable mediante `#/registros?registro=UUID`. Las fechas se muestran en la zona de negocio de Argentina.
+- Origen, creador y fecha originales no se editan. Reasignación con motivo obligatorio; historial inmutable accesible únicamente a quien tiene acceso actual al registro. Los nombres de perfiles ajenos no disponibles para un vendedor se muestran como Otro integrante, sin ampliar RLS de cuentas.
+- RPC de guardado atómica: verifica perfil activo, asignación, versión y datos en servidor. Un UUID estable durante el formulario evita duplicar altas al reintentar; si se pierde la respuesta, reintentar sin cambiar datos ni recargar. Si se abandona el formulario tras un fallo de red, revisar el listado antes de crear otra ficha. Ediciones concurrentes requieren recargar y reconciliar los cambios, no se sobrescriben silenciosamente.
+- El catálogo de orígenes reside en una tabla y puede ser configurado por el operador de base; no hay editor de catálogo todavía.
+
+Fuera de esta primera entrega: calificación, descarte, advertencias de posibles duplicados, distribución automática por turnos, importaciones, exportaciones y métricas de registros válidos. No se han flexibilizado permisos para anticipar esas funciones.
+
+Verificación: `npm test` ejecuta las migraciones reales en PostgreSQL embebido y cubre aislamiento, perfiles inactivos, reasignación y pérdida de acceso, auditoría, entradas inválidas, reintentos y versiones en conflicto. Después de activar en Supabase, probar con administrador y dos vendedores: crear ficha, editar, filtrar, paginar, abrir URL directa, reasignar con motivo, confirmar que el anterior responsable pierde acceso e intentar una edición simultánea en dos pestañas. Confirmar también móvil, refresh y errores de conexión. Las pruebas locales no sustituyen esta validación real.
 
 ## Plantilla
 

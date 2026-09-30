@@ -31,23 +31,36 @@ test("PostgreSQL: RLS, altas autorizadas y bloqueo de escalamiento", async (t) =
       "utf8",
     ),
   );
+  await base.exec(
+    await readFile(
+      new URL("../migrations/202609290002_alta_diferida.sql", import.meta.url),
+      "utf8",
+    ),
+  );
   const admin = "00000000-0000-0000-0000-000000000001";
   const vendedor = "00000000-0000-0000-0000-000000000002";
   const otro = "00000000-0000-0000-0000-000000000003";
   async function alta(id, rol, actor) {
-    return base.query(
-      "insert into auth.users(id,email,raw_app_meta_data) values ($1,$2,$3::jsonb)",
-      [
+    return base.transaction(async (tx) => {
+      // Orden real de Auth: INSERT sin app_metadata de Pignus, UPDATE y COMMIT.
+      await tx.query("insert into auth.users(id,email) values ($1,$2)", [
         id,
         `${id}@example.com`,
-        JSON.stringify({
-          pignus_autorizado: true,
-          nombre: "Persona Prueba",
-          rol,
-          ...(actor ? { creado_por: actor } : {}),
-        }),
-      ],
-    );
+      ]);
+      return tx.query(
+        "update auth.users set email=$2,raw_app_meta_data=$3::jsonb where id=$1",
+        [
+          id,
+          `${id}@example.com`,
+          JSON.stringify({
+            pignus_autorizado: true,
+            nombre: "Persona Prueba",
+            rol,
+            ...(actor ? { creado_por: actor } : {}),
+          }),
+        ],
+      );
+    });
   }
   await alta(admin, "administrador");
   await alta(vendedor, "vendedor", admin);
@@ -76,6 +89,36 @@ test("PostgreSQL: RLS, altas autorizadas y bloqueo de escalamiento", async (t) =
   await assert.rejects(
     alta("00000000-0000-0000-0000-000000000006", "vendedor", vendedor),
     /no habilitado/,
+  );
+
+  // Las altas rechazadas no dejan usuarios, perfiles ni auditorías parciales.
+  for (const tabla of [
+    "auth.users",
+    "public.perfiles",
+    "public.eventos_cuentas",
+  ]) {
+    assert.equal(
+      (await base.query(`select count(*)::int as cantidad from ${tabla}`))
+        .rows[0].cantidad,
+      3,
+    );
+  }
+  await assert.rejects(
+    base.transaction(async (tx) => {
+      await tx.query(
+        "insert into auth.users(id,email) values ($1,'sin-autorizacion@example.com')",
+        ["00000000-0000-0000-0000-000000000007"],
+      );
+      await tx.exec(
+        `update auth.users set raw_user_meta_data='{"pignus_autorizado":true,"rol":"administrador"}' where email='sin-autorizacion@example.com'`,
+      );
+    }),
+    /Alta no autorizada/,
+  );
+  assert.equal(
+    (await base.query("select count(*)::int as cantidad from auth.users"))
+      .rows[0].cantidad,
+    3,
   );
 
   await base.exec("set role authenticated");

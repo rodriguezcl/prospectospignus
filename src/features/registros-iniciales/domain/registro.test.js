@@ -1,0 +1,33 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { validarRegistro } from "./registro.js";
+import { crearGestionRegistros } from "../application/crearGestionRegistros.js";
+test("registro preliminar admite datos incompletos y no confía en autor del cliente", () => {
+  const datos = validarRegistro({
+    nombre: "  Empresa  ",
+    origen: "oficina",
+    creado_por: "falso",
+    correo: " HOLA@EXAMPLE.COM ",
+  });
+  assert.equal(datos.nombre, "Empresa");
+  assert.equal(datos.correo, "hola@example.com");
+  assert.equal(datos.telefono, "");
+  assert.equal(datos.creado_por, undefined);
+});
+test("valida nombre, origen, correo y límites antes de persistir", () => {
+  let llamadas = 0;
+  const gestion = crearGestionRegistros({
+    guardar() {
+      llamadas++;
+    },
+  });
+  for (const datos of [
+    { nombre: " " },
+    { nombre: "Nombre" },
+    { nombre: "Nombre", origen: "otro", correo: "invalido" },
+    { nombre: "Nombre", origen: "otro", observaciones: "x".repeat(2001) },
+  ]) {
+    assert.throws(() => gestion.guardar("id", 0, datos));
+  }
+  assert.equal(llamadas, 0);
+});

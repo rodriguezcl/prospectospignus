@@ -12,7 +12,9 @@ Organizar por funcionalidades, con alta cohesión, bajo acoplamiento, composici�
 - `src/shared/ui`: componentes visuales reutilizados, navegación y estilos Mazer.
 - `public/mazer`: distribución del proveedor y licencia, separada de personalizaciones.
 
-Las features `autenticacion` y `usuarios` incorporan dominio, aplicación e infraestructura porque ya existe una frontera real con Supabase. El cliente compartido vive en `src/infrastructure/supabase`; la composición explícita se realiza desde `app/configuracion/servicios.js` mediante entradas `composicion.js` de cada feature. Las demás features siguen siendo presentación. No crear carpetas vacías, repositorios ficticios ni datos comerciales simulados.
+Las features `autenticacion`, `usuarios` y `registros-iniciales` incorporan dominio, aplicación e infraestructura porque ya existe una frontera real con Supabase. El cliente compartido vive en `src/infrastructure/supabase`; la composición explícita se realiza desde `app/configuracion/servicios.js` mediante entradas `composicion.js` de cada feature. Las demás features siguen siendo presentación. No crear carpetas vacías, repositorios ficticios ni datos comerciales simulados.
+
+Registros iniciales recibe el perfil desde la composición de rutas, sin importar internals de autenticación. Lecturas bajo RLS y escrituras por RPC transaccional con validación de actor, versión e historial. Su catálogo y sus políticas son propios; no modifica los permisos de lectura de perfiles para mostrar nombres de terceros. La primera entrega y sus límites están documentados en `INSTALACION.md`.
 
 ## Dependencias e imports
 

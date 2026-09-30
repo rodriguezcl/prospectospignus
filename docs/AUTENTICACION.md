@@ -11,7 +11,7 @@ El alta usa contraseña inicial elegida por el administrador y correo confirmado
 ## Activación en un proyecto Supabase nuevo o dedicado
 
 1. Crear o elegir el proyecto correcto. La migración agrega un trigger sobre auth.users que limita altas a Pignus; no aplicarlo en un proyecto compartido con otras aplicaciones sin revisar ese impacto. No se ejecutó ninguna migración remota desde esta tarea.
-2. Aplicar `supabase/migrations/202609290001_acceso_y_usuarios.sql` por el procedimiento habitual de migraciones. Crea perfiles, eventos de alta y políticas RLS; no toca tablas comerciales.
+2. Aplicar las migraciones de `supabase/migrations` en orden. La `202609290001` crea perfiles, eventos de alta y políticas RLS; la `202609290002` corrige el momento de validación de las altas. En instalaciones existentes aplicar solo la segunda, sin repetir la creación de tablas.
 3. En Auth, deshabilitar el registro público y fijar mínimo de contraseña en 12 caracteres. `supabase/config.toml` declara la configuración local, pero no garantiza que el Dashboard remoto adopte estos valores: verificarlos explícitamente.
 4. Desplegar la Edge Function `crear-usuario`. `verify_jwt = false` desactiva únicamente la comprobación heredada del gateway: el manejador verifica obligatoriamente el token con Auth `getUser(token)` y consulta el perfil actual antes de usar Admin API. No quitar esas validaciones.
 5. Configurar el secreto `ORIGENES_PERMITIDOS` de la función con orígenes exactos separados por comas, por ejemplo `http://127.0.0.1:5174,http://localhost:5174`. Agregar el origen productivo al desplegar; evitar comodines. Las credenciales de servidor se leen del entorno Supabase, nunca del navegador.
@@ -32,6 +32,8 @@ El script `scripts/crear-primer-administrador.mjs` debe ejecutarse en un entorno
 Ejecutar `node scripts/crear-primer-administrador.mjs`. Inyectar secretos mediante el entorno seguro del operador, no incluirlos en comandos compartidos ni repositorio. El script no imprime claves y rechaza un proyecto con perfiles existentes. Limpiar variables temporales al terminar. La creación de Auth, perfil y evento de alta es atómica gracias al trigger; un bloqueo transaccional evita dos inicializaciones simultáneas.
 
 ## Seguridad y límites
+
+- Auth inserta el usuario antes de actualizar `app_metadata` dentro de la misma transacción. El trigger de alta es una restricción diferida hasta el COMMIT y consulta la fila final: no utiliza los metadatos iniciales de `NEW`. Si falta autorización, se revierte toda la transacción. El perfil y el evento se crean antes de confirmar, no mediante una tarea posterior. Referencia: `adminUserCreate` en https://github.com/supabase/auth/blob/master/internal/api/admin.go.
 
 - El rol autorizado reside en `public.perfiles`. Solo servidor puede escribirlo. Nunca se toma de `user_metadata` ni de una elección del login.
 - La función verifica sesión real, perfil activo y rol administrador; vuelve a validarse el responsable dentro del trigger. El actor procede del token, no del cuerpo.

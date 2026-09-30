@@ -15,12 +15,14 @@ import { AuditoriaPagina } from "../../features/auditoria/index.js";
 import {
   LoginPagina,
   MiCuentaPagina,
+  useSesion,
 } from "../../features/autenticacion/index.js";
 import { UsuariosPagina } from "../../features/usuarios/index.js";
-import { usuarios } from "../configuracion/servicios.js";
+import { usuarios, registros } from "../configuracion/servicios.js";
 import { AccesoProtegido } from "./AccesoProtegido.jsx";
 
 export function RutasAplicacion() {
+  const { perfil } = useSesion();
   return (
     <Routes>
       <Route path="login" element={<LoginPagina />} />
@@ -31,7 +33,16 @@ export function RutasAplicacion() {
             path="inicio"
             element={<InicioPagina accesos={accesosInicio} />}
           />
-          <Route path="registros" element={<RegistrosInicialesPagina />} />
+          <Route
+            path="registros"
+            element={
+              <RegistrosInicialesPagina
+                key={perfil?.id}
+                gestion={registros}
+                perfil={perfil}
+              />
+            }
+          />
           <Route path="prospectos" element={<ProspectosPagina />} />
           <Route path="oportunidades" element={<OportunidadesPagina />} />
           <Route path="gestiones" element={<GestionesPagina />} />
