@@ -95,9 +95,7 @@ export function EstadisticasMensuales({ gestion, perfil }) {
         </button>
       </div>
       <p className="text-muted">
-        Conteos brutos, no captaciones válidas ni ventas. Septiembre de 2026
-        incluye un escenario ficticio de mes completo; no representa actividad
-        real ni una proyección.
+        Conteos brutos, no captaciones válidas ni ventas.
       </p>
       {error ? (
         <p className="alert alert-danger" role="alert">
@@ -110,8 +108,9 @@ export function EstadisticasMensuales({ gestion, perfil }) {
           {datos.resumen.demostracion > 0 && (
             <p className="alert alert-warning">
               Contiene {datos.resumen.demostracion} registros de demostración.
-              No contactar sus teléfonos ni atribuir sus direcciones a personas
-              reales.
+              Sus fechas son simuladas; no representan actividad real ni una
+              proyección. No contactar sus teléfonos ni atribuir sus direcciones
+              a personas reales.
             </p>
           )}
           <div className="row g-3 mb-3">
@@ -124,19 +123,30 @@ export function EstadisticasMensuales({ gestion, perfil }) {
                 "reales",
               ],
               ["Sin asignar", datos.resumen.sinAsignar, "responsable_id"],
-            ].map(([titulo, cantidad, campo]) => (
-              <div className="col-6 col-xl-3" key={titulo}>
-                <button
-                  className="card card-body w-100 text-start"
-                  onClick={() => seleccionar(campo, null, titulo)}
-                  aria-label={`${titulo}: ${cantidad}. Ver registros`}
+            ]
+              .filter(
+                ([, , campo]) =>
+                  datos.resumen.demostracion > 0 ||
+                  !["demostracion", "reales"].includes(campo),
+              )
+              .map(([titulo, cantidad, campo]) => (
+                <div
+                  className={
+                    datos.resumen.demostracion > 0 ? "col-6 col-xl-3" : "col-6"
+                  }
+                  key={titulo}
                 >
-                  <span>{titulo}</span>
-                  <strong className="fs-2">{cantidad}</strong>
-                  <small>Ver registros</small>
-                </button>
-              </div>
-            ))}
+                  <button
+                    className="card card-body w-100 text-start"
+                    onClick={() => seleccionar(campo, null, titulo)}
+                    aria-label={`${titulo}: ${cantidad}. Ver registros`}
+                  >
+                    <span>{titulo}</span>
+                    <strong className="fs-2">{cantidad}</strong>
+                    <small>Ver registros</small>
+                  </button>
+                </div>
+              ))}
           </div>
           <div className="row g-3">
             {grupos.map((grupo) => (

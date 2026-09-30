@@ -104,18 +104,60 @@ test("demostración: carga idempotente, mes Córdoba, RLS, limpieza acotada", as
     /permission denied/,
   );
   await db.exec("reset role");
+  const ampliacion = await leer("../demostracion/ampliar_septiembre_2026.sql");
+  await db.exec(ampliacion);
+  await db.exec(ampliacion);
+  assert.equal(
+    (
+      await db.query(
+        "select count(*)::int n from public.registros_iniciales where lote_demostracion is not null",
+      )
+    ).rows[0].n,
+    134,
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select count(*)::int n from public.eventos_registros e join public.registros_iniciales r on r.id=e.registro_id where r.lote_demostracion is not null",
+      )
+    ).rows[0].n,
+    224,
+  );
+  const dias = (
+    await db.query(
+      "select (creado_en at time zone 'America/Argentina/Cordoba')::date dia,count(*)::int n from public.registros_iniciales where lote_demostracion is not null group by 1",
+    )
+  ).rows;
+  assert.equal(dias.length, 26);
+  assert.equal(Math.max(...dias.map((d) => d.n)), 11);
+  assert.equal(Math.min(...dias.map((d) => d.n)), 1);
+  assert.ok(
+    (
+      await db.query(
+        "select count(distinct (creado_en at time zone 'America/Argentina/Cordoba')::time)::int n from public.registros_iniciales where lote_demostracion is not null",
+      )
+    ).rows[0].n > 90,
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select count(*)::int n from public.registros_iniciales where lote_demostracion is null",
+      )
+    ).rows[0].n,
+    4,
+  );
   await assert.rejects(db.exec(limpieza), /Falta confirmación/);
   await db.exec("rollback");
   await db.exec(
     "set pignus.confirmar_limpieza = 'pignus-demo-septiembre-2026-v1'",
   );
   await db.exec(
-    "update public.registros_iniciales set version=2 where lote_demostracion is not null",
+    "update public.registros_iniciales set version=version+1 where lote_demostracion is not null",
   );
   await assert.rejects(db.exec(limpieza), /El lote cambió/);
   await db.exec("rollback");
   await db.exec(
-    "update public.registros_iniciales set version=1 where lote_demostracion is not null",
+    "update public.registros_iniciales set version=version-1 where lote_demostracion is not null",
   );
   await db.exec(limpieza);
   assert.equal(
