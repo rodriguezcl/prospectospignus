@@ -56,7 +56,7 @@ export function crearManejador({
         correo.length > 254 ||
         !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim()) ||
         typeof clave !== "string" ||
-        clave.length < 12 ||
+        clave.length < 10 ||
         clave.length > 128 ||
         !["administrador", "vendedor"].includes(rol)
       )

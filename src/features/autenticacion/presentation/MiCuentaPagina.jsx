@@ -58,7 +58,7 @@ export function MiCuentaPagina() {
                 className="form-control mb-3"
                 type="password"
                 required
-                minLength={12}
+                minLength={10}
                 maxLength={128}
                 autoComplete="new-password"
               />
@@ -71,7 +71,7 @@ export function MiCuentaPagina() {
                 className="form-control mb-3"
                 type="password"
                 required
-                minLength={12}
+                minLength={10}
                 maxLength={128}
                 autoComplete="new-password"
               />

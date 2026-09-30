@@ -20,8 +20,8 @@ export function crearAcceso(repositorio) {
     salir: () => repositorio.cerrarSesion(),
     observar: (notificar) => repositorio.observarSesion(notificar),
     async cambiarClave(clave) {
-      if (clave.length < 12 || clave.length > 128)
-        throw new Error("Usá una contraseña de entre 12 y 128 caracteres.");
+      if (typeof clave !== "string" || clave.length < 10 || clave.length > 128)
+        throw new Error("Usá una contraseña de entre 10 y 128 caracteres.");
       await repositorio.cambiarClave(clave);
     },
   };

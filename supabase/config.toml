@@ -2,7 +2,7 @@ project_id = "prospectospignus"
 
 [auth]
 enable_signup = false
-minimum_password_length = 12
+minimum_password_length = 10
 
 [functions.crear-usuario]
 # getUser(token) verifica la sesión en Auth antes de usar cualquier privilegio.

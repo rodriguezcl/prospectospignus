@@ -11,8 +11,8 @@ export function validarCuenta({ nombre, correo, clave, rol }) {
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim())
   )
     throw new Error("Ingresá un correo válido.");
-  if (typeof clave !== "string" || clave.length < 12 || clave.length > 128)
-    throw new Error("La contraseña debe tener entre 12 y 128 caracteres.");
+  if (typeof clave !== "string" || clave.length < 10 || clave.length > 128)
+    throw new Error("La contraseña debe tener entre 10 y 128 caracteres.");
   if (!["administrador", "vendedor"].includes(rol))
     throw new Error("Seleccioná un rol válido.");
   return {

@@ -113,13 +113,13 @@ export function UsuariosPagina({ gestion }) {
                     type="password"
                     className="form-control"
                     required
-                    minLength={12}
+                    minLength={10}
                     maxLength={128}
                     autoComplete="new-password"
                     aria-describedby="ayuda-clave"
                   />
                   <small id="ayuda-clave">
-                    Entre 12 y 128 caracteres. Compartila únicamente con su
+                    Entre 10 y 128 caracteres. Compartila únicamente con su
                     titular.
                   </small>
                 </div>
