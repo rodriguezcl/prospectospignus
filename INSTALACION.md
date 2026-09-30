@@ -38,6 +38,30 @@ Verificación: `npm test` ejecuta las migraciones reales en PostgreSQL embebido 
 
 Inicio incorpora el resumen de registros brutos por mes, día, origen y creador, respetando RLS y la zona de Córdoba. Requiere `202609300004_demostracion_y_resumen.sql`, aplicada en el proyecto el 29/09/2026. Datos sintéticos, cuentas sin acceso y procedimiento de limpieza: `docs/DEMOSTRACION.md`. La aplicación sigue usando datos de Supabase; no hay cifras precargadas en la interfaz. Publicar los cambios del frontend es un paso separado de cargar el lote.
 
+## Prospectos unificados y Ventas concretadas
+
+La interfaz reúne calificación, visitas, seguimiento e historial en `#/prospectos`.
+`#/oportunidades` conserva compatibilidad y redirige con sus parámetros.
+`#/recuperacion` abre la misma bandeja filtrada, sin duplicar casos.
+
+Antes de publicar esta entrega, aplicar una sola vez
+`supabase/migrations/202609300010_ventas_concretadas.sql`, después de 001–009.
+**010 aplicada y verificada en `sjoounysrvxreazgbjkv` el 30/09/2026. No repetirla en ese proyecto.**
+La consulta real conserva los 950 casos y las 29 ventas de septiembre:
+Gonzalo Rivadero 10, Martin Oliva 11 y Franco Suarez 8. Los administradores
+ven las 29 y el agente sin cierres propios ve 0; ejecución anónima denegada.
+No se aplica al iniciar Vite ni al desplegar en Vercel. No modifica filas comerciales:
+agrega una consulta autorizada de cierres actuales, con filtros y paginación.
+Si falta, Ventas concretadas muestra un error explícito, no datos simulados.
+
+Verificación posterior: administración ve todos los cierres; agente/vendedor solo
+los atribuidos a sí mismos. Una recuperación ganada por un agente no se duplica
+en las ventas del vendedor de visita, aunque este conserva acceso a la ficha.
+El histórico de septiembre debe mantener 29 ganadas mientras no cambien sus
+resultados. Fecha exacta, visita, canal y condiciones desconocidas permanecen
+sin informar. Probar filtros, paginación, enlace al historial y móvil con sesión
+real. Las pruebas automatizadas utilizan exclusivamente una base local efímera.
+
 ## Plantilla
 
 - Documentación: https://zuramai.github.io/mazer/docs/index.html

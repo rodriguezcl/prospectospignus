@@ -1,11 +1,11 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { LayoutComercial } from "../layouts/LayoutComercial.jsx";
 import { InicioPagina } from "../../features/inicio/index.js";
 import { PaginaNoEncontrada } from "../../shared/ui/feedback/PaginaNoEncontrada.jsx";
 import { accesosInicio } from "../navegacion/menu.js";
 import { RegistrosInicialesPagina } from "../../features/registros-iniciales/index.js";
-import { ProspectosPagina } from "../../features/prospectos/index.js";
 import { OportunidadesPagina } from "../../features/oportunidades/index.js";
+import { VentasPagina } from "../../features/ventas/index.js";
 import { GestionesPagina } from "../../features/gestiones/index.js";
 import { ProximasAccionesPagina } from "../../features/proximas-acciones/index.js";
 import { SupervisionPagina } from "../../features/supervision/index.js";
@@ -23,8 +23,14 @@ import {
   registros,
   resumenInicio,
   oportunidades,
+  ventas,
 } from "../configuracion/servicios.js";
 import { AccesoProtegido } from "./AccesoProtegido.jsx";
+
+function OportunidadesAnteriores() {
+  const { search } = useLocation();
+  return <Navigate replace to={{ pathname: "/prospectos", search }} />;
+}
 
 export function RutasAplicacion() {
   const { perfil } = useSesion();
@@ -58,17 +64,29 @@ export function RutasAplicacion() {
           <Route
             path="prospectos"
             element={
-              <ProspectosPagina key={perfil?.id} gestion={oportunidades} />
-            }
-          />
-          <Route
-            path="oportunidades"
-            element={
               <OportunidadesPagina
-                key={perfil?.id}
+                key={`prospectos-${perfil?.id}`}
                 gestion={oportunidades}
                 perfil={perfil}
               />
+            }
+          />
+          <Route
+            path="recuperacion"
+            element={
+              <OportunidadesPagina
+                key={`recuperacion-${perfil?.id}`}
+                soloRecuperacion
+                gestion={oportunidades}
+                perfil={perfil}
+              />
+            }
+          />
+          <Route path="oportunidades" element={<OportunidadesAnteriores />} />
+          <Route
+            path="ventas"
+            element={
+              <VentasPagina key={perfil?.id} gestion={ventas} perfil={perfil} />
             }
           />
           <Route path="gestiones" element={<GestionesPagina />} />

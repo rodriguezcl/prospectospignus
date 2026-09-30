@@ -54,11 +54,12 @@ export function InicioPagina({ accesos, gestion, perfil }) {
       <div className="aviso">
         <i className="bi bi-info-circle" aria-hidden="true" />
         <div>
-          <strong>Estamos preparando tu espacio comercial</strong>
+          <strong>Un recorrido comercial integrado</strong>
           <p>
-            Los registros iniciales y su resumen mensual ya están conectados.
-            Calificación, oportunidades y métricas de ventas se incorporarán en
-            las próximas etapas.
+            Calificá desde Registros iniciales, gestioná visitas y seguimiento
+            en Prospectos y consultá los cierres en Ventas concretadas. Una
+            venta concretada indica aceptación comercial, no instalación ni
+            cobro.
           </p>
         </div>
       </div>

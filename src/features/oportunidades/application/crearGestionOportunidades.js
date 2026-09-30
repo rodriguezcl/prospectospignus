@@ -2,7 +2,6 @@ import { validarOperacion } from "../domain/circuito.js";
 export function crearGestionOportunidades(repositorio) {
   return {
     listar: repositorio.listar,
-    prospectos: repositorio.prospectos,
     detalle: repositorio.detalle,
     equipo: repositorio.equipo,
     registros: repositorio.registros,

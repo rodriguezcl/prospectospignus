@@ -26,7 +26,7 @@ Registros iniciales recibe el perfil desde la composición de rutas, sin importa
 4. `domain` contiene reglas puras. No importa React, Mazer, Supabase, DOM, HTTP, hosting ni otras capas.
 5. `infrastructure` implementa los puertos y depende de las capas internas; nunca al revés.
 6. `shared` no importa features ni app. Los componentes reciben configuración y acciones como propiedades.
-7. No hay dependencias entre features. Toda excepción futura se documenta y utiliza APIs públicas; prohibidos ciclos e imports cruzados a internals.
+7. No hay dependencias entre features en producción. Las pruebas de integración de navegación pueden componer APIs públicas de varias features y la configuración del menú para verificar su coherencia. Toda otra excepción futura se documenta y utiliza APIs públicas; prohibidos ciclos e imports cruzados a internals.
 8. Imports relativos inicialmente. Reexportaciones explícitas solamente en límites de features, sin barrels globales.
 
 Mazer se utiliza solo en presentación y UI compartida. React controla el DOM y las interacciones; no importar el JavaScript de demostración de Mazer ni duplicar Bootstrap/iconos.
@@ -57,7 +57,9 @@ Menú móvil con foco inicial, contención de Tab, Escape, fondo inerte y restau
 
 ## Verificación y evolución
 
-El circuito de calificación, visita y recuperación pertenece a `oportunidades`, con dominio puro, casos de uso y adaptador RPC. La página de consulta `prospectos` recibe el puerto de lectura desde `app`, sin importar internals de otra feature. La calificación crea un Prospecto independiente y una oportunidad por necesidad. Los eventos de oportunidad representan las gestiones de esta entrega; las pantallas generales de Gestiones y Próximas acciones no se reemplazan por un segundo almacenamiento. La próxima acción y el historial se consultan en Oportunidades.
+El circuito de calificación, visita y recuperación pertenece internamente a `oportunidades`, con dominio puro, casos de uso y adaptador RPC. Se presenta en una única pantalla «Prospectos»; `/oportunidades` redirige conservando la consulta. Recuperación comercial reutiliza esa pantalla con filtro de recuperación. La calificación crea un Prospecto independiente y una oportunidad por necesidad. Se elimina la página de consulta duplicada, no las tablas ni el historial. Los eventos representan las gestiones de esta entrega; las pantallas generales de Gestiones y Próximas acciones siguen pendientes.
+
+`ventas` consulta una proyección de las oportunidades actualmente ganadas, sin tabla duplicada. Su composición inyecta el puerto `listar`; no incorpora capas de delegación vacías. La RPC 010 aplica permisos de administrador activo o responsable al cierre, independientemente del permiso más amplio de consulta por participación. Totales, filtros y catálogo mínimo de responsables se calculan sobre el mismo conjunto autorizado. El mes corresponde al cierre del servidor en Córdoba, o al mes histórico cuando falta fecha exacta; nunca a la fecha de captación. Un cierre posterior de un caso histórico prevalece sobre su mes de procedencia. La migración no modifica datos comerciales existentes.
 
 La migración 006 extiende Agente en perfiles, altas y gestión de cuentas, conserva el bloqueo compartido de cambios de elegibilidad y agrega protección de cuentas con actividad. RLS restringe carteras y habilita la cola común de recuperación para agentes. Las escrituras transaccionales requieren versión y UUID de operación; no hay DML directo desde el navegador. La campana consulta avisos persistentes cada 30 segundos y al recuperar foco; no usa notificaciones push externas. Las lecturas paginadas y los errores de migración pendiente son explícitos.
 

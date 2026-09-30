@@ -64,7 +64,7 @@ export function CampanaNotificaciones({ gestion }) {
             {filas.map((n) => (
               <div className="border-bottom py-2" key={n.id}>
                 <Link
-                  to={`/oportunidades?id=${n.oportunidad_id}`}
+                  to={`/prospectos?id=${n.oportunidad_id}`}
                   onClick={() => abrir(false)}
                 >
                   {n.mensaje}

@@ -228,12 +228,41 @@ test("Agente: calificación, visitas, recuperación equilibrada, RLS, cierre e i
     aceptacion_confirmada: "si",
     confirmado_en: new Date().toISOString(),
   };
+  // Administración puede registrar el resultado sin atribuirse el cierre.
+  await como(admin);
   await gestionar(id, 2, "ganar", ganar);
+  await como(responsable);
   const ganada = (
     await db.query("select * from public.oportunidades where id=$1", [id])
   ).rows[0];
   assert.equal(ganada.estado, "ganada");
   assert.equal(ganada.cerrado_por, responsable);
+  const ventas = async (filtro = null) =>
+    (
+      await db.query(
+        "select public.listar_ventas_concretadas(null,$1,0) as datos",
+        [filtro],
+      )
+    ).rows[0].datos;
+  assert.equal((await ventas()).total, 1);
+  assert.equal((await ventas()).filas[0].cerrado_por, responsable);
+  assert.equal((await ventas(vendedor)).total, 0);
+  await como(vendedor);
+  // Conserva consulta de la ficha visitada, pero no recibe crédito por la venta.
+  assert.equal(
+    (await db.query("select id from public.oportunidades where id=$1", [id]))
+      .rows.length,
+    1,
+  );
+  assert.equal((await ventas()).total, 0);
+  assert.deepEqual((await ventas(responsable)).responsables, []);
+  await como(admin);
+  assert.equal((await ventas()).total, 1);
+  assert.equal(
+    (await ventas()).filas[0].vendedor_visita_nombre,
+    "Persona vendedor",
+  );
+  await como(responsable);
   await assert.rejects(
     gestionar(id, 3, "seguimiento", {
       resumen: "Reabrir sin autorización",
@@ -329,6 +358,10 @@ test("Agente: calificación, visitas, recuperación equilibrada, RLS, cierre e i
     /CUENTA_ACCESO/,
   );
   await db.exec("reset role; set role anon");
+  await assert.rejects(
+    db.query("select public.listar_ventas_concretadas()"),
+    /permission denied/,
+  );
   await assert.rejects(
     db.query("select public.equipo_comercial()"),
     /permission denied/,

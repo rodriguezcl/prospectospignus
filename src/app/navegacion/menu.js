@@ -19,9 +19,14 @@ export const menu = [
         icono: "bi-people-fill",
       },
       {
-        ruta: "/oportunidades",
-        titulo: "Oportunidades",
+        ruta: "/recuperacion",
+        titulo: "Recuperación comercial",
         icono: "bi-kanban-fill",
+      },
+      {
+        ruta: "/ventas",
+        titulo: "Ventas concretadas",
+        icono: "bi-check-circle-fill",
       },
       {
         ruta: "/gestiones",
@@ -70,9 +75,8 @@ export const menu = [
   },
 ];
 
-export const accesosInicio = ["registros", "oportunidades", "acciones"].map(
-  (id) =>
-    menu
-      .flatMap((grupo) => grupo.elementos)
-      .find((elemento) => elemento.ruta === "/" + id),
+export const accesosInicio = ["registros", "prospectos", "ventas"].map((id) =>
+  menu
+    .flatMap((grupo) => grupo.elementos)
+    .find((elemento) => elemento.ruta === "/" + id),
 );

@@ -8,12 +8,17 @@ import {
 } from "../domain/circuito.js";
 import { FormularioOportunidad } from "./FormularioOportunidad.jsx";
 
-export function OportunidadesPagina({ gestion, perfil }) {
+export function OportunidadesPagina({
+  gestion,
+  perfil,
+  soloRecuperacion = false,
+}) {
+  const rutaBandeja = soloRecuperacion ? "/recuperacion" : "/prospectos";
   const [parametros, navegar] = useSearchParams();
   const id = parametros.get("id");
-  const nueva = parametros.has("nueva");
+  const nueva = !soloRecuperacion && parametros.has("nueva");
   const [pagina, paginar] = useState(0);
-  const [estado, filtrar] = useState("");
+  const [estado, filtrar] = useState(soloRecuperacion ? "recuperacion" : "");
   const [revision, revisar] = useState(0);
   const [busqueda, buscar] = useState("");
   const [lista, listar] = useState({ filas: [], total: 0 });
@@ -130,10 +135,16 @@ export function OportunidadesPagina({ gestion, perfil }) {
   const opciones = accionesPermitidas(detalle, perfil);
   return (
     <section aria-labelledby="titulo-oportunidades">
-      <h1 id="titulo-oportunidades">Oportunidades</h1>
+      <h1 id="titulo-oportunidades">
+        {soloRecuperacion ? "Recuperación comercial" : "Prospectos"}
+      </h1>
       <p>
         Visitas, seguimiento y recuperación comercial. Ganada significa
         aceptación comercial, no instalación.
+      </p>
+      <p>
+        Una ficha por necesidad comercial; un mismo prospecto puede tener varios
+        casos. El historial y las acciones se consultan al abrir la ficha.
       </p>
       {perfil.rol === "agente" && (
         <label className="alert alert-light d-block">
@@ -149,7 +160,7 @@ export function OportunidadesPagina({ gestion, perfil }) {
         </label>
       )}
       <div className="d-flex flex-wrap gap-2 mb-3">
-        <Link to="/oportunidades?nueva=si" className="btn btn-primary">
+        <Link to="/prospectos?nueva=si" className="btn btn-primary">
           Calificar y coordinar visita
         </Link>
         <Link to="/registros" className="btn btn-outline-secondary">
@@ -173,7 +184,7 @@ export function OportunidadesPagina({ gestion, perfil }) {
           {mensaje}
         </p>
       )}
-      {cargando && <p role="status">Cargando oportunidades…</p>}
+      {cargando && <p role="status">Cargando prospectos…</p>}
       {!cargando && nueva && (
         <div className="card">
           <div className="card-body">
@@ -186,7 +197,7 @@ export function OportunidadesPagina({ gestion, perfil }) {
               ocupado={ocupado}
               buscar={buscar}
             />
-            <Link to="/oportunidades">Cancelar</Link>
+            <Link to={rutaBandeja}>Cancelar</Link>
           </div>
         </div>
       )}
@@ -259,8 +270,8 @@ export function OportunidadesPagina({ gestion, perfil }) {
               />
             ) : (
               <p>
-                Consulta de solo lectura: la oportunidad está cerrada o
-                pertenece a otro responsable.
+                Consulta de solo lectura: el caso está cerrado o pertenece a
+                otro responsable.
               </p>
             )}
             <details className="mt-4">
@@ -281,7 +292,7 @@ export function OportunidadesPagina({ gestion, perfil }) {
                 </article>
               ))}
             </details>
-            <Link to="/oportunidades" className="d-inline-block mt-3">
+            <Link to={rutaBandeja} className="d-inline-block mt-3">
               Volver a la bandeja
             </Link>
           </div>
@@ -300,15 +311,19 @@ export function OportunidadesPagina({ gestion, perfil }) {
                   paginar(0);
                 }}
               >
-                <option value="">Todas las etapas accesibles</option>
+                {!soloRecuperacion && (
+                  <option value="">Todas las etapas accesibles</option>
+                )}
                 <option value="sin_asignar">
                   Recuperaciones pendientes de asignación
                 </option>
-                {Object.entries(estados).map(([id, texto]) => (
-                  <option key={id} value={id}>
-                    {texto}
-                  </option>
-                ))}
+                {Object.entries(estados)
+                  .filter(([id]) => !soloRecuperacion || id === "recuperacion")
+                  .map(([id, texto]) => (
+                    <option key={id} value={id}>
+                      {texto}
+                    </option>
+                  ))}
               </select>
             </label>
             {perfil.rol === "agente" && (
@@ -345,7 +360,7 @@ export function OportunidadesPagina({ gestion, perfil }) {
                           )}
                       </td>
                       <td>
-                        <Link to={`/oportunidades?id=${o.id}`}>Abrir</Link>
+                        <Link to={`${rutaBandeja}?id=${o.id}`}>Abrir</Link>
                       </td>
                     </tr>
                   ))}
@@ -353,7 +368,7 @@ export function OportunidadesPagina({ gestion, perfil }) {
               </table>
             </div>
             {!cargando && !lista.filas.length && (
-              <p>No hay oportunidades para este filtro.</p>
+              <p>No hay prospectos para este filtro.</p>
             )}
             <div className="d-flex gap-3 align-items-center">
               <button
@@ -364,7 +379,7 @@ export function OportunidadesPagina({ gestion, perfil }) {
                 Anterior
               </button>
               <span>
-                {lista.total} oportunidades · página {pagina + 1}
+                {lista.total} casos comerciales · página {pagina + 1}
               </span>
               <button
                 className="btn btn-outline-secondary"

@@ -78,7 +78,7 @@ export function ResumenHistorico({ filas }) {
         de recuperación.
       </p>
       <details>
-        <summary>Ver oportunidades ({seleccionadas.length})</summary>
+        <summary>Ver prospectos ({seleccionadas.length})</summary>
         <table className="table">
           <thead>
             <tr>
@@ -91,7 +91,7 @@ export function ResumenHistorico({ filas }) {
             {seleccionadas.slice(pagina * 20, pagina * 20 + 20).map((r) => (
               <tr key={r.id}>
                 <td>
-                  <Link to={`/oportunidades?id=${r.id}`}>{r.nombre}</Link>
+                  <Link to={`/prospectos?id=${r.id}`}>{r.nombre}</Link>
                 </td>
                 <td>{r.resultado}</td>
                 <td>{r.estado_actual}</td>

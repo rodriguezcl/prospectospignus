@@ -39,16 +39,6 @@ export function crearRepositorioOportunidades(cliente) {
     return data;
   }
   return {
-    async prospectos(pagina = 0) {
-      const { data, error, count } = await cliente
-        .from("prospectos")
-        .select("*,oportunidades(id,necesidad,estado)", { count: "exact" })
-        .order("creado_en", { ascending: false })
-        .order("id")
-        .range(pagina * 20, pagina * 20 + 19);
-      comprobar(error);
-      return { filas: data, total: count };
-    },
     async listar({ pagina = 0, estado = "" } = {}) {
       let consulta = cliente
         .from("oportunidades")

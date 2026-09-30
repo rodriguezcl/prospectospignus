@@ -245,7 +245,72 @@ test("histórico: importación atómica, RLS, reintentos y reactivación sin ree
     db.exec(sql.replace("a".repeat(64), "b".repeat(64))),
     /IMPORTACION_ARCHIVO_CAMBIADO/,
   );
-  await db.exec("rollback; set role anon");
+  await db.exec("rollback");
+  const ventas = async (mes = null, responsable = null, pagina = 0) =>
+    (
+      await db.query(
+        "select public.listar_ventas_concretadas($1,$2,$3) as datos",
+        [mes, responsable, pagina],
+      )
+    ).rows[0].datos;
+  await como(admin);
+  const septiembre = await ventas("2026-09-01");
+  assert.equal(septiembre.total, 1);
+  assert.equal(septiembre.filas[0].cerrado_en, null);
+  assert.equal(septiembre.filas[0].mes_cierre, "2026-09-01");
+  assert.equal(septiembre.filas[0].vendedor_visita_nombre, null);
+  assert.equal((await ventas("2026-10-01")).total, 0);
+  await assert.rejects(ventas("2026-09-02"), /VENTAS_FILTROS/);
+  await assert.rejects(ventas(null, null, -1), /VENTAS_FILTROS/);
+  await como(vendedor);
+  assert.equal((await ventas()).total, 0);
+  assert.equal((await ventas(null, otro)).total, 0);
+  await como(otro);
+  assert.equal((await ventas()).total, 1);
+  // Fixture local: otro ciclo ganado en octubre conserva el mes de procedencia.
+  await db.exec("reset role");
+  await db.query(
+    "update public.oportunidades set estado='ganada',cerrado_por=$1,cerrado_en='2026-10-01T03:00:00Z',proxima_accion_en=null where id=$2",
+    [vendedor, perdida.id],
+  );
+  await como(admin);
+  assert.equal((await ventas("2026-09-01")).total, 1);
+  assert.equal((await ventas("2026-10-01")).total, 1);
+  await db.exec("reset role");
+  await db.query(
+    "update public.oportunidades set cerrado_en='2026-10-01T02:59:59Z' where id=$1",
+    [perdida.id],
+  );
+  await como(admin);
+  assert.equal((await ventas("2026-09-01")).total, 2);
+  assert.equal((await ventas("2026-10-01")).total, 0);
+  await db.exec("reset role");
+  await db.query(
+    `insert into public.oportunidades(id,prospecto_id,necesidad,estado,responsable_id,creado_por,cerrado_por,periodo_historico)
+    select gen_random_uuid(),prospecto_id,'Otra necesidad de prueba','ganada',$1,$1,$1,'2026-09-01'
+    from public.oportunidades cross join generate_series(1,21) where id=$2`,
+    [otro, ganada.id],
+  );
+  await como(otro);
+  const primera = await ventas(),
+    segunda = await ventas(null, null, 1);
+  assert.equal(primera.total, 22);
+  assert.equal(primera.filas.length, 20);
+  assert.equal(segunda.filas.length, 2);
+  assert.equal(
+    new Set([...primera.filas, ...segunda.filas].map((v) => v.id)).size,
+    22,
+  );
+  await db.exec("reset role");
+  await db.query("update public.perfiles set activo=false where id=$1", [otro]);
+  await como(admin);
+  assert.equal(
+    (await ventas()).responsables.some((r) => r.id === otro),
+    true,
+  );
+  await como(otro);
+  await assert.rejects(ventas(), /VENTAS_ACCESO/);
+  await db.exec("reset role; set role anon");
   await assert.rejects(
     db.query("select * from public.listar_historico_mensual('2026-09-01')"),
     /permission denied/,
