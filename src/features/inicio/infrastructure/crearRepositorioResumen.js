@@ -1,9 +1,7 @@
 function comprobar(error) {
   if (!error) return;
   if (error.code === "PGRST202")
-    throw new Error(
-      "Falta aplicar la migración de estadísticas (202609300004).",
-    );
+    throw new Error("Falta aplicar una migración de estadísticas (004/008).");
   throw new Error(
     "No pudimos cargar las estadísticas. Revisá tu conexión y volvé a intentar.",
   );
@@ -40,7 +38,33 @@ export function crearRepositorioResumen(cliente) {
       ]);
       comprobar(perfiles.error);
       comprobar(origenes.error);
-      return { registros, perfiles: perfiles.data, origenes: origenes.data };
+      const historico = [];
+      const historicosVistos = new Set();
+      for (let desde = 0; ; desde += 500) {
+        const { data, error } = await cliente
+          .rpc("listar_historico_mensual", { p_mes: `${mes}-01` })
+          .range(desde, desde + 499);
+        comprobar(error);
+        for (const fila of data) {
+          if (historicosVistos.has(fila.id))
+            throw new Error(
+              "El histórico cambió durante la lectura. Recargá el tablero.",
+            );
+          historicosVistos.add(fila.id);
+          historico.push(fila);
+        }
+        if (historico.length > 10000)
+          throw new Error(
+            "El histórico supera 10.000 oportunidades. No se muestran totales parciales.",
+          );
+        if (data.length < 500) break;
+      }
+      return {
+        registros,
+        perfiles: perfiles.data,
+        origenes: origenes.data,
+        historico,
+      };
     },
   };
 }

@@ -200,13 +200,34 @@ export function OportunidadesPagina({ gestion, perfil }) {
               {detalle.prospectos.telefono} · {detalle.prospectos.direccion}
             </p>
             <p>{detalle.necesidad}</p>
+            {detalle.periodo_historico && (
+              <p className="alert alert-info">
+                Importación histórica de {detalle.periodo_historico.slice(0, 7)}
+                . Fechas de visita, canal de aceptación y motivo individual no
+                informados. El historial conserva el resultado original del mes.
+              </p>
+            )}
             <dl>
+              <dt>Ciclo comercial</dt>
+              <dd>{detalle.ciclo || 1}</dd>
+              {detalle.responsable_historico_id && (
+                <>
+                  <dt>Vendedor del histórico</dt>
+                  <dd>{nombre(detalle.responsable_historico_id)}</dd>
+                </>
+              )}
               <dt>Responsable actual</dt>
               <dd>{nombre(detalle.responsable_id)}</dd>
               <dt>Captador / vendedor de visita / responsable al cierre</dt>
               <dd>
-                {nombre(detalle.prospectos.captado_por)} /{" "}
-                {nombre(detalle.vendedor_visita_id)} /{" "}
+                {detalle.prospectos.captado_por
+                  ? nombre(detalle.prospectos.captado_por)
+                  : "No informado"}{" "}
+                /{" "}
+                {detalle.vendedor_visita_id
+                  ? nombre(detalle.vendedor_visita_id)
+                  : "No informado"}{" "}
+                /{" "}
                 {detalle.cerrado_por
                   ? nombre(detalle.cerrado_por)
                   : "Sin cierre"}

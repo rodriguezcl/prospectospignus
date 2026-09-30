@@ -45,3 +45,25 @@ test("resumen obligatorio y fechas de Córdoba independientes del navegador", ()
   );
   assert.equal(fechaCordoba("2026-09-30T09:30"), "2026-09-30T12:30:00.000Z");
 });
+
+test("solo responsable o administración pueden reactivar perdidas, nunca ganadas", () => {
+  const oportunidad = { estado: "perdida", responsable_id: "vendedor" };
+  assert.deepEqual(
+    accionesPermitidas(oportunidad, { id: "vendedor", rol: "vendedor" }),
+    ["reactivar"],
+  );
+  assert.deepEqual(
+    accionesPermitidas(oportunidad, { id: "otro", rol: "vendedor" }),
+    [],
+  );
+  assert.deepEqual(
+    accionesPermitidas(oportunidad, { id: "admin", rol: "administrador" }),
+    ["reactivar"],
+  );
+  assert.throws(() =>
+    validarOperacion({
+      accion: "reactivar",
+      datos: { resumen: "Nuevo interés" },
+    }),
+  );
+});

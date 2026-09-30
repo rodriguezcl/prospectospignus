@@ -14,11 +14,15 @@ export const acciones = {
   reasignar: "Reasignar responsable",
   ganar: "Registrar aceptación · Ganada",
   perder: "Cerrar como Perdida",
+  reactivar: "Reactivar oportunidad perdida",
 };
 export function accionesPermitidas(oportunidad, perfil) {
-  if (!oportunidad || ["ganada", "perdida"].includes(oportunidad.estado))
-    return [];
+  if (!oportunidad || oportunidad.estado === "ganada") return [];
   const admin = perfil.rol === "administrador";
+  if (oportunidad.estado === "perdida")
+    return admin || oportunidad.responsable_id === perfil.id
+      ? ["reactivar"]
+      : [];
   if (!oportunidad.responsable_id)
     return admin
       ? ["asignar", "reasignar"]
@@ -43,7 +47,7 @@ export function validarOperacion(entrada) {
   if (resumen.length < 5 || resumen.length > 2000)
     throw new Error("El resumen debe tener entre 5 y 2000 caracteres.");
   if (
-    ["crear", "reprogramar", "seguimiento", "derivar"].includes(
+    ["crear", "reprogramar", "seguimiento", "derivar", "reactivar"].includes(
       entrada.accion,
     ) &&
     !entrada.datos.plazo

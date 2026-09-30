@@ -161,9 +161,20 @@ export function FormularioOportunidad({
                 .map((p) => [p.id, p.nombre])}
             />
           )}
-          {["crear", "reprogramar", "seguimiento", "derivar"].includes(
-            accion,
-          ) && (
+          {accion === "reactivar" && (
+            <p>
+              Inicia un nuevo ciclo de seguimiento. Conserva el cierre perdido
+              anterior y su historial; no modifica el resultado histórico.
+              Indicá por qué se retoma el contacto.
+            </p>
+          )}
+          {[
+            "crear",
+            "reprogramar",
+            "seguimiento",
+            "derivar",
+            "reactivar",
+          ].includes(accion) && (
             <Campo
               nombre="plazo"
               titulo={

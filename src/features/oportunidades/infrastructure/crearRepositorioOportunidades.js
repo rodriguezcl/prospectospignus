@@ -25,7 +25,7 @@ function comprobar(error) {
   };
   if (["42P01", "PGRST202", "PGRST205"].includes(error.code))
     throw new Error(
-      "Falta activar la migración 006 de Agentes y Oportunidades en Supabase.",
+      "Falta activar una migración del circuito comercial en Supabase (006/007).",
     );
   throw new Error(
     mensajes[error.message] ||
@@ -105,13 +105,18 @@ export function crearRepositorioOportunidades(cliente) {
     disponibilidad: (valor) =>
       rpc("disponibilidad_agente", { p_disponible: valor }),
     guardar: ({ id, version, operacion, accion, datos }) =>
-      rpc("gestionar_oportunidad", {
-        p_id: id,
-        p_version: version,
-        p_operacion: operacion,
-        p_accion: accion,
-        p_datos: datos,
-      }),
+      rpc(
+        accion === "reactivar"
+          ? "reactivar_oportunidad"
+          : "gestionar_oportunidad",
+        {
+          p_id: id,
+          p_version: version,
+          p_operacion: operacion,
+          ...(accion === "reactivar" ? {} : { p_accion: accion }),
+          p_datos: datos,
+        },
+      ),
     async notificaciones() {
       const { data, error } = await cliente
         .from("notificaciones")

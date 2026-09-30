@@ -208,4 +208,12 @@ Las notificaciones internas persistentes avisan de asignación de visita y recup
 
 Agente no administra cuentas ni consulta indiscriminadamente carteras de vendedores. Accede a oportunidades propias y a la cola de recuperación; el vendedor participante conserva acceso de lectura a su oportunidad después de derivarla. Los indicadores de cierres cuentan una oportunidad una vez y distinguen captación, visita y cierre. Las cuentas con responsabilidad abierta no pueden cambiar de rol ni desactivarse hasta reasignar sus casos. El administrador actual cumple la supervisión comercial autorizada, sin crear roles adicionales en esta entrega.
 
+## 18. Histórico de septiembre de 2026 y reactivación
+
+La nómina corregida contiene 950 oportunidades comerciales reales, asignadas a Gonzalo Rivadero (317), Martin Oliva (317) y Franco Suarez (316). Las 29 ganadas están identificadas individualmente en el Excel (10, 11 y 8 respectivamente). Administración indicó clasificar las otras 921 como Perdidas para este mes. No es un lote de demostración ni se asignan resultados aleatorios. Esa clasificación no acredita un rechazo individual ni una propuesta final del agente; el motivo se conserva como no informado histórico.
+
+El mes de actividad es septiembre; los días y horarios de la planilla están declarados como distribución estimada. Se conserva esa procedencia sin inventar visitas, fecha exacta de aceptación, captador, canal ni condiciones. La fecha de registro del servidor representa la importación. El resumen histórico mensual se separa de la captación diaria en vivo. La carga guarda huella del archivo, clave del lote/fila, responsable original y evento de resultado; los reintentos no duplican ni sobrescriben cambios posteriores.
+
+El responsable activo o administración pueden reactivar una Perdida con motivo y próxima acción futura. Inicia otro ciclo en la misma oportunidad, conserva el cierre original y no altera el resumen histórico de septiembre. No se permite reabrir una Ganada mediante esta acción. Las reglas de calificación, recuperación y cierre de nuevas gestiones siguen vigentes; la excepción de información faltante se limita a la migración histórica.
+
 **Fin.**

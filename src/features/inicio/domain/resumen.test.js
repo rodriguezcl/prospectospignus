@@ -45,6 +45,8 @@ test("repositorio pagina más de mil filas sin truncar estadísticas", async () 
   const rangos = [];
   const cliente = {
     rpc: (nombre, parametros) => {
+      if (nombre === "listar_historico_mensual")
+        return { range: async () => ({ data: [] }) };
       assert.equal(nombre, "listar_resumen_mensual");
       assert.equal(parametros.p_mes, "2026-09-01");
       return {

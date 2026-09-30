@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { seleccionarRegistros } from "../domain/resumen.js";
 import { GraficoRegistros } from "./GraficoRegistros.jsx";
+import { ResumenHistorico } from "./ResumenHistorico.jsx";
 
 export function EstadisticasMensuales({ gestion, perfil }) {
   const [mes, cambiarMes] = useState("2026-09");
@@ -105,6 +106,10 @@ export function EstadisticasMensuales({ gestion, perfil }) {
         <p role="status">Cargando estadísticas…</p>
       ) : (
         <>
+          <ResumenHistorico key={mes} filas={datos.historico || []} />
+          {!!datos.historico?.length && (
+            <h3>Cargas registradas en la plataforma (excluye el histórico)</h3>
+          )}
           {datos.resumen.demostracion > 0 && (
             <p className="alert alert-warning">
               Contiene {datos.resumen.demostracion} registros de demostración.
