@@ -38,7 +38,17 @@ export function EstadisticasMensuales({ gestion, perfil }) {
     cambiarPagina(0);
   };
   const nombrePerfil = (id) =>
-    datos.perfiles.find((p) => p.id === id)?.nombre || "Otro integrante";
+    id
+      ? datos.perfiles.find((p) => p.id === id)?.nombre || "Otro integrante"
+      : "Sin asignar";
+  const fechaCarga = (r) =>
+    r.fecha_carga
+      ? new Intl.DateTimeFormat("es-AR", {
+          dateStyle: "short",
+          timeStyle: "medium",
+          timeZone: "America/Argentina/Cordoba",
+        }).format(new Date(r.fecha_carga))
+      : r.dia;
   const nombreOrigen = (codigo) =>
     datos.origenes.find((o) => o.codigo === codigo)?.nombre || codigo;
   const filas = datos ? seleccionarRegistros(datos.registros, filtro) : [];
@@ -57,9 +67,15 @@ export function EstadisticasMensuales({ gestion, perfil }) {
           nombre: nombreOrigen,
         },
         {
-          titulo: "Por creador (no responsable actual)",
+          titulo: "Registrado por (incluye importador)",
           campo: "creado_por",
           valores: datos.resumen.porCreador,
+          nombre: nombrePerfil,
+        },
+        {
+          titulo: "Por responsable actual",
+          campo: "responsable_id",
+          valores: datos.resumen.porResponsable,
           nombre: nombrePerfil,
         },
       ]
@@ -108,7 +124,12 @@ export function EstadisticasMensuales({ gestion, perfil }) {
         <>
           <ResumenHistorico key={mes} filas={datos.historico || []} />
           {!!datos.historico?.length && (
-            <h3>Cargas registradas en la plataforma (excluye el histórico)</h3>
+            <p>
+              Los gráficos incluyen las cargas históricas con fecha confirmada
+              por administración, usando el día y la hora del Excel en Córdoba.
+              La importación no cambia esa fecha ni se cuenta dos veces. Estas
+              son fechas de carga, no fechas de cierre de venta.
+            </p>
           )}
           {datos.resumen.demostracion > 0 && (
             <p className="alert alert-warning">
@@ -234,9 +255,9 @@ export function EstadisticasMensuales({ gestion, perfil }) {
                 <thead>
                   <tr>
                     <th scope="col">Nombre</th>
-                    <th scope="col">Día</th>
+                    <th scope="col">Fecha y hora de carga · Córdoba</th>
                     <th scope="col">Origen</th>
-                    <th scope="col">Creador</th>
+                    <th scope="col">Registrado por</th>
                     <th scope="col">Tipo</th>
                   </tr>
                 </thead>
@@ -248,11 +269,15 @@ export function EstadisticasMensuales({ gestion, perfil }) {
                           {r.nombre}
                         </Link>
                       </td>
-                      <td>{r.dia}</td>
+                      <td>{fechaCarga(r)}</td>
                       <td>{nombreOrigen(r.origen)}</td>
                       <td>{nombrePerfil(r.creado_por)}</td>
                       <td>
-                        {r.lote_demostracion ? "DEMO" : "No demostración"}
+                        {r.lote_demostracion
+                          ? "DEMO"
+                          : r.tipo_carga === "historica_confirmada"
+                            ? "Histórico · fecha confirmada"
+                            : "Plataforma"}
                       </td>
                     </tr>
                   ))}

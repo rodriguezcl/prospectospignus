@@ -1,7 +1,7 @@
 function comprobar(error) {
   if (!error) return;
   if (error.code === "PGRST202")
-    throw new Error("Falta aplicar una migración de estadísticas (004/008).");
+    throw new Error("Falta aplicar una migración de estadísticas (008/009).");
   throw new Error(
     "No pudimos cargar las estadísticas. Revisá tu conexión y volvé a intentar.",
   );
@@ -15,7 +15,7 @@ export function crearRepositorioResumen(cliente) {
       const ids = new Set();
       for (let desde = 0; ; desde += 500) {
         const { data, error } = await cliente
-          .rpc("listar_resumen_mensual", { p_mes: `${mes}-01` })
+          .rpc("listar_cargas_mensuales", { p_mes: `${mes}-01` })
           .range(desde, desde + 499);
         comprobar(error);
         for (const r of data) {

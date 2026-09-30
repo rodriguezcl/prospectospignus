@@ -53,7 +53,7 @@ test("histórico: importación atómica, RLS, reintentos y reactivación sin ree
       correo: `contacto${i}@example.invalid`,
       direccion: "Dirección de prueba",
       observaciones: "Prueba local",
-      fecha_estimada: "2026-09-01 10:00:00",
+      fecha_estimada: i ? "2026-09-30 23:59:59" : "2026-09-01 10:00:00",
       estado,
     })),
   };
@@ -63,6 +63,65 @@ test("histórico: importación atómica, RLS, reintentos y reactivación sin ree
   );
   await db.exec(sql);
   await db.exec(sql);
+  const antesFechas = (
+    await db.query(
+      "select id,creado_en,importacion_historica from public.registros_iniciales order by id",
+    )
+  ).rows;
+  assert.equal(
+    (
+      await db.query(
+        "select * from public.listar_cargas_mensuales('2026-09-01')",
+      )
+    ).rows.length,
+    0,
+  );
+  const confirmar = (huella = entrada.sha256) =>
+    db.query("select privado.confirmar_fechas_lote($1,$2,$3,$4) as cantidad", [
+      entrada.lote,
+      huella,
+      admin,
+      2,
+    ]);
+  await assert.rejects(confirmar("b".repeat(64)), /FECHAS_LOTE/);
+  assert.equal((await confirmar()).rows[0].cantidad, 2);
+  assert.equal((await confirmar()).rows[0].cantidad, 0);
+  assert.deepEqual(
+    (
+      await db.query(
+        "select id,creado_en,importacion_historica from public.registros_iniciales order by id",
+      )
+    ).rows,
+    antesFechas,
+  );
+  const cargas = (
+    await db.query("select * from public.listar_cargas_mensuales('2026-09-01')")
+  ).rows;
+  assert.equal(cargas.length, 2);
+  assert.equal(
+    new Date(cargas[1].fecha_carga).toISOString(),
+    "2026-10-01T02:59:59.000Z",
+  );
+  assert.equal(
+    new Date(cargas[1].dia).toISOString().slice(0, 10),
+    "2026-09-30",
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select * from public.listar_cargas_mensuales('2026-10-01')",
+      )
+    ).rows.length,
+    0,
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select * from public.eventos_registros where tipo='registro_actualizado'",
+      )
+    ).rows.length,
+    2,
+  );
   assert.equal(
     (await db.query("select * from public.oportunidades")).rows.length,
     2,
@@ -94,6 +153,15 @@ test("histórico: importación atómica, RLS, reintentos y reactivación sin ree
       d,
     ]);
   await como(otro);
+  assert.equal(
+    (
+      await db.query(
+        "select * from public.listar_cargas_mensuales('2026-09-01')",
+      )
+    ).rows.length,
+    1,
+  );
+  await assert.rejects(confirmar(), /permission denied/);
   assert.equal(
     (
       await db.query(

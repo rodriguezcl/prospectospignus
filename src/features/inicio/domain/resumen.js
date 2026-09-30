@@ -23,7 +23,8 @@ export function resumirMes(mes, registros) {
     cantidad: 0,
   }));
   const origenes = new Map(),
-    creadores = new Map();
+    creadores = new Map(),
+    responsables = new Map();
   for (const r of registros) {
     const dia = porDia.find((d) => d.valor === r.dia);
     if (!dia)
@@ -33,12 +34,18 @@ export function resumirMes(mes, registros) {
     dia.cantidad++;
     origenes.set(r.origen, (origenes.get(r.origen) || 0) + 1);
     creadores.set(r.creado_por, (creadores.get(r.creado_por) || 0) + 1);
+    responsables.set(
+      r.responsable_id,
+      (responsables.get(r.responsable_id) || 0) + 1,
+    );
   }
   const agrupar = (mapa) =>
     [...mapa]
       .map(([valor, cantidad]) => ({ valor, cantidad }))
       .sort(
-        (a, b) => b.cantidad - a.cantidad || a.valor.localeCompare(b.valor),
+        (a, b) =>
+          b.cantidad - a.cantidad ||
+          String(a.valor ?? "").localeCompare(String(b.valor ?? "")),
       );
   return {
     total: registros.length,
@@ -47,5 +54,6 @@ export function resumirMes(mes, registros) {
     porDia,
     porOrigen: agrupar(origenes),
     porCreador: agrupar(creadores),
+    porResponsable: agrupar(responsables),
   };
 }

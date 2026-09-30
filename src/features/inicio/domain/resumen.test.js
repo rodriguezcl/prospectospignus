@@ -27,6 +27,10 @@ test("mes completo, ceros, creador y detalle coincidente", () => {
   assert.equal(resumen.porDia.length, 30);
   assert.equal(resumen.porDia[1].cantidad, 0);
   assert.deepEqual(resumen.porCreador, [{ valor: "a", cantidad: 2 }]);
+  assert.deepEqual(resumen.porResponsable, [
+    { valor: null, cantidad: 1 },
+    { valor: "b", cantidad: 1 },
+  ]);
   assert.equal(
     seleccionarRegistros(filas, { campo: "creado_por", valor: "a" }).length,
     2,
@@ -47,7 +51,7 @@ test("repositorio pagina más de mil filas sin truncar estadísticas", async () 
     rpc: (nombre, parametros) => {
       if (nombre === "listar_historico_mensual")
         return { range: async () => ({ data: [] }) };
-      assert.equal(nombre, "listar_resumen_mensual");
+      assert.equal(nombre, "listar_cargas_mensuales");
       assert.equal(parametros.p_mes, "2026-09-01");
       return {
         range: async (desde, hasta) => {

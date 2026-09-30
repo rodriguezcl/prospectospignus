@@ -1,5 +1,11 @@
 # Importación retrospectiva de septiembre
 
+## Aclaración posterior sobre fechas
+
+Administración confirmó que las fechas y horas asignadas son las fechas reales de carga. La migración 009 habilita su uso en los gráficos diarios mediante `fecha_carga_historica`, sin reemplazar `creado_en` ni la etiqueta original del archivo. La confirmación auditada prevalece para estadísticas de carga; no aporta fechas de cierre. No se reimportan registros ni cambian los 29 resultados ganados y 921 perdidos. Los apartados siguientes describen la importación inicial, previa a esta aclaración.
+
+La migración 009 se aplicó el 30-09-2026 y la confirmación devolvió 950 filas actualizadas, con evento de auditoría individual. El nuevo frontend usa la proyección `listar_cargas_mensuales`; queda pendiente de commit, push y despliegue. Verificados 34 tests y build, incluyendo límites de mes en Córdoba, conservación de `creado_en` y procedencia, reintentos sin doble evento y aislamiento por cartera.
+
 ## Datos y controles
 
 Archivo fuente: `Prospectos_septiembre_2026_sin_repetir_asignados.xlsx`, hoja Hoja1. 950 registros, 29 con Ganadas=SI y 921 vacíos clasificados como perdidos por indicación expresa de administración. No se modifica el original. Los datos personales y el SQL generado no se versionan.

@@ -214,6 +214,8 @@ La nómina corregida contiene 950 oportunidades comerciales reales, asignadas a 
 
 El mes de actividad es septiembre; los días y horarios de la planilla están declarados como distribución estimada. Se conserva esa procedencia sin inventar visitas, fecha exacta de aceptación, captador, canal ni condiciones. La fecha de registro del servidor representa la importación. El resumen histórico mensual se separa de la captación diaria en vivo. La carga guarda huella del archivo, clave del lote/fila, responsable original y evento de resultado; los reintentos no duplican ni sobrescriben cambios posteriores.
 
+**Aclaración posterior confirmada por administración:** las fechas y horas asignadas del Excel son las fechas reales de carga y deben alimentar los gráficos diarios. La etiqueta «Distribución estimada» del archivo se conserva como evidencia original, pero la confirmación posterior se registra con auditoría. `fecha_carga_historica` guarda el instante confirmado en Córdoba; `creado_en` sigue siendo el instante de importación. El tablero incluye ambas fuentes sin duplicar registros, distingue el importador del vendedor responsable y no utiliza la fecha de carga como fecha de cierre.
+
 El responsable activo o administración pueden reactivar una Perdida con motivo y próxima acción futura. Inicia otro ciclo en la misma oportunidad, conserva el cierre original y no altera el resumen histórico de septiembre. No se permite reabrir una Ganada mediante esta acción. Las reglas de calificación, recuperación y cierre de nuevas gestiones siguen vigentes; la excepción de información faltante se limita a la migración histórica.
 
 **Fin.**

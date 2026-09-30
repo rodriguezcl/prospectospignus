@@ -14,9 +14,10 @@ export function ResumenHistorico({ filas }) {
     <section className="card card-body" aria-labelledby="historico-titulo">
       <h3 id="historico-titulo">Resultados históricos del mes</h3>
       <p>
-        Datos comerciales importados de Excel. Las fechas y horas diarias del
-        archivo son estimadas: no se presentan como actividad real. El resultado
-        original se conserva aunque una oportunidad se reactive.
+        Datos comerciales importados de Excel. Las fechas de carga confirmadas
+        por administración se incluyen en los gráficos diarios. El resultado
+        original se conserva aunque una oportunidad se reactive; la fecha de
+        carga no se interpreta como fecha de cierre.
       </p>
       <div className="d-flex flex-wrap gap-3 mb-3">
         {[
