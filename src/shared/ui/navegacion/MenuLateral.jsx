@@ -1,4 +1,5 @@
 import { Link, NavLink } from "react-router-dom";
+import { MarcaPignus } from "../contenido/MarcaPignus.jsx";
 
 export function MenuLateral({
   grupos,
@@ -18,10 +19,7 @@ export function MenuLateral({
       <div className="sidebar-wrapper">
         <div className="sidebar-header">
           <Link className="marca" to="/inicio" onClick={navegar}>
-            <span className="marca-simbolo">P</span>
-            <span>
-              PIGNUS<small>Prospectos</small>
-            </span>
+            <MarcaPignus />
           </Link>
           <button
             ref={referenciaCerrar}

@@ -16,6 +16,7 @@ test("demostración: carga idempotente, mes Córdoba, RLS, limpieza acotada", as
     "202609290002_alta_diferida.sql",
     "202609290003_registros_iniciales.sql",
     "202609300004_demostracion_y_resumen.sql",
+    "202609300005_gestion_cuentas.sql",
   ])
     await db.exec(await leer(`../migrations/${archivo}`));
   const admin = "00000000-0000-0000-0000-000000000001",

@@ -47,6 +47,8 @@ Distinguir errores de validación, dominio, autenticación/autorización, infrae
 
 Ocultar enlaces no autoriza operaciones. La integración de acceso utiliza Supabase Auth, RLS para perfiles y una Edge Function que exige administrador activo para crear cuentas. Nunca exponer service_role ni secretos en VITE_*. La activación y las pruebas reales de servidor se describen en `docs/AUTENTICACION.md`; no confundir el código local con un despliegue completado.
 
+La gestión posterior de cuentas utiliza la RPC transaccional `gestionar_cuenta`: valida administrador activo por `auth.uid()`, versión, motivo, último administrador y vínculos históricos. Editar afecta únicamente nombre/rol del perfil; desactivar afecta elegibilidad en Pignus, sin cambiar credenciales Auth. La eliminación limitada de una cuenta sin actividad comercial borra `auth.users` y su perfil por FK en una única transacción privilegiada, preservando eventos de cuenta. Esta integración puntual con el esquema Auth requiere verificación en Supabase al desplegar; no expone permisos directos de escritura al navegador. Cada nueva entidad comercial debe ampliar las comprobaciones de eliminación antes de habilitarse.
+
 ## Routing y accesibilidad
 
 HashRouter mantiene el hosting independiente de las features. `#prospectos` se normaliza a `#/prospectos` conservando consultas; destinos desconocidos muestran 404. El menú y los accesos de Inicio reciben destinos desde app.

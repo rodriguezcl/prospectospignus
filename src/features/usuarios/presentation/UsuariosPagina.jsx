@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { EncabezadoPagina } from "../../../shared/ui/contenido/EncabezadoPagina.jsx";
+import { FormularioGestionCuenta } from "./FormularioGestionCuenta.jsx";
 
 export function UsuariosPagina({ gestion }) {
   const [cuentas, cambiarCuentas] = useState([]);
@@ -7,6 +8,9 @@ export function UsuariosPagina({ gestion }) {
   const [guardando, cambiarGuardando] = useState(false);
   const [error, cambiarError] = useState("");
   const [aviso, cambiarAviso] = useState("");
+  const [seleccion, cambiarSeleccion] = useState(null);
+  const botonActualizar = useRef(null);
+  const operacionEnCurso = useRef(false);
   const formulario = useRef(null);
   const vigente = useRef(false);
 
@@ -53,13 +57,40 @@ export function UsuariosPagina({ gestion }) {
     }
   }
 
+  async function gestionar(datos) {
+    if (operacionEnCurso.current || guardando) return;
+    operacionEnCurso.current = true;
+    cambiarGuardando(true);
+    cambiarError("");
+    cambiarAviso("");
+    try {
+      await gestion.gestionar(datos);
+      if (!vigente.current) return;
+      cambiarSeleccion(null);
+      cambiarAviso(
+        datos.accion === "eliminar"
+          ? "Cuenta eliminada. Se conservó su auditoría."
+          : "Cuenta actualizada correctamente.",
+      );
+      await cargar();
+    } catch (fallo) {
+      if (vigente.current) cambiarError(fallo.message);
+    } finally {
+      operacionEnCurso.current = false;
+      if (vigente.current) {
+        cambiarGuardando(false);
+        requestAnimationFrame(() => botonActualizar.current?.focus());
+      }
+    }
+  }
+
   return (
     <>
       <EncabezadoPagina
         titulo="Usuarios"
-        descripcion="Creá las cuentas del equipo y asigná su rol de acceso."
+        descripcion="Creá y administrá las cuentas del equipo y su acceso."
       />
-      {error && (
+      {error && !seleccion && (
         <div className="alert alert-danger" role="alert">
           {error}
         </div>
@@ -73,7 +104,7 @@ export function UsuariosPagina({ gestion }) {
         <div className="card-body">
           <h2 className="h5">Crear cuenta</h2>
           <form ref={formulario} onSubmit={crear} aria-busy={guardando}>
-            <fieldset disabled={guardando}>
+            <fieldset disabled={guardando || !!seleccion}>
               <div className="row g-3">
                 <div className="col-md-6">
                   <label className="form-label" htmlFor="nombre-usuario">
@@ -151,13 +182,32 @@ export function UsuariosPagina({ gestion }) {
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h2 className="h5 mb-0">Cuentas del equipo</h2>
             <button
+              ref={botonActualizar}
               className="btn btn-outline-primary btn-sm"
-              disabled={cargando || guardando}
+              disabled={cargando || guardando || !!seleccion}
               onClick={cargar}
             >
               Actualizar
             </button>
           </div>
+          <p className="text-muted small">
+            Desactivar conserva la cuenta y su historial. Eliminar solo está
+            permitido sin actividad comercial ni vínculos con otras cuentas. No
+            podés retirar tu propio acceso.
+          </p>
+          {seleccion && (
+            <FormularioGestionCuenta
+              key={`${seleccion.cuenta.id}-${seleccion.accion}`}
+              {...seleccion}
+              ocupado={guardando}
+              error={error}
+              confirmar={gestionar}
+              cancelar={() => {
+                cambiarSeleccion(null);
+                requestAnimationFrame(() => botonActualizar.current?.focus());
+              }}
+            />
+          )}
           {cargando ? (
             <p role="status">Cargando cuentas…</p>
           ) : cuentas.length === 0 ? (
@@ -174,6 +224,7 @@ export function UsuariosPagina({ gestion }) {
                     <th scope="col">Correo</th>
                     <th scope="col">Rol</th>
                     <th scope="col">Estado</th>
+                    <th scope="col">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -187,6 +238,39 @@ export function UsuariosPagina({ gestion }) {
                           : "Vendedor"}
                       </td>
                       <td>{cuenta.activo ? "Activa" : "Inactiva"}</td>
+                      <td>
+                        {cuenta.lote_demostracion ? (
+                          <small>
+                            DEMO · retiro mediante limpieza del lote
+                          </small>
+                        ) : (
+                          <div className="d-flex gap-2 flex-wrap">
+                            {[
+                              ["editar", "Editar"],
+                              [
+                                cuenta.activo ? "desactivar" : "reactivar",
+                                cuenta.activo ? "Desactivar" : "Reactivar",
+                              ],
+                              ["eliminar", "Eliminar"],
+                            ].map(([accion, etiqueta]) => (
+                              <button
+                                type="button"
+                                key={accion}
+                                className={`btn btn-sm ${accion === "eliminar" ? "btn-outline-danger" : "btn-outline-primary"}`}
+                                disabled={guardando || !!seleccion}
+                                aria-label={`${etiqueta}: ${cuenta.nombre}`}
+                                onClick={() => {
+                                  cambiarError("");
+                                  cambiarAviso("");
+                                  cambiarSeleccion({ cuenta, accion });
+                                }}
+                              >
+                                {etiqueta}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

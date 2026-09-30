@@ -44,16 +44,6 @@ body {
   font-weight: 400;
   margin-top: 5px;
 }
-.marca-simbolo {
-  display: grid;
-  place-items: center;
-  width: 43px;
-  height: 43px;
-  background: #435ebe;
-  color: white;
-  border-radius: 13px;
-  font-size: 29px;
-}
 .sidebar-wrapper .menu {
   padding: 0 1.4rem;
 }

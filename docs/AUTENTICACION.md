@@ -49,6 +49,19 @@ Ejecutar `node scripts/crear-primer-administrador.mjs`. Inyectar secretos median
 
 En el proyecto configurado comprobar: login correcto/incorrecto; persistencia al recargar; logout; creación de ambos roles; correo repetido; cambio de contraseña; acceso directo de vendedor a /usuarios; intento directo al endpoint con token vendedor/ausente; lectura de perfiles ajenos; intento de UPDATE del rol con clave pública; autorregistro directo rechazado; desactivación de perfil; fallo de red sin desbloquear contenido. Deben fallar las operaciones no autorizadas aunque se modifique el navegador.
 
+## Gestión de cuentas existentes
+
+Aplicar `202609300005_gestion_cuentas.sql` después de las migraciones anteriores y antes de publicar este frontend. La migración agrega versión al perfil, snapshots/motivo a auditoría y la RPC `gestionar_cuenta`; no modifica roles ni estados existentes. No requiere una Edge Function nueva. Código local y pruebas no implican migración remota aplicada.
+
+- Administrador activo: editar nombre y rol, desactivar, reactivar y eliminar cuentas sin actividad comercial. Correo y contraseña quedan fuera de la edición.
+- Todos los cambios requieren motivo y versión vigente; identidad procede del JWT, no del cuerpo. Los cambios de cuentas y altas comparten bloqueo transaccional. No se permite quitar acceso al último administrador ni cambiar el propio rol, desactivar o eliminar la propia cuenta.
+- Desactivar conserva cartera y auditoría; no reasigna registros. RLS y operaciones del servidor consultan el perfil activo en cada solicitud. No equivale a banear la identidad en Supabase Auth ni a borrar el token del dispositivo; la interfaz puede conservar datos ya descargados hasta recuperar foco/recargar.
+- Eliminar exige escribir el correo exacto, comprueba creador, responsable actual e histórico, actor de eventos, cuentas creadas y auditoría como actor de otras cuentas. Un nombre/rol editado o desactivación no impide eliminar una cuenta sin actividad comercial: sus eventos administrativos se conservan. Nunca elimina registros comerciales ni su historial.
+- La eliminación directa y acotada de la fila `auth.users` conserva atomicidad con perfil y auditoría; las FK restantes pueden rechazarla. No utiliza soft-delete ni borra archivos de Storage. Supabase documenta la eliminación directa y advierte que tokens emitidos pueden seguir vigentes; Pignus impide su acceso por ausencia de perfil: [gestión de usuarios](https://supabase.com/docs/guides/auth/managing-user-data). Si se incorporan Storage u otras entidades, revisar vínculos y políticas antes de habilitarlos.
+- Cuentas con `lote_demostracion` no admiten estas operaciones; su retiro sigue siendo la limpieza explícita del lote.
+
+Pruebas: PostgreSQL embebido verifica permisos, último administrador, revocación por perfil, conflictos de versión, auditoría, historial de responsables y eliminación atómica de identidad/perfil. El esquema Auth mínimo de prueba no sustituye una prueba integrada en Supabase: al desplegar validar con una cuenta descartable expresamente autorizada (nunca borrar cuentas reales para probar).
+
 ## Arquitectura
 
 `app/configuracion/servicios.js` compone repositorios Supabase y casos de uso a través de entradas `composicion.js` explícitas de las features. `autenticacion` posee sesión y reglas de acceso; `usuarios` valida y administra altas. Ambas features son independientes. `app` consume sus APIs y coordina rutas/menú. La barra compartida recibe la UI de cuenta como propiedad. No hay SDK en presentación ni dependencias de dominio hacia infraestructura.

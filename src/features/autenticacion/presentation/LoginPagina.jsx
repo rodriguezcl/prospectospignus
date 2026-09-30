@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import { MarcaPignus } from "../../../shared/ui/contenido/MarcaPignus.jsx";
 import { useSesion } from "./ProveedorSesion.jsx";
 import "./autenticacion.css";
 
@@ -48,7 +49,7 @@ export function LoginPagina() {
     <main className="acceso-plataforma">
       <section className="acceso-presentacion" aria-label="Prospectos Pignus">
         <span className="acceso-marca">
-          PIGNUS <small>PROSPECTOS</small>
+          <MarcaPignus />
         </span>
         <div>
           <p className="acceso-etiqueta">TU ESPACIO COMERCIAL</p>
