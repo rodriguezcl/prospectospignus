@@ -1,7 +1,9 @@
 function comprobar(error) {
   if (!error) return;
   if (error.code === "PGRST202")
-    throw new Error("Falta aplicar una migración de estadísticas (008/009).");
+    throw new Error(
+      "Falta aplicar una migración de estadísticas o ventas (008–010).",
+    );
   throw new Error(
     "No pudimos cargar las estadísticas. Revisá tu conexión y volvé a intentar.",
   );
@@ -9,6 +11,42 @@ function comprobar(error) {
 
 export function crearRepositorioResumen(cliente) {
   return {
+    async oportunidades() {
+      const filas = [],
+        vistos = new Set();
+      for (let desde = 0; ; desde += 500) {
+        const { data, error } = await cliente
+          .from("oportunidades")
+          .select(
+            "id,estado,responsable_id,periodo_historico,creado_en,visita_en,proxima_accion_en,prospectos(nombre)",
+          )
+          .order("id")
+          .range(desde, desde + 499);
+        comprobar(error);
+        for (const fila of data) {
+          if (vistos.has(fila.id))
+            throw new Error(
+              "La cartera cambió durante la lectura. Actualizá el resumen.",
+            );
+          vistos.add(fila.id);
+          filas.push(fila);
+        }
+        if (filas.length > 10000)
+          throw new Error(
+            "La cartera supera 10.000 casos. No se muestran totales parciales.",
+          );
+        if (data.length < 500) return filas;
+      }
+    },
+    async ventas(mes, responsable) {
+      const { data, error } = await cliente.rpc("listar_ventas_concretadas", {
+        p_mes: `${mes}-01`,
+        p_responsable: responsable || null,
+        p_pagina: 0,
+      });
+      comprobar(error);
+      return data.total;
+    },
     async cargar(mes) {
       // Evitar el límite implícito de PostgREST: nunca mostrar totales truncados.
       const registros = [];

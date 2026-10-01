@@ -13,6 +13,7 @@
 3. Los criterios de negocio son: aislamiento por cartera, atribución de creador y responsable, origen de los registros iniciales, deduplicación, responsable principal único, gestiones verificables, seguimiento, pérdidas justificadas e historial auditable.
 4. EspoCRM es referencia funcional y técnica, no dependencia, plantilla de código ni autorización para copiar su implementación. Catálogos y umbrales propuestos son configurables.
 5. El producto no implementa procesos posteriores al resultado de la prospección. La condición Ganada es un resultado comercial declarado, con significado y métricas propios.
+6. **Simpleza con criterio:** cada pantalla debe ayudar a entender, decidir o actuar. Se eliminan textos decorativos, repeticiones y módulos redundantes, pero nunca información necesaria para trabajar, advertencias relevantes ni trazabilidad. La simpleza se evalúa por claridad y esfuerzo de uso, no solamente por cantidad de elementos. Vendedores y agentes deben poder encontrar sus tareas, cargar información y retomar gestiones con pocos pasos, especialmente desde el celular; una vista gerencial resumida no debe imponerles una experiencia incompleta. Detalles y explicaciones secundarias se despliegan a demanda, sin esconder acciones frecuentes, errores o permisos. Colores semánticos consistentes, cantidades y etiquetas legibles en ambos temas; el color nunca será la única forma de interpretar un estado.
 
 ## 2. Hallazgos útiles de EspoCRM y límites
 
@@ -251,5 +252,15 @@ Reprogramaciones, cancelaciones y correcciones conservan motivo e historial; no 
 08:00–17:00 es solo referencia de gerencia, nunca un bloqueo. Se permiten todos los horarios, incluidos pedidos excepcionales de clientes, sin autorización especial. La vista diaria diferencia realizadas dentro, fuera o abarcando ambas franjas, sin duplicar una misma actividad en ese día. Programaciones no se contabilizan como ejecución; no se infieren horas efectivamente trabajadas. Actividades que cruzan medianoche se muestran en ambos días correspondientes, sin crear otra entidad.
 
 Primera entrega: vista diaria/semanal del vendedor, selección de vendedor y timeline de administración, actualización cada 30 segundos con la plataforma abierta y recordatorios internos en campana. No promete recordatorios con el navegador cerrado. Las nuevas visitas coordinadas a partir de la activación se integran transaccionalmente; no se inventan actividades a partir del histórico de septiembre ni se reconstruyen visitas anteriores.
+
+## 22. Inicio simple y orientado al rol
+
+Inicio prioriza un resumen mensual y una sección independiente «Para atender ahora». Se retiran bienvenida decorativa, accesos duplicados del menú y listados expandidos por defecto. Administración dispone de filtro por responsable y comparación del equipo; vendedores y agentes ven su atribución propia, sin rankings de terceros. Las restricciones del servidor se mantienen.
+
+Cuatro tarjetas del mismo conjunto: prospectos (necesidades comerciales) del período, ganadas de ese conjunto, su conversión y sus pendientes. El denominador cero se muestra como —. Para oportunidades nuevas el período corresponde a creación en Córdoba y el estado/responsable son los actuales a la fecha de lectura; no se presenta como una medición a 30/60/90 días ni como una atribución histórica de captación. El histórico confirmado mantiene resultado y responsable originales, separado del estado actual que se puede consultar en el detalle. No contar la importación como creación comercial.
+
+Las ventas cerradas en el mes son otro indicador, atribuido al responsable al cierre y enlazado al mismo filtro en Ventas concretadas; no se divide ese total por las cargas del mes. Los gráficos muestran cargas diarias, distribución por estado y, para administración, resultados por responsable. Verde indica ganada, rojo perdida, ámbar seguimiento/pendientes, violeta recuperación y azul visitas/cargas; etiquetas y cifras complementan colores. Cada tarjeta o categoría abre el conjunto que la produjo.
+
+Los pendientes se calculan sobre la cartera actual, independientemente del mes seleccionado: visitas próximas en siete días, visitas pendientes de actualizar y seguimientos vencidos. Recuperación y cola sin asignar se muestran solo a agentes y administración; la cola sin asignar es común y no se atribuye arbitrariamente a un agente. Una visita vencida no demuestra incumplimiento laboral. Los errores de lectura nunca se convierten en ceros; se informa fecha de actualización. El cambio es de consulta/presentación y no modifica resultados comerciales ni permisos.
 
 **Fin.**

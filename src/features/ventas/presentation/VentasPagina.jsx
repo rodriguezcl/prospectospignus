@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const fecha = (valor) =>
   valor
@@ -50,8 +50,19 @@ export function FilasVentas({ filas }) {
 }
 
 export function VentasPagina({ gestion, perfil }) {
-  const [mes, cambiarMes] = useState("");
-  const [responsable, cambiarResponsable] = useState("");
+  const { search } = useLocation();
+  const parametros = new URLSearchParams(search);
+  const [mes, cambiarMes] = useState(() =>
+    /^20\d{2}-(0[1-9]|1[0-2])$/.test(parametros.get("mes") || "")
+      ? parametros.get("mes")
+      : "",
+  );
+  const [responsable, cambiarResponsable] = useState(() =>
+    perfil.rol === "administrador" &&
+    /^[0-9a-f-]{36}$/i.test(parametros.get("responsable") || "")
+      ? parametros.get("responsable")
+      : "",
+  );
   const [pagina, paginar] = useState(0);
   const [revision, revisar] = useState(0);
   const [resultado, guardarResultado] = useState({

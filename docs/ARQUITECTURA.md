@@ -41,6 +41,8 @@ El cliente Supabase compartido pertenece a `src/infrastructure`; cada adaptador 
 
 ## Estado, errores y seguridad
 
+Inicio compone su lectura mensual existente con oportunidades paginadas bajo RLS y la RPC de ventas (010), sin imports entre features. El dominio calcula cohortes, atribuciones y pendientes actuales por separado; la presentación permite abrir el detalle de cada cifra. El histórico usa resultado/responsable originales, no sobrescribe septiembre con estados actuales. Lecturas con error o más de 10.000 filas fallan explícitamente, sin totales truncados. No hay migración ni escritura comercial en este rediseño. Rige el principio de simpleza con criterio del documento rector: resumen a primera vista y detalle accesible a demanda, adaptado al rol.
+
 La apariencia personal se guarda en Supabase Auth (`user_metadata.pignus_tema`), exclusivamente para la cuenta autenticada, mediante el adaptador de autenticación. Es una preferencia visual, nunca una fuente de autorización. El selector del layout aplica `data-bs-theme` y vuelve a claro al desmontarse/cerrar sesión; no hay tema global compartido ni migración comercial. Un fallo de guardado conserva el tema anterior e informa el error. Los estilos propios de noche complementan Mazer sin modificar archivos del proveedor.
 
 Estado de UI local y composición. Context solo cuando sea global; evaluar el estado servidor cuando exista, sin incorporar Redux/Zustand preventivamente.

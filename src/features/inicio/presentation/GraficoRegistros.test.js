@@ -25,6 +25,66 @@ new Function("require", "module", "exports", compilado.outputFiles[0].text)(
   modulo.exports,
 );
 const { GraficoRegistros } = modulo.exports;
+const tableroCompilado = buildSync({
+  entryPoints: [fileURLToPath(new URL("./TableroInicio.jsx", import.meta.url))],
+  bundle: true,
+  write: false,
+  platform: "node",
+  format: "cjs",
+  jsx: "automatic",
+  external: ["react", "react/jsx-runtime", "react-router-dom"],
+  loader: { ".css": "empty" },
+});
+const tableroModulo = { exports: {} };
+new Function(
+  "require",
+  "module",
+  "exports",
+  tableroCompilado.outputFiles[0].text,
+)(createRequire(import.meta.url), tableroModulo, tableroModulo.exports);
+test("Inicio: gráficos con etiquetas, colores semánticos y comparación solo administrativa", () => {
+  const tablero = {
+    cohorte: [{ id: "1" }],
+    porEstado: [
+      { valor: "ganada", nombre: "Ganadas", color: "verde", cantidad: 1 },
+    ],
+    equipo: [
+      {
+        id: "v",
+        nombre: "Vendedor",
+        total: 1,
+        estados: [
+          { valor: "ganada", nombre: "Ganadas", color: "verde", cantidad: 1 },
+        ],
+      },
+    ],
+  };
+  for (const administrador of [true, false]) {
+    const html = renderToStaticMarkup(
+      createElement(tableroModulo.exports.GraficosResultados, {
+        tablero,
+        administrador,
+        seleccionar: () => {},
+      }),
+    );
+    assert.match(html, /Distribución por estado/);
+    assert.match(html, /tono-verde/);
+    assert.match(html, /Ganadas/);
+    assert.equal(html.includes("Resultados por responsable"), administrador);
+    assert.doesNotMatch(html, /NaN|Infinity/);
+  }
+});
+test("Inicio: un período vacío no fabrica porcentajes ni gráficos", () => {
+  const html = renderToStaticMarkup(
+    createElement(tableroModulo.exports.GraficosResultados, {
+      tablero: { cohorte: [] },
+      administrador: true,
+      seleccionar: () => {},
+    }),
+  );
+  assert.match(html, /Sin prospectos/);
+  assert.doesNotMatch(html, /<svg|NaN|Infinity/);
+});
 const dibujar = (campo, valores, filtro = null) =>
   renderToStaticMarkup(
     createElement(GraficoRegistros, {
