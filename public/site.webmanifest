@@ -1,0 +1,17 @@
+{
+  "id": "/",
+  "name": "Prospectos Pignus",
+  "short_name": "Prospectos",
+  "description": "Plataforma comercial de Prospectos Pignus",
+  "lang": "es-AR",
+  "start_url": "/#/inicio",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#123b50",
+  "theme_color": "#123b50",
+  "icons": [
+    { "src": "/iconos/pignus-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/iconos/pignus-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/iconos/pignus-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
