@@ -303,10 +303,16 @@ footer,
 }
 .acceso-marca {
   display: block;
-  background: white;
-  border-radius: 12px;
   width: min(100%, 360px);
-  padding: 8px 12px 18px;
+  margin-inline: auto;
+  padding: 0;
+  text-align: center;
+}
+.acceso-marca .identidad-emblema {
+  background: white;
+}
+.acceso-marca .identidad-producto {
+  color: white;
 }
 .notificaciones {
   position: relative;
