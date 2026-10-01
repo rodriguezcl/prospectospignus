@@ -41,6 +41,8 @@ El cliente Supabase compartido pertenece a `src/infrastructure`; cada adaptador 
 
 ## Estado, errores y seguridad
 
+La apariencia personal se guarda en Supabase Auth (`user_metadata.pignus_tema`), exclusivamente para la cuenta autenticada, mediante el adaptador de autenticación. Es una preferencia visual, nunca una fuente de autorización. El selector del layout aplica `data-bs-theme` y vuelve a claro al desmontarse/cerrar sesión; no hay tema global compartido ni migración comercial. Un fallo de guardado conserva el tema anterior e informa el error. Los estilos propios de noche complementan Mazer sin modificar archivos del proveedor.
+
 Estado de UI local y composición. Context solo cuando sea global; evaluar el estado servidor cuando exista, sin incorporar Redux/Zustand preventivamente.
 
 Distinguir errores de validación, dominio, autenticación/autorización, infraestructura e inesperados. Los adaptadores traducen fallos externos; presentación muestra mensajes comprensibles sin secretos ni detalles internos. Crear tipos o clases al existir consumidores reales.

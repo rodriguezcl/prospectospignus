@@ -3,6 +3,12 @@ import { tieneAcceso } from "../domain/acceso.js";
 // Puerto: iniciarSesion, cerrarSesion, obtenerPerfil, observarSesion, cambiarClave.
 export function crearAcceso(repositorio) {
   return {
+    obtenerTema: (id) => repositorio.obtenerTema(id),
+    async guardarTema(id, tema) {
+      if (!id || !["light", "dark"].includes(tema))
+        throw new Error("La preferencia de apariencia no es válida.");
+      await repositorio.guardarTema(id, tema);
+    },
     async ingresar(correo, clave) {
       if (!correo.trim() || !clave)
         throw new Error("Ingresá tu correo y contraseña.");

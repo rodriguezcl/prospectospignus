@@ -1,5 +1,25 @@
 export function crearRepositorioAutenticacion(cliente) {
   return {
+    async obtenerTema(id) {
+      const { data, error } = await cliente.auth.getUser();
+      if (error || data.user?.id !== id)
+        throw new Error("No pudimos recuperar tu preferencia de apariencia.");
+      return data.user.user_metadata?.pignus_tema === "dark" ? "dark" : "light";
+    },
+    async guardarTema(id, tema) {
+      const { data, error } = await cliente.auth.getUser();
+      if (error || data.user?.id !== id)
+        throw new Error(
+          "Tu sesión cambió. Volvé a ingresar para guardar la apariencia.",
+        );
+      const resultado = await cliente.auth.updateUser({
+        data: { pignus_tema: tema },
+      });
+      if (resultado.error || resultado.data.user?.id !== id)
+        throw new Error(
+          "No pudimos guardar la apariencia. Volvé a intentarlo.",
+        );
+    },
     async iniciarSesion(correo, clave) {
       const { error } = await cliente.auth.signInWithPassword({
         email: correo,

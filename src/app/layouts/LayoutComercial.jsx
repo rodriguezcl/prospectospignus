@@ -9,6 +9,7 @@ import { CampanaNotificaciones } from "../../shared/ui/notificaciones/CampanaNot
 import { avisos } from "../configuracion/servicios.js";
 import {
   esAdministrador,
+  BotonTema,
   useSesion,
 } from "../../features/autenticacion/index.js";
 
@@ -135,7 +136,10 @@ export function LayoutComercial() {
         <BarraSuperior
           cuenta={
             <div className="cuenta-barra">
-              <CampanaNotificaciones key={perfil.id} gestion={avisos} />
+              <div className="acciones-personales">
+                <CampanaNotificaciones key={perfil.id} gestion={avisos} />
+                <BotonTema key={perfil.id} id={perfil.id} acceso={acceso} />
+              </div>
               <Link to="/mi-cuenta">
                 {perfil.nombre} ·{" "}
                 {perfil.rol === "administrador"
