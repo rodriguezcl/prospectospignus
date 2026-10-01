@@ -11,17 +11,17 @@ export function ModuloEnPreparacion({ titulo, descripcion, icono, funciones }) {
             <i className={"bi " + icono} aria-hidden="true" />
           </span>
           <h2>Sección en preparación</h2>
-          <p>
-            Este módulo todavía no está conectado a datos. Estas son sus
-            funciones previstas:
-          </p>
-          <div className="funciones">
-            {funciones.map((funcion) => (
-              <span key={funcion} className="badge bg-light-primary">
-                {funcion}
-              </span>
-            ))}
-          </div>
+          <p>Esta sección todavía no está disponible.</p>
+          <details className="detalle-secundario">
+            <summary>Funciones previstas</summary>
+            <div className="funciones">
+              {funciones.map((funcion) => (
+                <span key={funcion} className="badge bg-light-primary">
+                  {funcion}
+                </span>
+              ))}
+            </div>
+          </details>
           <Link className="btn btn-outline-primary mt-4" to="/inicio">
             Volver al inicio
           </Link>

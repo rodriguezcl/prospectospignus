@@ -44,7 +44,15 @@ export const menu = [
     ],
   },
   {
-    grupo: "GESTIÓN DEL EQUIPO",
+    grupo: "ADMINISTRACIÓN",
+    soloAdministrador: true,
+    elementos: [
+      { ruta: "/usuarios", titulo: "Usuarios", icono: "bi-person-plus-fill" },
+    ],
+  },
+  {
+    grupo: "EN PREPARACIÓN",
+    plegable: true,
     soloAdministrador: true,
     elementos: [
       {
@@ -57,18 +65,11 @@ export const menu = [
         titulo: "Informes",
         icono: "bi-bar-chart-fill",
       },
-    ],
-  },
-  {
-    grupo: "ADMINISTRACIÓN",
-    soloAdministrador: true,
-    elementos: [
       {
         ruta: "/configuracion",
         titulo: "Configuración",
         icono: "bi-gear-fill",
       },
-      { ruta: "/usuarios", titulo: "Usuarios", icono: "bi-person-plus-fill" },
       {
         ruta: "/auditoria",
         titulo: "Auditoría",

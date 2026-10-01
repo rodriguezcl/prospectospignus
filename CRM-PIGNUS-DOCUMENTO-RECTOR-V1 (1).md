@@ -263,4 +263,12 @@ Las ventas cerradas en el mes son otro indicador, atribuido al responsable al ci
 
 Los pendientes se calculan sobre la cartera actual, independientemente del mes seleccionado: visitas próximas en siete días, visitas pendientes de actualizar y seguimientos vencidos. Recuperación y cola sin asignar se muestran solo a agentes y administración; la cola sin asignar es común y no se atribuye arbitrariamente a un agente. Una visita vencida no demuestra incumplimiento laboral. Los errores de lectura nunca se convierten en ceros; se informa fecha de actualización. El cambio es de consulta/presentación y no modifica resultados comerciales ni permisos.
 
+## 23. Simpleza transversal por rol (01-10-2026)
+
+El criterio de simpleza se aplica a todos los módulos, no solo a Inicio. La primera vista prioriza tareas frecuentes, estado actual, responsable, próxima acción y filtros útiles. Ayuda extensa, criterios de lectura, condiciones ampliadas e historiales se consultan mediante desplegables identificados y accesibles por teclado; no se eliminan datos ni eventos.
+
+Vendedor: carga, seguimiento y agenda propia a mano. Agente: coordinación, disponibilidad y recuperación accesibles sin mezclar gestión de cuentas. Administración: filtros de equipo y gestión de usuarios; módulos todavía no implementados agrupados como «En preparación», sin presentarlos como funciones operativas. Las rutas y restricciones existentes se conservan.
+
+Crear cuentas es una acción explícita, no un formulario que ocupa la vista inicial del equipo. Ventas muestra un listado compacto con condiciones y confirmación a demanda. Agenda conserva a la vista que es compartida y que no acredita presencia; detalles de franjas y recordatorios se expanden. Promociones mantiene vigencia, condiciones y descarga accesibles para sus destinatarios. Mi cuenta conserva un formulario directo sin pasos adicionales. No se ocultan errores, confirmaciones destructivas, avisos de datos históricos ni requisitos de validación.
+
 **Fin.**

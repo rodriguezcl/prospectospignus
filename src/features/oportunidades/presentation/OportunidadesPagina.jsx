@@ -138,14 +138,19 @@ export function OportunidadesPagina({
       <h1 id="titulo-oportunidades">
         {soloRecuperacion ? "Recuperación comercial" : "Prospectos"}
       </h1>
-      <p>
-        Visitas, seguimiento y recuperación comercial. Ganada significa
-        aceptación comercial, no instalación.
+      <p className="text-muted">
+        {soloRecuperacion
+          ? "Retomá los casos derivados y registrá la propuesta final."
+          : "Coordiná visitas y registrá el próximo paso de cada caso."}
       </p>
-      <p>
-        Una ficha por necesidad comercial; un mismo prospecto puede tener varios
-        casos. El historial y las acciones se consultan al abrir la ficha.
-      </p>
+      <details className="detalle-secundario mb-3">
+        <summary>Cómo funciona esta bandeja</summary>
+        <p>
+          Una ficha por necesidad comercial; un mismo prospecto puede tener
+          varios casos. El historial y las acciones se consultan al abrir la
+          ficha. Ganada significa aceptación comercial, no instalación.
+        </p>
+      </details>
       {perfil.rol === "agente" && (
         <label className="alert alert-light d-block">
           <input
@@ -163,7 +168,7 @@ export function OportunidadesPagina({
         <Link to="/prospectos?nueva=si" className="btn btn-primary">
           Calificar y coordinar visita
         </Link>
-        <Link to="/registros" className="btn btn-outline-secondary">
+        <Link to="/registros?nuevo=1" className="btn btn-outline-secondary">
           Cargar registro inicial
         </Link>
         <button
@@ -326,8 +331,8 @@ export function OportunidadesPagina({
                   ))}
               </select>
             </label>
-            {perfil.rol === "agente" && (
-              <p>
+            {perfil.rol === "agente" && soloRecuperacion && (
+              <p className="small text-muted">
                 Recuperación es una bandeja común. Solo podés gestionar tus
                 casos; los pendientes se distribuyen equilibradamente.
               </p>

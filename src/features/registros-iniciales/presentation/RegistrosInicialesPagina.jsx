@@ -147,10 +147,12 @@ export function RegistrosInicialesPagina({ gestion, perfil }) {
         titulo="Registros iniciales"
         descripcion="Captá contactos y organizá el primer paso de la relación comercial."
       />
-      <p className="text-muted">
-        Los registros pueden estar incompletos. Guardarlos no los califica como
-        Prospectos ni como captaciones válidas.
-      </p>
+      {(nuevo || seleccionado) && (
+        <p className="text-muted small">
+          Podés guardar datos incompletos. Para avanzar, calificá el contacto
+          desde Prospectos.
+        </p>
+      )}
       {error && (
         <div className="alert alert-danger" role="alert">
           {error}
@@ -359,53 +361,59 @@ export function RegistrosInicialesPagina({ gestion, perfil }) {
             {!!detalle.version && (
               <section className="card">
                 <div className="card-body">
-                  <h2 className="h5">Historial (últimos 50 eventos)</h2>
-                  <ul className="list-unstyled">
-                    {eventos.map((e) => (
-                      <li className="border-bottom py-2" key={e.id}>
-                        <strong>
-                          {e.tipo === "registro_creado"
-                            ? "Registro creado"
-                            : "Registro actualizado"}
-                        </strong>{" "}
-                        · {fecha(e.ocurrido_en)} · {nombrePerfil(e.actor_id)}
-                        {e.motivo && <p className="mb-1">Motivo: {e.motivo}</p>}
-                        <details>
-                          <summary>Ver cambios</summary>
-                          <ul>
-                            {[
-                              ...camposRegistro.map((c) => c.nombre),
-                              "origen",
-                              "responsable_id",
-                            ]
-                              .filter(
-                                (c) =>
-                                  !e.anterior || e.anterior[c] !== e.nuevo[c],
-                              )
-                              .map((c) => (
-                                <li key={c}>
-                                  {camposRegistro.find((x) => x.nombre === c)
-                                    ?.etiqueta ||
-                                    (c === "origen" ? "Origen" : "Responsable")}
-                                  :{" "}
-                                  {e.anterior && (
-                                    <>
-                                      {c === "responsable_id"
-                                        ? nombrePerfil(e.anterior[c])
-                                        : e.anterior[c] || "—"}{" "}
-                                      →{" "}
-                                    </>
-                                  )}
-                                  {c === "responsable_id"
-                                    ? nombrePerfil(e.nuevo[c])
-                                    : e.nuevo[c] || "—"}
-                                </li>
-                              ))}
-                          </ul>
-                        </details>
-                      </li>
-                    ))}
-                  </ul>
+                  <details className="detalle-secundario">
+                    <summary>Historial (últimos 50 eventos)</summary>
+                    <ul className="list-unstyled">
+                      {eventos.map((e) => (
+                        <li className="border-bottom py-2" key={e.id}>
+                          <strong>
+                            {e.tipo === "registro_creado"
+                              ? "Registro creado"
+                              : "Registro actualizado"}
+                          </strong>{" "}
+                          · {fecha(e.ocurrido_en)} · {nombrePerfil(e.actor_id)}
+                          {e.motivo && (
+                            <p className="mb-1">Motivo: {e.motivo}</p>
+                          )}
+                          <details>
+                            <summary>Ver cambios</summary>
+                            <ul>
+                              {[
+                                ...camposRegistro.map((c) => c.nombre),
+                                "origen",
+                                "responsable_id",
+                              ]
+                                .filter(
+                                  (c) =>
+                                    !e.anterior || e.anterior[c] !== e.nuevo[c],
+                                )
+                                .map((c) => (
+                                  <li key={c}>
+                                    {camposRegistro.find((x) => x.nombre === c)
+                                      ?.etiqueta ||
+                                      (c === "origen"
+                                        ? "Origen"
+                                        : "Responsable")}
+                                    :{" "}
+                                    {e.anterior && (
+                                      <>
+                                        {c === "responsable_id"
+                                          ? nombrePerfil(e.anterior[c])
+                                          : e.anterior[c] || "—"}{" "}
+                                        →{" "}
+                                      </>
+                                    )}
+                                    {c === "responsable_id"
+                                      ? nombrePerfil(e.nuevo[c])
+                                      : e.nuevo[c] || "—"}
+                                  </li>
+                                ))}
+                            </ul>
+                          </details>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
                 </div>
               </section>
             )}
@@ -473,9 +481,7 @@ export function RegistrosInicialesPagina({ gestion, perfil }) {
                   </button>
                 </div>
               </form>
-              <p role="status">
-                {lista.total} registros en tu alcance de acceso.
-              </p>
+              <p role="status">{lista.total} registros</p>
               {!lista.registros.length ? (
                 <p>
                   No hay registros con estos filtros. Podés crear uno nuevo.

@@ -102,80 +102,82 @@ export function UsuariosPagina({ gestion }) {
       )}
       <section className="card">
         <div className="card-body">
-          <h2 className="h5">Crear cuenta</h2>
-          <form ref={formulario} onSubmit={crear} aria-busy={guardando}>
-            <fieldset disabled={guardando || !!seleccion}>
-              <div className="row g-3">
-                <div className="col-md-6">
-                  <label className="form-label" htmlFor="nombre-usuario">
-                    Nombre completo
-                  </label>
-                  <input
-                    id="nombre-usuario"
-                    name="nombre"
-                    className="form-control"
-                    required
-                    minLength={2}
-                    maxLength={100}
-                    autoComplete="off"
-                  />
+          <details className="detalle-secundario">
+            <summary>Crear cuenta</summary>
+            <form ref={formulario} onSubmit={crear} aria-busy={guardando}>
+              <fieldset disabled={guardando || !!seleccion}>
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <label className="form-label" htmlFor="nombre-usuario">
+                      Nombre completo
+                    </label>
+                    <input
+                      id="nombre-usuario"
+                      name="nombre"
+                      className="form-control"
+                      required
+                      minLength={2}
+                      maxLength={100}
+                      autoComplete="off"
+                    />
+                  </div>
+                  <div className="col-md-6">
+                    <label className="form-label" htmlFor="correo-usuario">
+                      Correo electrónico
+                    </label>
+                    <input
+                      id="correo-usuario"
+                      name="correo"
+                      type="email"
+                      className="form-control"
+                      required
+                      maxLength={254}
+                      autoComplete="off"
+                    />
+                  </div>
+                  <div className="col-md-6">
+                    <label className="form-label" htmlFor="clave-usuario">
+                      Contraseña inicial
+                    </label>
+                    <input
+                      id="clave-usuario"
+                      name="clave"
+                      type="password"
+                      className="form-control"
+                      required
+                      minLength={10}
+                      maxLength={128}
+                      autoComplete="new-password"
+                      aria-describedby="ayuda-clave"
+                    />
+                    <small id="ayuda-clave">
+                      Entre 10 y 128 caracteres. Compartila únicamente con su
+                      titular.
+                    </small>
+                  </div>
+                  <div className="col-md-6">
+                    <label className="form-label" htmlFor="rol-usuario">
+                      Rol
+                    </label>
+                    <select
+                      id="rol-usuario"
+                      name="rol"
+                      className="form-select"
+                      defaultValue="vendedor"
+                    >
+                      <option value="vendedor">Vendedor</option>
+                      <option value="agente">Agente</option>
+                      <option value="administrador">Administrador</option>
+                    </select>
+                    <small>El administrador puede crear otras cuentas.</small>
+                  </div>
                 </div>
-                <div className="col-md-6">
-                  <label className="form-label" htmlFor="correo-usuario">
-                    Correo electrónico
-                  </label>
-                  <input
-                    id="correo-usuario"
-                    name="correo"
-                    type="email"
-                    className="form-control"
-                    required
-                    maxLength={254}
-                    autoComplete="off"
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label" htmlFor="clave-usuario">
-                    Contraseña inicial
-                  </label>
-                  <input
-                    id="clave-usuario"
-                    name="clave"
-                    type="password"
-                    className="form-control"
-                    required
-                    minLength={10}
-                    maxLength={128}
-                    autoComplete="new-password"
-                    aria-describedby="ayuda-clave"
-                  />
-                  <small id="ayuda-clave">
-                    Entre 10 y 128 caracteres. Compartila únicamente con su
-                    titular.
-                  </small>
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label" htmlFor="rol-usuario">
-                    Rol
-                  </label>
-                  <select
-                    id="rol-usuario"
-                    name="rol"
-                    className="form-select"
-                    defaultValue="vendedor"
-                  >
-                    <option value="vendedor">Vendedor</option>
-                    <option value="agente">Agente</option>
-                    <option value="administrador">Administrador</option>
-                  </select>
-                  <small>El administrador puede crear otras cuentas.</small>
-                </div>
-              </div>
-              <button type="submit" className="btn btn-primary mt-3">
-                {guardando ? "Creando cuenta…" : "Crear cuenta"}
-              </button>
-            </fieldset>
-          </form>
+                <button type="submit" className="btn btn-primary mt-3">
+                  {guardando ? "Creando cuenta…" : "Crear cuenta"}
+                </button>
+              </fieldset>
+            </form>
+          </details>
         </div>
       </section>
       <section className="card">
@@ -191,11 +193,14 @@ export function UsuariosPagina({ gestion }) {
               Actualizar
             </button>
           </div>
-          <p className="text-muted small">
-            Desactivar conserva la cuenta y su historial. Eliminar solo está
-            permitido sin actividad comercial ni vínculos con otras cuentas. No
-            podés retirar tu propio acceso.
-          </p>
+          <details className="detalle-secundario mb-3">
+            <summary>Permisos y eliminación de cuentas</summary>
+            <p className="text-muted small">
+              Desactivar conserva la cuenta y su historial. Eliminar solo está
+              permitido sin actividad comercial ni vínculos con otras cuentas.
+              No podés retirar tu propio acceso.
+            </p>
+          </details>
           {seleccion && (
             <FormularioGestionCuenta
               key={`${seleccion.cuenta.id}-${seleccion.accion}`}

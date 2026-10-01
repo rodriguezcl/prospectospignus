@@ -1,11 +1,7 @@
-export function EncabezadoPagina({
-  titulo,
-  descripcion,
-  etiqueta = "PROSPECTOS PIGNUS",
-}) {
+export function EncabezadoPagina({ titulo, descripcion, etiqueta }) {
   return (
     <div className="page-heading">
-      <p className="sobretitulo">{etiqueta}</p>
+      {etiqueta && <p className="sobretitulo">{etiqueta}</p>}
       <h1>{titulo}</h1>
       {descripcion && <p className="text-muted">{descripcion}</p>}
     </div>

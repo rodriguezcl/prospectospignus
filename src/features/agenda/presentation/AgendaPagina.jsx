@@ -375,33 +375,36 @@ export function TimelineDia({
         · {actividades.filter((a) => a.estado === "programada").length}{" "}
         programadas
       </p>
-      <p className="small">
-        Realizadas:{" "}
-        {
-          realizadas.filter(
-            (a) => franjaActividad(a, dia, ahora) === "Dentro de referencia",
-          ).length
-        }{" "}
-        dentro de referencia ·{" "}
-        {
-          realizadas.filter(
-            (a) => franjaActividad(a, dia, ahora) === "Fuera de referencia",
-          ).length
-        }{" "}
-        fuera ·{" "}
-        {
-          realizadas.filter(
-            (a) => franjaActividad(a, dia, ahora) === "Abarca ambos períodos",
-          ).length
-        }{" "}
-        abarcan ambos períodos. Cada actividad se cuenta una sola vez por día;
-        no se calculan horas trabajadas.
-      </p>
-      <p className="small">
-        Orden cronológico, sin escala proporcional. Las franjas se calculan
-        sobre horarios declarados si existen; en caso contrario, sobre los
-        previstos.
-      </p>
+      <details className="detalle-secundario mb-3">
+        <summary>Distribución horaria y criterio de lectura</summary>
+        <p className="small">
+          Realizadas:{" "}
+          {
+            realizadas.filter(
+              (a) => franjaActividad(a, dia, ahora) === "Dentro de referencia",
+            ).length
+          }{" "}
+          dentro de referencia ·{" "}
+          {
+            realizadas.filter(
+              (a) => franjaActividad(a, dia, ahora) === "Fuera de referencia",
+            ).length
+          }{" "}
+          fuera ·{" "}
+          {
+            realizadas.filter(
+              (a) => franjaActividad(a, dia, ahora) === "Abarca ambos períodos",
+            ).length
+          }{" "}
+          abarcan ambos períodos. Cada actividad se cuenta una sola vez por día;
+          no se calculan horas trabajadas.
+        </p>
+        <p className="small">
+          Orden cronológico, sin escala proporcional. Las franjas se calculan
+          sobre horarios declarados si existen; en caso contrario, sobre los
+          previstos.
+        </p>
+      </details>
       {!actividades.length && (
         <p className="alert alert-light">
           Sin actividad registrada para este día. Esto no acredita inactividad
@@ -769,7 +772,6 @@ function AgendaAutorizada({ gestion, perfil }) {
   return (
     <div className="agenda-pagina">
       <header className="mb-4">
-        <p className="text-uppercase small">Organización comercial</p>
         <h1>Agenda{!esVendedor && " · Timeline del equipo"}</h1>
         <p>
           Agenda de trabajo compartida con administración. Las actividades son
@@ -869,13 +871,19 @@ function AgendaAutorizada({ gestion, perfil }) {
               </button>
             )}
           </div>
-          <p className="small mt-3 mb-0">
-            Actualización cada 30 segundos y al volver a la ventana.{" "}
-            {actualizacion && `Última consulta: ${mostrar(actualizacion)}.`} Los
-            recordatorios aparecen en la campana con la plataforma abierta,
-            desde 30 minutos antes y hasta 24 horas después. No se envían avisos
-            externos.
+          <p className="small mt-3 mb-0" role="status">
+            {actualizacion && `Actualizada: ${mostrar(actualizacion)}`}
           </p>
+          <details className="detalle-secundario mt-2">
+            <summary>Actualización y recordatorios</summary>
+            <p className="small mt-3 mb-0">
+              Actualización cada 30 segundos y al volver a la ventana.{" "}
+              {actualizacion && `Última consulta: ${mostrar(actualizacion)}.`}{" "}
+              Los recordatorios aparecen en la campana con la plataforma
+              abierta, desde 30 minutos antes y hasta 24 horas después. No se
+              envían avisos externos.
+            </p>
+          </details>
         </div>
       </section>
       {mensaje && (

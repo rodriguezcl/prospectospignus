@@ -55,6 +55,8 @@ La gestión posterior de cuentas utiliza la RPC transaccional `gestionar_cuenta`
 
 ## Routing y accesibilidad
 
+La simpleza transversal usa desplegables nativos de presentación para ayuda, historial y detalle comercial secundario, conservando validaciones y permisos. Los módulos sin implementación se agrupan en un menú plegable «En preparación», sin retirar rutas. El ciclo de foco del menú móvil incluye sus resúmenes y excluye enlaces ocultos en desplegables cerrados. No se crean consultas ni capas nuevas por este ajuste visual.
+
 HashRouter mantiene el hosting independiente de las features. `#prospectos` se normaliza a `#/prospectos` conservando consultas; destinos desconocidos muestran 404. El menú y los accesos de Inicio reciben destinos desde app.
 
 Menú móvil con foco inicial, contención de Tab, Escape, fondo inerte y restauración de foco. Menú oculto inerte, indicador activo, salto al contenido y movimiento reducido. Los cambios de ruta actualizan título y foco.

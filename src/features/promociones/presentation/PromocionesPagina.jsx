@@ -197,11 +197,13 @@ export function PromocionesPagina({ gestion, perfil }) {
     <section aria-labelledby="titulo-promociones">
       <h1 id="titulo-promociones">Promociones</h1>
       <p>
-        Material comercial oficial para el equipo. Revisá la vigencia y las
-        condiciones antes de ofrecerlo.
+        {admin
+          ? "Publicá condiciones y material para el equipo."
+          : "Consultá y descargá el material vigente."}{" "}
+        Revisá la vigencia y las condiciones antes de ofrecerlo.
       </p>
-      <div className="d-flex gap-2 mb-3">
-        {admin && (
+      <div className="d-flex flex-wrap gap-2 mb-3">
+        {admin && !nueva && !detalle && (
           <Link to="/promociones?nueva=si" className="btn btn-primary">
             Nueva promoción
           </Link>

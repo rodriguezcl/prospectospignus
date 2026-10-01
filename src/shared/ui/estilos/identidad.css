@@ -324,6 +324,36 @@ footer,
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+.detalle-secundario > summary,
+.menu-secundario > summary {
+  cursor: pointer;
+  color: var(--pignus-primario);
+  padding: 0.6rem 0;
+  font-weight: 600;
+}
+.detalle-secundario > summary:focus-visible,
+.menu-secundario > summary:focus-visible {
+  outline: 2px solid var(--pignus-primario-acento);
+  outline-offset: 3px;
+  border-radius: 0.25rem;
+}
+.detalle-secundario[open] > summary {
+  margin-bottom: 0.75rem;
+}
+.page-heading {
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 767px) {
+  .table .btn,
+  .table a,
+  .detalle-secundario > summary {
+    min-height: 44px;
+  }
+  .table a {
+    display: inline-flex;
+    align-items: center;
+  }
+}
 @media (max-width: 767px) {
   .notificaciones-panel {
     position: fixed;

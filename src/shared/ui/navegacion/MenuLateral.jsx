@@ -35,37 +35,51 @@ export function MenuLateral({
           <ul className="menu">
             {grupos.map((grupo) => (
               <li key={grupo.grupo}>
-                <span className="sidebar-title titulo-grupo">
-                  {grupo.grupo}
-                </span>
-                <ul className="lista-grupo">
-                  {grupo.elementos.map((elemento) => (
-                    <li className="sidebar-item" key={elemento.ruta}>
-                      <NavLink
-                        to={elemento.ruta}
-                        className={({ isActive }) =>
-                          "sidebar-link" + (isActive ? " seleccionada" : "")
-                        }
-                        onClick={navegar}
-                      >
-                        <i
-                          className={"bi " + elemento.icono}
-                          aria-hidden="true"
-                        />
-                        <span>{elemento.titulo}</span>
-                      </NavLink>
-                    </li>
-                  ))}
-                </ul>
+                <GrupoMenu grupo={grupo}>
+                  {!grupo.plegable && (
+                    <span className="sidebar-title titulo-grupo">
+                      {grupo.grupo}
+                    </span>
+                  )}
+                  <ul className="lista-grupo">
+                    {grupo.elementos.map((elemento) => (
+                      <li className="sidebar-item" key={elemento.ruta}>
+                        <NavLink
+                          to={elemento.ruta}
+                          className={({ isActive }) =>
+                            "sidebar-link" + (isActive ? " seleccionada" : "")
+                          }
+                          onClick={navegar}
+                        >
+                          <i
+                            className={"bi " + elemento.icono}
+                            aria-hidden="true"
+                          />
+                          <span>{elemento.titulo}</span>
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                </GrupoMenu>
               </li>
             ))}
           </ul>
         </nav>
         <div className="nota-menu">
           <span className="punto" /> Entorno de desarrollo
-          <small>Interfaz inicial · Mazer 2.3.1</small>
         </div>
       </div>
     </aside>
+  );
+}
+
+function GrupoMenu({ grupo, children }) {
+  return grupo.plegable ? (
+    <details className="menu-secundario">
+      <summary className="sidebar-title titulo-grupo">{grupo.grupo}</summary>
+      {children}
+    </details>
+  ) : (
+    children
   );
 }

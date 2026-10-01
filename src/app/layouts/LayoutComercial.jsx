@@ -85,9 +85,11 @@ export function LayoutComercial() {
         requestAnimationFrame(() => boton.current?.focus());
       }
       if (evento.key === "Tab") {
-        const controles = lateral.current.querySelectorAll(
-          "a[href], button:not([disabled])",
-        );
+        const controles = [
+          ...lateral.current.querySelectorAll(
+            "a[href], button:not([disabled]), summary",
+          ),
+        ].filter((elemento) => elemento.getClientRects().length > 0);
         const primero = controles[0];
         const ultimo = controles[controles.length - 1];
         if (evento.shiftKey && document.activeElement === primero) {

@@ -26,7 +26,6 @@ export function FilasVentas({ filas }) {
         <small className="d-block">{v.necesidad}</small>
       </td>
       <td>{v.responsable_nombre || "No informado"}</td>
-      <td>{v.vendedor_visita_nombre || "No informado"}</td>
       <td>
         {v.cerrado_en ? (
           fecha(v.cerrado_en)
@@ -37,10 +36,18 @@ export function FilasVentas({ filas }) {
           </>
         )}
       </td>
-      <td className="texto-con-saltos">{v.condiciones || "No informadas"}</td>
       <td>
-        {v.canal_confirmacion || "Canal no informado"}
-        <small className="d-block">{fecha(v.confirmado_en)}</small>
+        <details className="detalle-secundario">
+          <summary>Condiciones y confirmación</summary>
+          <p>
+            Vendedor de visita: {v.vendedor_visita_nombre || "No informado"}
+          </p>
+          <p className="texto-con-saltos">
+            {v.condiciones || "Condiciones no informadas"}
+          </p>
+          {v.canal_confirmacion || "Canal no informado"}
+          <small className="d-block">{fecha(v.confirmado_en)}</small>
+        </details>
       </td>
       <td>
         <Link to={`/prospectos?id=${v.id}`}>Ver ficha e historial</Link>
@@ -98,12 +105,20 @@ export function VentasPagina({ gestion, perfil }) {
         Casos ganados por aceptación comercial. No acredita instalación,
         contrato ni cobro.
       </p>
-      <p>
-        {perfil.rol === "administrador"
-          ? "Ves los cierres de todo el equipo."
-          : "Ves únicamente los cierres atribuidos a vos, aunque hayas participado en otros casos."}{" "}
-        Cada caso se cuenta una sola vez.
-      </p>
+      <details className="detalle-secundario mb-3">
+        <summary>
+          {perfil.rol === "administrador"
+            ? "Cierres de todo el equipo"
+            : "Mis cierres"}{" "}
+          · criterio de consulta
+        </summary>
+        <p>
+          {perfil.rol === "administrador"
+            ? "Ves los cierres de todo el equipo."
+            : "Ves únicamente los cierres atribuidos a vos, aunque hayas participado en otros casos."}{" "}
+          Cada caso se cuenta una sola vez.
+        </p>
+      </details>
       <div className="card">
         <div className="card-body">
           <div className="d-flex flex-wrap gap-3 align-items-end mb-3">
@@ -177,10 +192,8 @@ export function VentasPagina({ gestion, perfil }) {
                     <tr>
                       <th>Prospecto / necesidad</th>
                       <th>Responsable al cierre</th>
-                      <th>Vendedor de visita</th>
                       <th>Cierre · Córdoba</th>
-                      <th>Condiciones aceptadas</th>
-                      <th>Confirmación</th>
+                      <th>Información comercial</th>
                       <th>Detalle</th>
                     </tr>
                   </thead>
