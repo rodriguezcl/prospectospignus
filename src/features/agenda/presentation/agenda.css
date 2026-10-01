@@ -7,13 +7,13 @@
   flex: 1 1 200px;
 }
 .agenda-formulario {
-  border: 1px solid var(--bs-primary, #133e20);
+  border: 1px solid var(--bs-primary, #123b50);
 }
 .agenda-referencia {
-  border-left: 4px solid #39784b;
+  border-left: 4px solid var(--pignus-primario-acento);
   padding: 0.7rem 1rem;
-  background: #eaf4ed;
-  color: #133e20;
+  background: var(--pignus-primario-suave);
+  color: #123b50;
   border-radius: 0.4rem;
 }
 .agenda-timeline {
@@ -27,7 +27,7 @@
   left: 50%;
   top: 0;
   bottom: 0;
-  border-left: 2px dashed #94b29c;
+  border-left: 2px dashed var(--bs-border-color);
 }
 .agenda-hito {
   width: 50%;
@@ -47,19 +47,19 @@
   border-radius: 50%;
   right: -8px;
   top: 1.4rem;
-  background: #39784b;
-  border: 3px solid #eaf4ed;
+  background: var(--pignus-primario-acento);
+  border: 3px solid var(--pignus-primario-suave);
 }
 .agenda-hito:nth-child(even)::before {
   left: -6px;
   right: auto;
 }
 .agenda-hito .card {
-  border: 1px solid #d8e5dc;
+  border: 1px solid var(--bs-border-color);
   margin-bottom: 1.2rem;
 }
 .agenda-en_curso .card {
-  border-left: 4px solid #39784b;
+  border-left: 4px solid var(--pignus-primario-acento);
 }
 .agenda-cancelada .card {
   border-left: 4px solid #747b77;
@@ -67,8 +67,8 @@
 .agenda-ahora {
   position: relative;
   text-align: center;
-  background: #eaf4ed;
-  color: #133e20;
+  background: var(--pignus-primario-suave);
+  color: #123b50;
   font-weight: 600;
   border-radius: 0.5rem;
   padding: 0.5rem;

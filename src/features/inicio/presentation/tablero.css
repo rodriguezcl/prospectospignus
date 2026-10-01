@@ -190,8 +190,8 @@
 .resultado-persona:hover,
 .pendiente-item:hover,
 .tablero-inicio .indicador:hover {
-  border-color: var(--pignus-verde);
-  background-color: var(--pignus-verde-suave);
+  border-color: var(--pignus-primario);
+  background-color: var(--pignus-primario-suave);
 }
 .tablero-inicio .grafico-columna-barra {
   background: var(--grafico-azul);

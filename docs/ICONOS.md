@@ -1,6 +1,6 @@
 # Iconos de Prospectos Pignus
 
-Diseño blanco sobre azul petróleo para distinguirlo de la aplicación institucional verde. No cambia el logo del menú ni los colores comerciales.
+Diseño blanco sobre azul petróleo (`#123b50`) para distinguirlo de la aplicación institucional verde. La plataforma comparte esta identidad en los modos claro y oscuro; el logo del menú conserva su forma y se presenta en petróleo o blanco según el fondo. Los colores semánticos de resultados comerciales (ganadas, perdidas y pendientes) se mantienen diferenciados.
 
 Maestro generado con la herramienta integrada de imágenes: `public/iconos/pignus-maestro.png`. Exportaciones con `scripts/exportar-iconos.ps1` (PowerShell y System.Drawing): favicon ICO 16/32/48, PNG 32/192/512, Apple Touch Icon 180 y Android maskable 512 con margen adicional. Todos derivan del mismo maestro. No se modifica el original del usuario.
 

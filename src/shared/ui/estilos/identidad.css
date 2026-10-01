@@ -1,26 +1,26 @@
-/* Verde dominante de los píxeles opacos del logo original, sin modificar Mazer. */
+/* Azul petróleo compartido con el ícono de la aplicación, sin modificar Mazer. */
 :root,
 [data-bs-theme="light"] {
-  --pignus-verde: #133e20;
-  --pignus-verde-hover: #0c2c16;
-  --pignus-verde-suave: #eaf2ec;
-  --pignus-verde-acento: #327844;
-  --bs-primary: var(--pignus-verde);
-  --bs-primary-rgb: 19, 62, 32;
-  --bs-primary-text-emphasis: #0c2c16;
-  --bs-primary-bg-subtle: #eaf2ec;
-  --bs-primary-border-subtle: #bdd1c2;
-  --bs-body-color: #465b4c;
-  --bs-body-color-rgb: 70, 91, 76;
-  --bs-body-bg: #f4f7f4;
-  --bs-heading-color: var(--pignus-verde);
-  --bs-secondary-color: #637568;
-  --bs-secondary-color-rgb: 99, 117, 104;
-  --bs-link-color: var(--pignus-verde);
-  --bs-link-color-rgb: 19, 62, 32;
-  --bs-link-hover-color: var(--pignus-verde-hover);
-  --bs-link-hover-color-rgb: 12, 44, 22;
-  --bs-border-color: #d7e2da;
+  --pignus-primario: #123b50;
+  --pignus-primario-hover: #0b2939;
+  --pignus-primario-suave: #eaf1f5;
+  --pignus-primario-acento: #286b8c;
+  --bs-primary: var(--pignus-primario);
+  --bs-primary-rgb: 18, 59, 80;
+  --bs-primary-text-emphasis: #0b2939;
+  --bs-primary-bg-subtle: #eaf1f5;
+  --bs-primary-border-subtle: #bdd0db;
+  --bs-body-color: #465966;
+  --bs-body-color-rgb: 70, 89, 102;
+  --bs-body-bg: #f4f7f9;
+  --bs-heading-color: var(--pignus-primario);
+  --bs-secondary-color: #607380;
+  --bs-secondary-color-rgb: 96, 115, 128;
+  --bs-link-color: var(--pignus-primario);
+  --bs-link-color-rgb: 18, 59, 80;
+  --bs-link-hover-color: var(--pignus-primario-hover);
+  --bs-link-hover-color-rgb: 11, 41, 57;
+  --bs-border-color: #d7e1e7;
 }
 body {
   background: var(--bs-body-bg);
@@ -42,35 +42,35 @@ h6,
 .form-label,
 label,
 .aviso strong {
-  color: var(--pignus-verde);
+  color: var(--pignus-primario);
 }
 a {
-  color: var(--pignus-verde);
+  color: var(--pignus-primario);
 }
 a:hover {
-  color: var(--pignus-verde-hover);
+  color: var(--pignus-primario-hover);
 }
 .btn-primary {
-  --bs-btn-bg: var(--pignus-verde);
-  --bs-btn-border-color: var(--pignus-verde);
-  --bs-btn-hover-bg: var(--pignus-verde-hover);
-  --bs-btn-hover-border-color: var(--pignus-verde-hover);
-  --bs-btn-active-bg: var(--pignus-verde-hover);
-  --bs-btn-active-border-color: var(--pignus-verde-hover);
-  --bs-btn-disabled-bg: var(--pignus-verde);
-  --bs-btn-disabled-border-color: var(--pignus-verde);
-  --bs-btn-focus-shadow-rgb: 50, 120, 68;
+  --bs-btn-bg: var(--pignus-primario);
+  --bs-btn-border-color: var(--pignus-primario);
+  --bs-btn-hover-bg: var(--pignus-primario-hover);
+  --bs-btn-hover-border-color: var(--pignus-primario-hover);
+  --bs-btn-active-bg: var(--pignus-primario-hover);
+  --bs-btn-active-border-color: var(--pignus-primario-hover);
+  --bs-btn-disabled-bg: var(--pignus-primario);
+  --bs-btn-disabled-border-color: var(--pignus-primario);
+  --bs-btn-focus-shadow-rgb: 40, 107, 140;
 }
 .btn-outline-primary {
-  --bs-btn-color: var(--pignus-verde);
-  --bs-btn-border-color: var(--pignus-verde);
-  --bs-btn-hover-bg: var(--pignus-verde);
-  --bs-btn-hover-border-color: var(--pignus-verde);
-  --bs-btn-active-bg: var(--pignus-verde);
-  --bs-btn-active-border-color: var(--pignus-verde);
-  --bs-btn-disabled-color: var(--pignus-verde);
-  --bs-btn-disabled-border-color: var(--pignus-verde);
-  --bs-btn-focus-shadow-rgb: 50, 120, 68;
+  --bs-btn-color: var(--pignus-primario);
+  --bs-btn-border-color: var(--pignus-primario);
+  --bs-btn-hover-bg: var(--pignus-primario);
+  --bs-btn-hover-border-color: var(--pignus-primario);
+  --bs-btn-active-bg: var(--pignus-primario);
+  --bs-btn-active-border-color: var(--pignus-primario);
+  --bs-btn-disabled-color: var(--pignus-primario);
+  --bs-btn-disabled-border-color: var(--pignus-primario);
+  --bs-btn-focus-shadow-rgb: 40, 107, 140;
 }
 .btn-primary,
 .btn-outline-primary:hover {
@@ -78,7 +78,7 @@ a:hover {
 }
 .btn-light,
 .btn-outline-secondary {
-  --bs-btn-color: #465b4c;
+  --bs-btn-color: #465966;
 }
 /* Mazer fija negro en .btn.btn-light; respetar los colores de cada tema. */
 .btn.btn-light {
@@ -98,7 +98,7 @@ a:hover {
 }
 /* Fondos deliberadamente claros necesitan texto oscuro en ambos modos. */
 .badge.bg-white.text-primary {
-  color: #133e20 !important;
+  color: #123b50 !important;
 }
 /* Eliminar el desplazamiento de línea base aplicado por el proveedor. */
 body .bi {
@@ -131,16 +131,16 @@ body .bi::before {
   min-height: 2.5rem;
 }
 .btn-link {
-  --bs-btn-color: var(--pignus-verde);
-  --bs-btn-hover-color: var(--pignus-verde-hover);
+  --bs-btn-color: var(--pignus-primario);
+  --bs-btn-hover-color: var(--pignus-primario-hover);
 }
 .bg-light-primary {
-  background-color: var(--pignus-verde-suave) !important;
-  color: var(--pignus-verde) !important;
+  background-color: var(--pignus-primario-suave) !important;
+  color: var(--pignus-primario) !important;
 }
 .text-primary,
 .link-primary {
-  color: var(--pignus-verde) !important;
+  color: var(--pignus-primario) !important;
 }
 .form-control,
 .form-select {
@@ -151,23 +151,23 @@ body .bi::before {
 .form-select:focus,
 .form-check-input:focus {
   color: var(--bs-body-color);
-  border-color: #75a781;
-  box-shadow: 0 0 0 0.25rem rgb(19 62 32 / 18%);
+  border-color: #719caf;
+  box-shadow: 0 0 0 0.25rem rgb(18 59 80 / 18%);
 }
 .form-check-input:checked,
 .form-check-input:indeterminate {
-  background-color: var(--pignus-verde);
-  border-color: var(--pignus-verde);
+  background-color: var(--pignus-primario);
+  border-color: var(--pignus-primario);
 }
 .form-control::placeholder {
-  color: #748379;
+  color: #70808b;
 }
 .table {
   --bs-table-color: var(--bs-body-color);
   --bs-table-border-color: var(--bs-border-color);
 }
 .table thead th {
-  color: var(--pignus-verde);
+  color: var(--pignus-primario);
 }
 caption,
 small,
@@ -184,35 +184,35 @@ footer,
   color: var(--bs-secondary-color);
 }
 .sidebar-wrapper .menu .sidebar-link {
-  color: var(--pignus-verde);
+  color: var(--pignus-primario);
 }
 .sidebar-wrapper .menu .sidebar-link i {
-  color: #6c8d75;
+  color: #67899b;
 }
 .sidebar-wrapper .menu .sidebar-link:hover {
-  background: var(--pignus-verde-suave);
+  background: var(--pignus-primario-suave);
 }
 .sidebar-wrapper .menu .sidebar-link.seleccionada,
 .sidebar-wrapper .menu .sidebar-item.active > .sidebar-link {
-  background: var(--pignus-verde);
+  background: var(--pignus-primario);
   color: white;
 }
 .sidebar-wrapper .menu .sidebar-link.seleccionada i {
   color: white;
 }
 .bienvenida {
-  background: var(--pignus-verde);
+  background: var(--pignus-primario);
 }
 .bienvenida p,
 .figura {
-  color: #e3f0e6;
+  color: #e3eff5;
 }
 .icono-acceso {
-  color: var(--pignus-verde);
-  background: var(--pignus-verde-suave);
+  color: var(--pignus-primario);
+  background: var(--pignus-primario-suave);
 }
 .acceso:hover {
-  border-color: var(--pignus-verde);
+  border-color: var(--pignus-primario);
 }
 .barra-superior,
 .aviso,
@@ -220,40 +220,40 @@ footer,
   border-color: var(--bs-border-color);
 }
 .acceso-presentacion {
-  background: var(--pignus-verde);
-  color: #e3f0e6;
+  background: var(--pignus-primario);
+  color: #e3eff5;
 }
 .acceso-presentacion > small {
-  color: #e3f0e6;
+  color: #e3eff5;
 }
 .grafico-columna-barra,
 .grafico-pista > span {
-  background: var(--pignus-verde);
+  background: var(--pignus-primario);
 }
 .grafico-fila:hover,
 .grafico-fila[aria-pressed="true"] {
-  background: var(--pignus-verde-suave);
-  border-color: var(--pignus-verde);
+  background: var(--pignus-primario-suave);
+  border-color: var(--pignus-primario);
 }
 .grafico-columna:hover .grafico-columna-barra,
 .grafico-columna[aria-pressed="true"] .grafico-columna-barra {
-  background: var(--pignus-verde-acento);
+  background: var(--pignus-primario-acento);
 }
 .grafico-columna:focus-visible,
 .grafico-fila:focus-visible {
-  outline-color: var(--pignus-verde-acento);
+  outline-color: var(--pignus-primario-acento);
 }
 .pagination {
-  --bs-pagination-color: var(--pignus-verde);
-  --bs-pagination-hover-color: var(--pignus-verde);
-  --bs-pagination-active-bg: var(--pignus-verde);
-  --bs-pagination-active-border-color: var(--pignus-verde);
-  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgb(19 62 32 / 18%);
+  --bs-pagination-color: var(--pignus-primario);
+  --bs-pagination-hover-color: var(--pignus-primario);
+  --bs-pagination-active-bg: var(--pignus-primario);
+  --bs-pagination-active-border-color: var(--pignus-primario);
+  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgb(18 59 80 / 18%);
 }
 .alert-primary {
-  --bs-alert-color: var(--pignus-verde);
-  --bs-alert-bg: var(--pignus-verde-suave);
-  --bs-alert-border-color: #bdd1c2;
+  --bs-alert-color: var(--pignus-primario);
+  --bs-alert-bg: var(--pignus-primario-suave);
+  --bs-alert-border-color: #bdd0db;
 }
 .sidebar-header {
   position: relative;
@@ -262,7 +262,7 @@ footer,
 .marca {
   width: 100%;
   display: block;
-  color: var(--pignus-verde);
+  color: var(--pignus-primario);
 }
 .identidad-pignus {
   display: flex;
@@ -276,9 +276,20 @@ footer,
   width: 100%;
   height: auto;
 }
+.identidad-emblema {
+  display: block;
+  width: 100%;
+  background: #123b50;
+  -webkit-mask: url("/marca/pignus.png") center / contain no-repeat;
+  mask: url("/marca/pignus.png") center / contain no-repeat;
+}
+.identidad-emblema img {
+  /* Conserva dimensiones y texto alternativo; la máscara colorea el original. */
+  opacity: 0;
+}
 .identidad-producto {
   margin-top: -4px;
-  color: var(--pignus-verde);
+  color: var(--pignus-primario);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 2px;
