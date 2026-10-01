@@ -80,6 +80,56 @@ a:hover {
 .btn-outline-secondary {
   --bs-btn-color: #465b4c;
 }
+/* Mazer fija negro en .btn.btn-light; respetar los colores de cada tema. */
+.btn.btn-light {
+  color: var(--bs-btn-color);
+}
+.btn.btn-light:hover,
+.btn.btn-light:focus-visible {
+  color: var(--bs-btn-hover-color);
+}
+.btn.btn-light:active,
+.btn.btn-light.active {
+  color: var(--bs-btn-active-color);
+}
+.btn.btn-light:disabled,
+.btn.btn-light.disabled {
+  color: var(--bs-btn-disabled-color);
+}
+/* Fondos deliberadamente claros necesitan texto oscuro en ambos modos. */
+.badge.bg-white.text-primary {
+  color: #133e20 !important;
+}
+/* Eliminar el desplazamiento de línea base aplicado por el proveedor. */
+body .bi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+body .bi::before {
+  display: block;
+  vertical-align: initial;
+}
+.figura > .bi,
+.icono-acceso > .bi {
+  width: 1em;
+  height: 1em;
+}
+.sidebar-wrapper .menu .sidebar-link > .bi {
+  width: 1.25em;
+  height: 1.25em;
+}
+.acciones-personales .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+}
 .btn-link {
   --bs-btn-color: var(--pignus-verde);
   --bs-btn-hover-color: var(--pignus-verde-hover);
