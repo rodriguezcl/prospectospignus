@@ -41,6 +41,9 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
     [coincidencias, setCoincidencias] = useState([]),
     [buscando, setBuscando] = useState(false);
   const [vinculo, setVinculo] = useState(a?.oportunidad_id || "");
+  const [conProspecto, setConProspecto] = useState(!!a?.oportunidad_id);
+  const [elegido, setElegido] = useState(null);
+  const [busco, setBusco] = useState(false);
   const identidad = useRef(null),
     intento = useRef(null),
     titulo = useRef(null);
@@ -56,6 +59,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
     setError("");
     try {
       setCoincidencias(await gestion.prospectos(busqueda));
+      setBusco(true);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -177,57 +181,138 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                   />
                 </label>
                 <label className="d-block mb-3">
-                  Nota / lugar o zona
+                  Lugar y detalle de la actividad
                   <textarea
                     className="form-control"
                     name="nota"
+                    aria-describedby="ayuda-detalle-actividad"
+                    placeholder="Ej.: Recorrer comercios de calle Lima, barrio General Paz."
                     maxLength={2000}
                     defaultValue={a?.nota || ""}
                   />
                 </label>
+                <p id="ayuda-detalle-actividad" className="small text-muted">
+                  Indicá dónde y para qué es la actividad. No hace falta repetir
+                  los datos del prospecto.
+                </p>
                 <div className="mb-3">
-                  <label className="d-block">
-                    Vincular prospecto (opcional)
-                    <input
-                      className="form-control"
-                      value={busqueda}
-                      onChange={(e) => setBusqueda(e.target.value)}
-                      placeholder="Buscar por nombre, mínimo 2 caracteres"
-                    />
-                  </label>
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary btn-sm mt-1"
-                    disabled={buscando || busqueda.trim().length < 2}
-                    onClick={buscar}
-                  >
-                    {buscando ? "Buscando…" : "Buscar prospecto"}
-                  </button>
-                  <label className="d-block mt-2">
-                    Prospecto vinculado
+                  <label className="d-block mb-2">
+                    ¿Esta actividad es con un prospecto?
                     <select
                       className="form-select"
-                      value={vinculo}
-                      onChange={(e) => setVinculo(e.target.value)}
+                      value={conProspecto ? "si" : "no"}
+                      disabled={buscando}
+                      onChange={(e) => {
+                        setConProspecto(e.target.value === "si");
+                        setVinculo("");
+                        setElegido(null);
+                        setCoincidencias([]);
+                        setBusco(false);
+                        setBusqueda("");
+                      }}
                     >
-                      <option value="">Sin vínculo</option>
-                      {vinculo &&
-                        !coincidencias.some((c) => c.id === vinculo) && (
-                          <option value={vinculo}>
-                            Vínculo seleccionado · {vinculo}
-                          </option>
-                        )}
-                      {coincidencias.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.prospectos.nombre} · {c.necesidad}
-                        </option>
-                      ))}
+                      <option value="no">No / actividad general</option>
+                      <option value="si">Sí, elegir prospecto</option>
                     </select>
                   </label>
-                  <small>
-                    Hasta 20 coincidencias autorizadas; afiná el nombre si no
-                    aparece. No crea un prospecto nuevo.
-                  </small>
+                  {conProspecto && vinculo ? (
+                    <div className="border rounded p-3">
+                      <strong>
+                        {elegido
+                          ? `${elegido.prospectos.nombre} · ${elegido.necesidad}`
+                          : "Prospecto asociado a esta actividad"}
+                      </strong>
+                      <p className="small mb-2">
+                        La actividad se guardará en relación con esta ficha.
+                      </p>
+                      <div className="d-flex gap-2 flex-wrap">
+                        <button
+                          type="button"
+                          className="btn btn-outline-primary btn-sm"
+                          onClick={() => {
+                            setVinculo("");
+                            setElegido(null);
+                          }}
+                        >
+                          Cambiar
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary btn-sm"
+                          onClick={() => {
+                            setVinculo("");
+                            setElegido(null);
+                            setConProspecto(false);
+                          }}
+                        >
+                          Quitar
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    conProspecto && (
+                      <>
+                        <label className="d-block">
+                          Buscar prospecto por nombre
+                          <input
+                            className="form-control"
+                            value={busqueda}
+                            disabled={buscando}
+                            onChange={(e) => {
+                              setBusqueda(e.target.value);
+                              setCoincidencias([]);
+                              setBusco(false);
+                            }}
+                            placeholder="Buscar por nombre, mínimo 2 caracteres"
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary btn-sm mt-1"
+                          disabled={buscando || busqueda.trim().length < 2}
+                          onClick={buscar}
+                        >
+                          {buscando ? "Buscando…" : "Buscar prospecto"}
+                        </button>
+                        <label className="d-block mt-2">
+                          Elegí una ficha de los resultados
+                          <select
+                            className="form-select"
+                            value={vinculo}
+                            required
+                            onChange={(e) => {
+                              setVinculo(e.target.value);
+                              setElegido(
+                                coincidencias.find(
+                                  (c) => c.id === e.target.value,
+                                ),
+                              );
+                            }}
+                          >
+                            <option value="">Seleccionar prospecto</option>
+                            {coincidencias.map((c) => (
+                              <option key={c.id} value={c.id}>
+                                {c.prospectos.nombre} · {c.necesidad}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        {busco && !buscando && (
+                          <p className="small" role="status">
+                            {coincidencias.length
+                              ? `${coincidencias.length} resultados (máximo 20). Si no aparece, afiná el nombre.`
+                              : "No encontramos prospectos con ese nombre dentro de tu acceso. Probá otro nombre o elegí actividad general."}
+                          </p>
+                        )}
+                      </>
+                    )
+                  )}
+                  {conProspecto && (
+                    <p className="small text-muted mt-2">
+                      Solo relaciona la actividad con una ficha existente. No
+                      crea un prospecto ni cambia su estado comercial.
+                    </p>
+                  )}
                 </div>
               </>
             )}
@@ -282,16 +367,23 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                   </label>
                 </div>
                 <label className="d-block mb-3">
-                  Resultado / anotación
+                  Resultado de la actividad
                   <textarea
                     className="form-control"
                     name="resultado"
+                    aria-describedby="ayuda-resultado-actividad"
+                    placeholder="Ej.: Presenté el presupuesto. Solicitó que lo llame el viernes."
                     minLength={3}
                     maxLength={2000}
                     required
                     defaultValue={a?.resultado || ""}
                   />
                 </label>
+                <p id="ayuda-resultado-actividad" className="small text-muted">
+                  Contá qué ocurrió, qué se consiguió y qué quedó pendiente.
+                  Para registrar una venta o cambiar el estado comercial, usá
+                  Prospectos.
+                </p>
               </>
             )}
             {["editar", "cancelar", "corregir"].includes(accion) && (

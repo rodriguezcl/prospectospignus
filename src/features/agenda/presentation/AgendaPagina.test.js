@@ -25,6 +25,36 @@ new Function("require", "module", "exports", compilado.outputFiles[0].text)(
 const { AgendaPagina, FormularioActividad, TimelineDia } = modulo.exports;
 const render = (componente) =>
   renderToStaticMarkup(createElement(MemoryRouter, null, componente));
+
+test("agenda: contexto, resultado y asociación opcional sin duplicar prospectos", () => {
+  const formulario = (accion, actividad) =>
+    render(
+      createElement(FormularioActividad, {
+        seleccion: { accion, actividad },
+        gestion: {},
+      }),
+    );
+  const nueva = formulario("crear");
+  assert.match(nueva, /Lugar y detalle de la actividad/);
+  assert.match(nueva, /No \/ actividad general/);
+  assert.ok(!nueva.includes('name="resultado"'));
+  assert.ok(!nueva.includes("Buscar prospecto por nombre"));
+  for (const accion of ["finalizar", "corregir"]) {
+    const html = formulario(accion, { estado: "realizada" });
+    assert.match(html, /Resultado de la actividad/);
+    assert.match(html, /name="resultado"/);
+    assert.match(html, /Para registrar una venta/);
+  }
+  const existente = formulario("editar", {
+    estado: "programada",
+    oportunidad_id: "identificador-interno",
+  });
+  assert.match(existente, /Prospecto asociado a esta actividad/);
+  assert.match(existente, />Cambiar</);
+  assert.match(existente, />Quitar</);
+  assert.ok(!existente.includes("identificador-interno"));
+  assert.match(existente, /No crea un prospecto ni cambia su estado comercial/);
+});
 test("agenda: roles, formulario accesible y planificación no equivale a ejecución", () => {
   for (const rol of ["administrador", "vendedor", "agente"]) {
     const html = render(
