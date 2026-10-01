@@ -240,6 +240,10 @@ footer {
 #cerrar-menu {
   display: block;
 }
+/* Destino del foco al navegar: no es un control interactivo. */
+#contenido[tabindex="-1"]:focus {
+  outline: none;
+}
 a:focus-visible,
 button:focus-visible {
   outline: 3px solid #e2a132;
