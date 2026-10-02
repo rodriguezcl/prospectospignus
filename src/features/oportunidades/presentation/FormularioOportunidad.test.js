@@ -41,13 +41,26 @@ test("formularios: calificación exige respuesta humana, vendedor y horario de C
   for (const campo of [
     "registro_id",
     "contacto_confirmado",
-    "necesidad",
+    "canal_contacto",
     "vendedor_id",
     "plazo",
-    "resumen",
+    "observaciones",
   ])
     assert.ok(html.includes(`name="${campo}"`));
   assert.ok(html.includes("Córdoba"));
+});
+
+test("alta: servicios desplegables y observaciones opcionales, sin pedir evidencia", () => {
+  const html = dibujar({});
+  assert.match(html, /Servicio de interés/);
+  assert.match(html, /Instalación de Alarma/);
+  assert.match(html, /Agregar otro servicio/);
+  assert.doesNotMatch(
+    html,
+    /Evidencia del contacto|name="necesidad"|name="resumen"/,
+  );
+  const nota = html.match(/<textarea[^>]*name="observaciones"[^>]*>/)[0];
+  assert.doesNotMatch(nota, /required|minLength/);
 });
 
 test("crear prospecto: conserva el registro elegido sin volver a pedir datos personales", () => {

@@ -1,6 +1,8 @@
 function comprobar(error) {
   if (!error) return;
   const mensajes = {
+    COMERCIAL_INTERES:
+      "Revisá los servicios de interés, el tipo de alarma y el medio de contacto.",
     COMERCIAL_PROPUESTA:
       "Guardá y seleccioná la propuesta efectivamente ofrecida de este ciclo.",
     COMERCIAL_OBJECION:

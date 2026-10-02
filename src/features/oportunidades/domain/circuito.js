@@ -1,3 +1,5 @@
+import { validarInteres } from "./interesComercial.js";
+
 export const estados = {
   visita: "Visita coordinada",
   seguimiento: "Seguimiento del vendedor",
@@ -45,6 +47,18 @@ export function validarOperacion(entrada) {
   if (!acciones[entrada.accion])
     throw new Error("Seleccioná una acción válida.");
   const resumen = entrada.datos.resumen?.trim() || "";
+  if (entrada.accion === "crear" && entrada.datos.interes_comercial) {
+    const interes = validarInteres(entrada.datos.interes_comercial);
+    const observaciones = entrada.datos.observaciones?.trim() || "";
+    if (observaciones.length > 2000)
+      throw new Error("Las observaciones admiten hasta 2000 caracteres.");
+    if (!entrada.datos.plazo)
+      throw new Error("Indicá fecha y hora de la visita.");
+    return {
+      ...entrada,
+      datos: { ...entrada.datos, interes_comercial: interes, observaciones },
+    };
+  }
   if (resumen.length < 5 || resumen.length > 2000)
     throw new Error("El resumen debe tener entre 5 y 2000 caracteres.");
   if (

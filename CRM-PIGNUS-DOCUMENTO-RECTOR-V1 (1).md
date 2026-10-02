@@ -420,4 +420,10 @@ Agenda planifica y registra actividades; no es paso obligatorio antes de captar 
 
 Se conservan los requisitos vigentes de calificación, responsable y coordinación de visita. Datos incompletos se completan en Registros iniciales. Las visitas coordinadas aparecen en Agenda y no se cargan por duplicado; finalizar su actividad no cambia el resultado comercial. En Prospectos se prepara y guarda la cotización, luego se registra la aceptación mediante Registrar venta concretada. Guardar una oferta no basta para ganar. Ventas concretadas se alimenta automáticamente del cierre; administración registra instalación/activación por separado. No se alteran permisos ni métricas por estos ajustes de presentación.
 
+### 25.1 Alta guiada y observaciones útiles
+
+Al crear un prospecto se seleccionan uno o varios servicios (Alarma, Cámaras, Cerco eléctrico), sin duplicados. Alarma admite Docta, Nobu, Residencial con/sin monitoreo o «A definir en la visita». No se exige marca, kit ni adicionales antes del relevamiento. El interés se conserva estructurado y orienta la cotización posterior; no restringe lo que finalmente se ofrece ni acredita una venta.
+
+«Evidencia del contacto efectivo y calificación» se reemplaza por «Observaciones para la visita», opcionales, destinadas a indicaciones de acceso, preferencias y aclaraciones útiles. Se mantiene la confirmación explícita de respuesta humana y posibilidad comercial, junto con medio de contacto, responsable y visita. No se exige redactar una prueba. El sistema registra el evento de creación y un resumen operativo sin inventar notas del cliente. Otros cambios comerciales conservan sus motivos/resúmenes obligatorios. Los registros históricos no reciben servicios deducidos de texto.
+
 **Fin.**

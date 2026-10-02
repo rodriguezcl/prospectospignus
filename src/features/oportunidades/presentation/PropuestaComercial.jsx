@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { generarAlternativas, subcategorias } from "../domain/alternativas.js";
 import { calcularPago } from "../domain/pago.js";
 import { totalConceptos } from "../domain/propuesta.js";
+import { serviciosInteres } from "../domain/interesComercial.js";
 
 const moneda = (valor) =>
   valor == null
@@ -23,10 +24,19 @@ export function PropuestaComercial({
   const [historial, guardarHistorial] = useState([]);
   const [error, fallar] = useState("");
   const [ocupado, ocupar] = useState(false);
-  const [servicio, elegirServicio] = useState("alarma");
+  const interes = oportunidad.interes_comercial;
+  const [servicio, elegirServicio] = useState(
+    interes?.servicios?.[0] || "alarma",
+  );
   const [familiaId, elegirFamilia] = useState("");
   const [kitId, elegirKit] = useState("");
-  const [subcategoria, elegirSubcategoria] = useState("sin_monitoreo");
+  const [subcategoria, elegirSubcategoria] = useState(
+    interes?.servicios?.includes("alarma")
+      ? interes.tipo_alarma === "a_definir"
+        ? ""
+        : interes.tipo_alarma
+      : interes ? "" : "sin_monitoreo",
+  );
   const [extras, elegirExtras] = useState({});
   const [nivel, elegirNivel] = useState("catalogo");
   const [alternativas, generar] = useState([]);
@@ -217,6 +227,13 @@ export function PropuestaComercial({
         Guardar la cotización no confirma una venta. Si el cliente acepta, elegí
         Registrar venta concretada en las acciones de esta ficha.
       </p>
+      {interes?.servicios?.length > 0 && (
+        <p className="small">
+          Servicios de interés:{" "}
+          {interes.servicios.map((s) => serviciosInteres[s]).join(" + ")}. Podés
+          ajustar la cotización según el relevamiento.
+        </p>
+      )}
       {error && (
         <p role="alert" className="alert alert-danger">
           {error}
@@ -298,6 +315,9 @@ export function PropuestaComercial({
                         invalidar();
                       }}
                     >
+                      <option value="">
+                        Seleccioná la modalidad para cotizar…
+                      </option>
                       {Object.entries(subcategorias).map(([id, nombre]) => (
                         <option key={id} value={id}>
                           {nombre}

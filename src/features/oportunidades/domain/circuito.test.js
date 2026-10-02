@@ -5,6 +5,45 @@ import {
   validarOperacion,
   fechaCordoba,
 } from "./circuito.js";
+import { validarInteres } from "./interesComercial.js";
+
+test("alta estructurada: notas opcionales y servicios combinados sin duplicar", () => {
+  const datos = {
+    plazo: "2026-10-05",
+    interes_comercial: {
+      servicios: ["alarma", "camaras"],
+      tipo_alarma: "a_definir",
+    },
+  };
+  assert.equal(
+    validarOperacion({ accion: "crear", datos }).datos.observaciones,
+    "",
+  );
+  assert.equal(
+    validarOperacion({
+      accion: "crear",
+      datos: { ...datos, observaciones: "OK" },
+    }).datos.observaciones,
+    "OK",
+  );
+  for (const servicios of [[], ["alarma", "alarma"], ["inventado"]])
+    assert.throws(() =>
+      validarInteres({ servicios, tipo_alarma: "a_definir" }),
+    );
+  assert.throws(() =>
+    validarInteres({ servicios: ["alarma"], tipo_alarma: "inventado" }),
+  );
+  assert.throws(() =>
+    validarOperacion({
+      accion: "crear",
+      datos: { ...datos, observaciones: "a".repeat(2001) },
+    }),
+  );
+  assert.deepEqual(
+    validarInteres({ servicios: ["cerco"], tipo_alarma: "docta" }),
+    { servicios: ["cerco"], tipo_alarma: null },
+  );
+});
 
 test("participantes anteriores solo consultan y agente no se apropia de casos ajenos", () => {
   const perfil = { id: "agente", rol: "agente", activo: true };

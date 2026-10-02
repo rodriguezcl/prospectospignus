@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { acciones, fechaCordoba } from "../domain/circuito.js";
+import { serviciosInteres } from "../domain/interesComercial.js";
+import { subcategorias } from "../domain/alternativas.js";
 
 function Campo({
   nombre,
@@ -8,6 +10,7 @@ function Campo({
   requerido = true,
   opciones,
   valor,
+  ayuda,
 }) {
   return (
     <label className="d-block mb-3">
@@ -34,6 +37,7 @@ function Campo({
           minLength={requerido ? 5 : undefined}
           maxLength={2000}
           rows={3}
+          placeholder={ayuda}
         />
       ) : (
         <input
@@ -58,6 +62,7 @@ export function FormularioOportunidad({
   registroSeleccionado,
 }) {
   const [accion, cambiar] = useState(oportunidad ? opciones[0] : "crear");
+  const [servicios, elegirServicios] = useState([""]);
   const recuperacion = oportunidad?.estado === "recuperacion";
   return (
     <>
@@ -83,6 +88,13 @@ export function FormularioOportunidad({
         onSubmit={(e) => {
           e.preventDefault();
           const datos = Object.fromEntries(new FormData(e.currentTarget));
+          if (accion === "crear") {
+            datos.interes_comercial = {
+              servicios: servicios.filter(Boolean),
+              tipo_alarma: datos.tipo_alarma || null,
+            };
+            delete datos.tipo_alarma;
+          }
           if (datos.plazo) datos.plazo = fechaCordoba(datos.plazo);
           if (datos.confirmado_en)
             datos.confirmado_en = fechaCordoba(datos.confirmado_en);
@@ -199,10 +211,84 @@ export function FormularioOportunidad({
                 />{" "}
                 Hubo respuesta humana y existe una posibilidad comercial real.
               </label>
+              <fieldset className="mb-3">
+                <legend className="h6">Servicio de interés</legend>
+                {servicios.map((servicio, indice) => (
+                  <div className="d-flex gap-2 mb-2" key={indice}>
+                    <label className="flex-grow-1">
+                      {indice > 0 ? "Otro servicio" : "Servicio"}
+                      <select
+                        className="form-select"
+                        required
+                        value={servicio}
+                        onChange={(e) =>
+                          elegirServicios(
+                            servicios.map((s, i) =>
+                              i === indice ? e.target.value : s,
+                            ),
+                          )
+                        }
+                      >
+                        <option value="">Seleccionar…</option>
+                        {Object.entries(serviciosInteres)
+                          .filter(
+                            ([id]) =>
+                              id === servicio || !servicios.includes(id),
+                          )
+                          .map(([id, texto]) => (
+                            <option key={id} value={id}>
+                              {texto}
+                            </option>
+                          ))}
+                      </select>
+                    </label>
+                    {indice > 0 && (
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary align-self-end"
+                        onClick={() =>
+                          elegirServicios(
+                            servicios.filter((_, i) => i !== indice),
+                          )
+                        }
+                      >
+                        Quitar servicio
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {servicios.length < 3 && (
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary btn-sm"
+                    disabled={servicios.includes("")}
+                    onClick={() => elegirServicios([...servicios, ""])}
+                  >
+                    Agregar otro servicio
+                  </button>
+                )}
+              </fieldset>
+              {servicios.includes("alarma") && (
+                <Campo
+                  nombre="tipo_alarma"
+                  titulo="Tipo de alarma"
+                  valor="a_definir"
+                  opciones={[
+                    ["a_definir", "A definir en la visita"],
+                    ...Object.entries(subcategorias),
+                  ]}
+                />
+              )}
               <Campo
-                nombre="necesidad"
-                titulo="Necesidad comercial concreta"
-                tipo="textarea"
+                nombre="canal_contacto"
+                titulo="Medio de contacto"
+                opciones={[
+                  ["whatsapp", "WhatsApp"],
+                  ["llamada", "Llamada"],
+                  ["presencial", "Presencial"],
+                  ["correo", "Correo electrónico"],
+                  ["otro", "Otro"],
+                ]}
               />
               <Campo
                 nombre="vendedor_id"
@@ -280,13 +366,19 @@ export function FormularioOportunidad({
             />
           )}
           <Campo
-            nombre="resumen"
+            nombre={accion === "crear" ? "observaciones" : "resumen"}
             titulo={
               accion === "crear"
-                ? "Evidencia del contacto efectivo y calificación"
+                ? "Observaciones para la visita (opcional)"
                 : "Resumen, resultado, objeciones o motivo del cambio"
             }
             tipo="textarea"
+            requerido={accion !== "crear"}
+            ayuda={
+              accion === "crear"
+                ? "Por ejemplo: avisar antes de llegar, ingresar por la cochera o consultar por cámaras para el patio."
+                : undefined
+            }
           />
           {accion === "ganar" && (
             <>

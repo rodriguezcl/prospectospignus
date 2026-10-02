@@ -357,6 +357,105 @@ test("Agente: calificación, visitas, recuperación equilibrada, RLS, cierre e i
     ]),
     /CUENTA_ACCESO/,
   );
+  await como(vendedor);
+  const altaGuiada = {
+    ...datos,
+    interes_comercial: {
+      servicios: ["alarma", "camaras"],
+      tipo_alarma: "a_definir",
+    },
+    canal_contacto: "whatsapp",
+    observaciones: "",
+  };
+  delete altaGuiada.resumen;
+  delete altaGuiada.necesidad;
+  for (const interes of [
+    null,
+    {},
+    { servicios: [] },
+    { servicios: ["otro"] },
+    { servicios: ["alarma", "alarma"], tipo_alarma: "docta" },
+    { servicios: ["alarma"], tipo_alarma: "invalida" },
+  ]) {
+    await assert.rejects(
+      gestionar(randomUUID(), 0, "crear", {
+        ...altaGuiada,
+        interes_comercial: interes,
+      }),
+      /COMERCIAL_INTERES/,
+    );
+  }
+  await assert.rejects(
+    gestionar(randomUUID(), 0, "crear", {
+      ...altaGuiada,
+      observaciones: "x".repeat(2001),
+    }),
+    /COMERCIAL_DATOS/,
+  );
+  await assert.rejects(
+    gestionar(randomUUID(), 0, "crear", {
+      ...altaGuiada,
+      contacto_confirmado: "no",
+    }),
+    /COMERCIAL_CALIFICACION/,
+  );
+  await assert.rejects(
+    db.query(
+      "select public.gestionar_oportunidad_base_v17($1,0,$2,'crear',$3)",
+      [randomUUID(), randomUUID(), altaGuiada],
+    ),
+    /permission denied/,
+  );
+  const nueva = randomUUID(),
+    op = randomUUID();
+  await gestionar(nueva, 0, "crear", altaGuiada, op);
+  await gestionar(nueva, 0, "crear", altaGuiada, op);
+  const fichaGuiada = (
+    await db.query("select * from public.oportunidades where id=$1", [nueva])
+  ).rows[0];
+  assert.deepEqual(fichaGuiada.interes_comercial, altaGuiada.interes_comercial);
+  assert.match(fichaGuiada.necesidad, /Alarma.*A definir.*Cámaras/);
+  assert.match(fichaGuiada.resumen, /Visita coordinada/);
+  assert.equal(fichaGuiada.observaciones_visita, "");
+  assert.equal(fichaGuiada.canal_contacto, "whatsapp");
+  assert.equal((await db.query("select * from public.actividades_agenda where oportunidad_id=$1", [nueva])).rows.length, 1);
+  const corta = randomUUID();
+  await gestionar(corta, 0, "crear", { ...altaGuiada, observaciones: "OK", interes_comercial: { servicios: ["cerco"], tipo_alarma: null } });
+  assert.equal((await db.query("select observaciones_visita from public.oportunidades where id=$1", [corta])).rows[0].observaciones_visita, "OK");
+  assert.equal(
+    (
+      await db.query(
+        "select * from public.eventos_oportunidades where oportunidad_id=$1",
+        [nueva],
+      )
+    ).rows.length,
+    1,
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select solicitud->'datos'->>'observaciones' as nota from public.eventos_oportunidades where id=$1",
+        [op],
+      )
+    ).rows[0].nota,
+    "",
+  );
+  await assert.rejects(
+    gestionar(
+      nueva,
+      0,
+      "crear",
+      { ...altaGuiada, observaciones: "Otra nota" },
+      op,
+    ),
+    /COMERCIAL_CONFLICTO/,
+  );
+  await como(otro);
+  assert.equal(
+    (await db.query("select * from public.oportunidades where id=$1", [nueva]))
+      .rows.length,
+    0,
+  );
   await db.exec("reset role; set role anon");
   await assert.rejects(
     db.query("select public.listar_ventas_concretadas()"),

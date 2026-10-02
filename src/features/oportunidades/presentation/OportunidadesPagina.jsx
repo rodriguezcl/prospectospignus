@@ -249,6 +249,24 @@ export function OportunidadesPagina({
               </dd>
               <dt>Último resumen</dt>
               <dd className="texto-con-saltos">{detalle.resumen}</dd>
+              {detalle.interes_comercial && (
+                <>
+                  <dt>Medio de contacto inicial</dt>
+                  <dd>
+                    {{
+                      whatsapp: "WhatsApp",
+                      llamada: "Llamada",
+                      presencial: "Presencial",
+                      correo: "Correo electrónico",
+                      otro: "Otro",
+                    }[detalle.canal_contacto] || "Sin registrar"}
+                  </dd>
+                  <dt>Observaciones para la visita</dt>
+                  <dd className="texto-con-saltos">
+                    {detalle.observaciones_visita || "Sin observaciones"}
+                  </dd>
+                </>
+              )}
               <dt>Condiciones finales</dt>
               <dd className="texto-con-saltos">
                 {detalle.condiciones || "Sin registrar"}
