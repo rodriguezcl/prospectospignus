@@ -6,11 +6,12 @@ import {
   completarGrupos,
   modificarCatalogo,
   servicios,
+  nombrePlantilla,
 } from "../domain/catalogo.js";
 import { EditorCatalogo } from "./EditorCatalogo.jsx";
 const secciones = {
   marcas: "Marcas",
-  tipos: "Tipos",
+  tipos: "Plantillas",
   productos: "Productos",
   ofertas: "Planes y kits",
   adicionales: "Adicionales",
@@ -120,7 +121,7 @@ export function ProductosPagina({ gestion }) {
     <>
       <EncabezadoPagina
         titulo="Catálogo comercial"
-        descripcion="Marcas, tipos, productos, planes, kits y adicionales."
+        descripcion="Productos y plantillas para armar planes en comodato o kits de venta de equipos."
       />
       {error && (
         <div role="alert" className="alert alert-danger">
@@ -180,7 +181,7 @@ export function ProductosPagina({ gestion }) {
               {seccion === "marcas"
                 ? "Nueva marca"
                 : seccion === "tipos"
-                  ? "Nuevo tipo"
+                  ? "Nueva plantilla"
                   : seccion === "ofertas"
                     ? "Nuevo plan o kit"
                     : seccion === "adicionales"
@@ -257,6 +258,20 @@ export function ProductosPagina({ gestion }) {
           )}
           <section className="card card-body">
             <h2 className="h4">{secciones[seccion]}</h2>
+            {seccion === "tipos" && (
+              <p>
+                Composiciones reutilizables por marca y variante del sistema.
+                Definí los productos y cantidades; al crear un plan o kit podrás
+                seleccionarlas y ajustar su composición.
+              </p>
+            )}
+            {seccion === "ofertas" && (
+              <p>
+                Comodato o venta de equipos: un plan entrega equipos en
+                comodato; un kit los vende al cliente. Ambos pueden partir de
+                una plantilla.
+              </p>
+            )}
             {seccion === "adicionales" && (
               <p>
                 Son productos habilitados para ofrecer por separado. Editar aquí
@@ -274,7 +289,11 @@ export function ProductosPagina({ gestion }) {
               >
                 <span>
                   {i.codigo && `${i.codigo} · `}
-                  {i.nombre} · {i.estado}
+                  {seccion === "tipos" ? nombrePlantilla(i) : i.nombre} ·{" "}
+                  {i.estado}
+                  {seccion === "tipos" &&
+                    i.marca_id &&
+                    ` · ${catalogo.datos.marcas.find((m) => m.id === i.marca_id)?.nombre || "Marca pendiente"}`}
                   {i.servicio && ` · ${servicios[i.servicio]}`}
                   {i.tipo === "kit" &&
                     ` · ${i.modalidad === "plan" ? "Plan (comodato)" : i.modalidad === "kit" ? "Kit (venta directa)" : "Clasificación pendiente"}`}

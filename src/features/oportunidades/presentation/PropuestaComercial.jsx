@@ -321,7 +321,7 @@ export function PropuestaComercial({
                 </label>
                 {catalogo.esquema === 2 && servicio !== "cerco" && (
                   <label className="col-md-6">
-                    Tipo comercial
+                    Plantilla
                     <select
                       className="form-select"
                       value={tipoComercial}
@@ -341,7 +341,7 @@ export function PropuestaComercial({
                         )
                         .map((t) => (
                           <option key={t.id} value={t.id}>
-                            {t.nombre}
+                            {t.variante ? `${t.variante} · ${t.nombre}` : t.nombre}
                           </option>
                         ))}
                     </select>

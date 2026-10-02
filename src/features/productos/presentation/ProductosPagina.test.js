@@ -61,7 +61,7 @@ test("productos: puerto envía versión e idempotencia, no identidad de actor", 
     datos: { familias: [], items: [] },
   });
   assert.deepEqual(llamadas[0], ["leer_catalogo", { p_oportunidad: null }]);
-  assert.equal(llamadas[1][0], "guardar_catalogo_020");
+  assert.equal(llamadas[1][0], "guardar_catalogo_023");
   assert.deepEqual(Object.keys(llamadas[1][1]), [
     "p_version",
     "p_operacion",
@@ -175,7 +175,7 @@ test("catálogo: editor ofrece modalidad, marca, tipo y componentes sin campo fa
     "Plan · comodato",
     "Kit · venta directa",
     "Marca",
-    "Tipo comercial",
+    "Plantilla",
     "Productos incluidos",
     "Guardar",
   ])
@@ -204,7 +204,13 @@ test("catálogo: editor ofrece modalidad, marca, tipo y componentes sin campo fa
     }));
   const datos = {
     marcas: entidades("marca"),
-    tipos: entidades("tipo"),
+    tipos: entidades("tipo").map((t) => ({
+      ...t,
+      marca_id: "marca-activo",
+      servicio: "alarma",
+      variante: "INALÁMBRICO",
+      incluidos: [{ item_id: "adicional-activo", cantidad: 1 }],
+    })),
     items: ["adicional", "kit"].flatMap((tipo) =>
       entidades(tipo).map((i) => ({
         ...i,

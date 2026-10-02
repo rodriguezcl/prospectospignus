@@ -317,13 +317,76 @@ test("catálogo: versiones, activación, RLS y precios restringidos", async (t) 
   );
   camaras.items[1].modalidad = "kit";
   await db.query("select privado.validar_catalogo_020($1)", [camaras]);
+  const plantillas = structuredClone(nuevo);
+  Object.assign(plantillas.tipos[0], {
+    marca_id: plantillas.marcas[0].id,
+    servicio: "alarma",
+    variante: "cableado",
+    incluidos: [{ item_id: pir, cantidad: 2 }],
+  });
+  await db.query("select privado.validar_catalogo_020($1)", [plantillas]);
+  for (const cambio of [
+    { marca_id: randomUUID() },
+    { servicio: "camaras" },
+    { variante: "" },
+    { incluidos: [] },
+    { incluidos: [{ item_id: pir, cantidad: 1.5 }] },
+    { incluidos: [{ item_id: kit, cantidad: 1 }] },
+    { incluidos: [{ item_id: randomUUID(), cantidad: 1 }] },
+  ]) {
+    const mal = structuredClone(plantillas);
+    Object.assign(mal.tipos[0], cambio);
+    await assert.rejects(
+      db.query("select privado.validar_catalogo_020($1)", [mal]),
+      /CATALOGO_PLANTILLA/,
+    );
+  }
+  const duplicado = structuredClone(plantillas);
+  duplicado.tipos.push({ ...duplicado.tipos[0], id: randomUUID() });
+  await assert.rejects(
+    db.query("select privado.validar_catalogo_020($1)", [duplicado]),
+    /CATALOGO_DUPLICADO/,
+  );
+  duplicado.tipos[1].variante = "INALAMBRICO";
+  await db.query("select privado.validar_catalogo_020($1)", [duplicado]);
+  const retirado = structuredClone(plantillas);
+  retirado.items[0].estado = "inactivo";
+  await assert.rejects(
+    db.query("select privado.validar_catalogo_020($1)", [retirado]),
+    /CATALOGO_PLANTILLA/,
+  );
   await como(admin);
-  const vacio = { esquema: 2, marcas: [], tipos: [], familias: [], items: [] };
-  await guardar(3, vacio);
+  const operacionPlantilla = randomUUID();
+  await db.query("select public.guardar_catalogo_023(3,$1,$2)", [
+    operacionPlantilla,
+    plantillas,
+  ]);
+  await db.query("select public.guardar_catalogo_023(3,$1,$2)", [
+    operacionPlantilla,
+    plantillas,
+  ]);
+  const guardado = (await db.query("select public.leer_catalogo() v")).rows[0]
+    .v;
+  assert.equal(guardado.version, 4);
+  assert.equal(guardado.datos.tipos[0].variante, "CABLEADO");
+  assert.deepEqual(guardado.datos.items[1].incluidos, nuevo.items[1].incluidos);
+  const clienteAnterior = structuredClone(plantillas);
+  delete clienteAnterior.plantillas_version;
+  await assert.rejects(guardar(4, clienteAnterior), /CATALOGO_ESQUEMA/);
+  await assert.rejects(guardar(4, nuevo), /CATALOGO_PLANTILLA/);
+  const vacio = {
+    esquema: 2,
+    plantillas_version: 1,
+    marcas: [],
+    tipos: [],
+    familias: [],
+    items: [],
+  };
+  await guardar(4, vacio);
   assert.equal(
     (await db.query("select count(*) n from public.versiones_catalogo")).rows[0]
       .n,
-    4,
+    5,
   );
   assert.equal(
     (
