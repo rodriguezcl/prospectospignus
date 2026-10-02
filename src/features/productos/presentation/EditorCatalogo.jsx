@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CampoImporte } from "../../../shared/ui/CampoImporte.jsx";
 import { servicios, estados } from "../domain/catalogo.js";
 const Campo = ({ titulo, children }) => (
   <label className="d-block mb-3">
@@ -51,7 +52,7 @@ export function EditorCatalogo({
   function precio(grupoPrecios, nivel, valor) {
     const p = { ...item[grupoPrecios] };
     if (valor === "") delete p[nivel];
-    else p[nivel] = valor.replace(",", ".");
+    else p[nivel] = valor;
     cambiar(grupoPrecios, p);
   }
   const niveles =
@@ -68,11 +69,9 @@ export function EditorCatalogo({
             <Campo
               titulo={`${grupoPrecios === "abonos" ? "Abono " : "Precio "}${n}`}
             >
-              <input
-                className="form-control"
-                inputMode="decimal"
+              <CampoImporte
                 value={item[grupoPrecios][n] ?? ""}
-                onChange={(e) => precio(grupoPrecios, n, e.target.value)}
+                onChange={(valor) => precio(grupoPrecios, n, valor)}
               />
             </Campo>
           </div>

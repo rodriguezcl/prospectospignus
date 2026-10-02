@@ -1,12 +1,7 @@
 import { useRef, useState } from "react";
+import { monedaArgentina } from "../../../shared/ui/importe.js";
 
-const moneda = (n) =>
-  n == null
-    ? "No informado"
-    : new Intl.NumberFormat("es-AR", {
-        style: "currency",
-        currency: "ARS",
-      }).format(n);
+const moneda = (n) => monedaArgentina(n, "No informado");
 const fecha = (n) => (n ? n.split("-").reverse().join("/") : "Pendiente");
 export function DetalleVenta({ id, gestion, perfil }) {
   const [detalle, guardarDetalle] = useState(null),

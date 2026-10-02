@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { monedaArgentina } from "../../../shared/ui/importe.js";
 import { acciones, fechaCordoba } from "../domain/circuito.js";
 import { serviciosInteres } from "../domain/interesComercial.js";
 import { subcategorias } from "../domain/alternativas.js";
@@ -154,7 +155,7 @@ export function FormularioOportunidad({
                 .filter((p) => p.ciclo === oportunidad.ciclo)
                 .map((p) => [
                   p.id,
-                  `${p.detalle.codigo} · Inicial $${p.detalle.total} · Abono ${p.detalle.abono ?? "no corresponde"}`,
+                  `${p.detalle.codigo} · Inicial ${monedaArgentina(p.detalle.total)} · Abono ${monedaArgentina(p.detalle.abono, "no corresponde")}`,
                 ])}
             />
           )}

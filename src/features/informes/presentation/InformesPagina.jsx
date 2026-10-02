@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { monedaArgentina } from "../../../shared/ui/importe.js";
 import "./rendimiento.css";
 
 const numero = (v) =>
   v == null
     ? "—"
     : Number(v).toLocaleString("es-AR", { maximumFractionDigits: 2 });
-const dinero = (v) =>
-  v == null
-    ? "—"
-    : Number(v).toLocaleString("es-AR", { style: "currency", currency: "ARS" });
+const dinero = monedaArgentina;
 const origenes = {
   propio: "Propio",
   asignado_agente: "Asignado por agente",

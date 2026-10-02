@@ -1,17 +1,13 @@
 import { useEffect, useRef, useState } from "react";
+import { CampoImporte } from "../../../shared/ui/CampoImporte.jsx";
+import { monedaArgentina } from "../../../shared/ui/importe.js";
 import { generarAlternativas, subcategorias } from "../domain/alternativas.js";
 import { calcularPago } from "../domain/pago.js";
 import { totalConceptos } from "../domain/propuesta.js";
 import { serviciosInteres } from "../domain/interesComercial.js";
 import { puedeCotizar } from "../domain/circuito.js";
 
-const moneda = (valor) =>
-  valor == null
-    ? "No corresponde"
-    : new Intl.NumberFormat("es-AR", {
-        style: "currency",
-        currency: "ARS",
-      }).format(valor);
+const moneda = (valor) => monedaArgentina(valor, "No corresponde");
 const activo = (item) => !item.estado || item.estado === "activo";
 const niveles = ["catalogo", "alto", "medio", "bajo"];
 
@@ -641,13 +637,10 @@ export function PropuestaComercial({
               <div className="row g-3">
                 <label className="col-md-4">
                   Parte a cancelar en efectivo (antes del 10 %)
-                  <input
-                    className="form-control"
-                    type="number"
-                    min="0"
-                    step="0.01"
+                  <CampoImporte
+                    decimales={2}
                     value={baseEfectivo}
-                    onChange={(e) => elegirEfectivo(e.target.value)}
+                    onChange={elegirEfectivo}
                   />
                 </label>
                 <label className="col-md-4">
