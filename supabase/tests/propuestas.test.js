@@ -651,7 +651,7 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
     db.query("select public.guardar_catalogo($1,$2,$3)", [
       ultima + 1,
       randomUUID(),
-      { esquema: 2, plantillas_version: 1, marcas: [], tipos: [], familias: [], items: [] },
+      { esquema: 3, marcas: [], familias: [], items: [] },
     ]),
     /CATALOGO_USADO/,
   );

@@ -39,15 +39,8 @@ export function generarAlternativas({
     throw new Error("Seleccioná una subcategoría.");
   if (familia.servicio !== "cerco" && !kit)
     throw new Error("Seleccioná un plan o kit.");
-  if (
-    catalogo.esquema === 2 &&
-    kit &&
-    (!["plan", "kit"].includes(kit.modalidad) ||
-      !catalogo.tipos.some(
-        (t) => t.id === kit.tipo_comercial_id && habilitado(t),
-      ))
-  )
-    throw new Error("El plan o kit no tiene una clasificación habilitada.");
+  if (catalogo.esquema >= 2 && kit && !["plan", "kit"].includes(kit.modalidad))
+    throw new Error("Seleccioná la modalidad del plan o kit.");
   if (nivel === "telefonico" && !telefonico)
     throw new Error("Nivel no habilitado.");
   if (!alarma) nivel = "unico";
@@ -65,7 +58,7 @@ export function generarAlternativas({
         x.id === e.item_id &&
         x.familia_id === familiaId &&
         x.tipo !== "kit" &&
-        (catalogo.esquema !== 2 ||
+        (!(catalogo.esquema >= 2) ||
           x.tipo === "mano_obra" ||
           x.adicional_habilitado) &&
         habilitado(x),

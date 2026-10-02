@@ -37,7 +37,6 @@ export function PropuestaComercial({
   );
   const [familiaId, elegirFamilia] = useState("");
   const [modalidadEquipo, elegirModalidadEquipo] = useState("plan");
-  const [tipoComercial, elegirTipoComercial] = useState("");
   const [kitId, elegirKit] = useState("");
   const [subcategoria, elegirSubcategoria] = useState(
     interes?.servicios?.includes("alarma")
@@ -94,7 +93,6 @@ export function PropuestaComercial({
   }
   function cambiarFamilia(valor) {
     elegirFamilia(valor);
-    elegirTipoComercial("");
     elegirKit("");
     elegirExtras({});
     elegirNivel("catalogo");
@@ -123,11 +121,8 @@ export function PropuestaComercial({
       activo(i) &&
       i.familia_id === familiaId &&
       i.tipo === "kit" &&
-      (catalogo.esquema !== 2 ||
-        (i.modalidad === (servicio === "alarma" ? modalidadEquipo : "kit") &&
-          catalogo.tipos.some(
-            (t) => t.id === i.tipo_comercial_id && activo(t),
-          ))),
+      (!(catalogo.esquema >= 2) ||
+        i.modalidad === (servicio === "alarma" ? modalidadEquipo : "kit")),
   );
   const kit = kits.find((i) => i.id === kitId);
   const adicionales = ordenarAlfabeticamente(catalogo.items).filter(
@@ -135,7 +130,7 @@ export function PropuestaComercial({
       activo(i) &&
       i.familia_id === familiaId &&
       i.tipo !== "kit" &&
-      (catalogo.esquema !== 2 ||
+      (!(catalogo.esquema >= 2) ||
         i.tipo === "mano_obra" ||
         i.adicional_habilitado) &&
       (!i.kits_compatibles.length || i.kits_compatibles.includes(kitId)),
@@ -288,7 +283,7 @@ export function PropuestaComercial({
                     </option>
                   </select>
                 </label>
-                {catalogo.esquema === 2 && servicio === "alarma" && (
+                {catalogo.esquema >= 2 && servicio === "alarma" && (
                   <label className="col-md-6">
                     Modalidad de equipos
                     <select
@@ -319,34 +314,6 @@ export function PropuestaComercial({
                     ))}
                   </select>
                 </label>
-                {catalogo.esquema === 2 && servicio !== "cerco" && (
-                  <label className="col-md-6">
-                    Plantilla
-                    <select
-                      className="form-select"
-                      value={tipoComercial}
-                      onChange={(e) => {
-                        elegirTipoComercial(e.target.value);
-                        elegirKit("");
-                        elegirExtras({});
-                        invalidar();
-                      }}
-                    >
-                      <option value="">Seleccioná…</option>
-                      {ordenarAlfabeticamente(catalogo.tipos)
-                        .filter(
-                          (t) =>
-                            activo(t) &&
-                            kits.some((k) => k.tipo_comercial_id === t.id),
-                        )
-                        .map((t) => (
-                          <option key={t.id} value={t.id}>
-                            {t.variante ? `${t.variante} · ${t.nombre}` : t.nombre}
-                          </option>
-                        ))}
-                    </select>
-                  </label>
-                )}
                 {servicio !== "cerco" && (
                   <label className="col-md-6">
                     Plan o kit
@@ -360,17 +327,11 @@ export function PropuestaComercial({
                       }}
                     >
                       <option value="">Seleccioná…</option>
-                      {kits
-                        .filter(
-                          (k) =>
-                            catalogo.esquema !== 2 ||
-                            k.tipo_comercial_id === tipoComercial,
-                        )
-                        .map((k) => (
-                          <option key={k.id} value={k.id}>
-                            {k.nombre}
-                          </option>
-                        ))}
+                      {kits.map((k) => (
+                        <option key={k.id} value={k.id}>
+                          {k.nombre}
+                        </option>
+                      ))}
                     </select>
                   </label>
                 )}

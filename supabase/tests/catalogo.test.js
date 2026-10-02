@@ -204,6 +204,11 @@ test("catálogo: versiones, activación, RLS y precios restringidos", async (t) 
     /CATALOGO_CONDICIONES/,
   );
   const nuevo = completarGrupos(prepararCatalogo(datos), randomUUID);
+  // Conserva la regresión del contrato 020/023 antes de probar su adaptación.
+  nuevo.esquema = 2;
+  nuevo.plantillas_version = 1;
+  nuevo.tipos = [];
+  nuevo.items.forEach((i) => { i.tipo_comercial_id = null; });
   const tipo = randomUUID();
   nuevo.tipos.push({ id: tipo, nombre: "Inicial", estado: "activo" });
   nuevo.items.forEach((i) => {
@@ -374,19 +379,49 @@ test("catálogo: versiones, activación, RLS y precios restringidos", async (t) 
   delete clienteAnterior.plantillas_version;
   await assert.rejects(guardar(4, clienteAnterior), /CATALOGO_ESQUEMA/);
   await assert.rejects(guardar(4, nuevo), /CATALOGO_PLANTILLA/);
-  const vacio = {
-    esquema: 2,
-    plantillas_version: 1,
-    marcas: [],
-    tipos: [],
-    familias: [],
-    items: [],
-  };
-  await guardar(4, vacio);
+  const sinPlantillas = completarGrupos(prepararCatalogo(guardado.datos), randomUUID);
+  const opSinPlantillas = randomUUID();
+  await db.query("select public.guardar_catalogo_024(4,$1,$2)", [opSinPlantillas, sinPlantillas]);
+  await db.query("select public.guardar_catalogo_024(4,$1,$2)", [opSinPlantillas, sinPlantillas]);
+  const versionNueva = (await db.query("select public.leer_catalogo() v")).rows[0].v;
+  assert.equal(versionNueva.version, 5);
+  assert.equal(versionNueva.datos.esquema, 3);
+  assert.equal("tipos" in versionNueva.datos, false);
+  assert.deepEqual(versionNueva.datos.items, sinPlantillas.items);
+  await assert.rejects(guardar(5, plantillas), /CATALOGO_ESQUEMA/);
+  await como(vendedor);
+  const vistaSimple = (await db.query("select public.leer_catalogo() v")).rows[0].v.datos;
+  assert.equal(vistaSimple.esquema, 3);
+  assert.equal("tipos" in vistaSimple, false);
+  assert.equal(JSON.stringify(vistaSimple).includes("telefonico"), false);
+  assert.equal(vistaSimple.items.find((i) => i.id === kit).modalidad, "plan");
+  await assert.rejects(db.query("select public.guardar_catalogo_024(5,$1,$2)", [randomUUID(), sinPlantillas]), /CATALOGO_ACCESO/);
+  await db.exec("reset role");
+  assert.deepEqual((await calcular(sinPlantillas)).kit.incluidos, plan.kit.incluidos);
+  assert.deepEqual((await calcular(sinPlantillas)).extras, plan.extras);
+  const directo = structuredClone(sinPlantillas);
+  directo.items[1].modalidad = "kit";
+  assert.equal((await calcular(directo)).kit.incluidos[0].propiedad, "cliente");
+  for (const modificar of [
+    (d) => { d.items[1].modalidad = "pendiente"; },
+    (d) => { d.items[0].estado = "inactivo"; },
+    (d) => { d.items[1].incluidos[0].cantidad = 0; },
+    (d) => { d.items[1].marca_id = randomUUID(); },
+    (d) => { d.items[1].precios = {}; },
+    (d) => { d.items[1].tipo_comercial_id = tipo; },
+  ]) {
+    const invalido = structuredClone(sinPlantillas);
+    modificar(invalido);
+    await assert.rejects(db.query("select privado.validar_catalogo_024($1)", [invalido]), /CATALOGO_/);
+  }
+  assert.deepEqual((await db.query("select datos from public.versiones_catalogo where version=4")).rows[0].datos, guardado.datos);
+  await como(admin);
+  const vacio = { esquema: 3, marcas: [], familias: [], items: [] };
+  await guardar(5, vacio);
   assert.equal(
     (await db.query("select count(*) n from public.versiones_catalogo")).rows[0]
       .n,
-    5,
+    6,
   );
   assert.equal(
     (

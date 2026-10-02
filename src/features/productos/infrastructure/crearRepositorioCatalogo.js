@@ -6,10 +6,7 @@ export function crearRepositorioCatalogo(cliente) {
         CATALOGO_ACCESO: "No tenés permiso para administrar el catálogo.",
         CATALOGO_CONFLICTO:
           "El catálogo cambió. Actualizá antes de volver a guardar.",
-        CATALOGO_DUPLICADO:
-          "Hay códigos, componentes o plantillas de la misma marca y variante repetidos.",
-        CATALOGO_PLANTILLA:
-          "Revisá la marca, variante, servicio y componentes de la plantilla. Para activarla necesita productos activos y cantidades enteras positivas; debe coincidir con la marca y servicio de sus ofertas.",
+        CATALOGO_DUPLICADO: "Hay marcas, códigos o componentes repetidos.",
         CATALOGO_INCOMPLETO:
           "Completá los precios antes de activar el producto.",
         CATALOGO_ESCALA:
@@ -27,16 +24,16 @@ export function crearRepositorioCatalogo(cliente) {
         CATALOGO_DEPENDENCIAS:
           "Primero deshabilitá los registros activos que dependen de este elemento.",
         CATALOGO_CLASIFICACION:
-          "Seleccioná Plan o Kit y una plantilla activa antes de activar.",
+          "Seleccioná la modalidad Plan o Kit antes de activar.",
         CATALOGO_MODALIDAD:
-          "Revisá modalidad y plantilla. Solo Alarma admite planes en comodato.",
+          "Revisá la modalidad. Solo Alarma admite planes en comodato.",
         CATALOGO_ESQUEMA:
           "Actualizá la aplicación para administrar el nuevo catálogo.",
       };
       throw new Error(
         mensajes[error.message] ||
           (["PGRST202", "42P01"].includes(error.code)
-            ? "Falta aplicar la migración de Plantillas del catálogo (023)."
+            ? "Falta aplicar la actualización del catálogo comercial (024)."
             : "No se pudo guardar o consultar el catálogo. Revisá campos, precios y conexión."),
       );
     }
@@ -46,7 +43,7 @@ export function crearRepositorioCatalogo(cliente) {
     leer: (oportunidad = null) =>
       llamar("leer_catalogo", { p_oportunidad: oportunidad }),
     guardar: ({ version, operacion, datos }) =>
-      llamar("guardar_catalogo_023", {
+      llamar("guardar_catalogo_024", {
         p_version: version,
         p_operacion: operacion,
         p_datos: datos,

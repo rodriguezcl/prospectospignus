@@ -4,60 +4,12 @@ export const servicios = {
   cerco: "Cerco eléctrico",
 };
 export const estados = ["borrador", "activo", "inactivo"];
-export function aplicarPlantilla(item, plantilla, datos) {
-  if (
-    !plantilla ||
-    plantilla.estado !== "activo" ||
-    plantilla.marca_id !== item.marca_id ||
-    plantilla.servicio !== item.servicio ||
-    !plantilla.variante ||
-    !plantilla.incluidos?.length
-  )
-    throw new Error(
-      "Seleccioná una plantilla activa de la misma marca y servicio.",
-    );
-  for (const c of plantilla.incluidos) {
-    const p = datos.items.find((i) => i.id === c.item_id);
-    if (
-      !p ||
-      p.estado !== "activo" ||
-      p.tipo !== "adicional" ||
-      p.marca_id !== item.marca_id ||
-      p.servicio !== item.servicio ||
-      !Number.isInteger(c.cantidad) ||
-      c.cantidad < 1 ||
-      c.cantidad > 9999
-    )
-      throw new Error(
-        "Revisá los componentes de la plantilla antes de aplicarla.",
-      );
-  }
-  if (
-    new Set(plantilla.incluidos.map((c) => c.item_id)).size !==
-    plantilla.incluidos.length
-  )
-    throw new Error("La plantilla tiene componentes repetidos.");
-  return {
-    ...item,
-    tipo_comercial_id: plantilla.id,
-    incluidos: structuredClone(plantilla.incluidos),
-    validado_tecnicamente: false,
-  };
-}
-
-export function nombrePlantilla(plantilla) {
-  return plantilla.variante
-    ? `${plantilla.variante} · ${plantilla.nombre}`
-    : `${plantilla.nombre} · pendiente de completar`;
-}
 export function normalizarNombresCatalogo(datos) {
   const nuevo = structuredClone(datos);
-  for (const coleccion of ["marcas", "tipos", "familias", "items"]) {
+  for (const coleccion of ["marcas", "familias", "items"]) {
     for (const item of nuevo[coleccion] || []) {
       if (typeof item.nombre === "string")
         item.nombre = item.nombre.trim().toUpperCase();
-      if (coleccion === "tipos" && typeof item.variante === "string")
-        item.variante = item.variante.trim().toUpperCase();
       if (coleccion === "familias" && typeof item.marca === "string")
         item.marca = item.marca.trim().toUpperCase();
     }
@@ -66,7 +18,14 @@ export function normalizarNombresCatalogo(datos) {
 }
 export function prepararCatalogo(datos) {
   datos = normalizarNombresCatalogo(datos);
-  if (datos.esquema === 2) return structuredClone(datos);
+  if ([2, 3].includes(datos.esquema)) {
+    const { tipos, plantillas_version, ...vigente } = datos;
+    return {
+      ...vigente,
+      esquema: 3,
+      items: vigente.items.map(({ tipo_comercial_id, ...i }) => i),
+    };
+  }
   const marcas = [];
   const familias = (datos.familias || []).map((f) => {
     let marca = marcas.find(
@@ -79,9 +38,9 @@ export function prepararCatalogo(datos) {
     return { ...f, marca_id: marca.id };
   });
   return {
-    esquema: 2,
+    esquema: 3,
     marcas,
-    tipos: [],
+
     familias,
     items: (datos.items || []).map((i) => {
       const f = familias.find((f) => f.id === i.familia_id);
@@ -91,7 +50,7 @@ export function prepararCatalogo(datos) {
         servicio: f.servicio,
         adicional_habilitado: i.tipo === "adicional",
         modalidad: i.tipo === "kit" ? "pendiente" : null,
-        tipo_comercial_id: null,
+
         estado: "borrador",
       };
     }),
@@ -99,7 +58,7 @@ export function prepararCatalogo(datos) {
 }
 export function completarGrupos(datos, crearId) {
   const nuevo = normalizarNombresCatalogo(datos);
-  nuevo.plantillas_version = 1;
+
   nuevo.familias = [];
   for (const i of nuevo.items) {
     const marca = nuevo.marcas.find((m) => m.id === i.marca_id);
@@ -126,30 +85,17 @@ export function completarGrupos(datos, crearId) {
   return nuevo;
 }
 export function dependencias(datos, seccion, id, soloActivas = false) {
-  const plantillas = (datos.tipos || [])
+  return datos.items
     .filter(
-      (t) =>
-        (!soloActivas || t.estado === "activo") &&
+      (i) =>
+        (!soloActivas || i.estado === "activo") &&
         (seccion === "marcas"
-          ? t.marca_id === id
-          : seccion === "items" && t.incluidos?.some((c) => c.item_id === id)),
+          ? i.marca_id === id
+          : i.id !== id &&
+            ((i.incluidos || []).some((c) => c.item_id === id) ||
+              (!soloActivas && (i.kits_compatibles || []).includes(id)))),
     )
-    .map((t) => `Plantilla ${nombrePlantilla(t)}`);
-  return plantillas.concat(
-    datos.items
-      .filter(
-        (i) =>
-          (!soloActivas || i.estado === "activo") &&
-          (seccion === "marcas"
-            ? i.marca_id === id
-            : seccion === "tipos"
-              ? i.tipo_comercial_id === id
-              : i.id !== id &&
-                ((i.incluidos || []).some((c) => c.item_id === id) ||
-                  (!soloActivas && (i.kits_compatibles || []).includes(id)))),
-      )
-      .map((i) => `${i.codigo} · ${i.nombre}`),
-  );
+    .map((i) => `${i.codigo} · ${i.nombre}`);
 }
 export function modificarCatalogo(datos, seccion, valor, accion = "guardar") {
   valor = { ...valor, nombre: valor.nombre?.trim().toUpperCase() };

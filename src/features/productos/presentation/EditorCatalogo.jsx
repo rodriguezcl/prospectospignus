@@ -1,12 +1,7 @@
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useState } from "react";
 import { CampoImporte } from "../../../shared/ui/CampoImporte.jsx";
-import {
-  servicios,
-  estados,
-  aplicarPlantilla,
-  nombrePlantilla,
-} from "../domain/catalogo.js";
+import { servicios, estados } from "../domain/catalogo.js";
 const Campo = ({ titulo, children }) => (
   <label className="d-block mb-3">
     {titulo}
@@ -18,40 +13,15 @@ export function EditorCatalogo({
   grupo,
   valor,
   oferta,
-  adicional,
   ocupado,
   guardar,
   cancelar,
 }) {
-  const plantilla = grupo === "tipos";
-  const [errorPlantilla, setErrorPlantilla] = useState("");
   const [item, editar] = useState(() =>
     structuredClone(
-      (valor
-        ? plantilla
-          ? {
-              servicio: "alarma",
-              marca_id: "",
-              variante: "",
-              incluidos: [],
-              ...valor,
-            }
-          : valor
-        : null) ||
+      valor ||
         (grupo !== "items"
-          ? {
-              id: crypto.randomUUID(),
-              nombre: "",
-              estado: "activo",
-              ...(plantilla
-                ? {
-                    marca_id: "",
-                    servicio: "alarma",
-                    variante: "",
-                    incluidos: [],
-                  }
-                : {}),
-            }
+          ? { id: crypto.randomUUID(), nombre: "", estado: "activo" }
           : {
               id: crypto.randomUUID(),
               nombre: "",
@@ -60,10 +30,9 @@ export function EditorCatalogo({
               servicio: "alarma",
               tipo: oferta ? "kit" : "adicional",
               modalidad: oferta ? "plan" : null,
-              tipo_comercial_id: null,
               unidad: "unidad",
               estado: "activo",
-              adicional_habilitado: !!adicional,
+              adicional_habilitado: false,
               validado_tecnicamente: false,
               incluidos: [],
               kits_compatibles: [],
@@ -76,9 +45,7 @@ export function EditorCatalogo({
     editar((i) => ({
       ...i,
       [campo]: valor,
-      ...(oferta && campo === "incluidos"
-        ? { validado_tecnicamente: false }
-        : {}),
+      ...(campo === "incluidos" ? { validado_tecnicamente: false } : {}),
     }));
   const referencias = ordenarAlfabeticamente(datos.items).filter(
     (i) =>
@@ -92,17 +59,8 @@ export function EditorCatalogo({
   const marcas = ordenarAlfabeticamente(datos.marcas).filter(
     (m) => m.estado === "activo" || m.id === item.marca_id,
   );
-  const tipos = ordenarAlfabeticamente(datos.tipos).filter(
-    (t) =>
-      t.id === item.tipo_comercial_id ||
-      (t.estado === "activo" &&
-        t.marca_id === item.marca_id &&
-        t.servicio === item.servicio &&
-        t.incluidos?.length),
-  );
   const vinculadosNoActivos = [
     ...marcas.filter((m) => m.id === item.marca_id),
-    ...tipos.filter((t) => t.id === item.tipo_comercial_id),
     ...referencias,
   ].filter((i) => i.estado !== "activo");
   function precio(grupoPrecios, nivel, valor) {
@@ -145,25 +103,14 @@ export function EditorCatalogo({
     >
       <h2 className="h4">
         {valor ? "Editar" : "Crear"}{" "}
-        {grupo === "marcas"
-          ? "marca"
-          : grupo === "tipos"
-            ? "plantilla"
-            : oferta
-              ? "plan o kit"
-              : "producto"}
+        {grupo === "marcas" ? "marca" : oferta ? "plan o kit" : "producto"}
       </h2>
       <fieldset disabled={ocupado}>
-        {errorPlantilla && (
-          <p role="alert" className="alert alert-warning">
-            {errorPlantilla}
-          </p>
-        )}
-        {plantilla && (
+        {oferta && (
           <p>
-            Definí los productos y cantidades de una marca y variante. Podrás
-            reutilizarlos al crear planes o kits; los cambios no modifican
-            ofertas ya guardadas.
+            Elegí la marca, agregá los productos y sus cantidades y definí los
+            precios de este plan o kit. Diferenciá las variantes en el nombre,
+            por ejemplo «Garnet cableado Inicial».
           </p>
         )}
         {vinculadosNoActivos.length > 0 && (
@@ -189,19 +136,17 @@ export function EditorCatalogo({
             onChange={(e) => cambiar("nombre", e.target.value)}
           />
         </Campo>
-        {(grupo === "items" || plantilla) && (
+        {grupo === "items" && (
           <>
-            {!plantilla && (
-              <Campo titulo="Código">
-                <input
-                  className="form-control"
-                  required
-                  maxLength={50}
-                  value={item.codigo}
-                  onChange={(e) => cambiar("codigo", e.target.value)}
-                />
-              </Campo>
-            )}
+            <Campo titulo="Código">
+              <input
+                className="form-control"
+                required
+                maxLength={50}
+                value={item.codigo}
+                onChange={(e) => cambiar("codigo", e.target.value)}
+              />
+            </Campo>
             <Campo titulo="Servicio">
               <select
                 className="form-select"
@@ -210,9 +155,8 @@ export function EditorCatalogo({
                   editar((i) => ({
                     ...i,
                     servicio: e.target.value,
+                    tipo: oferta ? "kit" : "adicional",
                     validado_tecnicamente: false,
-                    tipo_comercial_id: null,
-                    tipo: plantilla ? undefined : oferta ? "kit" : "adicional",
                     incluidos: [],
                     kits_compatibles: [],
                     precios: {},
@@ -227,7 +171,7 @@ export function EditorCatalogo({
                 }
               >
                 {Object.entries(servicios)
-                  .filter(([s]) => !(oferta || plantilla) || s !== "cerco")
+                  .filter(([s]) => !oferta || s !== "cerco")
                   .map(([s, n]) => (
                     <option key={s} value={s}>
                       {n}
@@ -261,7 +205,6 @@ export function EditorCatalogo({
                     ...i,
                     marca_id: e.target.value,
                     validado_tecnicamente: false,
-                    tipo_comercial_id: null,
                     incluidos: [],
                     kits_compatibles: [],
                   }))
@@ -279,149 +222,84 @@ export function EditorCatalogo({
                 ))}
               </select>
             </Campo>
-            {plantilla && (
-              <Campo titulo="Variante del sistema">
-                <input
-                  className="form-control"
-                  required
-                  maxLength={100}
-                  placeholder="Ej.: Híbrido cableado, inalámbrico con teclado RF"
-                  value={item.variante || ""}
-                  onChange={(e) => cambiar("variante", e.target.value)}
-                />
-              </Campo>
-            )}
-            {oferta ? (
-              <Campo titulo="Plantilla">
-                <select
-                  className="form-select"
-                  required
-                  value={item.tipo_comercial_id || ""}
-                  onChange={(e) => {
-                    setErrorPlantilla("");
-                    if (!e.target.value) {
-                      cambiar("tipo_comercial_id", null);
-                      return;
-                    }
-                    try {
-                      editar(
-                        aplicarPlantilla(
-                          item,
-                          datos.tipos.find((t) => t.id === e.target.value),
-                          datos,
-                        ),
-                      );
-                    } catch (error) {
-                      setErrorPlantilla(error.message);
-                    }
-                  }}
-                >
-                  <option value="">Seleccioná…</option>
-                  {tipos.map((t) => (
-                    <option
-                      key={t.id}
-                      value={t.id}
-                      disabled={
-                        t.estado !== "activo" ||
-                        !t.marca_id ||
-                        t.marca_id !== item.marca_id ||
-                        t.servicio !== item.servicio
-                      }
-                    >
-                      {nombrePlantilla(t)} · {t.estado}
-                    </option>
-                  ))}
-                </select>
-                <span className="form-text">
-                  Seleccionar una plantilla reemplaza los productos incluidos.
-                  Después podés ajustar las cantidades. Administralas en
-                  Plantillas.
-                </span>
-              </Campo>
-            ) : (
-              !plantilla && (
-                <>
-                  <Campo titulo="Clase de producto">
-                    <select
-                      className="form-select"
-                      value={item.tipo}
-                      onChange={(e) =>
-                        editar((i) => ({
-                          ...i,
-                          tipo: e.target.value,
-                          adicional_habilitado: e.target.value === "adicional",
-                          unidad:
-                            e.target.value === "mano_obra"
-                              ? "servicio"
-                              : "unidad",
-                        }))
-                      }
-                    >
-                      <option value="adicional">Componente</option>
-                      {item.servicio === "cerco" && (
-                        <option value="mano_obra">Mano de obra</option>
-                      )}
-                    </select>
-                  </Campo>
-                  <Campo titulo="Se vende por">
-                    <select
-                      className="form-select"
-                      value={item.unidad}
-                      onChange={(e) => cambiar("unidad", e.target.value)}
-                    >
-                      {[
-                        "unidad",
-                        "pack",
-                        ...(item.servicio === "cerco"
-                          ? ["metro", "servicio"]
-                          : []),
-                      ].map((u) => (
-                        <option key={u} value={u}>
-                          {
-                            {
-                              unidad: "Unidad",
-                              pack: "Paquete (pack)",
-                              metro: "Metro",
-                              servicio: "Servicio",
-                            }[u]
-                          }
-                        </option>
-                      ))}
-                    </select>
-                  </Campo>
-                  {item.tipo === "adicional" && (
-                    <label className="d-block mb-3">
-                      <input
-                        className="form-check-input me-2"
-                        type="checkbox"
-                        checked={item.adicional_habilitado}
-                        onChange={(e) =>
-                          cambiar("adicional_habilitado", e.target.checked)
-                        }
-                      />
-                      Ofrecer también como adicional
-                    </label>
-                  )}
-                </>
-              )
-            )}
-            {!plantilla && (
+            {!oferta && (
               <>
-                <h3 className="h5">Precios finales con IVA</h3>
-                <p className="small">
-                  Vacío significa pendiente; cero es un precio explícito. No se
-                  modifican cotizaciones anteriores.
-                </p>
-                {precios("precios", niveles)}
+                <Campo titulo="Clase de producto">
+                  <select
+                    className="form-select"
+                    value={item.tipo}
+                    onChange={(e) =>
+                      editar((i) => ({
+                        ...i,
+                        tipo: e.target.value,
+                        adicional_habilitado: e.target.value === "adicional",
+                        unidad:
+                          e.target.value === "mano_obra"
+                            ? "servicio"
+                            : "unidad",
+                      }))
+                    }
+                  >
+                    <option value="adicional">Componente</option>
+                    {item.servicio === "cerco" && (
+                      <option value="mano_obra">Mano de obra</option>
+                    )}
+                  </select>
+                </Campo>
+                <Campo titulo="Se vende por">
+                  <select
+                    className="form-select"
+                    value={item.unidad}
+                    onChange={(e) => cambiar("unidad", e.target.value)}
+                  >
+                    {[
+                      "unidad",
+                      "pack",
+                      ...(item.servicio === "cerco"
+                        ? ["metro", "servicio"]
+                        : []),
+                    ].map((u) => (
+                      <option key={u} value={u}>
+                        {
+                          {
+                            unidad: "Unidad",
+                            pack: "Paquete (pack)",
+                            metro: "Metro",
+                            servicio: "Servicio",
+                          }[u]
+                        }
+                      </option>
+                    ))}
+                  </select>
+                </Campo>
+                {item.tipo === "adicional" && (
+                  <label className="d-block mb-3">
+                    <input
+                      className="form-check-input me-2"
+                      type="checkbox"
+                      checked={item.adicional_habilitado}
+                      onChange={(e) =>
+                        cambiar("adicional_habilitado", e.target.checked)
+                      }
+                    />
+                    Ofrecer también como adicional
+                  </label>
+                )}
               </>
             )}
+            <h3 className="h5">Precios finales con IVA</h3>
+            <p className="small">
+              Vacío significa pendiente; cero es un precio explícito. No se
+              modifican cotizaciones anteriores.
+            </p>
+            {precios("precios", niveles)}
             {oferta && item.servicio === "alarma" && (
               <details className="mb-3">
                 <summary>Abono mensual · con monitoreo</summary>
                 {precios("abonos", ["alto", "medio", "bajo", "telefonico"])}
               </details>
             )}
-            {(oferta || plantilla) && (
+            {oferta && (
               <section className="mb-3">
                 <h3 className="h5">Productos incluidos</h3>
                 <p>
@@ -442,19 +320,17 @@ export function EditorCatalogo({
                         max={
                           p.estado === "activo"
                             ? 9999
-                            : item.incluidos?.find((c) => c.item_id === p.id)
+                            : item.incluidos.find((c) => c.item_id === p.id)
                                 ?.cantidad || 0
                         }
                         step="1"
                         value={
-                          item.incluidos?.find((c) => c.item_id === p.id)
+                          item.incluidos.find((c) => c.item_id === p.id)
                             ?.cantidad || 0
                         }
                         onChange={(e) =>
                           cambiar("incluidos", [
-                            ...(item.incluidos || []).filter(
-                              (c) => c.item_id !== p.id,
-                            ),
+                            ...item.incluidos.filter((c) => c.item_id !== p.id),
                             ...(Number(e.target.value) > 0
                               ? [
                                   {
@@ -507,19 +383,17 @@ export function EditorCatalogo({
                   ))}
               </details>
             )}
-            {!plantilla && (
-              <label className="d-block mb-3">
-                <input
-                  className="form-check-input me-2"
-                  type="checkbox"
-                  checked={item.validado_tecnicamente}
-                  onChange={(e) =>
-                    cambiar("validado_tecnicamente", e.target.checked)
-                  }
-                />
-                Composición, compatibilidad y unidades validadas técnicamente
-              </label>
-            )}
+            <label className="d-block mb-3">
+              <input
+                className="form-check-input me-2"
+                type="checkbox"
+                checked={item.validado_tecnicamente}
+                onChange={(e) =>
+                  cambiar("validado_tecnicamente", e.target.checked)
+                }
+              />
+              Composición, compatibilidad y unidades validadas técnicamente
+            </label>
           </>
         )}
         <Campo titulo="Estado">

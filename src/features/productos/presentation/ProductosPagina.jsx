@@ -6,15 +6,12 @@ import {
   completarGrupos,
   modificarCatalogo,
   servicios,
-  nombrePlantilla,
 } from "../domain/catalogo.js";
 import { EditorCatalogo } from "./EditorCatalogo.jsx";
 const secciones = {
   marcas: "Marcas",
-  tipos: "Plantillas",
   productos: "Productos",
   ofertas: "Planes y kits",
-  adicionales: "Adicionales",
 };
 export function ProductosPagina({ gestion }) {
   const [catalogo, setCatalogo] = useState(null),
@@ -29,7 +26,7 @@ export function ProductosPagina({ gestion }) {
     return {
       ...v,
       datos: prepararCatalogo(v.datos),
-      anterior: v.datos.esquema !== 2 && v.version > 0,
+      anterior: ![2, 3].includes(v.datos.esquema) && v.version > 0,
     };
   }
   useEffect(() => {
@@ -98,17 +95,13 @@ export function ProductosPagina({ gestion }) {
       setOcupado(false);
     }
   }
-  const grupo = ["marcas", "tipos"].includes(seccion) ? seccion : "items";
+  const grupo = seccion === "marcas" ? "marcas" : "items";
   const filas = !catalogo
     ? []
     : catalogo.datos[grupo].filter(
         (i) =>
           grupo !== "items" ||
-          (seccion === "ofertas"
-            ? i.tipo === "kit"
-            : seccion === "adicionales"
-              ? i.tipo === "adicional" && i.adicional_habilitado
-              : i.tipo !== "kit"),
+          (seccion === "ofertas" ? i.tipo === "kit" : i.tipo !== "kit"),
       );
   function abrir(valor) {
     setError("");
@@ -121,7 +114,7 @@ export function ProductosPagina({ gestion }) {
     <>
       <EncabezadoPagina
         titulo="Catálogo comercial"
-        descripcion="Productos y plantillas para armar planes en comodato o kits de venta de equipos."
+        descripcion="Marcas, productos y ofertas: planes en comodato o kits de venta de equipos."
       />
       {error && (
         <div role="alert" className="alert alert-danger">
@@ -180,13 +173,9 @@ export function ProductosPagina({ gestion }) {
             >
               {seccion === "marcas"
                 ? "Nueva marca"
-                : seccion === "tipos"
-                  ? "Nueva plantilla"
-                  : seccion === "ofertas"
-                    ? "Nuevo plan o kit"
-                    : seccion === "adicionales"
-                      ? "Nuevo adicional"
-                      : "Nuevo producto"}
+                : seccion === "ofertas"
+                  ? "Nuevo plan o kit"
+                  : "Nuevo producto"}
             </button>
             <button
               className="btn btn-outline-primary"
@@ -204,7 +193,6 @@ export function ProductosPagina({ gestion }) {
               grupo={edicion.grupo}
               valor={edicion.valor}
               oferta={seccion === "ofertas"}
-              adicional={seccion === "adicionales"}
               ocupado={ocupado}
               guardar={(valor) => guardar(edicion.grupo, valor)}
               cancelar={() => setEdicion(null)}
@@ -258,27 +246,18 @@ export function ProductosPagina({ gestion }) {
           )}
           <section className="card card-body">
             <h2 className="h4">{secciones[seccion]}</h2>
-            {seccion === "tipos" && (
-              <p>
-                Composiciones reutilizables por marca y variante del sistema.
-                Definí los productos y cantidades; al crear un plan o kit podrás
-                seleccionarlas y ajustar su composición.
-              </p>
-            )}
             {seccion === "ofertas" && (
               <p>
                 Comodato o venta de equipos: un plan entrega equipos en
-                comodato; un kit los vende al cliente. Ambos pueden partir de
-                una plantilla.
+                comodato; un kit los vende al cliente. Definí los productos,
+                cantidades y precios directamente en cada oferta.
               </p>
             )}
-            {seccion === "adicionales" && (
+            {seccion === "productos" && (
               <p>
-                Son productos habilitados para ofrecer por separado. Editar aquí
-                modifica el mismo producto, sin duplicarlo. Para retirar solo su
-                oferta adicional, usá «Retirar como adicional». Eliminar retira
-                el producto completo y requiere que no tenga vínculos ni uso
-                comercial.
+                Los productos pueden incluirse en planes o kits y ofrecerse por
+                separado. Habilitá «Ofrecer también como adicional» al
+                editarlos.
               </p>
             )}
             {!filas.length && <p>No hay registros en esta sección.</p>}
@@ -289,11 +268,8 @@ export function ProductosPagina({ gestion }) {
               >
                 <span>
                   {i.codigo && `${i.codigo} · `}
-                  {seccion === "tipos" ? nombrePlantilla(i) : i.nombre} ·{" "}
-                  {i.estado}
-                  {seccion === "tipos" &&
-                    i.marca_id &&
-                    ` · ${catalogo.datos.marcas.find((m) => m.id === i.marca_id)?.nombre || "Marca pendiente"}`}
+                  {i.nombre} · {i.estado}
+                  {i.adicional_habilitado && " · Disponible como adicional"}
                   {i.servicio && ` · ${servicios[i.servicio]}`}
                   {i.tipo === "kit" &&
                     ` · ${i.modalidad === "plan" ? "Plan (comodato)" : i.modalidad === "kit" ? "Kit (venta directa)" : "Clasificación pendiente"}`}
@@ -306,7 +282,7 @@ export function ProductosPagina({ gestion }) {
                   >
                     Editar {i.nombre}
                   </button>
-                  {seccion === "adicionales" && (
+                  {seccion === "productos" && i.adicional_habilitado && (
                     <button
                       className="btn btn-sm btn-outline-secondary"
                       disabled={ocupado}

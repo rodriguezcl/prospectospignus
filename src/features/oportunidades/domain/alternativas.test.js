@@ -36,14 +36,12 @@ const opciones = (nivel, extra = {}) =>
     ...extra,
   });
 
-test("catálogo nuevo: clasificaciones y adicionales deshabilitados no son cotizables", () => {
+test("catálogo nuevo: cotiza sin plantillas y respeta modalidad y adicionales habilitados", () => {
   const nuevo = {
     ...structuredClone(catalogo),
-    esquema: 2,
-    tipos: [{ id: "t", estado: "activo" }],
+    esquema: 3,
   };
   nuevo.items[0].modalidad = "plan";
-  nuevo.items[0].tipo_comercial_id = "t";
   nuevo.items[1].adicional_habilitado = true;
   assert.equal(
     opciones("catalogo", { catalogo: nuevo }).at(-1).total,
@@ -54,10 +52,11 @@ test("catálogo nuevo: clasificaciones y adicionales deshabilitados no son cotiz
     () => opciones("catalogo", { catalogo: nuevo }),
     /incompatible/,
   );
-  nuevo.tipos[0].estado = "inactivo";
+  assert.ok(opciones("catalogo", { catalogo: nuevo, extras: [] }).length);
+  nuevo.items[0].modalidad = "pendiente";
   assert.throws(
     () => opciones("catalogo", { catalogo: nuevo, extras: [] }),
-    /clasificación/,
+    /modalidad/,
   );
 });
 test("alternativas AXPRO conservan bolsa, piso y efectivo acumulable", () => {

@@ -475,6 +475,14 @@ La denominación visible «Tipos» se sustituye por **Plantillas**. Una plantill
 
 Referencia del Word «Catalogo Alarmas Pignus»: Inicial incluye 1 magnético y 1 PIR; Esencial 1 magnético y 2 PIR; Plus 2 magnéticos y 3 PIR; Premium suma sirena exterior a Plus, además de los equipos base de cada variante. **Corrección expresa del usuario: Innova tiene un solo control en todas sus plantillas, incluida Premium.** Esta corrección prevalece sobre el Word. La referencia no habilita tarifas ni importa automáticamente productos o plantillas; se conserva la exclusión vigente de Titanium y Netio/DSC.
 
+### 26.3 Simplificación aprobada: Marcas, Productos y Planes y kits (02-10-2026)
+
+Por decisión expresa del usuario, Plantillas es innecesario y queda retirado. Esta sección sustituye la estructura de tipos/plantillas de 26 y 26.2. El catálogo ofrece únicamente **Marcas**, **Productos** y **Planes y kits**. Cada plan o kit tiene su nombre comercial (incluida la variante necesaria), marca, servicio, modalidad, productos concretos, cantidades incluidas y precios. No exige una clasificación o plantilla previa para crearse, activarse o cotizarse. Inicial, Esencial, Plus o Premium pueden formar parte del nombre de la oferta.
+
+Adicionales deja de ser una sección separada: es una condición del mismo producto, habilitable mediante «Ofrecer también como adicional» y retirable sin quitar su inclusión en ofertas. Cotización conserva adicionales, cantidades, compatibilidades, mínimos, descuentos y modalidades de propiedad. El recorrido selecciona servicio/modalidad, marca y plan o kit directamente.
+
+El esquema 3 conserva las ofertas existentes con sus IDs, estados, precios y cantidades, sin copiar ni deducir composición desde las plantillas anteriores. Las plantillas y sus asociaciones permanecen solo en las versiones históricas ya guardadas; no se modifican propuestas ni ventas. La corrección de referencia de Innova sigue vigente: un control en todas sus variantes, incluido Premium. No se importa el Word automáticamente.
+
 ## 27. Nombres uniformes
 
 Los nombres de personas/empresas, usuarios, marcas, tipos, productos, planes, kits y adicionales se guardan en mayúsculas, conservando tildes y Ñ y quitando espacios exteriores. No es una transformación general del texto: correos, contraseñas, códigos, archivos, direcciones y observaciones mantienen sus reglas anteriores.

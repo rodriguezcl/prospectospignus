@@ -19,6 +19,12 @@ Navegación en español, menú adaptable e interfaz comercial inicial. Login con
 
 Hay formularios de login, creación de cuentas, cambio de contraseña propio y registros iniciales. React Router usa fragmentos de URL (`#/prospectos`) para permitir recarga y navegación atrás/adelante sin reglas SPA adicionales del servidor. Los enlaces anteriores (`#prospectos`) siguen funcionando. El proyecto Hobby `prospectospignus` en Vercel está conectado a `main`; cada push inicia un despliegue. Los cambios locales no se publican hasta confirmar commit y despliegue.
 
+## Catálogo comercial sin plantillas — actualización 024
+
+Aplicar `supabase/migrations/202610020024_catalogo_sin_plantillas.sql` después de 023 y antes de publicar este frontend. El catálogo queda en Marcas, Productos y Planes y kits; Productos conserva la habilitación de adicionales. El primer guardado desde `guardar_catalogo_024` publica esquema 3 sin plantillas, manteniendo la composición e identidad de las ofertas. La migración no reescribe versiones ni datos comerciales y no importa productos del Word. Desde ese guardado se rechazan escrituras de formatos anteriores; las versiones históricas y sus reintentos exactos se conservan.
+
+Verificación local: adaptación 2→3, cotización sin plantilla, propiedad del equipo, permisos/precios restringidos, idempotencia, bloqueo de clientes antiguos y conservación de snapshots. La aplicación remota y publicación deben verificarse por separado.
+
 ## Registros iniciales — primera entrega
 
 Activación: aplicar `supabase/migrations/202609290003_registros_iniciales.sql` después de las dos migraciones de acceso. Aplicada y verificada en el proyecto `sjoounysrvxreazgbjkv` el 29/09/2026 (tres tablas con RLS, sin acceso anónimo ni escrituras directas para authenticated, y 11 orígenes). No repetirla en ese proyecto. En instalaciones nuevas no se aplica automáticamente al iniciar Vite. Si falta, la pantalla lo informa; no hay persistencia simulada. El lote de demostración autorizado se documenta por separado más abajo. En Windows puede iniciarse con `npm.cmd run dev -- --port 5174 --strictPort`.

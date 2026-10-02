@@ -61,7 +61,7 @@ test("productos: puerto envía versión e idempotencia, no identidad de actor", 
     datos: { familias: [], items: [] },
   });
   assert.deepEqual(llamadas[0], ["leer_catalogo", { p_oportunidad: null }]);
-  assert.equal(llamadas[1][0], "guardar_catalogo_023");
+  assert.equal(llamadas[1][0], "guardar_catalogo_024");
   assert.deepEqual(Object.keys(llamadas[1][1]), [
     "p_version",
     "p_operacion",
@@ -175,15 +175,13 @@ test("catálogo: editor ofrece modalidad, marca, tipo y componentes sin campo fa
     "Plan · comodato",
     "Kit · venta directa",
     "Marca",
-    "Plantilla",
     "Productos incluidos",
     "Guardar",
   ])
     assert.ok(html.includes(texto));
-  assert.doesNotMatch(html, /Familia/);
+  assert.doesNotMatch(html, /Familia|Plantilla|Tipo comercial/);
   for (const configuracion of [
     { grupo: "marcas" },
-    { grupo: "tipos" },
     { grupo: "items" },
     { grupo: "items", oferta: true },
     { grupo: "items", adicional: true },
@@ -266,7 +264,7 @@ test("catálogo: editor ofrece modalidad, marca, tipo y componentes sin campo fa
     incluidos: [{ item_id: "adicional-inactivo", cantidad: 2 }],
   });
   assert.match(editado, /Hay vínculos no activos/);
-  assert.match(editado, /value="tipo-inactivo" disabled="" selected=""/);
+  assert.doesNotMatch(editado, /tipo-inactivo/);
   assert.match(editado, /adicional-inactivo/);
   assert.match(editado, /max="2"/);
   const extra = render({ ...valor, tipo: "adicional" }, false);
