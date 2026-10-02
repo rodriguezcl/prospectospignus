@@ -91,6 +91,12 @@ Migración 013: versiones completas e inmutables de catálogo y condiciones, con
 
 La versión completa del catálogo es una unidad de publicación para evitar mezclas de kit/componentes/precios. La concurrencia es optimista y los reintentos idempotentes. Configuración permite editar plazos y permisos de congelamiento; las reglas de pago confirmadas permanecen explícitas (10 % efectivo y crédito 1/3/6), sin inventar otras. Estas lecturas no alteran ni aceptan propuestas: esa integración pertenece a la entrega 2.
 
+## Propuestas comerciales (entrega 2)
+
+La composición de app inyecta lecturas de Productos y Condiciones en Oportunidades, sin imports cruzados entre features. El motor puro enumera alternativas de una selección con límite explícito, precisión de nueve decimales para precios por metros y cuotas conciliadas. La propuesta conjunta suma conceptos antes de redondear; el pago mixto conserva base de efectivo, descuento, importe entregado y saldo separados. El servidor distribuye proporcionalmente el descuento aprobado entre componentes, con mayores restos y desempate estable, conservando importes exactos y netos conciliados.
+
+Migración 014: `guardar_propuesta` reconstruye precios, compatibilidad, cantidades, bolsa, mínimo, mensualidad y congelamiento con catálogo/configuración vigentes; bloquea ficha y verifica versión. Revisiones inmutables, operación UUID idempotente y RLS. Telefónico no es visible para vendedor ni para otro agente por pertenecer a la cola común. Guardar una oferta no cierra la venta; aceptación se integra en entrega 3. No se alteran las oportunidades históricas. La recuperación operativa conserva sus acciones anteriores hasta esa integración.
+
 ## Promociones (implementación vigente)
 
 La feature `promociones` incorpora validación pura, coordinación de carga, adaptador Supabase y presentación. Migración 011: borradores/publicaciones/archivo, audiencia por rol, eventos, avisos y reservas de adjuntos. RPC versionada con UUID de operación; publicación y avisos atómicos. Cuenta con historial o avisos no se elimina; puede desactivarse. Las tablas no admiten DML del navegador.

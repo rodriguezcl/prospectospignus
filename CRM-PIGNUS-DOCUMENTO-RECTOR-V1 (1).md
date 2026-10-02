@@ -402,4 +402,16 @@ Pendientes de datos: catálogo definitivo validado y precios por familia, cámar
 
 Pendientes contables de 24.11 se mantienen fuera de implementación. Este acuerdo autoriza consolidar documentos y planificar; la ejecución del plan, migraciones remotas y publicación requieren autorización específica. El Excel previo queda como simulador histórico: su advertencia de efectivo pendiente y ausencia de crédito en una cuota no reflejan ya el criterio final y no deben trasladarse al producto.
 
+### 24.14 Aclaraciones posteriores confirmadas
+
+- Pago mixto permitido. Se informa la parte del precio acordado que se cancela en efectivo **antes** del descuento; sobre esa parte se aplica el 10 %. El resto se paga por débito, transferencia o crédito en 1/3/6 cuotas sin interés. Ejemplo: total 500000, base efectivo 200000, efectivo a entregar 180000, saldo crédito 300000, total final 480000. Nunca se descuenta el abono. No interpretar billetes entregados como base anterior al descuento.
+- Cuando participan varios vendedores, la venta, importes y tickets corresponden a quien consiguió el cierre, no al primero que visitó. Se conserva la evidencia de visitas. Sigue pendiente cómo repartir el denominador de conversión individual de un caso visitado por varios; no atribuirlo por una heurística no aprobada.
+- Congelamiento por meses calendario desde instalación/activación. Si existe el mismo día en el mes destino, el precio queda congelado hasta el día anterior inclusive (15 de octubre + 4 meses: 14 de febrero). Si no existe, hasta el último día del mes destino inclusive (31 de octubre + 4 meses: último día de febrero). El vencimiento no aumenta automáticamente el abono.
+- IPC: índice nacional general de INDEC, primer ajuste propuesto al terminar el congelamiento sobre los últimos tres meses publicados; no acumular todos los meses congelados. Posteriores ajustes cada tres meses sobre el abono vigente y los siguientes tres períodos, sin reutilizarlos. Administración revisa y aprueba cada ajuste; falta de índice mantiene pendiente, sin estimaciones. Integración de consulta no equivale a facturación automática.
+- Siguen pendientes el cierre de facturación supuesto del día 20, primera factura/prorrateos y redondeo contable de IPC. No emitir facturas ni prometer días gratis. La distribución del descuento global entre instalación y adicionales tampoco está aprobada: conservar importes de origen y descuento global, sin inventar tickets netos por componente.
+
+Estas aclaraciones sustituyen los pendientes anteriores solo en los puntos expresamente resueltos. La autorización continua de las seis entregas incluye commit, push y despliegue por etapa terminada, no aprobación de reglas aún pendientes.
+
+Confirmación adicional durante implementación: el descuento por efectivo se reparte proporcionalmente entre kit/instalación y adicionales. La asignación de centavos usa mayores restos con desempate estable, conserva la suma y permite calcular tickets netos. En casos visitados por varios vendedores, el caso/ciclo se cuenta una vez en las visitas de cada participante; solo quien cerró recibe la venta. La empresa deduplica el caso/ciclo una vez. Esta confirmación resuelve los dos pendientes de distribución y denominador compartido mencionados antes.
+
 **Fin.**

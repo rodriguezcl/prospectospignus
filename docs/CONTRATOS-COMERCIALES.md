@@ -12,7 +12,7 @@ El titular autorizó el 01-10-2026 implementar continuamente las seis entregas (
 - Configuración: versiones de condiciones, separadas del catálogo. Las propuestas referencian ambas versiones.
 - Prospectos: cada propuesta pertenece a una oportunidad y ciclo. Su revisión es inmutable; la aceptación referencia exactamente esa revisión. Una operación repetida devuelve la misma revisión, una solicitud distinta con igual clave se rechaza.
 - Precio ausente es `null`, nunca cero implícito. Cero es un valor explícito. El servidor reconstruye la propuesta desde identificadores, niveles y cantidades: no acepta totales declarados por el navegador.
-- Código: `PC-<UUID de revisión>-<ordinal de alternativa>`. El ordinal solo identifica dentro de esa revisión, no indica aprobación ni jerarquía. No abre carteras ajenas.
+- Código guardado: `PC-<UUID de revisión>`, único e inmutable. Cada concepto conserva nivel y distribución exacta de adicionales; el ordinal declarado de la simulación no acredita jerarquía ni aprobación. Las alternativas locales usan `SIM-<UUID de selección>-<ordinal>` y cambian al modificar la selección; no son propuestas persistidas ni códigos de autorización. No abren carteras ajenas.
 - Los eventos existentes siguen siendo autoridad del cierre. Una proyección de ciclos sirve para consulta y debe conciliar con ellos; no crear una segunda acción de venta.
 
 ## Permisos mínimos
@@ -32,19 +32,19 @@ RLS, RPC y validación activa de perfil son obligatorias. Referencias a perfiles
 
 Representar precios fuente como cadenas decimales, hasta seis decimales, con cálculo entero escalado; PostgreSQL `numeric`, no float. Cantidades por unidad/pack enteras; metros hasta tres decimales. Rechazar valores negativos, no finitos o fuera de precisión, nunca redondear una tarifa silenciosamente al cargarla.
 
-Sumar con precisión fuente y redondear el total final a centavos, mitad hacia arriba para importes no negativos. No redondear cada precio unitario antes de multiplicar. Efectivo se aplica sobre el total bonificado antes de su redondeo final. Crédito divide el total en centavos y asigna el resto a la última cuota. No modifica el abono.
+Sumar con precisión fuente (hasta nueve decimales al multiplicar metros) y redondear el total acordado a centavos, mitad hacia arriba para importes no negativos. No redondear cada precio unitario antes de multiplicar. Para conciliar pago mixto, la base asignada a efectivo se declara en centavos sobre ese total acordado: descuento = 10 % de esa base redondeado a centavos, efectivo a entregar = base efectivo − descuento. Saldo = total acordado − base efectivo. Crédito divide ese saldo en centavos y asigna el resto a la última cuota. No modifica el abono. Es una regla de precisión del cotizador, no redondeo de IPC/facturas.
 
-**Pendiente de aprobación específica en rector 24.9:** distribución de descuentos globales entre conceptos de ventas combinadas. Propuesta técnica: reparto proporcional y ajuste por mayores restos con desempate por identificador estable. Hasta aprobarla no atribuir arbitrariamente ese descuento a instalación o adicionales para calcular tickets por concepto.
+**Aprobado durante implementación:** distribución proporcional del descuento global entre kit/instalación y adicionales, ajuste por mayores restos y desempate estable. Conservar importes brutos exactos y descuento global. Conciliar primero centavos brutos por componentes y luego centavos de descuento, sin duplicar ni perder importes.
 
 ## Ciclos, origen y visitas
 
 Guardar ciclo explícito al registrar visita realizada; la visita programada no se convierte automáticamente en realizada. Reactivar no mueve visitas previas. Origen propio/asignado es distinto del canal; desconocidos permanecen sin identificar. Registrar actor de carga y responsable comercial por separado.
 
-Si participaron varios vendedores visitantes, conservar la evidencia de cada uno sin asignar por heurística el denominador a un solo vendedor: la regla gerencial requiere definición antes de habilitar esa comparación. La suma de revisitas nunca aumenta los casos únicos.
+Si participaron varios vendedores visitantes, cada uno cuenta una vez el caso/ciclo en sus visitas; la venta pertenece únicamente a quien la cerró. Empresa deduplica el caso/ciclo una vez. La suma de revisitas nunca aumenta los casos únicos. No sumar denominadores individuales como total de empresa.
 
 ## Calendario y límites
 
-Mes comercial en Córdoba y fechas UTC. Sin activación no hay vencimiento definitivo de congelamiento. La semántica de aniversario ante fin de mes queda pendiente de confirmación: propuesta de mismo día del mes destino, limitado al último día disponible. No sustituye IPC ni primera factura.
+Mes comercial en Córdoba y fechas UTC. Sin activación no hay vencimiento definitivo de congelamiento. Confirmado: mismo día del mes destino como fin exclusivo cuando existe; si no existe, último día del mes destino INCLUSIVE. No sustituye IPC ni primera factura. Ver rector 24.14 para ajustes sujetos a aprobación administrativa y límites contables.
 
 Enumeración de alternativas debe paginar e informar total exacto o rechazar explícitamente una selección demasiado grande, nunca truncar en silencio. Un límite de seguridad computacional no puede ocultarse como regla comercial. Orden descendente por importe; empate por composición estable. Cambio de selección invalida alternativas previas, no altera revisiones guardadas.
 

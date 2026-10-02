@@ -1,6 +1,23 @@
 function comprobar(error) {
   if (!error) return;
   const mensajes = {
+    PROPUESTA_ACCESO:
+      "Solo el responsable autorizado puede preparar esta propuesta.",
+    PROPUESTA_CONFLICTO:
+      "La ficha cambió. Actualizá antes de guardar la propuesta.",
+    PROPUESTA_VIGENCIA:
+      "Cambió el catálogo o las condiciones. Volvé a preparar la propuesta con la versión actual.",
+    PROPUESTA_COMPOSICION:
+      "Revisá el kit, sus adicionales compatibles y la mano de obra del cerco.",
+    PROPUESTA_PRECIO:
+      "Administración debe completar los precios antes de ofrecer esta composición.",
+    PROPUESTA_CANTIDAD: "Revisá las cantidades de los componentes.",
+    PROPUESTA_NIVEL:
+      "El nivel solicitado no está permitido para esta propuesta.",
+    PROPUESTA_BONIFICACION: "La bonificación supera el margen autorizado.",
+    PROPUESTA_PAGO: "Revisá la parte en efectivo y el medio de pago del saldo.",
+    PROPUESTA_CONGELAMIENTO:
+      "El plazo de congelamiento no está habilitado para este abono y rol.",
     COMERCIAL_ACCESO: "No tenés permiso para gestionar esta oportunidad.",
     COMERCIAL_CONFLICTO: "La ficha cambió. Recargala antes de continuar.",
     COMERCIAL_CALIFICACION:
@@ -39,6 +56,34 @@ export function crearRepositorioOportunidades(cliente) {
     return data;
   }
   return {
+    async propuestas(id) {
+      const { data, error } = await cliente
+        .from("propuestas_comerciales")
+        .select(
+          "id,ciclo,catalogo_version,condiciones_version,detalle,creado_en",
+        )
+        .eq("oportunidad_id", id)
+        .order("creado_en", { ascending: false })
+        .limit(20);
+      comprobar(error);
+      return data;
+    },
+    guardarPropuesta: ({
+      id,
+      oportunidad,
+      version,
+      catalogo,
+      condiciones,
+      datos,
+    }) =>
+      rpc("guardar_propuesta", {
+        p_id: id,
+        p_oportunidad: oportunidad,
+        p_version: version,
+        p_catalogo: catalogo,
+        p_condiciones: condiciones,
+        p_datos: datos,
+      }),
     async listar({ pagina = 0, estado = "" } = {}) {
       let consulta = cliente
         .from("oportunidades")

@@ -7,6 +7,7 @@ import {
   mostrarFecha,
 } from "../domain/circuito.js";
 import { FormularioOportunidad } from "./FormularioOportunidad.jsx";
+import { PropuestaComercial } from "./PropuestaComercial.jsx";
 
 export function OportunidadesPagina({
   gestion,
@@ -263,6 +264,16 @@ export function OportunidadesPagina({
                 {detalle.condiciones || "Sin registrar"}
               </dd>
             </dl>
+            <PropuestaComercial
+              key={`propuesta-${detalle.id}-${detalle.version}`}
+              gestion={gestion}
+              oportunidad={detalle}
+              perfil={perfil}
+              actualizada={() => {
+                informar("Propuesta ofrecida guardada.");
+                revisar((n) => n + 1);
+              }}
+            />
             {opciones.length ? (
               <FormularioOportunidad
                 key={`${detalle.id}-${detalle.version}`}

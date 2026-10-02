@@ -15,10 +15,13 @@ export const acceso = componerAcceso(clienteSupabase);
 export const usuarios = componerUsuarios(clienteSupabase);
 export const registros = componerRegistros(clienteSupabase);
 export const resumenInicio = componerResumenInicio(clienteSupabase);
-export const oportunidades = componerOportunidades(clienteSupabase);
 export const ventas = componerVentas(clienteSupabase);
 export const promociones = componerPromociones(clienteSupabase);
 export const agenda = componerAgenda(clienteSupabase);
 export const productos = componerProductos(clienteSupabase);
 export const condiciones = componerCondiciones(clienteSupabase);
+export const oportunidades = componerOportunidades(clienteSupabase, {
+  catalogo: productos.leer,
+  condiciones: condiciones.leer,
+});
 export const avisos = combinarAvisos(oportunidades, promociones, agenda);

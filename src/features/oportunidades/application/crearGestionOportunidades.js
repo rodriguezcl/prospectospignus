@@ -1,5 +1,5 @@
 import { validarOperacion } from "../domain/circuito.js";
-export function crearGestionOportunidades(repositorio) {
+export function crearGestionOportunidades(repositorio, referencias = {}) {
   return {
     listar: repositorio.listar,
     detalle: repositorio.detalle,
@@ -8,6 +8,10 @@ export function crearGestionOportunidades(repositorio) {
     disponibilidad: repositorio.disponibilidad,
     notificaciones: repositorio.notificaciones,
     leer: repositorio.leer,
+    catalogo: referencias.catalogo,
+    condiciones: referencias.condiciones,
+    propuestas: repositorio.propuestas,
+    guardarPropuesta: repositorio.guardarPropuesta,
     guardar: (entrada) => repositorio.guardar(validarOperacion(entrada)),
   };
 }
