@@ -459,6 +459,8 @@ La implementación deberá conservar composición y condición de propiedad en l
 
 ### 26.1 ABM y conservación del historial
 
+Las nuevas marcas, tipos, productos, planes, kits y adicionales tienen «activo» seleccionado por defecto. Administración puede elegir borrador o inactivo antes de guardar. Se mantienen las validaciones de composición, precios y confirmación técnica; no se activan automáticamente registros existentes ni los pendientes de revisión por adaptación del catálogo anterior.
+
 Los selectores para nuevas asociaciones muestran solo registros activos (no inactivos ni borradores). Al editar se conservan los vínculos anteriores no activos con una advertencia, sin sustitución automática; pueden retirarse para reemplazarlos por activos. Los listados administrativos mantienen todos los estados para permitir edición y reactivación. Este filtro no altera propuestas ni ventas históricas.
 
 Administración dispone de secciones Marcas, Tipos, Productos, Planes y kits y Adicionales. Cada registro admite alta, edición y baja. La baja lógica impide nuevas ofertas y se revierte desde Editar; no altera versiones históricas. La eliminación del catálogo vigente exige confirmación y ausencia de dependencias y uso comercial. Si existen vínculos se informa el impedimento; no se borran cotizaciones ni ventas para permitir una baja.

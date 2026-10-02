@@ -181,6 +181,21 @@ test("catálogo: editor ofrece modalidad, marca, tipo y componentes sin campo fa
   ])
     assert.ok(html.includes(texto));
   assert.doesNotMatch(html, /Familia/);
+  for (const configuracion of [
+    { grupo: "marcas" },
+    { grupo: "tipos" },
+    { grupo: "items" },
+    { grupo: "items", oferta: true },
+    { grupo: "items", adicional: true },
+  ]) {
+    const nuevo = renderToStaticMarkup(
+      createElement(modulo.exports.EditorCatalogo, {
+        datos: { marcas: [], tipos: [], items: [] },
+        ...configuracion,
+      }),
+    );
+    assert.match(nuevo, /<option selected="">activo<\/option>/);
+  }
   const entidades = (prefijo) =>
     ["activo", "inactivo", "borrador"].map((estado) => ({
       id: `${prefijo}-${estado}`,
@@ -226,6 +241,12 @@ test("catálogo: editor ofrece modalidad, marca, tipo y componentes sin campo fa
       }),
     );
   const alta = render(valor);
+  for (const estado of ["borrador", "inactivo", "activo"]) {
+    assert.match(
+      render({ ...valor, estado }),
+      new RegExp(`<option selected="">${estado}</option>`),
+    );
+  }
   assert.match(alta, /adicional-activo/);
   for (const prefijo of ["marca", "tipo", "adicional"]) {
     assert.doesNotMatch(

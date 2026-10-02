@@ -21,7 +21,7 @@ export function EditorCatalogo({
     structuredClone(
       valor ||
         (grupo !== "items"
-          ? { id: crypto.randomUUID(), nombre: "", estado: "borrador" }
+          ? { id: crypto.randomUUID(), nombre: "", estado: "activo" }
           : {
               id: crypto.randomUUID(),
               nombre: "",
@@ -32,7 +32,7 @@ export function EditorCatalogo({
               modalidad: oferta ? "plan" : null,
               tipo_comercial_id: null,
               unidad: "unidad",
-              estado: "borrador",
+              estado: "activo",
               adicional_habilitado: !!adicional,
               validado_tecnicamente: false,
               incluidos: [],
