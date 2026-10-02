@@ -131,7 +131,7 @@ export function ProductosPagina({ gestion }) {
   return (
     <>
       <EncabezadoPagina
-        titulo="Productos"
+        titulo="Catálogo comercial"
         descripcion="Familias, kits y precios. Los borradores no se ofrecen al equipo."
       />
       {error && (

@@ -440,4 +440,21 @@ Este acuerdo sustituye la terminología y los requisitos de inicio de 25 y 25.1:
 - Las negociaciones anuladas quedan fuera de estadísticas comerciales y denominadores de visitas válidas. El contacto captado sigue contando como contacto. Cotizaciones permite consultar anuladas mediante filtro. No se reescriben hechos históricos para representar el error.
 - Los nombres físicos de tablas y contratos anteriores se conservan por compatibilidad; las rutas antiguas a fichas redirigen al nuevo módulo. Inicio distingue prospectos captados de negociaciones iniciadas, y mantiene las métricas de cierre/conversión por visitas efectivas en el panel de rendimiento.
 
+## 26. Catálogo comercial: planes, kits y productos (02-10-2026)
+
+El módulo administrativo **Productos** pasa a llamarse **Catálogo comercial**. Se conserva su ruta y acceso exclusivo de administración. El cambio de nombre está separado de la reorganización estructural siguiente, aprobada pero pendiente de implementación; no convierte las familias existentes automáticamente en marcas o planes.
+
+Administración debe poder crear, editar y deshabilitar marcas, tipos comerciales, productos/componentes y planes/kits con composición, cantidades incluidas, adicionales compatibles y precios. Configuración conserva políticas de pago y permisos/plazos de congelamiento. No crear un módulo independiente por cada catálogo auxiliar.
+
+- **Plan:** equipos en comodato, exclusivo de alarmas. Ejemplo: Plan Hikvision Inicial.
+- **Kit:** venta directa de equipos. Ejemplo: Kit Hikvision Inicial. Cámaras no admite comodato; cerco se compone de metros, componentes y mano de obra separada, sin exigir kit base.
+- Selección comercial: servicio → Plan/Kit cuando corresponda → marca → tipo → adicionales y cantidades. Inicial es la referencia actual; administración podrá crear Esencial, Plus, Premium u otros tipos sin cambios de código. Esto sustituye la restricción de 24.3; no implica crear esos tipos ni inventar tarifas ahora.
+- Un mismo producto puede integrar un plan/kit y ofrecerse como adicional. Mantener una identidad reutilizable, cantidades incluidas y extras separadas, y compatibilidades explícitas.
+- En un Plan, los componentes incluidos y adicionales totalmente bonificados quedan en comodato. Los adicionales pagados, aun con descuento, son propiedad del cliente.
+- En un Kit, los equipos son propiedad del cliente; un adicional totalmente bonificado se entrega como obsequio y también pasa a su propiedad.
+- Si un producto tiene unidades pagadas y bonificadas en un Plan, se distingue la cantidad de cada condición; no se asigna una única propiedad a toda la línea sin distinguirlas.
+- El abono se aplica con las mismas reglas de servicio/subcategoría para Plan y Kit. La propiedad del equipo no determina por sí sola si corresponde abono ni modifica las excepciones Docta/Nobu.
+
+La implementación deberá conservar composición y condición de propiedad en la versión de propuesta aceptada. Deshabilitar o editar el catálogo no cambia ventas ni propuestas históricas. No se modifica por esta definición el cálculo de precios, los permisos de Telefónico ni las reglas contables pendientes.
+
 **Fin.**

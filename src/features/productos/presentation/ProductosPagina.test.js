@@ -11,9 +11,10 @@ test('productos: ruta administrativa y carga real sin catálogo ficticio',()=>{
  const resultado=buildSync({entryPoints:[fileURLToPath(new URL('./ProductosPagina.jsx',import.meta.url))],bundle:true,write:false,platform:'node',format:'cjs',jsx:'automatic',external:['react','react/jsx-runtime']});
  const modulo={exports:{}};new Function('require','module','exports',resultado.outputFiles[0].text)(createRequire(import.meta.url),modulo,modulo.exports);
  const html=renderToStaticMarkup(createElement(modulo.exports.ProductosPagina,{gestion:{}}));
- assert.match(html,/Productos/);assert.match(html,/Cargar catálogo/);assert.doesNotMatch(html,/449999|AXPRO/);
+ assert.match(html,/Catálogo comercial/);assert.match(html,/Cargar catálogo/);assert.doesNotMatch(html,/449999|AXPRO/);
  const grupo=menu.find(g=>g.elementos.some(e=>e.ruta==='/productos'));
  assert.equal(grupo.soloAdministrador,true);assert.equal(Boolean(grupo.plegable),false);
+ assert.equal(grupo.elementos.find(e=>e.ruta==='/productos').titulo,'Catálogo comercial');
 });
 test('productos: puerto envía versión e idempotencia, no identidad de actor',async()=>{
  const llamadas=[];const repo=crearRepositorioCatalogo({rpc:async(...args)=>{llamadas.push(args);return {data:{version:0,datos:{familias:[],items:[]}}};}});

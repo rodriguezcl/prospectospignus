@@ -80,6 +80,8 @@ test("simpleza: menú conserva rutas y límites por rol; solo pendientes se plie
       }));
     const html = dibujar(MenuLateral, { grupos, abierto: true });
     assert.equal(html.includes('href="/usuarios"'), rol === "administrador");
+    assert.equal(html.includes('href="/productos"'), rol === "administrador");
+    assert.equal(html.includes('Catálogo comercial'), rol === "administrador");
     assert.equal(html.includes('href="/agenda"'), rol !== "agente");
     assert.equal(html.includes('href="/recuperacion"'), rol !== "vendedor");
     assert.equal(

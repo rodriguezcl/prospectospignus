@@ -14,6 +14,8 @@ Aplicar 019 antes de publicar el frontend; sin ella se informa migración pendie
 
 ## Alcance y principios
 
+El módulo administrativo antes llamado Productos se presenta como **Catálogo comercial**, conservando `/productos`, la feature y los contratos existentes. El rector 26 define la evolución aprobada a marcas, tipos, planes/kits y productos reutilizables, pendiente de implementación estructural; este cambio de nombre no migra familias ni modifica precios, propiedad de equipos o propuestas.
+
 Organizar por funcionalidades, con alta cohesión, bajo acoplamiento, composición y dependencias hacia las reglas comerciales. Aplicar Clean Code, SOLID y Clean Architecture de manera proporcional a necesidades reales. El documento rector conserva autoridad sobre las reglas comerciales. La visión futura de CRM no incorpora Clientes, Stock ni Operaciones al alcance actual.
 
 ### Ampliación comercial planificada (01-10-2026)

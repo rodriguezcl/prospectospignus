@@ -48,7 +48,7 @@ export const menu = [
     soloAdministrador: true,
     elementos: [
       { ruta: "/usuarios", titulo: "Usuarios", icono: "bi-person-plus-fill" },
-      { ruta: "/productos", titulo: "Productos", icono: "bi-box-seam" },
+      { ruta: "/productos", titulo: "Catálogo comercial", icono: "bi-box-seam" },
       { ruta: "/informes", titulo: "Informes", icono: "bi-bar-chart-fill" },
       {
         ruta: "/configuracion",

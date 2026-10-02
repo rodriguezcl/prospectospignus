@@ -21,7 +21,7 @@ export function crearRepositorioCatalogo(cliente) {
       throw new Error(
         mensajes[error.message] ||
           (["PGRST202", "42P01"].includes(error.code)
-            ? "Falta aplicar la migración de Productos (013)."
+            ? "Falta aplicar la migración de Catálogo comercial (013)."
             : "No se pudo guardar o consultar el catálogo. Revisá campos, precios y conexión."),
       );
     }
