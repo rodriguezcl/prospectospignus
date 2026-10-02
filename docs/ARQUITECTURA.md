@@ -85,7 +85,13 @@ Las migraciones 007/008 agregan reactivación por ciclos e importación históri
 
 La migración 009 incorpora fecha de carga histórica confirmada, sin alterar la fecha de importación ni la evidencia original. Su confirmación por lote/huella es exclusiva del operador, idempotente y auditada por registro. Inicio usa `listar_cargas_mensuales`, SECURITY INVOKER bajo RLS, para combinar cargas en plataforma con fechas históricas confirmadas en Córdoba. Los registros históricos sin confirmación siguen fuera del gráfico diario. La API anterior permanece compatible; no se vuelve a importar el Excel.
 
-## Promociones
+## Productos y condiciones comerciales (entrega 1)
+
+Migración 013: versiones completas e inmutables de catálogo y condiciones, con esquema JSON validado por RPC. Cada edición conserva IDs de familias/items y genera una versión nueva. Las tablas crudas son de lectura administrativa bajo RLS; no hay DML del navegador. `leer_catalogo` proyecta únicamente campos comerciales y elimina precios Telefónicos de vendedor; agente los obtiene solo al indicar una recuperación actualmente asignada. El catálogo inicial queda vacío: no se insertan tarifas de ejemplo. La baja es lógica y referencias a autor impiden borrar cuentas con historial.
+
+La versión completa del catálogo es una unidad de publicación para evitar mezclas de kit/componentes/precios. La concurrencia es optimista y los reintentos idempotentes. Configuración permite editar plazos y permisos de congelamiento; las reglas de pago confirmadas permanecen explícitas (10 % efectivo y crédito 1/3/6), sin inventar otras. Estas lecturas no alteran ni aceptan propuestas: esa integración pertenece a la entrega 2.
+
+## Promociones (implementación vigente)
 
 La feature `promociones` incorpora validación pura, coordinación de carga, adaptador Supabase y presentación. Migración 011: borradores/publicaciones/archivo, audiencia por rol, eventos, avisos y reservas de adjuntos. RPC versionada con UUID de operación; publicación y avisos atómicos. Cuenta con historial o avisos no se elimina; puede desactivarse. Las tablas no admiten DML del navegador.
 

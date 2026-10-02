@@ -11,6 +11,7 @@ import { AgendaPagina } from "../../features/agenda/index.js";
 import { SupervisionPagina } from "../../features/supervision/index.js";
 import { InformesPagina } from "../../features/informes/index.js";
 import { ConfiguracionPagina } from "../../features/configuracion/index.js";
+import { ProductosPagina } from "../../features/productos/index.js";
 import { AuditoriaPagina } from "../../features/auditoria/index.js";
 import {
   LoginPagina,
@@ -26,6 +27,8 @@ import {
   ventas,
   promociones,
   agenda,
+  productos,
+  condiciones,
 } from "../configuracion/servicios.js";
 import { AccesoProtegido } from "./AccesoProtegido.jsx";
 import { RecuperacionComercial } from "./RecuperacionComercial.jsx";
@@ -123,7 +126,16 @@ export function RutasAplicacion() {
             />
             <Route path="supervision" element={<SupervisionPagina />} />
             <Route path="informes" element={<InformesPagina />} />
-            <Route path="configuracion" element={<ConfiguracionPagina />} />
+            <Route
+              path="productos"
+              element={<ProductosPagina key={perfil?.id} gestion={productos} />}
+            />
+            <Route
+              path="configuracion"
+              element={
+                <ConfiguracionPagina key={perfil?.id} gestion={condiciones} />
+              }
+            />
             <Route path="auditoria" element={<AuditoriaPagina />} />
           </Route>
           <Route path="*" element={<PaginaNoEncontrada />} />
