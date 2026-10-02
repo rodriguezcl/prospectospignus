@@ -9,11 +9,13 @@ Autorización continua de implementación, commit, push y despliegue recibida el
 | 2 Propuestas | Publicada | 8686264; Vercel CodSsvFRHWs6P48NsAb2thGibqiQ Ready Production. 74 pruebas y build correctos; migración 014 aplicada. Control remoto: 950 oportunidades/29 ganadas/0 propuestas. Sin tarifas de ejemplo |
 | 3 Recuperación y ciclos | Publicada | a81af3f; Vercel 2aNByLJ5WZU9ceaAcR3Ds8J8Ecnx Ready Production. Migración 015 aplicada; 74 pruebas y build correctos |
 | 4 Activación | Publicada | 1f09e95; Vercel 5RSBuKewoADEsJfg67LJLGNexYgh Ready Production. Migración 016 aplicada (Success), 74 pruebas y build correctos: instalación administrativa, historial, propuesta aceptada y vencimiento calendario; sin facturas ni aumentos automáticos |
-| 5 Métricas | Implementada; publicación en verificación | Migración 017 aplicada (Success); 76 pruebas y build correctos. Resumen propio/equipo, seis comparativas y detalle paginado; cohortes compartidas, recuperación, permisos e importes desconocidos verificados. Control remoto: 950 oportunidades, 29 ventas de septiembre, cero propuestas y cero ventas con importes inventados |
+| 5 Métricas | Publicada | 2cb4ca3; Vercel BJoxzvHJ9rf8pC8fwziH6oqxixKq Ready Production, 02-10-2026. Migración 017 aplicada (Success); 76 pruebas y build correctos. Resumen propio/equipo, seis comparativas y detalle paginado; cohortes compartidas, recuperación, permisos e importes desconocidos verificados. Control remoto: 950 oportunidades, 29 ventas de septiembre, cero propuestas y cero ventas con importes inventados |
 
 Preservar output/ y el histórico. Ver CONTRATOS-COMERCIALES.md y rector 24.14 para las decisiones vigentes y pendientes.
 
-## Punto de continuación
+## Cierre técnico y puesta en uso
+
+Las seis etapas (0 a 5) tienen código publicado y migraciones verificadas cuando corresponde. Queda pendiente la revisión visual autenticada de los nuevos formularios en escritorio/móvil y ambos temas; las pruebas automatizadas no la sustituyen. La compilación mantiene una advertencia de tamaño del bundle, sin errores. Antes del uso comercial del cotizador, administración debe cargar y validar el catálogo real. No se completan precios ni condiciones faltantes con valores de ejemplo.
 
 Confirmados pago mixto, atribución del cierre a quien lo obtuvo y vencimiento de congelamiento por calendario. IPC requiere aprobación administrativa y no constituye facturación automática. Propuestas combinadas conservan componentes exactos y descuento global; el reparto proporcional aprobado concilia netos por componente para los futuros tickets.
 
