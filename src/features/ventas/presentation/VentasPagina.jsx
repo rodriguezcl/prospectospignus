@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { DetalleVenta } from "./DetalleVenta.jsx";
 
 const fecha = (valor) =>
   valor
@@ -18,7 +19,7 @@ const periodo = (valor) =>
       }).format(new Date(`${valor.slice(0, 10)}T12:00:00Z`))
     : "Mes no informado";
 
-export function FilasVentas({ filas }) {
+export function FilasVentas({ filas, gestion, perfil }) {
   return filas.map((v) => (
     <tr key={v.id}>
       <td>
@@ -51,6 +52,9 @@ export function FilasVentas({ filas }) {
       </td>
       <td>
         <Link to={`/prospectos?id=${v.id}`}>Ver ficha e historial</Link>
+        {gestion && (
+          <DetalleVenta id={v.id} gestion={gestion} perfil={perfil} />
+        )}
       </td>
     </tr>
   ));
@@ -198,7 +202,11 @@ export function VentasPagina({ gestion, perfil }) {
                     </tr>
                   </thead>
                   <tbody>
-                    <FilasVentas filas={resultado.filas} />
+                    <FilasVentas
+                      filas={resultado.filas}
+                      gestion={gestion}
+                      perfil={perfil}
+                    />
                   </tbody>
                 </table>
               </div>

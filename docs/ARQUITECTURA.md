@@ -103,6 +103,10 @@ La entrega 3 añade una proyección de ciclos mantenida por eventos comerciales 
 
 Mientras no exista catálogo publicado, el cierre textual anterior sigue disponible con importes desconocidos. Desde la primera versión de catálogo, ganar/derivar exige propuesta estructurada vigente; no convertir texto en importes. La última propuesta y objeciones son visibles en el caso autorizado y el agente puede preparar una revisión nueva.
 
+## Instalación administrativa (entrega 4)
+
+La entrega 4 añade detalle de venta e instalación mediante RPC con el mismo alcance que Ventas (administración o responsable al cierre), no el permiso amplio de participación de Prospectos. Administración escribe activación con versión/UUID, fecha y respaldo; tabla de eventos conserva cada corrección. La fecha confirmada es instalación, activación e inicio de facturación; el sistema no emite facturas. Calcula congelamiento por cada concepto con abono de la propuesta aceptada, conforme al rector 24.14. Propuestas desconocidas no reciben un plazo supuesto. La vista carga el detalle a demanda para evitar consultas por cada fila.
+
 ## Promociones (implementación vigente)
 
 La feature `promociones` incorpora validación pura, coordinación de carga, adaptador Supabase y presentación. Migración 011: borradores/publicaciones/archivo, audiencia por rol, eventos, avisos y reservas de adjuntos. RPC versionada con UUID de operación; publicación y avisos atómicos. Cuenta con historial o avisos no se elimina; puede desactivarse. Las tablas no admiten DML del navegador.

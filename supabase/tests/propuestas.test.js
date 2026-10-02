@@ -458,6 +458,71 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
   assert.equal(ciclos.length, 2);
   assert.ok(ciclos[0].cierre_evento_id);
   assert.equal(ciclos[1].cierre_evento_id, null);
+  await assert.rejects(
+    db.query("select public.detalle_venta($1)", [oportunidad]),
+    /VENTAS_ACCESO/,
+  );
+  await assert.rejects(
+    db.query("select public.guardar_activacion($1,0,$2,current_date,$3)", [
+      oportunidad,
+      randomUUID(),
+      "Respaldo técnico de prueba",
+    ]),
+    /ACTIVACION_ACCESO/,
+  );
+  await como(admin);
+  const hoy = (
+    await db.query(
+      "select (now() at time zone 'America/Argentina/Cordoba')::date::text fecha",
+    )
+  ).rows[0].fecha;
+  const activar = (version, op = randomUUID(), fecha = hoy) =>
+    db.query("select public.guardar_activacion($1,$2,$3,$4,$5)", [
+      oportunidad,
+      version,
+      op,
+      fecha,
+      "Confirmado en Agenda Pignus · referencia prueba",
+    ]);
+  const actId = randomUUID();
+  await activar(0, actId);
+  await activar(0, actId);
+  await assert.rejects(activar(0), /ACTIVACION_CONFLICTO/);
+  await assert.rejects(
+    activar(1, randomUUID(), "2099-01-01"),
+    /ACTIVACION_FECHA/,
+  );
+  await activar(1);
+  const venta = (
+    await db.query("select public.detalle_venta($1) v", [oportunidad])
+  ).rows[0].v;
+  assert.equal(venta.activacion.fecha, hoy);
+  assert.equal(venta.historial.length, 2);
+  assert.equal(venta.propuesta.codigo, `PC-${aceptada}`);
+  assert.equal(venta.congelamientos[0].meses, "4");
+  await como(agente);
+  assert.equal(
+    (await db.query("select public.detalle_venta($1) v", [oportunidad])).rows[0]
+      .v.activacion.fecha,
+    hoy,
+  );
+  await db.exec("reset role");
+  for (const [fecha, meses, hasta] of [
+    ["2026-10-15", 4, "2027-02-14"],
+    ["2026-10-31", 4, "2027-02-28"],
+    ["2027-10-31", 4, "2028-02-29"],
+    ["2026-08-31", 6, "2027-02-28"],
+    ["2026-10-15", 0, null],
+  ])
+    assert.equal(
+      (
+        await db.query("select privado.fin_congelamiento($1,$2)::text f", [
+          fecha,
+          meses,
+        ])
+      ).rows[0].f,
+      hasta,
+    );
   assert.equal(
     (
       await db.query(
