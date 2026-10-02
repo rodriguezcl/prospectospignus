@@ -4,7 +4,20 @@ export const servicios = {
   cerco: "Cerco eléctrico",
 };
 export const estados = ["borrador", "activo", "inactivo"];
+export function normalizarNombresCatalogo(datos) {
+  const nuevo = structuredClone(datos);
+  for (const coleccion of ["marcas", "tipos", "familias", "items"]) {
+    for (const item of nuevo[coleccion] || []) {
+      if (typeof item.nombre === "string")
+        item.nombre = item.nombre.trim().toUpperCase();
+      if (coleccion === "familias" && typeof item.marca === "string")
+        item.marca = item.marca.trim().toUpperCase();
+    }
+  }
+  return nuevo;
+}
 export function prepararCatalogo(datos) {
+  datos = normalizarNombresCatalogo(datos);
   if (datos.esquema === 2) return structuredClone(datos);
   const marcas = [];
   const familias = (datos.familias || []).map((f) => {
@@ -37,7 +50,7 @@ export function prepararCatalogo(datos) {
   };
 }
 export function completarGrupos(datos, crearId) {
-  const nuevo = structuredClone(datos);
+  const nuevo = normalizarNombresCatalogo(datos);
   nuevo.familias = [];
   for (const i of nuevo.items) {
     const marca = nuevo.marcas.find((m) => m.id === i.marca_id);
@@ -79,6 +92,7 @@ export function dependencias(datos, seccion, id, soloActivas = false) {
     .map((i) => `${i.codigo} · ${i.nombre}`);
 }
 export function modificarCatalogo(datos, seccion, valor, accion = "guardar") {
+  valor = { ...valor, nombre: valor.nombre?.trim().toUpperCase() };
   const nuevo = structuredClone(datos);
   if (
     accion === "eliminar" ||

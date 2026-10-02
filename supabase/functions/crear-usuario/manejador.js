@@ -47,7 +47,11 @@ export function crearManejador({
       }
       if (!datos || Array.isArray(datos))
         return responder(400, { error: "Solicitud inválida." });
-      const { nombre, correo, clave, rol } = datos;
+      const { correo, clave, rol } = datos;
+      const nombre =
+        typeof datos.nombre === "string"
+          ? datos.nombre.trim().toUpperCase()
+          : datos.nombre;
       if (
         typeof nombre !== "string" ||
         nombre.trim().length < 2 ||

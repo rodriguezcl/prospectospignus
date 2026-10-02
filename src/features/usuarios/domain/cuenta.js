@@ -1,4 +1,5 @@
 export function validarCuenta({ nombre, correo, clave, rol }) {
+  if (typeof nombre === "string") nombre = nombre.trim().toUpperCase();
   if (
     typeof nombre !== "string" ||
     nombre.trim().length < 2 ||

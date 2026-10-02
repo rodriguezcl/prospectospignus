@@ -76,6 +76,9 @@ export function FormularioGestionCuenta({
                 <input
                   id="editar-nombre"
                   name="nombre"
+                  onBlur={(e) => {
+                    e.target.value = e.target.value.trim().toUpperCase();
+                  }}
                   className="form-control"
                   defaultValue={cuenta.nombre}
                   required

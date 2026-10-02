@@ -15,6 +15,8 @@ export function validarGestionCuenta({ id, version, accion, ...datos }) {
     throw new Error("Ingresá un motivo de entre 5 y 500 caracteres.");
   const cambios = { motivo };
   if (accion === "editar") {
+    if (typeof datos.nombre === "string")
+      datos.nombre = datos.nombre.trim().toUpperCase();
     if (
       typeof datos.nombre !== "string" ||
       datos.nombre.trim().length < 2 ||

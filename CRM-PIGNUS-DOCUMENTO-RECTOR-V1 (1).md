@@ -465,4 +465,10 @@ Adicionales es una vista de los mismos productos habilitados para ofrecer por se
 
 Implementación local: esquema versionado 2 y migración 020. Los registros anteriores se presentan para revisión, conservando identidades y precios; no se interpreta «comodato» en texto libre como una clasificación confirmada. Hasta revisión y activación permanecen en borrador tras publicar la adaptación. Ninguna modificación cambia propuestas históricas. La aplicación remota de la migración y el despliegue se verifican por separado.
 
+## 27. Nombres uniformes
+
+Los nombres de personas/empresas, usuarios, marcas, tipos, productos, planes, kits y adicionales se guardan en mayúsculas, conservando tildes y Ñ y quitando espacios exteriores. No es una transformación general del texto: correos, contraseñas, códigos, archivos, direcciones y observaciones mantienen sus reglas anteriores.
+
+La normalización se aplica a nuevas altas y ediciones, también en servidor mediante 021. Los nombres anteriores se normalizan al editar; guardar el catálogo publica una nueva versión normalizada. No se reescriben eventos, propuestas ni ventas históricas. La migración y publicación remotas requieren confirmación.
+
 **Fin.**

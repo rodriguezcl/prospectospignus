@@ -91,7 +91,7 @@ test("Cotizaciones: cartera automática, preparación sin visita, permisos y anu
   ]);
   assert.equal(
     (await db.query("select nombre from public.prospectos")).rows[0].nombre,
-    "Contacto corregido",
+    "CONTACTO CORREGIDO",
   );
   await assert.rejects(
     iniciar(randomUUID(), randomUUID()),
@@ -519,7 +519,7 @@ test("Agente: calificación, visitas, recuperación equilibrada, RLS, cierre e i
   assert.equal((await ventas()).total, 1);
   assert.equal(
     (await ventas()).filas[0].vendedor_visita_nombre,
-    "Persona vendedor",
+    "PERSONA VENDEDOR",
   );
   await como(responsable);
   await assert.rejects(

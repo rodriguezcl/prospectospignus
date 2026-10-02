@@ -23,7 +23,7 @@ begin
  if exists(select 1 from public.registros_iniciales where importacion_historica->>'lote'=lote and importacion_historica->>'sha256' is distinct from huella) then raise exception 'IMPORTACION_ARCHIVO_CAMBIADO'; end if;
  for fila in select value from jsonb_array_elements(entrada->'filas') loop
    vendedor := (entrada->'vendedores'->>(fila->>'vendedor'))::uuid;
-   if not exists(select 1 from public.perfiles where id=vendedor and activo and rol='vendedor' and nombre=fila->>'vendedor') then raise exception 'IMPORTACION_VENDEDOR'; end if;
+   if not exists(select 1 from public.perfiles where id=vendedor and activo and rol='vendedor' and upper(trim(nombre))=upper(trim(fila->>'vendedor'))) then raise exception 'IMPORTACION_VENDEDOR'; end if;
    estado := fila->>'estado';
    if estado not in ('ganada','perdida') then raise exception 'IMPORTACION_ESTADO'; end if;
    registro_id := md5(lote||':'||(fila->>'fila')||':registro')::uuid;

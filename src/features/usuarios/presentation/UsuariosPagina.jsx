@@ -114,6 +114,9 @@ export function UsuariosPagina({ gestion }) {
                     <input
                       id="nombre-usuario"
                       name="nombre"
+                      onBlur={(e) => {
+                        e.target.value = e.target.value.trim().toUpperCase();
+                      }}
                       className="form-control"
                       required
                       minLength={2}

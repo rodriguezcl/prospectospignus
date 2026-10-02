@@ -21,7 +21,8 @@ export function validarRegistro(entrada) {
     const valor = entrada[nombre] ?? "";
     if (typeof valor !== "string")
       throw new Error(`${etiqueta}: valor inválido.`);
-    datos[nombre] = valor.trim();
+    datos[nombre] =
+      nombre === "nombre" ? valor.trim().toUpperCase() : valor.trim();
     if (
       datos[nombre].length > limite ||
       (requerido && datos[nombre].length < 2)

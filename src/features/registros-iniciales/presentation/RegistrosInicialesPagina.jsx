@@ -280,6 +280,15 @@ export function RegistrosInicialesPagina({
                               id={`registro-${campo.nombre}`}
                               name={campo.nombre}
                               type={campo.tipo || "text"}
+                              onBlur={
+                                campo.nombre === "nombre"
+                                  ? (e) => {
+                                      e.target.value = e.target.value
+                                        .trim()
+                                        .toUpperCase();
+                                    }
+                                  : undefined
+                              }
                               className="form-control"
                               required={campo.requerido}
                               minLength={campo.requerido ? 2 : undefined}

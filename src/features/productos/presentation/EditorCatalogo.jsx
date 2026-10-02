@@ -106,6 +106,9 @@ export function EditorCatalogo({
             minLength={2}
             maxLength={grupo === "items" ? 150 : 100}
             value={item.nombre}
+            onBlur={(e) =>
+              cambiar("nombre", e.target.value.trim().toUpperCase())
+            }
             onChange={(e) => cambiar("nombre", e.target.value)}
           />
         </Campo>

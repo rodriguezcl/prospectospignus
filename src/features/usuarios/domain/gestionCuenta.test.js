@@ -41,7 +41,7 @@ test("gestión valida antes del repositorio y no transmite actor ni campos ajeno
     version: 1,
     accion: "editar",
     datos: {
-      nombre: "Persona",
+      nombre: "PERSONA",
       rol: "vendedor",
       motivo: "Corrección de nombre",
     },

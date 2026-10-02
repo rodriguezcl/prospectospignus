@@ -38,6 +38,28 @@ test("catálogo: versiones, activación, RLS y precios restringidos", async (t) 
     await db.exec("reset role; set role authenticated");
     await db.query("select set_config('request.jwt.claim.sub',$1,false)", [id]);
   }
+  assert.equal(
+    (await db.query("select nombre from public.perfiles where id=$1", [admin]))
+      .rows[0].nombre,
+    "PRUEBA ADMINISTRADOR",
+  );
+  assert.equal(
+    (
+      await db.query("select privado.normalizar_catalogo_021($1) as d", [
+        {
+          marcas: [{ nombre: "  peña álvarez  " }],
+          items: [
+            {
+              nombre: "sensor óptico",
+              codigo: "Ab-12",
+              nota: "Conservar texto",
+            },
+          ],
+        },
+      ])
+    ).rows[0].d.marcas[0].nombre,
+    "PEÑA ÁLVAREZ",
+  );
   const guardar = (version, datos, op = randomUUID()) =>
     db.query("select public.guardar_catalogo($1,$2,$3)", [version, op, datos]);
   const f = randomUUID(),
@@ -101,6 +123,14 @@ test("catálogo: versiones, activación, RLS y precios restringidos", async (t) 
   const op = randomUUID();
   await guardar(0, datos, op);
   await guardar(0, datos, op);
+  assert.equal(
+    (
+      await db.query(
+        "select datos from public.versiones_catalogo where version=1",
+      )
+    ).rows[0].datos.items[1].nombre,
+    "KIT PRUEBA",
+  );
   await assert.rejects(guardar(0, datos), /CATALOGO_CONFLICTO/);
   assert.equal(
     (await db.query("select * from public.versiones_catalogo")).rows.length,
@@ -210,7 +240,7 @@ test("catálogo: versiones, activación, RLS y precios restringidos", async (t) 
     vistaNueva.datos.items.find((i) => i.id === kit).modalidad,
     "plan",
   );
-  assert.equal(vistaNueva.datos.tipos[0].nombre, "Inicial");
+  assert.equal(vistaNueva.datos.tipos[0].nombre, "INICIAL");
   assert.equal(JSON.stringify(vistaNueva).includes("telefonico"), false);
   await assert.rejects(
     db.query("select public.guardar_catalogo_020(3,$1,$2)", [
