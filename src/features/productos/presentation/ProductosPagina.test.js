@@ -243,6 +243,10 @@ test("catálogo: editor ofrece modalidad, marca, tipo y componentes sin campo fa
   assert.match(editado, /adicional-inactivo/);
   assert.match(editado, /max="2"/);
   const extra = render({ ...valor, tipo: "adicional" }, false);
+  assert.match(extra, /Se vende por/);
+  assert.doesNotMatch(extra, /Unidad comercial/);
+  assert.match(extra, /value="unidad">Unidad<\/option>/);
+  assert.match(extra, /value="pack">Paquete \(pack\)<\/option>/);
   assert.match(extra, /kit-activo/);
   assert.doesNotMatch(extra, /kit-inactivo|kit-borrador/);
   const extraAnterior = render(

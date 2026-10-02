@@ -263,7 +263,7 @@ export function EditorCatalogo({
                     )}
                   </select>
                 </Campo>
-                <Campo titulo="Unidad comercial">
+                <Campo titulo="Se vende por">
                   <select
                     className="form-select"
                     value={item.unidad}
@@ -276,7 +276,16 @@ export function EditorCatalogo({
                         ? ["metro", "servicio"]
                         : []),
                     ].map((u) => (
-                      <option key={u}>{u}</option>
+                      <option key={u} value={u}>
+                        {
+                          {
+                            unidad: "Unidad",
+                            pack: "Paquete (pack)",
+                            metro: "Metro",
+                            servicio: "Servicio",
+                          }[u]
+                        }
+                      </option>
                     ))}
                   </select>
                 </Campo>
