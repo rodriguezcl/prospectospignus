@@ -58,7 +58,7 @@ test("solo responsable o administración pueden reactivar perdidas, nunca ganada
   );
   assert.deepEqual(
     accionesPermitidas(oportunidad, { id: "admin", rol: "administrador" }),
-    ["reactivar"],
+    ["reactivar", "corregir_perdida"],
   );
   assert.throws(() =>
     validarOperacion({

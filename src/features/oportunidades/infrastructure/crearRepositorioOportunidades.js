@@ -1,6 +1,13 @@
 function comprobar(error) {
   if (!error) return;
   const mensajes = {
+    COMERCIAL_PROPUESTA:
+      "Guardá y seleccioná la propuesta efectivamente ofrecida de este ciclo.",
+    COMERCIAL_OBJECION:
+      "Indicá la objeción concreta que debe trabajar el agente.",
+    COMERCIAL_NEGOCIACION:
+      "Confirmá que existe una nueva negociación real, no solo una llamada sin respuesta.",
+    COMERCIAL_ORIGEN: "Revisá el origen comercial del caso.",
     PROPUESTA_ACCESO:
       "Solo el responsable autorizado puede preparar esta propuesta.",
     PROPUESTA_CONFLICTO:
@@ -103,7 +110,7 @@ export function crearRepositorioOportunidades(cliente) {
       return { filas: data, total: count };
     },
     async detalle(id) {
-      const [ficha, eventos] = await Promise.all([
+      const [ficha, eventos, propuestas] = await Promise.all([
         cliente
           .from("oportunidades")
           .select("*,prospectos(*)")
@@ -111,14 +118,25 @@ export function crearRepositorioOportunidades(cliente) {
           .single(),
         cliente
           .from("eventos_oportunidades")
-          .select("id,tipo,actor_id,ocurrido_en,anterior,nuevo")
+          .select("id,tipo,actor_id,ocurrido_en,anterior,nuevo,solicitud")
           .eq("oportunidad_id", id)
           .order("ocurrido_en", { ascending: false })
           .limit(100),
+        cliente
+          .from("propuestas_comerciales")
+          .select("id,ciclo,detalle,catalogo_version,condiciones_version")
+          .eq("oportunidad_id", id)
+          .order("creado_en", { ascending: false })
+          .limit(20),
       ]);
       comprobar(ficha.error);
       comprobar(eventos.error);
-      return { ...ficha.data, eventos: eventos.data };
+      comprobar(propuestas.error);
+      return {
+        ...ficha.data,
+        eventos: eventos.data,
+        propuestas: propuestas.data,
+      };
     },
     equipo: () => rpc("equipo_comercial"),
     async registros(busqueda = "") {
@@ -141,14 +159,18 @@ export function crearRepositorioOportunidades(cliente) {
       rpc("disponibilidad_agente", { p_disponible: valor }),
     guardar: ({ id, version, operacion, accion, datos }) =>
       rpc(
-        accion === "reactivar"
-          ? "reactivar_oportunidad"
-          : "gestionar_oportunidad",
+        accion === "corregir_perdida"
+          ? "corregir_perdida"
+          : accion === "reactivar"
+            ? "reactivar_oportunidad"
+            : "gestionar_oportunidad",
         {
           p_id: id,
           p_version: version,
           p_operacion: operacion,
-          ...(accion === "reactivar" ? {} : { p_accion: accion }),
+          ...(["reactivar", "corregir_perdida"].includes(accion)
+            ? {}
+            : { p_accion: accion }),
           p_datos: datos,
         },
       ),

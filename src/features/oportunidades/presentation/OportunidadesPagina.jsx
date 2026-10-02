@@ -305,6 +305,9 @@ export function OportunidadesPagina({
                   </p>
                   <p className="texto-con-saltos">{e.nuevo.resumen}</p>
                   <p className="texto-con-saltos">{e.nuevo.condiciones}</p>
+                  {e.solicitud?.datos?.objecion && (
+                    <p>Objeción: {e.solicitud.datos.objecion}</p>
+                  )}
                 </article>
               ))}
             </details>

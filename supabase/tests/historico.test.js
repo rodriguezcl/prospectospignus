@@ -142,6 +142,7 @@ test("histórico: importación atómica, RLS, reintentos y reactivación sin ree
   }
   const datos = {
     resumen: "El prospecto vuelve a consultar",
+    negociacion_confirmada: "si",
     plazo: new Date(Date.now() + 86400000).toISOString(),
   };
   const op = randomUUID();

@@ -18,20 +18,46 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
     .filter((a) => a.endsWith(".sql"))
     .sort())
     await db.exec(await readFile(new URL(a, carpeta), "utf8"));
-  const reparto = (await db.query("select privado.repartir_descuento($1,20000) r", [[
-    {clave:'kit',tipo:'instalacion',importe_exacto:'400000'},
-    {clave:'pir',tipo:'adicional',importe_exacto:'100000'},
-  ]])).rows[0].r;
-  assert.deepEqual(reparto.map(x=>x.descuento),['16000.00','4000.00']);
-  for (const valores of [['0','0'],['0.004','0.006'],['1.333333','2.777777','0.111111']]) {
-    const resultado=(await db.query('select privado.repartir_descuento($1,$2) r',[
-      valores.map((importe_exacto,i)=>({clave:String(i),tipo:'adicional',importe_exacto})),
-      valores[0]==='0'?'0':'0.01',
-    ])).rows[0].r;
-    const cent=x=>BigInt(x.replace('.',''));
-    assert.equal(resultado.reduce((s,x)=>s+cent(x.descuento),0n),valores[0]==='0'?0n:1n);
-    assert.ok(resultado.every(x=>cent(x.neto)>=0n));
-    assert.equal(resultado.reduce((s,x)=>s+cent(x.bruto)-cent(x.descuento)-cent(x.neto),0n),0n);
+  const reparto = (
+    await db.query("select privado.repartir_descuento($1,20000) r", [
+      [
+        { clave: "kit", tipo: "instalacion", importe_exacto: "400000" },
+        { clave: "pir", tipo: "adicional", importe_exacto: "100000" },
+      ],
+    ])
+  ).rows[0].r;
+  assert.deepEqual(
+    reparto.map((x) => x.descuento),
+    ["16000.00", "4000.00"],
+  );
+  for (const valores of [
+    ["0", "0"],
+    ["0.004", "0.006"],
+    ["1.333333", "2.777777", "0.111111"],
+  ]) {
+    const resultado = (
+      await db.query("select privado.repartir_descuento($1,$2) r", [
+        valores.map((importe_exacto, i) => ({
+          clave: String(i),
+          tipo: "adicional",
+          importe_exacto,
+        })),
+        valores[0] === "0" ? "0" : "0.01",
+      ])
+    ).rows[0].r;
+    const cent = (x) => BigInt(x.replace(".", ""));
+    assert.equal(
+      resultado.reduce((s, x) => s + cent(x.descuento), 0n),
+      valores[0] === "0" ? 0n : 1n,
+    );
+    assert.ok(resultado.every((x) => cent(x.neto) >= 0n));
+    assert.equal(
+      resultado.reduce(
+        (s, x) => s + cent(x.bruto) - cent(x.descuento) - cent(x.neto),
+        0n,
+      ),
+      0n,
+    );
   }
   const [admin, vendedor, otro, agente] = Array.from({ length: 4 }, randomUUID);
   for (const [id, rol] of [
@@ -269,6 +295,56 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
     ).rows[0].detalle.total,
     "226998.00",
   );
+  const aceptada = (
+    await db.query(
+      "select id from public.propuestas_comerciales where restringida",
+    )
+  ).rows[0].id;
+  const cierre = {
+    resumen: "El cliente confirmó la contratación",
+    condiciones: "Condiciones de la propuesta aceptada",
+    aceptacion_confirmada: "si",
+    canal: "whatsapp",
+    confirmado_en: new Date().toISOString(),
+    propuesta_id: aceptada,
+  };
+  const cerrar = (d, op = randomUUID()) =>
+    db.query("select public.gestionar_oportunidad($1,4,$2,'ganar',$3)", [
+      oportunidad,
+      op,
+      d,
+    ]);
+  await assert.rejects(
+    cerrar({ ...cierre, propuesta_id: "" }),
+    /COMERCIAL_PROPUESTA/,
+  );
+  await assert.rejects(
+    db.query(
+      "select public.gestionar_oportunidad_base_v14($1,4,$2,'ganar',$3)",
+      [oportunidad, randomUUID(), cierre],
+    ),
+    /permission denied/,
+  );
+  const eventoCierre = randomUUID();
+  await cerrar(cierre, eventoCierre);
+  await cerrar(cierre, eventoCierre);
+  const ciclo = (
+    await db.query(
+      "select * from public.ciclos_comerciales where oportunidad_id=$1",
+      [oportunidad],
+    )
+  ).rows[0];
+  assert.equal(ciclo.propuesta_aceptada_id, aceptada);
+  assert.equal(ciclo.cierre_evento_id, eventoCierre);
+  assert.equal(
+    (
+      await db.query(
+        "select cerrado_por from public.oportunidades where id=$1",
+        [oportunidad],
+      )
+    ).rows[0].cerrado_por,
+    agente,
+  );
   await como(vendedor);
   assert.equal(
     (
@@ -277,5 +353,118 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
       )
     ).rows.length,
     0,
+  );
+  const otroCaso = randomUUID(),
+    plazo = new Date(Date.now() + 86400000).toISOString();
+  const gestionar = (version, accion, datos) =>
+    db.query("select public.gestionar_oportunidad($1,$2,$3,$4,$5)", [
+      otroCaso,
+      version,
+      randomUUID(),
+      accion,
+      datos,
+    ]);
+  await gestionar(0, "crear", {
+    registro_id: registro,
+    vendedor_id: vendedor,
+    plazo,
+    resumen: "Otra necesidad real",
+    contacto_confirmado: "si",
+    necesidad: "Segunda ubicación de prueba",
+    origen_comercial: "propio",
+  });
+  assert.equal(
+    (
+      await db.query(
+        "select origen from public.ciclos_comerciales where oportunidad_id=$1",
+        [otroCaso],
+      )
+    ).rows[0].origen,
+    "propio",
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select ciclo_comercial from public.actividades_agenda where oportunidad_id=$1",
+        [otroCaso],
+      )
+    ).rows[0].ciclo_comercial,
+    1,
+  );
+  await gestionar(1, "perder", {
+    resumen: "Fuera de la zona de cobertura",
+    motivo: "fuera_de_zona",
+  });
+  await assert.rejects(
+    db.query("select public.corregir_perdida($1,2,$2,$3)", [
+      otroCaso,
+      randomUUID(),
+      { resumen: "Error al seleccionar pérdida", plazo },
+    ]),
+    /COMERCIAL_ACCESO/,
+  );
+  await como(admin);
+  await db.query("select public.corregir_perdida($1,2,$2,$3)", [
+    otroCaso,
+    randomUUID(),
+    { resumen: "Error al seleccionar pérdida", plazo },
+  ]);
+  assert.equal(
+    (
+      await db.query("select ciclo from public.oportunidades where id=$1", [
+        otroCaso,
+      ])
+    ).rows[0].ciclo,
+    1,
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select cierre_evento_id from public.ciclos_comerciales where oportunidad_id=$1",
+        [otroCaso],
+      )
+    ).rows[0].cierre_evento_id,
+    null,
+  );
+  await gestionar(3, "perder", {
+    resumen: "Pérdida definitiva por cobertura",
+    motivo: "fuera_de_zona",
+  });
+  await como(vendedor);
+  await assert.rejects(
+    db.query("select public.reactivar_oportunidad($1,4,$2,$3)", [
+      otroCaso,
+      randomUUID(),
+      { resumen: "Solo llamada sin respuesta", plazo },
+    ]),
+    /COMERCIAL_NEGOCIACION/,
+  );
+  await db.query("select public.reactivar_oportunidad($1,4,$2,$3)", [
+    otroCaso,
+    randomUUID(),
+    {
+      resumen: "Nueva evaluación solicitada por cliente",
+      plazo,
+      negociacion_confirmada: "si",
+      origen_comercial: "propio",
+    },
+  ]);
+  const ciclos = (
+    await db.query(
+      "select * from public.ciclos_comerciales where oportunidad_id=$1 order by ciclo",
+      [otroCaso],
+    )
+  ).rows;
+  assert.equal(ciclos.length, 2);
+  assert.ok(ciclos[0].cierre_evento_id);
+  assert.equal(ciclos[1].cierre_evento_id, null);
+  assert.equal(
+    (
+      await db.query(
+        "select ciclo_comercial from public.actividades_agenda where oportunidad_id=$1",
+        [otroCaso],
+      )
+    ).rows[0].ciclo_comercial,
+    1,
   );
 });

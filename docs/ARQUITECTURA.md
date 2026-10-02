@@ -97,6 +97,12 @@ La composición de app inyecta lecturas de Productos y Condiciones en Oportunida
 
 Migración 014: `guardar_propuesta` reconstruye precios, compatibilidad, cantidades, bolsa, mínimo, mensualidad y congelamiento con catálogo/configuración vigentes; bloquea ficha y verifica versión. Revisiones inmutables, operación UUID idempotente y RLS. Telefónico no es visible para vendedor ni para otro agente por pertenecer a la cola común. Guardar una oferta no cierra la venta; aceptación se integra en entrega 3. No se alteran las oportunidades históricas. La recuperación operativa conserva sus acciones anteriores hasta esa integración.
 
+## Recuperación y ciclos (entrega 3)
+
+La entrega 3 añade una proyección de ciclos mantenida por eventos comerciales nuevos. El evento de cierre sigue siendo autoridad; referencia una propuesta inmutable y conserva atribución al responsable al cierre. No reconstruye visitas ni orígenes anteriores. Las actividades nuevas guardan ciclo al crearse, no al consultar métricas. Las RPC previas se conservan como implementaciones sin permisos públicos y las entradas públicas agregan guardas transaccionales de propuesta vigente y confirmación de nueva negociación. Corrección de pérdida: administración, mismo ciclo, motivo e historial; no es reactivación.
+
+Mientras no exista catálogo publicado, el cierre textual anterior sigue disponible con importes desconocidos. Desde la primera versión de catálogo, ganar/derivar exige propuesta estructurada vigente; no convertir texto en importes. La última propuesta y objeciones son visibles en el caso autorizado y el agente puede preparar una revisión nueva.
+
 ## Promociones (implementación vigente)
 
 La feature `promociones` incorpora validación pura, coordinación de carga, adaptador Supabase y presentación. Migración 011: borradores/publicaciones/archivo, audiencia por rol, eventos, avisos y reservas de adjuntos. RPC versionada con UUID de operación; publicación y avisos atómicos. Cuenta con historial o avisos no se elimina; puede desactivarse. Las tablas no admiten DML del navegador.

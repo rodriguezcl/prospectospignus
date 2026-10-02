@@ -89,6 +89,73 @@ export function FormularioOportunidad({
         }}
       >
         <fieldset disabled={ocupado}>
+          {["crear", "reactivar"].includes(accion) && (
+            <Campo
+              nombre="origen_comercial"
+              titulo="Origen de este ciclo comercial"
+              valor={
+                perfil.rol === "vendedor"
+                  ? "propio"
+                  : perfil.rol === "agente"
+                    ? "asignado_agente"
+                    : ""
+              }
+              requerido={false}
+              opciones={[
+                ...(perfil.rol !== "agente"
+                  ? [["propio", "Prospecto propio del vendedor"]]
+                  : []),
+                ...(perfil.rol !== "vendedor"
+                  ? [["asignado_agente", "Asignado por agente"]]
+                  : []),
+              ]}
+            />
+          )}
+          {accion === "corregir_perdida" && (
+            <p>
+              Solo corrige un error de carga. Conserva el ciclo, sus visitas y
+              la evidencia de la pérdida original. Para interés retomado, usá
+              Reactivar.
+            </p>
+          )}
+          {["ganar", "derivar"].includes(accion) && (
+            <Campo
+              nombre="propuesta_id"
+              titulo={
+                accion === "ganar"
+                  ? "Propuesta aceptada por el cliente"
+                  : "Última propuesta efectivamente ofrecida"
+              }
+              requerido={(oportunidad?.propuestas || []).some(
+                (p) => p.ciclo === oportunidad.ciclo,
+              )}
+              opciones={(oportunidad?.propuestas || [])
+                .filter((p) => p.ciclo === oportunidad.ciclo)
+                .map((p) => [
+                  p.id,
+                  `${p.detalle.codigo} · Inicial $${p.detalle.total} · Abono ${p.detalle.abono ?? "no corresponde"}`,
+                ])}
+            />
+          )}
+          {accion === "derivar" && (
+            <Campo
+              nombre="objecion"
+              titulo="¿Qué impidió cerrar la venta? Objeción concreta para el agente"
+              tipo="textarea"
+            />
+          )}
+          {accion === "reactivar" && (
+            <label className="d-block mb-3">
+              <input
+                type="checkbox"
+                name="negociacion_confirmada"
+                value="si"
+                required
+              />{" "}
+              El cliente retomó interés o aceptó evaluar una propuesta nueva. No
+              es solo una llamada sin respuesta.
+            </label>
+          )}
           {accion === "crear" && (
             <>
               <p>
@@ -174,6 +241,7 @@ export function FormularioOportunidad({
             "seguimiento",
             "derivar",
             "reactivar",
+            "corregir_perdida",
           ].includes(accion) && (
             <Campo
               nombre="plazo"

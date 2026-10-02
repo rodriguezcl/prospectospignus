@@ -6,8 +6,8 @@ Autorización continua de implementación, commit, push y despliegue recibida el
 | --- | --- | --- |
 | 0 Contratos | Publicada | ffa6522; Vercel Ready, producción; 63 pruebas base y 3 monetarias correctas |
 | 1 Productos y condiciones | Publicada | 941af8c; Vercel ErE5KL6CCN21PStJBuVRwCKzmpuf Ready, Production. 69 pruebas correctas, build correcto; migración 013 aplicada sin tarifas; control remoto conserva 950 oportunidades/29 ganadas. QA visual autenticada pendiente: sesión de plataforma cerrada |
-| 2 Propuestas | Implementada; migración aplicada; publicación en verificación | 74 pruebas correctas y build correcto. Migración 014 aplicada (Success): alternativas, composición múltiple, pago mixto, reparto proporcional, guardado inmutable y permisos. Aceptación/cierre corresponde a etapa 3. Sin tarifas de ejemplo |
-| 3 Recuperación y ciclos | Pendiente | |
+| 2 Propuestas | Publicada | 8686264; Vercel CodSsvFRHWs6P48NsAb2thGibqiQ Ready Production. 74 pruebas y build correctos; migración 014 aplicada. Control remoto: 950 oportunidades/29 ganadas/0 propuestas. Sin tarifas de ejemplo |
+| 3 Recuperación y ciclos | Implementada; publicación en verificación | Migración 015 aplicada (Success); 74 pruebas y build correctos. Propuesta aceptada, origen por ciclo, vínculo Agenda-ciclo, corrección administrativa y reactivación confirmada |
 | 4 Activación | Pendiente | |
 | 5 Métricas | Pendiente | |
 

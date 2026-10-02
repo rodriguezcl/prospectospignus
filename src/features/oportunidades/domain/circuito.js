@@ -15,13 +15,14 @@ export const acciones = {
   ganar: "Registrar aceptación · Ganada",
   perder: "Cerrar como Perdida",
   reactivar: "Reactivar oportunidad perdida",
+  corregir_perdida: "Corregir pérdida cargada por error (mismo ciclo)",
 };
 export function accionesPermitidas(oportunidad, perfil) {
   if (!oportunidad || oportunidad.estado === "ganada") return [];
   const admin = perfil.rol === "administrador";
   if (oportunidad.estado === "perdida")
     return admin || oportunidad.responsable_id === perfil.id
-      ? ["reactivar"]
+      ? ["reactivar", ...(admin ? ["corregir_perdida"] : [])]
       : [];
   if (!oportunidad.responsable_id)
     return admin
@@ -47,9 +48,14 @@ export function validarOperacion(entrada) {
   if (resumen.length < 5 || resumen.length > 2000)
     throw new Error("El resumen debe tener entre 5 y 2000 caracteres.");
   if (
-    ["crear", "reprogramar", "seguimiento", "derivar", "reactivar"].includes(
-      entrada.accion,
-    ) &&
+    [
+      "crear",
+      "reprogramar",
+      "seguimiento",
+      "derivar",
+      "reactivar",
+      "corregir_perdida",
+    ].includes(entrada.accion) &&
     !entrada.datos.plazo
   )
     throw new Error("Indicá fecha y hora de la próxima acción.");
