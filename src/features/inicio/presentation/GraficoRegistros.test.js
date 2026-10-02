@@ -82,7 +82,7 @@ test("Inicio: un período vacío no fabrica porcentajes ni gráficos", () => {
       seleccionar: () => {},
     }),
   );
-  assert.match(html, /Sin prospectos/);
+  assert.match(html, /Sin negociaciones/);
   assert.doesNotMatch(html, /<svg|NaN|Infinity/);
 });
 const dibujar = (campo, valores, filtro = null) =>

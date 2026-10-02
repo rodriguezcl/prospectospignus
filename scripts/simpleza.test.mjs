@@ -53,10 +53,10 @@ test("recorrido: abrir un prospecto existente conserva identidad y necesidad", (
       { id: "caso-2", necesidad: "Cámaras comercio", estado: "visita" },
     ],
   });
-  assert.match(html, /href="\/prospectos\?id=caso-1"/);
-  assert.match(html, /Abrir prospecto: Alarma vivienda/);
+  assert.match(html, /href="\/cotizaciones\?id=caso-1"/);
+  assert.match(html, /Abrir negociación: Alarma vivienda/);
   assert.match(html, /Ganada/);
-  assert.match(html, /href="\/prospectos\?id=caso-2"/);
+  assert.match(html, /href="\/cotizaciones\?id=caso-2"/);
 });
 test("recorrido: alta desde Prospectos ofrece búsqueda, no duplicación de contacto", () => {
   const html = dibujar(CrearProspecto, {
@@ -65,7 +65,7 @@ test("recorrido: alta desde Prospectos ofrece búsqueda, no duplicación de cont
     equipo: [],
     guardar: () => {},
   });
-  assert.match(html, /Crear prospecto desde un registro inicial/);
+  assert.match(html, /Preparar cotización/);
   assert.match(html, /Buscar contacto por nombre/);
   assert.doesNotMatch(html, /name="telefono"/);
 });
@@ -106,7 +106,7 @@ test("simpleza: todos los roles conservan alta directa y ayuda accesible en Pros
       gestion: {},
       perfil: { id: rol, rol },
     });
-    assert.match(html, /href="\/registros\?nuevo=1"/);
+    assert.match(html, /href="\/prospectos\?nuevo=1"/);
     assert.match(html, /<summary>Cómo funciona esta bandeja<\/summary>/);
     assert.equal(
       html.includes("Disponible para recibir recuperaciones"),
@@ -132,5 +132,5 @@ test("simpleza: venta compacta preserva condiciones, atribución y confirmación
   assert.match(html, /Condición acordada/);
   assert.match(html, /Vendedor de visita: Vendedor/);
   assert.match(html, /Presencial/);
-  assert.match(html, /\/prospectos\?id=venta/);
+  assert.match(html, /\/cotizaciones\?id=venta/);
 });

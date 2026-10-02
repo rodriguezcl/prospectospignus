@@ -20,6 +20,7 @@ export function crearRepositorioResumen(cliente) {
           .select(
             "id,estado,responsable_id,periodo_historico,creado_en,visita_en,proxima_accion_en,prospectos(nombre)",
           )
+          .neq("estado", "anulada")
           .order("id")
           .range(desde, desde + 499);
         comprobar(error);

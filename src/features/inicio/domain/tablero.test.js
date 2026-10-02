@@ -55,6 +55,21 @@ const base = () => ({
   ventas: 17,
 });
 const ahora = new Date("2026-10-01T12:00:00Z");
+test("Inicio: anular excluye negociación y pendientes, no borra el contacto captado", () => {
+  const datos = base();
+  datos.oportunidades[0].estado = "anulada";
+  datos.historico = [];
+  const t = construirTablero(
+    datos,
+    "2026-09",
+    { rol: "administrador" },
+    "",
+    ahora,
+  );
+  assert.equal(t.cohorte.length, 2);
+  assert.equal(t.registros.length, 1);
+  assert.ok(!t.abiertas.some((r) => r.id === "h"));
+});
 test("Inicio: cohorte, histórico inmutable y pendientes fuera del mes", () => {
   const t = construirTablero(
     base(),

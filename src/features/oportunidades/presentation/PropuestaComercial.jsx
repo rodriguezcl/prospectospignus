@@ -3,6 +3,7 @@ import { generarAlternativas, subcategorias } from "../domain/alternativas.js";
 import { calcularPago } from "../domain/pago.js";
 import { totalConceptos } from "../domain/propuesta.js";
 import { serviciosInteres } from "../domain/interesComercial.js";
+import { puedeCotizar } from "../domain/circuito.js";
 
 const moneda = (valor) =>
   valor == null
@@ -19,8 +20,17 @@ export function PropuestaComercial({
   oportunidad,
   perfil,
   actualizada,
+  abierto = false,
+  apertura = 0,
 }) {
+  const panel = useRef(null);
   const [referencias, cargarReferencias] = useState(null);
+  useEffect(() => {
+    if ((abierto || apertura > 0) && referencias && panel.current) {
+      panel.current.open = true;
+      panel.current.scrollIntoView({ block: "start", behavior: "smooth" });
+    }
+  }, [abierto, apertura, referencias]);
   const [historial, guardarHistorial] = useState([]);
   const [error, fallar] = useState("");
   const [ocupado, ocupar] = useState(false);
@@ -35,7 +45,9 @@ export function PropuestaComercial({
       ? interes.tipo_alarma === "a_definir"
         ? ""
         : interes.tipo_alarma
-      : interes ? "" : "sin_monitoreo",
+      : interes
+        ? ""
+        : "sin_monitoreo",
   );
   const [extras, elegirExtras] = useState({});
   const [nivel, elegirNivel] = useState("catalogo");
@@ -49,14 +61,7 @@ export function PropuestaComercial({
   const [cuotas, elegirCuotas] = useState(1);
   const intento = useRef(null);
   const revision = useRef(crypto.randomUUID());
-  const puedeEditar =
-    !["ganada", "perdida"].includes(oportunidad.estado) &&
-    oportunidad.responsable_id &&
-    (perfil.rol === "administrador" ||
-      (oportunidad.responsable_id === perfil.id &&
-        (perfil.rol === "agente"
-          ? oportunidad.estado === "recuperacion"
-          : oportunidad.estado !== "recuperacion")));
+  const puedeEditar = puedeCotizar(oportunidad, perfil);
   const telefonico =
     oportunidad.estado === "recuperacion" &&
     ["administrador", "agente"].includes(perfil.rol);
@@ -218,7 +223,11 @@ export function PropuestaComercial({
     }
   }
   return (
-    <details className="detalle-secundario my-4">
+    <details
+      ref={panel}
+      className="detalle-secundario my-4"
+      open={abierto || undefined}
+    >
       <summary>
         {puedeEditar ? "Preparar cotización" : "Consultar cotizaciones"} · kits,
         adicionales y pago

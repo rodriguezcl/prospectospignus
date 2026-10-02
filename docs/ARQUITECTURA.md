@@ -1,5 +1,17 @@
 # Constitución arquitectónica de Prospectos Pignus
 
+## Actualización vigente: Prospectos / Cotizaciones (02-10-2026)
+
+Rector 25.2 prevalece sobre los nombres históricos usados más abajo. `registros-iniciales` presenta Prospectos y `oportunidades` presenta Cotizaciones; se conservan las features, IDs, tablas y contratos anteriores. No se migran ni duplican contactos por cambiar el menú. Rutas `/registros` y enlaces antiguos `/prospectos?id=…` mantienen compatibilidad.
+
+Migración 019: lectura paginada SECURITY INVOKER de contactos y casos bajo RLS; política de lectura de contactos asignados compatible con participación comercial, sin ampliar edición. `iniciar_cotizacion` crea una negociación en preparación sin inventar contacto efectivo ni visita. Registra ciclo/origen e idempotencia con bloqueo compartido. El catálogo y el motor de precios mantienen sus permisos y validaciones anteriores.
+
+Las correcciones de nombre/teléfono/dirección en la ficha fuente actualizan la identidad interna heredada mediante trigger, sin alterar los snapshots de eventos. No se replica un formulario de datos personales en Cotizaciones.
+
+`anular_cotizacion` conserva datos y eventos; vendedor solo antes de actividad posterior y si creó el caso propio, administrador con motivo/confirmación. Cancela visitas pendientes, conserva realizadas y excluye anuladas de proyecciones comerciales. Guardas de servidor impiden mutarlas o agregar propuestas/vínculos nuevos desde clientes antiguos. Las actividades manuales ya existentes conservan gestión propia. La presentación no sustituye estos permisos.
+
+Aplicar 019 antes de publicar el frontend; sin ella se informa migración pendiente. No se aplican reglas contables pendientes ni se cambian precios. Verificación: pruebas PostgreSQL de aislamiento, preparación sin visita, duplicados, reintentos, anulación y métricas; pruebas de presentación, rutas y build.
+
 ## Alcance y principios
 
 Organizar por funcionalidades, con alta cohesión, bajo acoplamiento, composición y dependencias hacia las reglas comerciales. Aplicar Clean Code, SOLID y Clean Architecture de manera proporcional a necesidades reales. El documento rector conserva autoridad sobre las reglas comerciales. La visión futura de CRM no incorpora Clientes, Stock ni Operaciones al alcance actual.

@@ -7,8 +7,8 @@ export function CasosDelRegistro({ casos }) {
     <ul>
       {casos.map((c) => (
         <li key={c.id}>
-          <Link to={`/prospectos?id=${c.id}`}>
-            Abrir prospecto: {c.necesidad}
+          <Link to={`/cotizaciones?id=${c.id}`}>
+            Abrir negociación: {c.necesidad}
           </Link>{" "}
           · {estados[c.estado]}
         </li>
@@ -37,9 +37,9 @@ export function ContinuarRegistro({ registro, gestion, perfil }) {
   }, [gestion, registro.id, registro.version]);
   if (error)
     return (
-      <p role="alert">No pudimos consultar los prospectos asociados. {error}</p>
+      <p role="alert">No pudimos consultar las negociaciones asociadas. {error}</p>
     );
-  if (!contexto) return <p role="status">Buscando prospectos asociados…</p>;
+  if (!contexto) return <p role="status">Buscando negociaciones asociadas…</p>;
   const autorizado =
     perfil.rol === "administrador" ||
     contexto.registro.responsable_id === perfil.id;
@@ -52,30 +52,25 @@ export function ContinuarRegistro({ registro, gestion, perfil }) {
       {contexto.casos.length ? (
         <>
           <CasosDelRegistro casos={contexto.casos} />
-          <p>
-            Para cotizar o continuar la misma necesidad, abrí su prospecto. No
-            lo vuelvas a crear.
-          </p>
+          <p>Abrí la negociación para cotizar o continuar el seguimiento.</p>
         </>
       ) : (
         <p>
-          Cuando hayas contactado a la persona y confirmado su necesidad, creá
-          el prospecto para preparar la cotización.
+          Este prospecto ya está disponible en Cotizaciones. Podés preparar su
+          propuesta sin volver a cargar sus datos.
         </p>
       )}
       {autorizado && !registro.lote_demostracion && (
         <Link
           className="btn btn-primary align-self-start"
-          to={`/prospectos?nueva=si&registro=${registro.id}`}
+          to={`/cotizaciones?nueva=si&registro=${registro.id}`}
         >
-          {contexto.casos.length
-            ? "Crear otra necesidad de este contacto"
-            : "Crear prospecto"}
+          {contexto.casos.length ? "Cotizar otra necesidad" : "Cotizar"}
         </Link>
       )}
       {!autorizado && (
         <p>
-          Solo el responsable del registro o administración puede crear una
+          Solo el responsable del prospecto o administración puede crear una
           nueva necesidad.
         </p>
       )}

@@ -371,7 +371,7 @@ export function PanelRendimiento({
               <ul>
                 {detalle.filas.map((f) => (
                   <li key={`${f.id}-${f.ciclo}`}>
-                    <Link to={`/prospectos?id=${f.id}`}>
+                    <Link to={`/cotizaciones?id=${f.id}`}>
                       {f.nombre} · {f.necesidad}
                     </Link>{" "}
                     · Ciclo {f.ciclo} · {origenes[f.origen]} ·{" "}

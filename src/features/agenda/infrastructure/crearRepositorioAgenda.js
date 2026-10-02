@@ -7,7 +7,7 @@ function comprobar(error) {
     AGENDA_CONFLICTO:
       "La actividad cambió. Cerrá el formulario y actualizá antes de continuar.",
     AGENDA_TRANSICION:
-      "La acción no corresponde al estado actual. Las visitas se reprograman desde Prospectos.",
+      "La acción no corresponde al estado actual. Las visitas se reprograman desde Cotizaciones.",
     AGENDA_FECHA:
       "Revisá los horarios: una actividad realizada no puede tener fechas futuras.",
     AGENDA_DATOS: "Revisá los campos y el motivo del cambio.",
@@ -66,6 +66,7 @@ export function crearRepositorioAgenda(cliente) {
       const { data, error } = await cliente
         .from("oportunidades")
         .select("id,necesidad,prospectos!inner(nombre)")
+        .neq("estado", "anulada")
         .ilike("prospectos.nombre", `%${texto}%`)
         .order("actualizado_en", { ascending: false })
         .limit(20);

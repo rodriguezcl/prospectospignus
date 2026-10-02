@@ -4,7 +4,7 @@ function comprobar(error) {
   if (!error) return;
   if (["42P01", "PGRST205", "PGRST202"].includes(error.code))
     throw new Error(
-      "Falta activar Registros iniciales en Supabase. Aplicá la migración 202609290003.",
+      "Falta activar la base de prospectos en Supabase. Aplicá la migración 202609290003.",
     );
   if (error.code === "42501")
     throw new Error(

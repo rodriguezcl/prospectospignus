@@ -129,7 +129,7 @@ export function RegistrosInicialesPagina({
       cambiarAviso(
         detalle.version
           ? "Cambios guardados."
-          : "Registro guardado. Podés crear el prospecto ahora desde Siguiente paso o continuar después.",
+          : "Prospecto guardado. Ya está disponible en Cotizaciones; podés cotizar ahora o continuar después.",
       );
       cambiarParametros({ registro: resultado.id });
       actualizar((v) => v + 1);
@@ -150,13 +150,13 @@ export function RegistrosInicialesPagina({
   return (
     <>
       <EncabezadoPagina
-        titulo="Registros iniciales"
+        titulo="Prospectos"
         descripcion="Captá contactos y organizá el primer paso de la relación comercial."
       />
       {(nuevo || seleccionado) && (
         <p className="text-muted small">
-          Guardá los datos del contacto. Después elegí Crear prospecto para
-          cotizar; si ya tiene uno, abrilo para continuar.
+          Guardá los datos del contacto. Aparecerá automáticamente en
+          Cotizaciones, sin convertirlo ni volver a cargarlo.
         </p>
       )}
       {error && (
@@ -191,7 +191,7 @@ export function RegistrosInicialesPagina({
               cambiarParametros({ nuevo: "1" });
             }}
           >
-            Nuevo registro
+            Nuevo prospecto
           </button>
         )}
         <button
@@ -211,7 +211,7 @@ export function RegistrosInicialesPagina({
               (modificado ? (
                 <p className="alert alert-warning">
                   Guardá los cambios del contacto antes de continuar a
-                  Prospectos.
+                  Cotizaciones.
                 </p>
               ) : (
                 renderContinuacion?.(detalle)
@@ -219,9 +219,7 @@ export function RegistrosInicialesPagina({
             <section className="card">
               <div className="card-body">
                 <h2 className="h5">
-                  {detalle.version
-                    ? "Detalle y edición"
-                    : "Crear registro inicial"}
+                  {detalle.version ? "Detalle y edición" : "Cargar prospecto"}
                 </h2>
                 {detalle.lote_demostracion && (
                   <p className="alert alert-warning">
@@ -242,7 +240,15 @@ export function RegistrosInicialesPagina({
                   onChange={() => marcarModificado(true)}
                   aria-busy={guardando}
                 >
-                  <fieldset disabled={guardando || !!detalle.lote_demostracion}>
+                  <fieldset
+                    disabled={
+                      guardando ||
+                      !!detalle.lote_demostracion ||
+                      (!!detalle.version &&
+                        !administrador &&
+                        detalle.responsable_id !== perfil.id)
+                    }
+                  >
                     <div className="row g-3">
                       {camposRegistro.map((campo) => (
                         <div
@@ -370,7 +376,7 @@ export function RegistrosInicialesPagina({
                       )}
                     </div>
                     <button className="btn btn-primary mt-3" type="submit">
-                      {guardando ? "Guardando…" : "Guardar registro"}
+                      {guardando ? "Guardando…" : "Guardar prospecto"}
                     </button>
                   </fieldset>
                 </form>
@@ -386,8 +392,8 @@ export function RegistrosInicialesPagina({
                         <li className="border-bottom py-2" key={e.id}>
                           <strong>
                             {e.tipo === "registro_creado"
-                              ? "Registro creado"
-                              : "Registro actualizado"}
+                              ? "Prospecto creado"
+                              : "Prospecto actualizado"}
                           </strong>{" "}
                           · {fecha(e.ocurrido_en)} · {nombrePerfil(e.actor_id)}
                           {e.motivo && (
@@ -499,7 +505,7 @@ export function RegistrosInicialesPagina({
                   </button>
                 </div>
               </form>
-              <p role="status">{lista.total} registros</p>
+              <p role="status">{lista.total} prospectos</p>
               {!lista.registros.length ? (
                 <p>
                   No hay registros con estos filtros. Podés crear uno nuevo.

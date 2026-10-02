@@ -426,4 +426,18 @@ Al crear un prospecto se seleccionan uno o varios servicios (Alarma, Cámaras, C
 
 «Evidencia del contacto efectivo y calificación» se reemplaza por «Observaciones para la visita», opcionales, destinadas a indicaciones de acceso, preferencias y aclaraciones útiles. Se mantiene la confirmación explícita de respuesta humana y posibilidad comercial, junto con medio de contacto, responsable y visita. No se exige redactar una prueba. El sistema registra el evento de creación y un resumen operativo sin inventar notas del cliente. Otros cambios comerciales conservan sus motivos/resúmenes obligatorios. Los registros históricos no reciben servicios deducidos de texto.
 
+### 25.2 Prospectos y Cotizaciones: criterio vigente (02-10-2026)
+
+Este acuerdo sustituye la terminología y los requisitos de inicio de 25 y 25.1:
+
+- **Prospectos** reemplaza a Registros iniciales: base de contactos potenciales, captados por los medios disponibles. Sus datos se cargan y corrigen allí.
+- **Cotizaciones** reemplaza al módulo anteriormente llamado Prospectos. Lista automáticamente los contactos accesibles, incluso «Sin cotización». No hay conversión manual ni se vuelve a pedir la ficha personal. Los contactos asignados a un vendedor por un agente también son consultables; editar el contacto sigue reservado a su responsable o administración.
+- «Cotizar» inicia una negociación por necesidad, con servicio(s) desplegable(s), vendedor responsable, origen y observaciones opcionales. No exige programar una visita ni declarar contacto efectivo ficticio. La preparación no acredita visita, venta ni calificación. Se puede coordinar la visita posteriormente desde la misma ficha.
+- Distintas versiones de precio corresponden a la misma negociación. Otra necesidad requiere confirmación explícita y crea otro caso del mismo contacto. No duplicar personas para cotizar nuevamente.
+- El vendedor prepara la propuesta y registra el seguimiento. Derivar conserva el caso, última propuesta y objeciones; Recuperación comercial mantiene los permisos de agente/administración y el acceso restringido a precios Telefónicos. Aceptación expresa alimenta Ventas concretadas; guardar una cotización no equivale a ganar ni a instalar.
+- Agenda conserva actividades generales y puede asociarlas a una negociación. Las visitas coordinadas desde Cotizaciones aparecen en Agenda, sin doble carga. Ventas mantiene activación administrativa; no se implementan reglas contables pendientes.
+- **Anulación por error**, no borrado: vendedor solo sobre una negociación propia que creó y sin propuestas ni actividad posterior; administración puede anular con actividad. Exige motivo y confirmación, conserva prospecto, eventos y propuestas, cancela visitas pendientes y notifica a responsables. No reabre ni registra una pérdida comercial. Actividades realizadas quedan en su historial; actividades manuales que no son visitas conservan su gestión.
+- Las negociaciones anuladas quedan fuera de estadísticas comerciales y denominadores de visitas válidas. El contacto captado sigue contando como contacto. Cotizaciones permite consultar anuladas mediante filtro. No se reescriben hechos históricos para representar el error.
+- Los nombres físicos de tablas y contratos anteriores se conservan por compatibilidad; las rutas antiguas a fichas redirigen al nuevo módulo. Inicio distingue prospectos captados de negociaciones iniciadas, y mantiene las métricas de cierre/conversión por visitas efectivas en el panel de rendimiento.
+
 **Fin.**

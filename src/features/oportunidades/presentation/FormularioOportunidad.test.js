@@ -36,6 +36,20 @@ const dibujar = (props) =>
     }),
   );
 
+test("cotización: comienza desde el contacto sin exigir ni simular una visita", () => {
+  const html = dibujar({
+    iniciarSinVisita: true,
+    registroSeleccionado: { id: "contacto" },
+  });
+  assert.match(html, /Preparar cotización/);
+  assert.match(html, /Servicio de interés/);
+  assert.match(html, /name="vendedor_id"/);
+  assert.doesNotMatch(
+    html,
+    /name="plazo"|name="contacto_confirmado"|name="telefono"/,
+  );
+});
+
 test("formularios: calificación exige respuesta humana, vendedor y horario de Córdoba", () => {
   const html = dibujar({});
   for (const campo of [

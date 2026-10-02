@@ -4,6 +4,265 @@ import { readFile, readdir } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { PGlite } from "@electric-sql/pglite";
 
+test("Cotizaciones: cartera automática, preparación sin visita, permisos y anulación auditada", async (t) => {
+  const db = new PGlite();
+  t.after(() => db.close());
+  await db.exec(`create role anon; create role authenticated; create role service_role bypassrls;
+    create schema auth; grant usage on schema auth to authenticated;
+    create table auth.users(id uuid primary key,email text,raw_app_meta_data jsonb default '{}');
+    create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;`);
+  const carpeta = new URL("../migrations/", import.meta.url);
+  for (const archivo of (await readdir(carpeta))
+    .filter((a) => a.endsWith(".sql"))
+    .sort())
+    await db.exec(await readFile(new URL(archivo, carpeta), "utf8"));
+  const [admin, vendedor, otro, agente] = Array.from({ length: 4 }, randomUUID);
+  for (const [id, rol] of [
+    [admin, "administrador"],
+    [vendedor, "vendedor"],
+    [otro, "vendedor"],
+    [agente, "agente"],
+  ])
+    await db.query("insert into auth.users values($1,$2,$3)", [
+      id,
+      `${id}@example.invalid`,
+      {
+        pignus_autorizado: true,
+        nombre: `Persona ${rol}`,
+        rol,
+        ...(id === admin ? {} : { creado_por: admin }),
+      },
+    ]);
+  async function como(id) {
+    await db.exec("reset role; set role authenticated");
+    await db.query("select set_config('request.jwt.claim.sub',$1,false)", [id]);
+  }
+  const cartera = async () =>
+    (await db.query("select public.listar_contactos_cotizaciones() as datos"))
+      .rows[0].datos;
+  const registro = randomUUID(),
+    id = randomUUID(),
+    operacion = randomUUID();
+  await como(vendedor);
+  await db.query("select public.guardar_registro_inicial($1,0,$2)", [
+    registro,
+    { nombre: "Contacto sin relevar", origen: "whatsapp" },
+  ]);
+  assert.equal((await cartera()).filas[0].casos.length, 0);
+  assert.equal(
+    (await db.query("select * from public.oportunidades")).rows.length,
+    0,
+  );
+  const datos = {
+    registro_id: registro,
+    vendedor_id: vendedor,
+    origen_comercial: "propio",
+    interes_comercial: { servicios: ["alarma"], tipo_alarma: "a_definir" },
+  };
+  const iniciar = (caso = id, oper = operacion, d = datos) =>
+    db.query("select public.iniciar_cotizacion($1,0,$2,$3)", [caso, oper, d]);
+  await iniciar();
+  await iniciar();
+  const o = (
+    await db.query("select * from public.oportunidades where id=$1", [id])
+  ).rows[0];
+  assert.equal(o.estado, "cotizacion");
+  assert.equal(o.visita_en, null);
+  assert.equal(o.proxima_accion_en, null);
+  assert.equal(
+    (await db.query("select * from public.actividades_agenda")).rows.length,
+    0,
+  );
+  assert.equal(
+    (await db.query("select contacto_efectivo from public.prospectos")).rows[0]
+      .contacto_efectivo,
+    null,
+  );
+  assert.equal((await cartera()).filas[0].casos.length, 1);
+  await db.query("select public.guardar_registro_inicial($1,1,$2)", [
+    registro,
+    {
+      nombre: "Contacto corregido",
+      telefono: "0351 ficticio",
+      ubicacion: "Dirección corregida",
+      origen: "whatsapp",
+      motivo: "Corrección del contacto",
+    },
+  ]);
+  assert.equal(
+    (await db.query("select nombre from public.prospectos")).rows[0].nombre,
+    "Contacto corregido",
+  );
+  await assert.rejects(
+    iniciar(randomUUID(), randomUUID()),
+    /COMERCIAL_EXISTENTE/,
+  );
+  await assert.rejects(
+    iniciar(id, operacion, { ...datos, observaciones: "Cambio" }),
+    /COMERCIAL_CONFLICTO/,
+  );
+  await como(otro);
+  assert.equal((await cartera()).total, 0);
+  await assert.rejects(iniciar(randomUUID(), randomUUID()), /COMERCIAL_ACCESO/);
+  const anulacion = randomUUID(),
+    motivo = {
+      resumen: "Se cargó una necesidad equivocada",
+      confirmar_anulacion: "si",
+    };
+  const anular = (caso, version, oper = anulacion) =>
+    db.query("select public.anular_cotizacion($1,$2,$3,$4)", [
+      caso,
+      version,
+      oper,
+      motivo,
+    ]);
+  await assert.rejects(anular(id, 1), /COMERCIAL_ANULACION/);
+  await como(vendedor);
+  await anular(id, 1);
+  await anular(id, 1);
+  assert.equal((await cartera()).total, 1);
+  assert.equal((await cartera()).filas[0].casos.length, 0);
+  assert.equal(
+    (
+      await db.query(
+        "select * from public.eventos_oportunidades where oportunidad_id=$1",
+        [id],
+      )
+    ).rows.length,
+    2,
+  );
+  await assert.rejects(
+    db.query("select public.gestionar_oportunidad($1,2,$2,'seguimiento',$3)", [
+      id,
+      randomUUID(),
+      {
+        resumen: "No debe reabrirse",
+        plazo: new Date(Date.now() + 86400000).toISOString(),
+      },
+    ]),
+    /COMERCIAL_ANULADA/,
+  );
+  const otroCaso = randomUUID();
+  await iniciar(otroCaso, randomUUID());
+  await db.query(
+    "select public.gestionar_oportunidad($1,1,$2,'reprogramar',$3)",
+    [
+      otroCaso,
+      randomUUID(),
+      {
+        resumen: "Visita acordada con el contacto",
+        plazo: new Date(Date.now() + 86400000).toISOString(),
+      },
+    ],
+  );
+  await assert.rejects(
+    anular(otroCaso, 2, randomUUID()),
+    /COMERCIAL_ANULACION/,
+  );
+  await como(admin);
+  await anular(otroCaso, 2, randomUUID());
+  assert.equal(
+    (
+      await db.query(
+        "select estado from public.actividades_agenda where oportunidad_id=$1",
+        [otroCaso],
+      )
+    ).rows[0].estado,
+    "cancelada",
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select count(*)::int n from public.eventos_agenda where tipo='negociacion_anulada'",
+      )
+    ).rows[0].n,
+    1,
+  );
+  const realizado = randomUUID();
+  await como(vendedor);
+  await iniciar(realizado, randomUUID());
+  const actividad = randomUUID();
+  await db.query("select public.gestionar_actividad($1,0,$2,'crear',$3)", [
+    actividad,
+    randomUUID(),
+    {
+      oportunidad_id: realizado,
+      tipo: "visita",
+      titulo: "Visita realizada",
+      estado: "realizada",
+      inicio_real: new Date(Date.now() - 7200000).toISOString(),
+      fin_real: new Date(Date.now() - 3600000).toISOString(),
+      resultado: "Relevamiento realizado",
+    },
+  ]);
+  await assert.rejects(
+    anular(realizado, 1, randomUUID()),
+    /COMERCIAL_ANULACION/,
+  );
+  await db.exec("reset role");
+  assert.equal(
+    (
+      await db.query(
+        "select count(*)::int n from privado.visitas_medibles where oportunidad_id=$1",
+        [realizado],
+      )
+    ).rows[0].n,
+    1,
+  );
+  await como(admin);
+  await anular(realizado, 1, randomUUID());
+  await db.exec("reset role");
+  assert.equal(
+    (
+      await db.query(
+        "select count(*)::int n from privado.visitas_medibles where oportunidad_id=$1",
+        [realizado],
+      )
+    ).rows[0].n,
+    0,
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select estado from public.actividades_agenda where id=$1",
+        [actividad],
+      )
+    ).rows[0].estado,
+    "realizada",
+  );
+  // Los contactos asignados por agentes se ven sin habilitar escrituras sobre datos ajenos.
+  const rAgente = randomUUID(),
+    casoAgente = randomUUID();
+  await como(agente);
+  await db.query("select public.guardar_registro_inicial($1,0,$2)", [
+    rAgente,
+    { nombre: "Contacto del agente", origen: "whatsapp" },
+  ]);
+  await iniciar(casoAgente, randomUUID(), {
+    ...datos,
+    registro_id: rAgente,
+    origen_comercial: "asignado_agente",
+  });
+  await como(vendedor);
+  assert.ok(
+    (await cartera()).filas.some(
+      (r) => r.id === rAgente && r.casos[0].id === casoAgente,
+    ),
+  );
+  await assert.rejects(
+    iniciar(randomUUID(), randomUUID(), {
+      ...datos,
+      registro_id: rAgente,
+      otra_necesidad: "si",
+    }),
+    /COMERCIAL_ACCESO/,
+  );
+  await como(otro);
+  assert.equal((await cartera()).total, 0);
+  await db.exec("reset role; set role anon");
+  await assert.rejects(cartera(), /permission denied/);
+});
+
 test("Agente: calificación, visitas, recuperación equilibrada, RLS, cierre e idempotencia", async (t) => {
   const db = new PGlite();
   t.after(() => db.close());
@@ -418,10 +677,30 @@ test("Agente: calificación, visitas, recuperación equilibrada, RLS, cierre e i
   assert.match(fichaGuiada.resumen, /Visita coordinada/);
   assert.equal(fichaGuiada.observaciones_visita, "");
   assert.equal(fichaGuiada.canal_contacto, "whatsapp");
-  assert.equal((await db.query("select * from public.actividades_agenda where oportunidad_id=$1", [nueva])).rows.length, 1);
+  assert.equal(
+    (
+      await db.query(
+        "select * from public.actividades_agenda where oportunidad_id=$1",
+        [nueva],
+      )
+    ).rows.length,
+    1,
+  );
   const corta = randomUUID();
-  await gestionar(corta, 0, "crear", { ...altaGuiada, observaciones: "OK", interes_comercial: { servicios: ["cerco"], tipo_alarma: null } });
-  assert.equal((await db.query("select observaciones_visita from public.oportunidades where id=$1", [corta])).rows[0].observaciones_visita, "OK");
+  await gestionar(corta, 0, "crear", {
+    ...altaGuiada,
+    observaciones: "OK",
+    interes_comercial: { servicios: ["cerco"], tipo_alarma: null },
+  });
+  assert.equal(
+    (
+      await db.query(
+        "select observaciones_visita from public.oportunidades where id=$1",
+        [corta],
+      )
+    ).rows[0].observaciones_visita,
+    "OK",
+  );
   assert.equal(
     (
       await db.query(

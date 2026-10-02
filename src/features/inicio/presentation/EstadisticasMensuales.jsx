@@ -82,7 +82,7 @@ export function EstadisticasMensuales({ gestion, perfil }) {
     : [];
   return (
     <section aria-labelledby="titulo-estadisticas">
-      <h2 id="titulo-estadisticas">Registros iniciales · resumen mensual</h2>
+      <h2 id="titulo-estadisticas">Prospectos · resumen mensual</h2>
       <p>
         {perfil.rol === "administrador"
           ? "Alcance: todos los registros."
@@ -265,7 +265,7 @@ export function EstadisticasMensuales({ gestion, perfil }) {
                   {filas.slice(pagina * 20, pagina * 20 + 20).map((r) => (
                     <tr key={r.id}>
                       <td>
-                        <Link to={`/registros?registro=${r.id}`}>
+                        <Link to={`/prospectos?registro=${r.id}`}>
                           {r.nombre}
                         </Link>
                       </td>

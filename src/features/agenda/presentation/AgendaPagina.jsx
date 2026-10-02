@@ -197,7 +197,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                 </p>
                 <div className="mb-3">
                   <label className="d-block mb-2">
-                    ¿Esta actividad es con un prospecto?
+                    ¿Querés asociarla a una negociación de Cotizaciones?
                     <select
                       className="form-select"
                       value={conProspecto ? "si" : "no"}
@@ -212,7 +212,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                       }}
                     >
                       <option value="no">No / actividad general</option>
-                      <option value="si">Sí, elegir prospecto</option>
+                      <option value="si">Sí, elegir negociación</option>
                     </select>
                   </label>
                   {conProspecto && vinculo ? (
@@ -220,7 +220,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                       <strong>
                         {elegido
                           ? `${elegido.prospectos.nombre} · ${elegido.necesidad}`
-                          : "Prospecto asociado a esta actividad"}
+                          : "Negociación asociada a esta actividad"}
                       </strong>
                       <p className="small mb-2">
                         La actividad se guardará en relación con esta ficha.
@@ -253,7 +253,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                     conProspecto && (
                       <>
                         <label className="d-block">
-                          Buscar prospecto por nombre
+                          Buscar por nombre del prospecto
                           <input
                             className="form-control"
                             value={busqueda}
@@ -272,7 +272,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                           disabled={buscando || busqueda.trim().length < 2}
                           onClick={buscar}
                         >
-                          {buscando ? "Buscando…" : "Buscar prospecto"}
+                          {buscando ? "Buscando…" : "Buscar negociación"}
                         </button>
                         <label className="d-block mt-2">
                           Elegí una ficha de los resultados
@@ -289,7 +289,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                               );
                             }}
                           >
-                            <option value="">Seleccionar prospecto</option>
+                            <option value="">Seleccionar negociación</option>
                             {coincidencias.map((c) => (
                               <option key={c.id} value={c.id}>
                                 {c.prospectos.nombre} · {c.necesidad}
@@ -301,7 +301,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                           <p className="small" role="status">
                             {coincidencias.length
                               ? `${coincidencias.length} resultados (máximo 20). Si no aparece, afiná el nombre.`
-                              : "No encontramos prospectos con ese nombre dentro de tu acceso. Probá otro nombre o elegí actividad general."}
+                              : "No encontramos negociaciones con ese nombre dentro de tu acceso. Probá otro nombre o elegí actividad general."}
                           </p>
                         )}
                       </>
@@ -310,7 +310,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                   {conProspecto && (
                     <p className="small text-muted mt-2">
                       Solo relaciona la actividad con una ficha existente. No
-                      crea un prospecto ni cambia su estado comercial.
+                      crea una cotización ni cambia su estado comercial.
                     </p>
                   )}
                 </div>
@@ -382,7 +382,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                 <p id="ayuda-resultado-actividad" className="small text-muted">
                   Contá qué ocurrió, qué se consiguió y qué quedó pendiente.
                   Para registrar una venta o cambiar el estado comercial, usá
-                  Prospectos.
+                  Cotizaciones.
                 </p>
               </>
             )}
@@ -407,7 +407,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
             {accion === "cancelar" && a?.origen === "visita" && (
               <p>
                 Cancelar esta actividad no cambia el estado comercial de
-                Prospectos. Revisá también esa ficha si corresponde.
+                Cotizaciones. Revisá también esa ficha si corresponde.
               </p>
             )}
             {error && (
@@ -529,7 +529,7 @@ export function TimelineDia({
                   </p>
                   <small className="d-block">
                     {n.actividad.origen === "visita"
-                      ? "Coordinada desde Prospectos"
+                      ? "Coordinada desde Cotizaciones"
                       : "Anotación del vendedor"}
                   </small>
                   <dl className="small mt-2 mb-2">
@@ -563,9 +563,9 @@ export function TimelineDia({
                   {n.actividad.oportunidad_id && (
                     <Link
                       className="d-block mb-2"
-                      to={`/prospectos?id=${n.actividad.oportunidad_id}`}
+                      to={`/cotizaciones?id=${n.actividad.oportunidad_id}`}
                     >
-                      Abrir prospecto
+                      Abrir negociación
                       {n.actividad.origen === "visita"
                         ? " / reprogramar visita"
                         : ""}
@@ -742,7 +742,7 @@ export function AgendaPagina({ gestion, perfil }) {
   ) : (
     <div className="alert alert-warning">
       Agenda está disponible para vendedores y administración. Las visitas se
-      coordinan desde Prospectos.
+      coordinan desde Cotizaciones.
     </div>
   );
 }
@@ -879,18 +879,14 @@ function AgendaAutorizada({ gestion, perfil }) {
           </p>
           <p>
             Si encontraste una persona interesada,{" "}
-            <Link to="/registros?nuevo=1">cargá un registro inicial</Link>. Si
-            ya existe,{" "}
-            <Link to="/registros">
-              buscá el contacto y continuá a Prospectos
-            </Link>
-            .
+            <Link to="/prospectos?nuevo=1">cargá un prospecto</Link>. Si ya
+            existe, <Link to="/prospectos">buscá el prospecto</Link>.
           </p>
           <p>
             Para cotizar o registrar una venta,{" "}
-            <Link to="/prospectos">abrí su prospecto</Link>. Finalizar una
+            <Link to="/cotizaciones">abrí su negociación</Link>. Finalizar una
             actividad no cambia el resultado comercial. Las visitas coordinadas
-            desde Prospectos aparecen en Agenda; no las cargues otra vez.
+            desde Cotizaciones aparecen en Agenda; no las cargues otra vez.
           </p>
         </details>
       )}

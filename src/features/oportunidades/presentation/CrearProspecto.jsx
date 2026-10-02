@@ -80,7 +80,7 @@ export function CrearProspecto({
     (perfil.rol === "administrador" || r.responsable_id === perfil.id);
   return (
     <>
-      <h2 className="h4">Crear prospecto desde un registro inicial</h2>
+      <h2 className="h4">Preparar cotización</h2>
       {error && (
         <p role="alert" className="alert alert-danger">
           {error}
@@ -117,14 +117,12 @@ export function CrearProspecto({
           {!cargando && !error && !registros.length && (
             <p>
               No encontramos contactos. Probá otro nombre o{" "}
-              <Link to="/registros?nuevo=1">cargá un registro inicial</Link>.
+              <Link to="/prospectos?nuevo=1">cargá un prospecto</Link>.
             </p>
           )}
         </>
       )}
-      {cargando && (
-        <p role="status">Consultando contacto y prospectos asociados…</p>
-      )}
+      {cargando && <p role="status">Consultando prospecto y negociaciones…</p>}
       {seleccion && (
         <button
           className="btn btn-outline-secondary mb-3"
@@ -140,14 +138,14 @@ export function CrearProspecto({
             <strong>{r.nombre}</strong> · {r.telefono || "Falta teléfono"} ·{" "}
             {r.ubicacion || "Falta dirección"}
           </p>
-          <Link to={`/registros?registro=${r.id}`}>
+          <Link to={`/prospectos?registro=${r.id}`}>
             Revisar o completar datos del contacto
           </Link>
           {!!contexto.casos.length && (
             <div className="alert alert-info mt-3">
               <p>
-                Este contacto ya tiene prospectos. Abrí el correspondiente para
-                cotizar o continuar.
+                Este prospecto ya tiene negociaciones. Abrí la correspondiente
+                para cotizar o continuar.
               </p>
               <CasosDelRegistro casos={contexto.casos} />
               {autorizado && (
@@ -158,30 +156,32 @@ export function CrearProspecto({
                     checked={otra}
                     onChange={(e) => confirmarOtra(e.target.checked)}
                   />{" "}
-                  Es otra necesidad comercial; quiero crear un prospecto
-                  distinto.
+                  Es otra necesidad comercial; quiero iniciar una negociación
+                  distinta.
                 </label>
               )}
             </div>
           )}
           {!autorizado ? (
             <p>
-              Este registro no está disponible para que crees un prospecto.
-              Consultá al responsable o a administración.
-            </p>
-          ) : !r.telefono?.trim() || !r.ubicacion?.trim() ? (
-            <p className="alert alert-warning mt-3">
-              Completá teléfono y dirección en el registro antes de continuar.
+              Este prospecto no está disponible para que inicies una
+              negociación. Consultá al responsable o a administración.
             </p>
           ) : (
             (!contexto.casos.length || otra) && (
               <FormularioOportunidad
                 key={r.id}
                 registroSeleccionado={r}
+                iniciarSinVisita
                 perfil={perfil}
                 equipo={equipo}
                 registros={[r]}
-                guardar={guardar}
+                guardar={(accion, datos) =>
+                  guardar(accion, {
+                    ...datos,
+                    otra_necesidad: otra ? "si" : "no",
+                  })
+                }
                 ocupado={ocupado}
               />
             )

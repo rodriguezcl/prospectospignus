@@ -49,11 +49,14 @@ test("agenda: contexto, resultado y asociación opcional sin duplicar prospectos
     estado: "programada",
     oportunidad_id: "identificador-interno",
   });
-  assert.match(existente, /Prospecto asociado a esta actividad/);
+  assert.match(existente, /Negociación asociada a esta actividad/);
   assert.match(existente, />Cambiar</);
   assert.match(existente, />Quitar</);
   assert.ok(!existente.includes("identificador-interno"));
-  assert.match(existente, /No crea un prospecto ni cambia su estado comercial/);
+  assert.match(
+    existente,
+    /No crea una cotización ni cambia su estado comercial/,
+  );
 });
 test("agenda: roles, formulario accesible y planificación no equivale a ejecución", () => {
   for (const rol of ["administrador", "vendedor", "agente"]) {

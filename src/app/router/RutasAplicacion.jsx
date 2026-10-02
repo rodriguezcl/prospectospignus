@@ -42,7 +42,21 @@ import { RecuperacionComercial } from "./RecuperacionComercial.jsx";
 
 function OportunidadesAnteriores() {
   const { search } = useLocation();
+  return <Navigate replace to={{ pathname: "/cotizaciones", search }} />;
+}
+
+function RegistrosAnteriores() {
+  const { search } = useLocation();
   return <Navigate replace to={{ pathname: "/prospectos", search }} />;
+}
+
+function ProspectosActuales({ children }) {
+  const { search } = useLocation();
+  const parametros = new URLSearchParams(search);
+  // Los enlaces antiguos a una negociación conservan su destino, no abren otro contacto.
+  if (parametros.has("id") || parametros.has("nueva"))
+    return <Navigate replace to={{ pathname: "/cotizaciones", search }} />;
+  return children;
 }
 
 export function RutasAplicacion() {
@@ -81,25 +95,27 @@ export function RutasAplicacion() {
             }
           />
           <Route
-            path="registros"
+            path="prospectos"
             element={
-              <RegistrosInicialesPagina
-                key={perfil?.id}
-                gestion={registros}
-                perfil={perfil}
-                renderContinuacion={(registro) => (
-                  <ContinuarRegistro
-                    key={`${registro.id}-${registro.version}`}
-                    registro={registro}
-                    gestion={oportunidades}
-                    perfil={perfil}
-                  />
-                )}
-              />
+              <ProspectosActuales>
+                <RegistrosInicialesPagina
+                  key={perfil?.id}
+                  gestion={registros}
+                  perfil={perfil}
+                  renderContinuacion={(registro) => (
+                    <ContinuarRegistro
+                      key={`${registro.id}-${registro.version}`}
+                      registro={registro}
+                      gestion={oportunidades}
+                      perfil={perfil}
+                    />
+                  )}
+                />
+              </ProspectosActuales>
             }
           />
           <Route
-            path="prospectos"
+            path="cotizaciones"
             element={
               <OportunidadesPagina
                 key={`prospectos-${perfil?.id}`}
@@ -119,6 +135,7 @@ export function RutasAplicacion() {
             }
           />
           <Route path="oportunidades" element={<OportunidadesAnteriores />} />
+          <Route path="registros" element={<RegistrosAnteriores />} />
           <Route
             path="ventas"
             element={
@@ -135,14 +152,8 @@ export function RutasAplicacion() {
               />
             }
           />
-          <Route
-            path="gestiones"
-            element={<Navigate to="/prospectos" replace />}
-          />
-          <Route
-            path="acciones"
-            element={<Navigate to="/prospectos" replace />}
-          />
+          <Route path="gestiones" element={<OportunidadesAnteriores />} />
+          <Route path="acciones" element={<OportunidadesAnteriores />} />
           <Route path="mi-cuenta" element={<MiCuentaPagina />} />
           <Route element={<AccesoProtegido soloAdministrador />}>
             <Route

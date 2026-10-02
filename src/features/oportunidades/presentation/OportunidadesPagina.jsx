@@ -5,20 +5,25 @@ import {
   estados,
   acciones,
   mostrarFecha,
+  puedeCotizar,
 } from "../domain/circuito.js";
 import { FormularioOportunidad } from "./FormularioOportunidad.jsx";
 import { PropuestaComercial } from "./PropuestaComercial.jsx";
 import { CrearProspecto } from "./CrearProspecto.jsx";
+import { BandejaCotizaciones } from "./BandejaCotizaciones.jsx";
+import { AnularCotizacion } from "./AnularCotizacion.jsx";
 
 export function OportunidadesPagina({
   gestion,
   perfil,
   soloRecuperacion = false,
 }) {
-  const rutaBandeja = soloRecuperacion ? "/recuperacion" : "/prospectos";
+  const rutaBandeja = soloRecuperacion ? "/recuperacion" : "/cotizaciones";
   const [parametros, navegar] = useSearchParams();
   const id = parametros.get("id");
   const nueva = !soloRecuperacion && parametros.has("nueva");
+  const negociaciones =
+    soloRecuperacion || parametros.get("vista") === "negociaciones";
   const [pagina, paginar] = useState(0);
   const [estado, filtrar] = useState(soloRecuperacion ? "recuperacion" : "");
   const [revision, revisar] = useState(0);
@@ -30,6 +35,8 @@ export function OportunidadesPagina({
   const [mensaje, informar] = useState("");
   const [cargando, cargar] = useState(true);
   const [ocupado, ocupar] = useState(false);
+  const [apertura, abrirCotizador] = useState(0);
+  useEffect(() => abrirCotizador(0), [id]);
   const intento = useRef(null);
   const idNuevo = useRef(crypto.randomUUID());
   useEffect(() => {
@@ -38,7 +45,9 @@ export function OportunidadesPagina({
     fallar("");
     detallar(null);
     Promise.all([
-      gestion.listar({ pagina, estado, busqueda }),
+      negociaciones
+        ? gestion.listar({ pagina, estado, busqueda })
+        : { filas: [], total: 0 },
       gestion.equipo(),
       id ? gestion.detalle(id) : null,
     ])
@@ -58,7 +67,7 @@ export function OportunidadesPagina({
     return () => {
       vigente = false;
     };
-  }, [gestion, id, pagina, estado, busqueda, revision]);
+  }, [gestion, id, pagina, estado, busqueda, revision, negociaciones]);
   async function guardar(accion, datos) {
     ocupar(true);
     fallar("");
@@ -86,7 +95,10 @@ export function OportunidadesPagina({
             ? "Venta confirmada. Ya aparece en Ventas concretadas para el responsable del cierre y administración."
             : "Cambio confirmado y guardado en el historial.",
       );
-      navegar({ id: resultado });
+      navegar({
+        id: resultado,
+        ...(accion === "iniciar_cotizacion" ? { cotizar: "si" } : {}),
+      });
       revisar((n) => n + 1);
     } catch (e) {
       fallar(e.message);
@@ -116,12 +128,12 @@ export function OportunidadesPagina({
   return (
     <section aria-labelledby="titulo-oportunidades">
       <h1 id="titulo-oportunidades">
-        {soloRecuperacion ? "Recuperación comercial" : "Prospectos"}
+        {soloRecuperacion ? "Recuperación comercial" : "Cotizaciones"}
       </h1>
       <p className="text-muted">
         {soloRecuperacion
           ? "Retomá los casos derivados y registrá la propuesta final."
-          : "Abrí un prospecto para cotizar, coordinar visitas o registrar el resultado comercial."}
+          : "Tus prospectos aparecen aquí automáticamente. Cotizá y seguí cada negociación."}
       </p>
       <details className="detalle-secundario mb-3">
         <summary>Cómo funciona esta bandeja</summary>
@@ -145,11 +157,11 @@ export function OportunidadesPagina({
         </label>
       )}
       <div className="d-flex flex-wrap gap-2 mb-3">
-        <Link to="/prospectos?nueva=si" className="btn btn-primary">
-          Crear desde un registro inicial
+        <Link to="/cotizaciones?nueva=si" className="btn btn-primary">
+          Cotizar
         </Link>
-        <Link to="/registros?nuevo=1" className="btn btn-outline-secondary">
-          Cargar registro inicial
+        <Link to="/prospectos?nuevo=1" className="btn btn-outline-secondary">
+          Cargar prospecto
         </Link>
         <button
           className="btn btn-outline-primary"
@@ -159,6 +171,21 @@ export function OportunidadesPagina({
           Actualizar
         </button>
       </div>
+      {!soloRecuperacion && !nueva && !id && (
+        <p>
+          <Link
+            to={
+              negociaciones
+                ? "/cotizaciones"
+                : "/cotizaciones?vista=negociaciones"
+            }
+          >
+            {negociaciones
+              ? "Ver todos los prospectos"
+              : "Filtrar negociaciones por etapa / consultar anuladas"}
+          </Link>
+        </p>
+      )}
       {error && (
         <p role="alert" className="alert alert-danger">
           {error}
@@ -169,7 +196,7 @@ export function OportunidadesPagina({
           {mensaje}
         </p>
       )}
-      {cargando && <p role="status">Cargando prospectos…</p>}
+      {cargando && <p role="status">Cargando cotizaciones…</p>}
       {!cargando && nueva && (
         <div className="card">
           <div className="card-body">
@@ -196,6 +223,21 @@ export function OportunidadesPagina({
               {detalle.prospectos.telefono} · {detalle.prospectos.direccion}
             </p>
             <p>{detalle.necesidad}</p>
+            {puedeCotizar(detalle, perfil) && (
+              <Link
+                className="btn btn-primary mb-3"
+                onClick={() => abrirCotizador((n) => n + 1)}
+                to={`${rutaBandeja}?id=${detalle.id}&cotizar=si`}
+              >
+                Cotizar
+              </Link>
+            )}
+            {detalle.estado === "anulada" && (
+              <p className="alert alert-warning">
+                Anulada por error de carga: {detalle.motivo_anulacion}. El
+                contacto y el historial se conservan.
+              </p>
+            )}
             {detalle.estado === "ganada" && (
               <p className="alert alert-success">
                 Venta concretada. No la vuelvas a cargar.{" "}
@@ -277,6 +319,8 @@ export function OportunidadesPagina({
               gestion={gestion}
               oportunidad={detalle}
               perfil={perfil}
+              abierto={parametros.get("cotizar") === "si"}
+              apertura={apertura}
               actualizada={() => {
                 informar("Propuesta ofrecida guardada.");
                 revisar((n) => n + 1);
@@ -298,6 +342,18 @@ export function OportunidadesPagina({
                 otro responsable.
               </p>
             )}
+            {detalle.puede_anular && (
+              <AnularCotizacion guardar={guardar} ocupado={ocupado} />
+            )}
+            {!detalle.puede_anular &&
+              perfil.rol === "vendedor" &&
+              detalle.responsable_id === perfil.id &&
+              detalle.estado !== "anulada" && (
+                <p className="small text-muted">
+                  Si esta negociación se cargó por error y ya tiene actividad,
+                  pedí a administración que la anule.
+                </p>
+              )}
             <details className="mt-4">
               <summary>Historial · últimos 100 eventos</summary>
               {detalle.eventos.map((e) => (
@@ -325,7 +381,14 @@ export function OportunidadesPagina({
           </div>
         </div>
       )}
-      {!nueva && !id && (
+      {!nueva && !id && !negociaciones && (
+        <BandejaCotizaciones
+          gestion={gestion}
+          perfil={perfil}
+          revision={revision}
+        />
+      )}
+      {!nueva && !id && negociaciones && (
         <div className="card">
           <div className="card-body">
             <form

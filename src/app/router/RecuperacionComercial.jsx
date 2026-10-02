@@ -5,7 +5,7 @@ import { rolesRecuperacion } from "../navegacion/menu.js";
 export function RecuperacionComercial({ perfil, gestion }) {
   const { search } = useLocation();
   if (!perfil?.activo || !rolesRecuperacion.includes(perfil.rol)) {
-    return <Navigate replace to={{ pathname: "/prospectos", search }} />;
+    return <Navigate replace to={{ pathname: "/cotizaciones", search }} />;
   }
   return (
     <OportunidadesPagina soloRecuperacion perfil={perfil} gestion={gestion} />

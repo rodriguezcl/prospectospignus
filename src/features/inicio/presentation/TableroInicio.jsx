@@ -20,14 +20,14 @@ export function GraficosResultados({ tablero, administrador, seleccionar }) {
       <section className="card card-body">
         <h2 className="h5">Distribución por estado</h2>
         {!total ? (
-          <p>Sin prospectos en este período.</p>
+          <p>Sin negociaciones en este período.</p>
         ) : (
           <div className="distribucion-estados">
             <svg
               viewBox="0 0 120 120"
               className="grafico-anillo"
               role="img"
-              aria-label={`Distribución de ${total} prospectos. Cantidades en la leyenda.`}
+              aria-label={`Distribución de ${total} negociaciones. Cantidades en la leyenda.`}
             >
               {tablero.porEstado
                 .filter((e) => e.cantidad)
@@ -60,7 +60,7 @@ export function GraficosResultados({ tablero, administrador, seleccionar }) {
                 textAnchor="middle"
                 className="anillo-etiqueta"
               >
-                prospectos
+                negociaciones
               </text>
             </svg>
             <div className="leyenda-estados">
@@ -241,11 +241,10 @@ export function TableroInicio({ gestion, perfil, renderRendimiento }) {
       <details className="tablero-ayuda">
         <summary>Criterios de captación y pendientes</summary>
         <p>
-          Los prospectos del período son necesidades comerciales creadas en el
-          mes, no registros iniciales sin calificar. Ganadas y conversión
-          corresponden a ese mismo conjunto, no a todas las ventas del mes.
-          Conversión = ganadas ÷ prospectos del período; sin prospectos se
-          muestra —.
+          Las negociaciones del período son negociaciones iniciadas en el mes,
+          no contactos sin cotización. Ganadas y conversión corresponden a ese
+          mismo conjunto, no a todas las ventas del mes. Conversión = ganadas ÷
+          negociaciones del período; sin negociaciones se muestra —.
         </p>
         <p>
           El histórico conserva el resultado y responsable originales de
@@ -275,17 +274,17 @@ export function TableroInicio({ gestion, perfil, renderRendimiento }) {
             open={renderRendimiento ? undefined : true}
           >
             <summary>
-              Captación y resultados de los prospectos creados en el mes
+              Captación y resultados de las negociaciones iniciadas en el mes
             </summary>
             <div className="tablero-indicadores">
               {[
-                ["Prospectos del período", t.cohorte.length, "azul", t.cohorte],
                 [
-                  "Ganadas de esos prospectos",
-                  t.ganadas.length,
-                  "verde",
-                  t.ganadas,
+                  "Negociaciones del período",
+                  t.cohorte.length,
+                  "azul",
+                  t.cohorte,
                 ],
+                ["Negociaciones ganadas", t.ganadas.length, "verde", t.ganadas],
                 [
                   "Conversión por captación",
                   t.conversion === null ? "—" : `${numero(t.conversion)} %`,
@@ -329,7 +328,7 @@ export function TableroInicio({ gestion, perfil, renderRendimiento }) {
               <h2 className="h5">
                 Cargas diarias{" "}
                 <small>
-                  · {numero(t.registros.length)} registros iniciales
+                  · {numero(t.registros.length)} prospectos captados
                 </small>
               </h2>
               <GraficoRegistros
@@ -438,8 +437,8 @@ export function TableroInicio({ gestion, perfil, renderRendimiento }) {
                                 <Link
                                   to={
                                     detalle.registros
-                                      ? `/registros?registro=${r.id}`
-                                      : `/prospectos?id=${r.id}`
+                                      ? `/prospectos?registro=${r.id}`
+                                      : `/cotizaciones?id=${r.id}`
                                   }
                                 >
                                   {r.nombre ||

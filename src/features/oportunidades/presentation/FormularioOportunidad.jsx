@@ -60,8 +60,16 @@ export function FormularioOportunidad({
   ocupado,
   buscar,
   registroSeleccionado,
+  iniciarSinVisita = false,
 }) {
-  const [accion, cambiar] = useState(oportunidad ? opciones[0] : "crear");
+  const [accion, cambiar] = useState(
+    oportunidad
+      ? opciones[0]
+      : iniciarSinVisita
+        ? "iniciar_cotizacion"
+        : "crear",
+  );
+  const alta = ["crear", "iniciar_cotizacion"].includes(accion);
   const [servicios, elegirServicios] = useState([""]);
   const recuperacion = oportunidad?.estado === "recuperacion";
   return (
@@ -88,7 +96,7 @@ export function FormularioOportunidad({
         onSubmit={(e) => {
           e.preventDefault();
           const datos = Object.fromEntries(new FormData(e.currentTarget));
-          if (accion === "crear") {
+          if (alta) {
             datos.interes_comercial = {
               servicios: servicios.filter(Boolean),
               tipo_alarma: datos.tipo_alarma || null,
@@ -102,7 +110,7 @@ export function FormularioOportunidad({
         }}
       >
         <fieldset disabled={ocupado}>
-          {["crear", "reactivar"].includes(accion) && (
+          {["crear", "iniciar_cotizacion", "reactivar"].includes(accion) && (
             <Campo
               nombre="origen_comercial"
               titulo="Origen de este ciclo comercial"
@@ -169,12 +177,12 @@ export function FormularioOportunidad({
               es solo una llamada sin respuesta.
             </label>
           )}
-          {accion === "crear" && (
+          {alta && (
             <>
               <p>
-                Los datos del contacto se toman del registro guardado. Confirmá
-                su necesidad y coordiná la visita; después podrás preparar la
-                cotización en su ficha.
+                Elegí qué necesita el prospecto para preparar la cotización.
+                Podés coordinar una visita después; este paso no registra una
+                visita realizada.
               </p>
               {registroSeleccionado ? (
                 <input
@@ -202,15 +210,17 @@ export function FormularioOportunidad({
                   />
                 </>
               )}
-              <label className="d-block mb-3">
-                <input
-                  type="checkbox"
-                  name="contacto_confirmado"
-                  value="si"
-                  required
-                />{" "}
-                Hubo respuesta humana y existe una posibilidad comercial real.
-              </label>
+              {!iniciarSinVisita && (
+                <label className="d-block mb-3">
+                  <input
+                    type="checkbox"
+                    name="contacto_confirmado"
+                    value="si"
+                    required
+                  />{" "}
+                  Hubo respuesta humana y existe una posibilidad comercial real.
+                </label>
+              )}
               <fieldset className="mb-3">
                 <legend className="h6">Servicio de interés</legend>
                 {servicios.map((servicio, indice) => (
@@ -282,6 +292,7 @@ export function FormularioOportunidad({
               <Campo
                 nombre="canal_contacto"
                 titulo="Medio de contacto"
+                requerido={!iniciarSinVisita}
                 opciones={[
                   ["whatsapp", "WhatsApp"],
                   ["llamada", "Llamada"],
@@ -292,7 +303,11 @@ export function FormularioOportunidad({
               />
               <Campo
                 nombre="vendedor_id"
-                titulo="Vendedor que realizará la visita"
+                titulo={
+                  iniciarSinVisita
+                    ? "Vendedor responsable"
+                    : "Vendedor que realizará la visita"
+                }
                 valor={perfil.rol === "vendedor" ? perfil.id : ""}
                 opciones={equipo
                   .filter(
@@ -366,14 +381,14 @@ export function FormularioOportunidad({
             />
           )}
           <Campo
-            nombre={accion === "crear" ? "observaciones" : "resumen"}
+            nombre={alta ? "observaciones" : "resumen"}
             titulo={
-              accion === "crear"
-                ? "Observaciones para la visita (opcional)"
+              alta
+                ? "Observaciones de la negociación (opcional)"
                 : "Resumen, resultado, objeciones o motivo del cambio"
             }
             tipo="textarea"
-            requerido={accion !== "crear"}
+            requerido={!alta}
             ayuda={
               accion === "crear"
                 ? "Por ejemplo: avisar antes de llegar, ingresar por la cochera o consultar por cámaras para el patio."

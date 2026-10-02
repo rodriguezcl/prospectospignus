@@ -1,6 +1,11 @@
 function comprobar(error) {
   if (!error) return;
   const mensajes = {
+    COMERCIAL_ANULADA:
+      "La negociación está anulada y conserva su historial de solo lectura.",
+    COMERCIAL_ANULACION: "Confirmá la anulación y explicá el error de carga.",
+    COMERCIAL_EXISTENTE:
+      "Este prospecto ya tiene una negociación. Abrila o confirmá que se trata de otra necesidad.",
     COMERCIAL_INTERES:
       "Revisá los servicios de interés, el tipo de alarma y el medio de contacto.",
     COMERCIAL_PROPUESTA:
@@ -51,7 +56,7 @@ function comprobar(error) {
   };
   if (["42P01", "PGRST202", "PGRST205"].includes(error.code))
     throw new Error(
-      "Falta activar una migración del circuito comercial en Supabase (006/007).",
+      "Falta activar una migración del circuito comercial en Supabase. Para Prospectos/Cotizaciones se requiere la 019.",
     );
   throw new Error(
     mensajes[error.message] ||
@@ -65,6 +70,11 @@ export function crearRepositorioOportunidades(cliente) {
     return data;
   }
   return {
+    contactos: ({ pagina = 0, busqueda = "" } = {}) =>
+      rpc("listar_contactos_cotizaciones", {
+        p_pagina: pagina,
+        p_busqueda: busqueda,
+      }),
     async contextoRegistro(id) {
       const registro = await cliente
         .from("registros_iniciales")
@@ -76,6 +86,7 @@ export function crearRepositorioOportunidades(cliente) {
         .from("oportunidades")
         .select("id,necesidad,estado,prospectos!inner(registro_id)")
         .eq("prospectos.registro_id", id)
+        .neq("estado", "anulada")
         .order("actualizado_en", { ascending: false });
       comprobar(casos.error);
       return { registro: registro.data, casos: casos.data };
@@ -122,6 +133,7 @@ export function crearRepositorioOportunidades(cliente) {
           .eq("estado", "recuperacion")
           .is("responsable_id", null);
       else if (estado) consulta = consulta.eq("estado", estado);
+      else consulta = consulta.neq("estado", "anulada");
       if (busqueda.trim())
         consulta = consulta.ilike(
           "prospectos.nombre",
@@ -132,7 +144,7 @@ export function crearRepositorioOportunidades(cliente) {
       return { filas: data, total: count };
     },
     async detalle(id) {
-      const [ficha, eventos, propuestas] = await Promise.all([
+      const [ficha, eventos, propuestas, puedeAnular] = await Promise.all([
         cliente
           .from("oportunidades")
           .select("*,prospectos(*)")
@@ -150,6 +162,7 @@ export function crearRepositorioOportunidades(cliente) {
           .eq("oportunidad_id", id)
           .order("creado_en", { ascending: false })
           .limit(20),
+        rpc("puede_anular_cotizacion", { p_id: id }),
       ]);
       comprobar(ficha.error);
       comprobar(eventos.error);
@@ -158,6 +171,7 @@ export function crearRepositorioOportunidades(cliente) {
         ...ficha.data,
         eventos: eventos.data,
         propuestas: propuestas.data,
+        puede_anular: puedeAnular,
       };
     },
     equipo: () => rpc("equipo_comercial"),
@@ -181,16 +195,25 @@ export function crearRepositorioOportunidades(cliente) {
       rpc("disponibilidad_agente", { p_disponible: valor }),
     guardar: ({ id, version, operacion, accion, datos }) =>
       rpc(
-        accion === "corregir_perdida"
-          ? "corregir_perdida"
-          : accion === "reactivar"
-            ? "reactivar_oportunidad"
-            : "gestionar_oportunidad",
+        accion === "iniciar_cotizacion"
+          ? "iniciar_cotizacion"
+          : accion === "anular"
+            ? "anular_cotizacion"
+            : accion === "corregir_perdida"
+              ? "corregir_perdida"
+              : accion === "reactivar"
+                ? "reactivar_oportunidad"
+                : "gestionar_oportunidad",
         {
           p_id: id,
           p_version: version,
           p_operacion: operacion,
-          ...(["reactivar", "corregir_perdida"].includes(accion)
+          ...([
+            "reactivar",
+            "corregir_perdida",
+            "iniciar_cotizacion",
+            "anular",
+          ].includes(accion)
             ? {}
             : { p_accion: accion }),
           p_datos: datos,

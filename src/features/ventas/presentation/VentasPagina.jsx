@@ -51,7 +51,7 @@ export function FilasVentas({ filas, gestion, perfil }) {
         </details>
       </td>
       <td>
-        <Link to={`/prospectos?id=${v.id}`}>Ver ficha e historial</Link>
+        <Link to={`/cotizaciones?id=${v.id}`}>Ver ficha e historial</Link>
         {gestion && (
           <DetalleVenta id={v.id} gestion={gestion} perfil={perfil} />
         )}
@@ -111,7 +111,7 @@ export function VentasPagina({ gestion, perfil }) {
       </p>
       <p>
         Las ventas aparecen automáticamente al registrar la aceptación en{" "}
-        <Link to="/prospectos">Prospectos</Link>; no tenés que volver a
+        <Link to="/cotizaciones">Cotizaciones</Link>; no tenés que volver a
         cargarlas aquí.{" "}
         {perfil.rol === "administrador"
           ? "La instalación se registra por separado con su respaldo."

@@ -10,13 +10,14 @@ export function mesCordoba(fecha = new Date()) {
   return `${partes.find((p) => p.type === "year").value}-${partes.find((p) => p.type === "month").value}`;
 }
 export const estadosTablero = [
+  { valor: "cotizacion", nombre: "En preparación", color: "azul" },
   { valor: "ganada", nombre: "Ganadas", color: "verde" },
   { valor: "perdida", nombre: "Perdidas", color: "rojo" },
   { valor: "visita", nombre: "Visita", color: "azul" },
   { valor: "seguimiento", nombre: "Seguimiento", color: "ambar" },
   { valor: "recuperacion", nombre: "Recuperación", color: "violeta" },
 ];
-const abierta = (r) => !["ganada", "perdida"].includes(r.estado);
+const abierta = (r) => !["ganada", "perdida", "anulada"].includes(r.estado);
 
 export function construirTablero(
   datos,
@@ -28,6 +29,7 @@ export function construirTablero(
   const titular = perfil.rol === "administrador" ? responsable : perfil.id;
   const historico = new Map(datos.historico.map((r) => [r.id, r]));
   const cohorte = datos.oportunidades
+    .filter((r) => r.estado !== "anulada")
     .filter((r) =>
       r.periodo_historico
         ? r.periodo_historico.slice(0, 7) === mes

@@ -16,13 +16,13 @@ export const menu = [
         roles: ["vendedor", "administrador"],
       },
       {
-        ruta: "/registros",
-        titulo: "Registros iniciales",
+        ruta: "/prospectos",
+        titulo: "Prospectos",
         icono: "bi-inbox-fill",
       },
       {
-        ruta: "/prospectos",
-        titulo: "Prospectos",
+        ruta: "/cotizaciones",
+        titulo: "Cotizaciones",
         icono: "bi-people-fill",
       },
       {
@@ -76,8 +76,9 @@ export const menu = [
   },
 ];
 
-export const accesosInicio = ["registros", "prospectos", "ventas"].map((id) =>
-  menu
-    .flatMap((grupo) => grupo.elementos)
-    .find((elemento) => elemento.ruta === "/" + id),
+export const accesosInicio = ["prospectos", "cotizaciones", "ventas"].map(
+  (id) =>
+    menu
+      .flatMap((grupo) => grupo.elementos)
+      .find((elemento) => elemento.ruta === "/" + id),
 );

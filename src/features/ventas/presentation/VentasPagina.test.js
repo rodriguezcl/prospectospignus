@@ -62,7 +62,7 @@ test("recuperación: menú y ruta exclusivos de agente/administrador; vendedor c
       ),
     );
     assert.equal(
-      html.includes('data-destino="/prospectos?id=caso"'),
+      html.includes('data-destino="/cotizaciones?id=caso"'),
       rol === "vendedor",
     );
     assert.equal(html.includes('data-reemplazar="true"'), rol === "vendedor");
@@ -74,8 +74,8 @@ test("recuperación: menú y ruta exclusivos de agente/administrador; vendedor c
       perfil: { id: "vendedor", rol: "vendedor", activo: true },
     }),
   );
-  assert.ok(html.includes("Prospectos"));
-  assert.ok(html.includes('value="recuperacion"'));
+  assert.ok(html.includes("Cotizaciones"));
+  assert.ok(html.includes("/cotizaciones?vista=negociaciones"));
 });
 const dibujar = (elemento) =>
   renderToStaticMarkup(createElement(MemoryRouter, null, elemento));
@@ -104,7 +104,7 @@ test("ventas: período histórico explícito, sin inventar cierre y enlace unifi
   assert.ok(html.includes("septiembre de 2026"));
   assert.ok(html.includes("Fecha exacta no informada"));
   assert.ok(html.includes("Canal no informado"));
-  assert.ok(html.includes('href="/prospectos?id=caso"'));
+  assert.ok(html.includes('href="/cotizaciones?id=caso"'));
   assert.ok(html.includes("Persona &lt;prueba&gt;"));
 });
 test("ventas: filtros por rol y advertencia de alcance comercial", () => {
@@ -134,7 +134,7 @@ test("prospectos: un solo módulo y recuperación como filtro sin etapas ajenas"
   assert.ok(html.includes('value="recuperacion"'));
   assert.ok(!html.includes('value="ganada"'));
   assert.ok(!html.includes('value="visita"'));
-  assert.ok(html.includes("/prospectos?nueva=si"));
+  assert.ok(html.includes("/cotizaciones?nueva=si"));
 });
 test("ventas: adaptador envía filtros sin identidad del actor y traduce migración pendiente", async () => {
   const gestion = crearConsultaVentas({
