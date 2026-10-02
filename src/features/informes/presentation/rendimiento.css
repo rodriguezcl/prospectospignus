@@ -1,0 +1,59 @@
+.rendimiento-tarjetas,
+.rendimiento-graficos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.rendimiento-tarjetas .card {
+  border-top: 3px solid #3b86c4;
+}
+.rendimiento-tarjetas strong {
+  font-size: 1.6rem;
+  overflow-wrap: anywhere;
+}
+.rendimiento-barra {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.4rem;
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  text-align: left;
+  color: inherit;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  background: transparent;
+}
+.rendimiento-barra small,
+.rendimiento-pista {
+  grid-column: 1/-1;
+}
+.rendimiento-pista {
+  display: block;
+  height: 0.7rem;
+  background: var(--bs-secondary-bg);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.rendimiento-pista > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+.rendimiento .card {
+  min-width: 0;
+}
+@media (min-width: 1200px) {
+  .rendimiento-tarjetas {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .rendimiento-graficos,
+  .rendimiento-tarjetas {
+    grid-template-columns: 1fr;
+  }
+  .rendimiento-barra {
+    grid-template-columns: 1fr;
+  }
+}

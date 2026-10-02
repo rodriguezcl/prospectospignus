@@ -1,6 +1,6 @@
 # Plan de implementación comercial por módulos
 
-Fecha: 01-10-2026. Estado: **plan pendiente de ejecución**. Autoridad de negocio: [documento rector V1.6, sección 24](../CRM-PIGNUS-DOCUMENTO-RECTOR-V1%20(1).md). Arquitectura: [ARQUITECTURA.md](ARQUITECTURA.md).
+Fecha: 01-10-2026. Estado: **plan autorizado; ejecución y verificaciones en AVANCE-COMERCIAL.md**. Autoridad de negocio: [documento rector V1.6, sección 24](../CRM-PIGNUS-DOCUMENTO-RECTOR-V1%20(1).md). Arquitectura: [ARQUITECTURA.md](ARQUITECTURA.md).
 
 El plan se redactó como entrega documental. El 01-10-2026 el titular autorizó expresamente la ejecución continua de las seis etapas, commit, push y despliegue por etapa. El estado efectivo se registra en [AVANCE-COMERCIAL.md](AVANCE-COMERCIAL.md); los pendientes comerciales explícitos no se consideran resueltos por esa autorización.
 

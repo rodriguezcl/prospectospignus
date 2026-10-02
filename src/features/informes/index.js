@@ -1,1 +1,4 @@
-export { InformesPagina } from "./presentation/InformesPagina.jsx";
+export {
+  InformesPagina,
+  PanelRendimiento,
+} from "./presentation/InformesPagina.jsx";

@@ -532,4 +532,106 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
     ).rows[0].ciclo_comercial,
     1,
   );
+  // Métricas: fixtures exclusivamente en PostgreSQL local, nunca en producción.
+  await db.exec("reset role");
+  const mesCierre = (
+    await db.query(
+      "select date_trunc('month',now() at time zone 'America/Argentina/Cordoba')::date::text m",
+    )
+  ).rows[0].m;
+  const mesVisita = "2025-01-01";
+  for (const [persona, fecha] of [
+    [vendedor, "2025-01-10"],
+    [vendedor, "2025-01-12"],
+    [otro, "2025-02-10"],
+  ]) {
+    await db.query(
+      `insert into public.actividades_agenda(id,vendedor_id,oportunidad_id,origen,tipo,titulo,estado,inicio_real,fin_real,resultado,creado_por)
+      values($1,$2,$3,'manual','visita','Visita prueba local','realizada',$4::date+interval '12 hours',$4::date+interval '13 hours','Relevamiento realizado',$2)`,
+      [randomUUID(), persona, oportunidad, fecha],
+    );
+  }
+  await como(admin);
+  const resumen = async (mes, origen = null) =>
+    (
+      await db.query("select public.resumen_rendimiento($1,$2) r", [
+        mes,
+        origen,
+      ])
+    ).rows[0].r;
+  let medicion = await resumen(mesVisita);
+  assert.equal(medicion.empresa.visitados, 1);
+  assert.equal(medicion.filas.find((f) => f.id === vendedor).visitados, 1);
+  assert.equal(medicion.filas.find((f) => f.id === otro).visitados, 1);
+  assert.equal(medicion.filas.find((f) => f.id === vendedor).recuperados, 1);
+  assert.equal(
+    Number(medicion.filas.find((f) => f.id === vendedor).conversion),
+    0,
+  );
+  assert.equal((await resumen("2025-02-01")).empresa.visitados, 0);
+  medicion = await resumen(mesCierre);
+  assert.equal(medicion.empresa.ventas, 1);
+  const rendimientoAgente = medicion.filas.find((f) => f.id === agente);
+  assert.equal(rendimientoAgente.ventas, 1);
+  assert.equal(Number(rendimientoAgente.volumen_inicial), 226998);
+  assert.equal(Number(rendimientoAgente.ticket_instalacion), 53000);
+  assert.equal(Number(rendimientoAgente.ticket_abono), 65000);
+  assert.equal(rendimientoAgente.conversion, null);
+  assert.equal(medicion.empresa.sin_visita, 0);
+  assert.equal((await resumen(mesCierre, "propio")).empresa.ventas, 0);
+  assert.equal((await resumen(mesCierre, "sin_identificar")).empresa.ventas, 1);
+  const detalleMetricas = (
+    await db.query(
+      "select public.detalle_rendimiento($1,$2,'ventas',null,0) r",
+      [mesCierre, agente],
+    )
+  ).rows[0].r;
+  assert.equal(detalleMetricas.total, 1);
+  assert.equal(detalleMetricas.filas[0].id, oportunidad);
+  // Cambiar atribución solo en el fixture comprueba que no se duplica la venta.
+  await db.exec("reset role");
+  await db.query(
+    "update public.eventos_oportunidades set nuevo=jsonb_set(nuevo,'{cerrado_por}',to_jsonb($1::text)) where id=$2",
+    [vendedor, eventoCierre],
+  );
+  await como(admin);
+  medicion = await resumen(mesVisita);
+  assert.equal(
+    Number(medicion.filas.find((f) => f.id === vendedor).conversion),
+    100,
+  );
+  assert.equal(Number(medicion.filas.find((f) => f.id === otro).conversion), 0);
+  await como(vendedor);
+  medicion = await resumen(mesCierre);
+  assert.equal(medicion.filas.length, 1);
+  assert.equal(medicion.filas[0].id, vendedor);
+  assert.equal(medicion.empresa.ventas, 0);
+  await assert.rejects(
+    db.query("select public.detalle_rendimiento($1,$2,'ventas')", [
+      mesCierre,
+      agente,
+    ]),
+    /INFORMES_ACCESO/,
+  );
+  await assert.rejects(
+    db.query("select * from privado.ventas_medibles"),
+    /permission denied/,
+  );
+  await como(agente);
+  assert.equal((await resumen(mesCierre)).empresa.ventas, 1);
+  await db.exec("reset role");
+  // Un precio desconocido no se convierte en cero ni participa del promedio.
+  await db.query(
+    "update public.ciclos_comerciales set propuesta_aceptada_id=null where oportunidad_id=$1",
+    [oportunidad],
+  );
+  await como(admin);
+  medicion = await resumen(mesCierre);
+  assert.equal(medicion.empresa.ventas, 1);
+  assert.equal(medicion.empresa.sin_importes, 1);
+  assert.equal(medicion.empresa.volumen_inicial, null);
+  assert.equal(
+    medicion.filas.find((f) => f.id === agente).ticket_inicial,
+    null,
+  );
 });

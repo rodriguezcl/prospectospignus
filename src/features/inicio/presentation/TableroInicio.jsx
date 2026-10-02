@@ -141,7 +141,7 @@ export function GraficosResultados({ tablero, administrador, seleccionar }) {
   );
 }
 
-export function TableroInicio({ gestion, perfil }) {
+export function TableroInicio({ gestion, perfil, renderRendimiento }) {
   const [mes, cambiarMes] = useState(() => mesCordoba());
   const [responsable, cambiarResponsable] = useState("");
   const [datos, cambiarDatos] = useState(null);
@@ -237,8 +237,9 @@ export function TableroInicio({ gestion, perfil }) {
           </button>
         </div>
       </header>
+      {renderRendimiento?.({ mes, responsable, revision })}
       <details className="tablero-ayuda">
-        <summary>Cómo se calculan los indicadores</summary>
+        <summary>Criterios de captación y pendientes</summary>
         <p>
           Los prospectos del período son necesidades comerciales creadas en el
           mes, no registros iniciales sin calificar. Ganadas y conversión
@@ -269,81 +270,91 @@ export function TableroInicio({ gestion, perfil }) {
         <p role="status">Cargando resumen…</p>
       ) : (
         <>
-          <div className="tablero-indicadores">
-            {[
-              ["Prospectos del período", t.cohorte.length, "azul", t.cohorte],
-              [
-                "Ganadas de esos prospectos",
-                t.ganadas.length,
-                "verde",
-                t.ganadas,
-              ],
-              [
-                "Conversión del período",
-                t.conversion === null ? "—" : `${numero(t.conversion)} %`,
-                "violeta",
-                t.cohorte,
-              ],
-              [
-                "Pendientes del período",
-                t.abiertas.length,
-                "ambar",
-                t.abiertas,
-              ],
-            ].map(([titulo, valor, color, filas]) => (
-              <button
-                key={titulo}
-                className={`card indicador tono-${color}`}
-                onClick={() => seleccionar(titulo, filas)}
+          <details
+            className="detalle-secundario"
+            open={renderRendimiento ? undefined : true}
+          >
+            <summary>
+              Captación y resultados de los prospectos creados en el mes
+            </summary>
+            <div className="tablero-indicadores">
+              {[
+                ["Prospectos del período", t.cohorte.length, "azul", t.cohorte],
+                [
+                  "Ganadas de esos prospectos",
+                  t.ganadas.length,
+                  "verde",
+                  t.ganadas,
+                ],
+                [
+                  "Conversión por captación",
+                  t.conversion === null ? "—" : `${numero(t.conversion)} %`,
+                  "violeta",
+                  t.cohorte,
+                ],
+                [
+                  "Pendientes del período",
+                  t.abiertas.length,
+                  "ambar",
+                  t.abiertas,
+                ],
+              ].map(([titulo, valor, color, filas]) => (
+                <button
+                  key={titulo}
+                  className={`card indicador tono-${color}`}
+                  onClick={() => seleccionar(titulo, filas)}
+                >
+                  <span>{titulo}</span>
+                  <strong>
+                    {typeof valor === "number" ? numero(valor) : valor}
+                  </strong>
+                  <small>Ver detalle</small>
+                </button>
+              ))}
+            </div>
+            <div className="tablero-contexto">
+              <span>Actualizado: {fecha(datos.corte)}</span>
+              {t.cohorte.some((r) => r.periodo_historico) && (
+                <span>
+                  Histórico: resultado original; estado actual en el detalle.
+                </span>
+              )}
+              <Link
+                to={`/ventas?mes=${mes}${responsable ? `&responsable=${encodeURIComponent(responsable)}` : ""}`}
               >
-                <span>{titulo}</span>
-                <strong>
-                  {typeof valor === "number" ? numero(valor) : valor}
-                </strong>
-                <small>Ver detalle</small>
-              </button>
-            ))}
-          </div>
-          <div className="tablero-contexto">
-            <span>Actualizado: {fecha(datos.corte)}</span>
-            {t.cohorte.some((r) => r.periodo_historico) && (
-              <span>
-                Histórico: resultado original; estado actual en el detalle.
-              </span>
-            )}
-            <Link
-              to={`/ventas?mes=${mes}${responsable ? `&responsable=${encodeURIComponent(responsable)}` : ""}`}
-            >
-              Ventas cerradas en el mes: <strong>{datos.ventas}</strong> →
-            </Link>
-          </div>
-          <section className="card card-body cargas-tablero">
-            <h2 className="h5">
-              Cargas diarias{" "}
-              <small>· {numero(t.registros.length)} registros iniciales</small>
-            </h2>
-            <GraficoRegistros
-              grupo={{
-                titulo: "Cargas diarias",
-                campo: "dia",
-                valores: t.cargas.porDia,
-                nombre: (v) => v.slice(8),
-              }}
-              filtro={null}
-              seleccionar={(_, dia, titulo) =>
-                seleccionar(
-                  titulo,
-                  t.registros.filter((r) => r.dia === dia),
-                  true,
-                )
-              }
+                Ventas cerradas en el mes: <strong>{datos.ventas}</strong> →
+              </Link>
+            </div>
+            <section className="card card-body cargas-tablero">
+              <h2 className="h5">
+                Cargas diarias{" "}
+                <small>
+                  · {numero(t.registros.length)} registros iniciales
+                </small>
+              </h2>
+              <GraficoRegistros
+                grupo={{
+                  titulo: "Cargas diarias",
+                  campo: "dia",
+                  valores: t.cargas.porDia,
+                  nombre: (v) => v.slice(8),
+                }}
+                filtro={null}
+                seleccionar={(_, dia, titulo) =>
+                  seleccionar(
+                    titulo,
+                    t.registros.filter((r) => r.dia === dia),
+                    true,
+                  )
+                }
+              />
+            </section>
+            <GraficosResultados
+              tablero={t}
+              administrador={admin}
+              seleccionar={seleccionar}
             />
-          </section>
-          <GraficosResultados
-            tablero={t}
-            administrador={admin}
-            seleccionar={seleccionar}
-          />
+          </details>
           <section className="card card-body">
             <h2 className="h5">
               Para atender ahora <small>· cartera actual</small>

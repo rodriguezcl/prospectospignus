@@ -9,7 +9,10 @@ import { VentasPagina } from "../../features/ventas/index.js";
 import { PromocionesPagina } from "../../features/promociones/index.js";
 import { AgendaPagina } from "../../features/agenda/index.js";
 import { SupervisionPagina } from "../../features/supervision/index.js";
-import { InformesPagina } from "../../features/informes/index.js";
+import {
+  InformesPagina,
+  PanelRendimiento,
+} from "../../features/informes/index.js";
 import { ConfiguracionPagina } from "../../features/configuracion/index.js";
 import { ProductosPagina } from "../../features/productos/index.js";
 import { AuditoriaPagina } from "../../features/auditoria/index.js";
@@ -29,6 +32,7 @@ import {
   agenda,
   productos,
   condiciones,
+  informes,
 } from "../configuracion/servicios.js";
 import { AccesoProtegido } from "./AccesoProtegido.jsx";
 import { RecuperacionComercial } from "./RecuperacionComercial.jsx";
@@ -60,6 +64,16 @@ export function RutasAplicacion() {
                 accesos={accesosInicio}
                 gestion={resumenInicio}
                 perfil={perfil}
+                renderRendimiento={({ mes, responsable, revision }) => (
+                  <PanelRendimiento
+                    key={`${perfil.id}-${mes}-${responsable}-${revision}`}
+                    gestion={informes}
+                    perfil={perfil}
+                    mes={mes}
+                    responsable={responsable}
+                    compacto
+                  />
+                )}
               />
             }
           />
@@ -125,7 +139,16 @@ export function RutasAplicacion() {
               element={<UsuariosPagina gestion={usuarios} />}
             />
             <Route path="supervision" element={<SupervisionPagina />} />
-            <Route path="informes" element={<InformesPagina />} />
+            <Route
+              path="informes"
+              element={
+                <InformesPagina
+                  key={perfil?.id}
+                  gestion={informes}
+                  perfil={perfil}
+                />
+              }
+            />
             <Route
               path="productos"
               element={<ProductosPagina key={perfil?.id} gestion={productos} />}

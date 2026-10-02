@@ -42,6 +42,10 @@ Guardar ciclo explícito al registrar visita realizada; la visita programada no 
 
 Si participaron varios vendedores visitantes, cada uno cuenta una vez el caso/ciclo en sus visitas; la venta pertenece únicamente a quien la cerró. Empresa deduplica el caso/ciclo una vez. La suma de revisitas nunca aumenta los casos únicos. No sumar denominadores individuales como total de empresa.
 
+La cohorte mensual es la primera visita realizada del caso/ciclo, común a sus participantes aunque una revisita de otro vendedor ocurra más tarde. El detalle individual permite conciliar el denominador. Conversión propia = casos de esa cohorte cerrados por la misma persona / casos visitados por ella en esa cohorte. Recuperados por otro se informan separados; los resultados evolucionan con cierres posteriores. Ventas monetarias usan el mes de cierre, nunca ese denominador. Visitas sin caso/ciclo explícito no se imputan retrospectivamente.
+
+Los tickets inicial, instalación y abono promedian solamente ventas con importe positivo conocido en su concepto; se muestran denominadores y ventas con/sin importe/desconocidas. Totales monetarios parciales se rotulan informados. Categorías de ventas combinadas son conteos superpuestos, no sumables. El abono es el aceptado originalmente, sin IPC. Detalles paginados y agregados consultan las mismas proyecciones autorizadas; al actualizar pueden reflejar eventos posteriores al corte previo.
+
 ## Calendario y límites
 
 Mes comercial en Córdoba y fechas UTC. Sin activación no hay vencimiento definitivo de congelamiento. Confirmado: mismo día del mes destino como fin exclusivo cuando existe; si no existe, último día del mes destino INCLUSIVE. No sustituye IPC ni primera factura. Ver rector 24.14 para ajustes sujetos a aprobación administrativa y límites contables.

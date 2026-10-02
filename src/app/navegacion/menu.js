@@ -49,6 +49,7 @@ export const menu = [
     elementos: [
       { ruta: "/usuarios", titulo: "Usuarios", icono: "bi-person-plus-fill" },
       { ruta: "/productos", titulo: "Productos", icono: "bi-box-seam" },
+      { ruta: "/informes", titulo: "Informes", icono: "bi-bar-chart-fill" },
       {
         ruta: "/configuracion",
         titulo: "Configuración",
@@ -65,11 +66,6 @@ export const menu = [
         ruta: "/supervision",
         titulo: "Supervisión",
         icono: "bi-person-check-fill",
-      },
-      {
-        ruta: "/informes",
-        titulo: "Informes",
-        icono: "bi-bar-chart-fill",
       },
       {
         ruta: "/auditoria",

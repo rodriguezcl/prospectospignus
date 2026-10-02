@@ -107,6 +107,14 @@ Mientras no exista catálogo publicado, el cierre textual anterior sigue disponi
 
 La entrega 4 añade detalle de venta e instalación mediante RPC con el mismo alcance que Ventas (administración o responsable al cierre), no el permiso amplio de participación de Prospectos. Administración escribe activación con versión/UUID, fecha y respaldo; tabla de eventos conserva cada corrección. La fecha confirmada es instalación, activación e inicio de facturación; el sistema no emite facturas. Calcula congelamiento por cada concepto con abono de la propuesta aceptada, conforme al rector 24.14. Propuestas desconocidas no reciben un plazo supuesto. La vista carga el detalle a demanda para evitar consultas por cada fila.
 
+## Rendimiento comercial (entrega 5)
+
+Informes deja de ser preparatorio. Dos vistas privadas componen cierres/propuestas y visitas realizadas/ciclos; no son otra fuente de escritura comercial. RPC de resumen y detalle paginado filtran en servidor por administrador o identidad propia activa. No se descargan carteras ajenas para esconderlas en React. Inicio recibe el panel mediante composición de app, sin importar internals de Informes. El adaptador de lectura tiene responsabilidad concreta; no se añaden capas de delegación sin reglas.
+
+La cohorte de visita corresponde a la primera visita efectiva del caso/ciclo, compartida por sus participantes: cada vendedor cuenta una vez, empresa deduplica. Cierres del mes y conversión de esa cohorte son conjuntos distintos. Tickets usan importes originales netos conciliados y denominadores positivos informados. Históricos sin propuesta/ciclo conservan cantidades de ventas, no importes ni visitas supuestas. Agregados y detalle usan las mismas vistas y filtros; el corte indica fecha de consulta, no un snapshot persistente.
+
+Inicio mantiene cuatro indicadores y pendientes visibles; captación anterior y detalle monetario propio quedan desplegables. Administración compara seis gráficos en Informes por rol y origen, con registros fuente paginados. Los totales generales no cambian por el filtro visual de rol. No se alteran el histórico, el catálogo ni las reglas contables pendientes.
+
 ## Promociones (implementación vigente)
 
 La feature `promociones` incorpora validación pura, coordinación de carga, adaptador Supabase y presentación. Migración 011: borradores/publicaciones/archivo, audiencia por rol, eventos, avisos y reservas de adjuntos. RPC versionada con UUID de operación; publicación y avisos atómicos. Cuenta con historial o avisos no se elimina; puede desactivarse. Las tablas no admiten DML del navegador.

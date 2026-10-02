@@ -10,6 +10,7 @@ import { combinarAvisos } from "./combinarAvisos.js";
 import { componerAgenda } from "../../features/agenda/composicion.js";
 import { componerProductos } from "../../features/productos/composicion.js";
 import { componerCondiciones } from "../../features/configuracion/composicion.js";
+import { componerInformes } from "../../features/informes/composicion.js";
 
 export const acceso = componerAcceso(clienteSupabase);
 export const usuarios = componerUsuarios(clienteSupabase);
@@ -20,6 +21,7 @@ export const promociones = componerPromociones(clienteSupabase);
 export const agenda = componerAgenda(clienteSupabase);
 export const productos = componerProductos(clienteSupabase);
 export const condiciones = componerCondiciones(clienteSupabase);
+export const informes = componerInformes(clienteSupabase);
 export const oportunidades = componerOportunidades(clienteSupabase, {
   catalogo: productos.leer,
   condiciones: condiciones.leer,
