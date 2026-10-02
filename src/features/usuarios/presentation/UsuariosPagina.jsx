@@ -224,9 +224,7 @@ export function UsuariosPagina({ gestion }) {
           ) : (
             <div className="table-responsive">
               <table className="table">
-                <caption>
-                  Hasta 200 cuentas, ordenadas por fecha de creación.
-                </caption>
+                <caption>Hasta 200 cuentas, ordenadas de la A a la Z.</caption>
                 <thead>
                   <tr>
                     <th scope="col">Nombre</th>

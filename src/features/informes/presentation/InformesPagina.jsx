@@ -1,3 +1,4 @@
+import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { monedaArgentina } from "../../../shared/ui/importe.js";
@@ -256,7 +257,7 @@ export function PanelRendimiento({
                     </tr>
                   </thead>
                   <tbody>
-                    {comparables.map((f) => (
+                    {ordenarAlfabeticamente(comparables).map((f) => (
                       <tr key={f.id}>
                         <td>
                           {f.nombre}

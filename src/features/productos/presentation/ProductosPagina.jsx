@@ -1,3 +1,4 @@
+import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
 import { EncabezadoPagina } from "../../../shared/ui/contenido/EncabezadoPagina.jsx";
 import {
@@ -266,7 +267,7 @@ export function ProductosPagina({ gestion }) {
               </p>
             )}
             {!filas.length && <p>No hay registros en esta sección.</p>}
-            {filas.map((i) => (
+            {ordenarAlfabeticamente(filas).map((i) => (
               <div
                 key={i.id}
                 className="d-flex flex-wrap justify-content-between gap-2 border-bottom py-3"

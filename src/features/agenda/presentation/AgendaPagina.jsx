@@ -1,3 +1,4 @@
+import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -904,7 +905,7 @@ function AgendaAutorizada({ gestion, perfil }) {
                   }
                 >
                   <option value="">Seleccioná un vendedor</option>
-                  {equipo.map((p) => (
+                  {ordenarAlfabeticamente(equipo).map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.nombre}
                       {!p.activo ? " · Inactivo" : ""}

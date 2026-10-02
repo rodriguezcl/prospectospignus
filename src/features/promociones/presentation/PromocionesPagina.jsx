@@ -278,7 +278,7 @@ export function PromocionesPagina({ gestion, perfil }) {
             )}
             <h3 className="h5">PDF e imágenes</h3>
             <ul className="list-unstyled">
-              {detalle.archivos_promociones
+              {ordenarAlfabeticamente(detalle.archivos_promociones)
                 .filter((a) => a.estado !== "retirado")
                 .map((a) => (
                   <li
@@ -462,3 +462,4 @@ export function PromocionesPagina({ gestion, perfil }) {
     </section>
   );
 }
+import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";

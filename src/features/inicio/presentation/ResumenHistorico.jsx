@@ -1,3 +1,4 @@
+import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -6,10 +7,13 @@ export function ResumenHistorico({ filas }) {
   const [pagina, paginar] = useState(0);
   if (!filas.length) return null;
   const ganadas = filas.filter((r) => r.resultado === "ganada").length;
-  const seleccionadas = filas.filter((r) => !filtro || r.resultado === filtro);
-  const vendedores = [
-    ...new Set(filas.map((r) => r.responsable_nombre)),
-  ].sort();
+  const seleccionadas = ordenarAlfabeticamente(filas).filter(
+    (r) => !filtro || r.resultado === filtro,
+  );
+  const vendedores = ordenarAlfabeticamente(
+    [...new Set(filas.map((r) => r.responsable_nombre))],
+    (nombre) => nombre,
+  );
   return (
     <section className="card card-body" aria-labelledby="historico-titulo">
       <h3 id="historico-titulo">Resultados históricos del mes</h3>

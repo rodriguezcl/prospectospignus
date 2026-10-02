@@ -6,7 +6,8 @@ export function crearRepositorioUsuarios(cliente) {
         .select(
           "id,nombre,correo,rol,activo,creado_en,version,lote_demostracion",
         )
-        .order("creado_en", { ascending: false })
+        .order("nombre")
+        .order("id")
         .limit(200);
       if (error)
         throw new Error("No pudimos cargar las cuentas. Intentá nuevamente.");

@@ -40,6 +40,27 @@ test("Cotizaciones: cartera automática, preparación sin visita, permisos y anu
   const cartera = async () =>
     (await db.query("select public.listar_contactos_cotizaciones() as datos"))
       .rows[0].datos;
+  await como(vendedor);
+  await db.exec("begin");
+  for (let n = 24; n >= 0; n--) {
+    await db.query("select public.guardar_registro_inicial($1,0,$2)", [
+      randomUUID(),
+      { nombre: `CONTACTO ${String(n).padStart(2, "0")}`, origen: "whatsapp" },
+    ]);
+  }
+  const primera = await cartera();
+  const segunda = (
+    await db.query("select public.listar_contactos_cotizaciones('',1) as datos")
+  ).rows[0].datos;
+  assert.equal(primera.total, 25);
+  assert.deepEqual(
+    [...primera.filas, ...segunda.filas].map((f) => f.nombre),
+    Array.from(
+      { length: 25 },
+      (_, n) => `CONTACTO ${String(n).padStart(2, "0")}`,
+    ),
+  );
+  await db.exec("rollback");
   const registro = randomUUID(),
     id = randomUUID(),
     operacion = randomUUID();

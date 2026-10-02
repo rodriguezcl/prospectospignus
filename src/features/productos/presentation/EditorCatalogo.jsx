@@ -1,3 +1,4 @@
+import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useState } from "react";
 import { CampoImporte } from "../../../shared/ui/CampoImporte.jsx";
 import { servicios, estados } from "../domain/catalogo.js";
@@ -43,7 +44,7 @@ export function EditorCatalogo({
     ),
   );
   const cambiar = (campo, valor) => editar((i) => ({ ...i, [campo]: valor }));
-  const referencias = datos.items.filter(
+  const referencias = ordenarAlfabeticamente(datos.items).filter(
     (i) =>
       i.marca_id === item.marca_id &&
       i.servicio === item.servicio &&
@@ -52,10 +53,10 @@ export function EditorCatalogo({
         item.incluidos?.some((c) => c.item_id === i.id) ||
         item.kits_compatibles?.includes(i.id)),
   );
-  const marcas = datos.marcas.filter(
+  const marcas = ordenarAlfabeticamente(datos.marcas).filter(
     (m) => m.estado === "activo" || m.id === item.marca_id,
   );
-  const tipos = datos.tipos.filter(
+  const tipos = ordenarAlfabeticamente(datos.tipos).filter(
     (t) => t.estado === "activo" || t.id === item.tipo_comercial_id,
   );
   const vinculadosNoActivos = [

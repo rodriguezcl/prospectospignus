@@ -1,3 +1,4 @@
+import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
 import { CampoImporte } from "../../../shared/ui/CampoImporte.jsx";
 import { monedaArgentina } from "../../../shared/ui/importe.js";
@@ -113,10 +114,11 @@ export function PropuestaComercial({
     );
   const catalogo = referencias.catalogo.datos;
   const condiciones = referencias.condiciones.datos;
-  const familias = catalogo.familias.filter(
-    (f) => activo(f) && f.servicio === servicio,
-  );
-  const kits = catalogo.items.filter(
+  const familias = ordenarAlfabeticamente(
+    catalogo.familias,
+    (f) => f.marca || f.nombre,
+  ).filter((f) => activo(f) && f.servicio === servicio);
+  const kits = ordenarAlfabeticamente(catalogo.items).filter(
     (i) =>
       activo(i) &&
       i.familia_id === familiaId &&
@@ -128,7 +130,7 @@ export function PropuestaComercial({
           ))),
   );
   const kit = kits.find((i) => i.id === kitId);
-  const adicionales = catalogo.items.filter(
+  const adicionales = ordenarAlfabeticamente(catalogo.items).filter(
     (i) =>
       activo(i) &&
       i.familia_id === familiaId &&
@@ -331,7 +333,7 @@ export function PropuestaComercial({
                       }}
                     >
                       <option value="">Seleccioná…</option>
-                      {catalogo.tipos
+                      {ordenarAlfabeticamente(catalogo.tipos)
                         .filter(
                           (t) =>
                             activo(t) &&

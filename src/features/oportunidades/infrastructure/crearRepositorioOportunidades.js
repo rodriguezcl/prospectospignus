@@ -87,7 +87,8 @@ export function crearRepositorioOportunidades(cliente) {
         .select("id,necesidad,estado,prospectos!inner(registro_id)")
         .eq("prospectos.registro_id", id)
         .neq("estado", "anulada")
-        .order("actualizado_en", { ascending: false });
+        .order("necesidad")
+        .order("id");
       comprobar(casos.error);
       return { registro: registro.data, casos: casos.data };
     },
@@ -125,7 +126,7 @@ export function crearRepositorioOportunidades(cliente) {
         .select("*,prospectos!inner(nombre,telefono,direccion,captado_por)", {
           count: "exact",
         })
-        .order("actualizado_en", { ascending: false })
+        .order("prospectos(nombre)")
         .order("id")
         .range(pagina * 20, pagina * 20 + 19);
       if (estado === "sin_asignar")
@@ -180,7 +181,8 @@ export function crearRepositorioOportunidades(cliente) {
         .from("registros_iniciales")
         .select("id,nombre,telefono,ubicacion,responsable_id")
         .is("lote_demostracion", null)
-        .order("creado_en", { ascending: false })
+        .order("nombre")
+        .order("id")
         .limit(100);
       if (busqueda.trim())
         consulta = consulta.ilike(

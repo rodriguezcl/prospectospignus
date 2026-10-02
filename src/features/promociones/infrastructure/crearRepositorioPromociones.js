@@ -34,7 +34,7 @@ export function crearRepositorioPromociones(cliente) {
       let consulta = cliente
         .from("promociones")
         .select("*", { count: "exact" })
-        .order("actualizado_en", { ascending: false })
+        .order("titulo")
         .order("id")
         .range(pagina * 20, pagina * 20 + 19);
       const hoy = hoyCordoba();

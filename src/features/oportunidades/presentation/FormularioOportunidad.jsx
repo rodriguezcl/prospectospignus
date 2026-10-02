@@ -1,3 +1,4 @@
+import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useState } from "react";
 import { monedaArgentina } from "../../../shared/ui/importe.js";
 import { acciones, fechaCordoba } from "../domain/circuito.js";
@@ -310,7 +311,7 @@ export function FormularioOportunidad({
                     : "Vendedor que realizará la visita"
                 }
                 valor={perfil.rol === "vendedor" ? perfil.id : ""}
-                opciones={equipo
+                opciones={ordenarAlfabeticamente(equipo)
                   .filter(
                     (p) =>
                       p.rol === "vendedor" &&
@@ -331,7 +332,7 @@ export function FormularioOportunidad({
             <Campo
               nombre="responsable_id"
               titulo="Nuevo responsable"
-              opciones={equipo
+              opciones={ordenarAlfabeticamente(equipo)
                 .filter((p) =>
                   recuperacion
                     ? p.rol === "agente" && p.disponible

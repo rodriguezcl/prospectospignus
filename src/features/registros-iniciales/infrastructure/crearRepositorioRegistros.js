@@ -56,7 +56,7 @@ export function crearRepositorioRegistros(cliente) {
       else if (responsable)
         consulta = consulta.eq("responsable_id", responsable);
       const { data, count, error } = await consulta
-        .order("creado_en", { ascending: false })
+        .order("nombre")
         .order("id")
         .range(pagina * 20, pagina * 20 + 19);
       comprobar(error);

@@ -68,7 +68,8 @@ export function crearRepositorioAgenda(cliente) {
         .select("id,necesidad,prospectos!inner(nombre)")
         .neq("estado", "anulada")
         .ilike("prospectos.nombre", `%${texto}%`)
-        .order("actualizado_en", { ascending: false })
+        .order("prospectos(nombre)")
+        .order("id")
         .limit(20);
       comprobar(error);
       return data;

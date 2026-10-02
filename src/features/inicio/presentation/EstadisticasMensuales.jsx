@@ -1,3 +1,4 @@
+import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { seleccionarRegistros } from "../domain/resumen.js";
@@ -262,25 +263,27 @@ export function EstadisticasMensuales({ gestion, perfil }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {filas.slice(pagina * 20, pagina * 20 + 20).map((r) => (
-                    <tr key={r.id}>
-                      <td>
-                        <Link to={`/prospectos?registro=${r.id}`}>
-                          {r.nombre}
-                        </Link>
-                      </td>
-                      <td>{fechaCarga(r)}</td>
-                      <td>{nombreOrigen(r.origen)}</td>
-                      <td>{nombrePerfil(r.creado_por)}</td>
-                      <td>
-                        {r.lote_demostracion
-                          ? "DEMO"
-                          : r.tipo_carga === "historica_confirmada"
-                            ? "Histórico · fecha confirmada"
-                            : "Plataforma"}
-                      </td>
-                    </tr>
-                  ))}
+                  {ordenarAlfabeticamente(filas)
+                    .slice(pagina * 20, pagina * 20 + 20)
+                    .map((r) => (
+                      <tr key={r.id}>
+                        <td>
+                          <Link to={`/prospectos?registro=${r.id}`}>
+                            {r.nombre}
+                          </Link>
+                        </td>
+                        <td>{fechaCarga(r)}</td>
+                        <td>{nombreOrigen(r.origen)}</td>
+                        <td>{nombrePerfil(r.creado_por)}</td>
+                        <td>
+                          {r.lote_demostracion
+                            ? "DEMO"
+                            : r.tipo_carga === "historica_confirmada"
+                              ? "Histórico · fecha confirmada"
+                              : "Plataforma"}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>

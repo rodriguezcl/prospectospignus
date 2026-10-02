@@ -1,3 +1,4 @@
+import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { construirTablero, mesCordoba } from "../domain/tablero.js";
@@ -218,11 +219,12 @@ export function TableroInicio({ gestion, perfil, renderRendimiento }) {
                 onChange={(e) => cambiarResponsable(e.target.value)}
               >
                 <option value="">Todo el equipo</option>
-                {datos?.perfiles.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.nombre}
-                  </option>
-                ))}
+                {datos &&
+                  ordenarAlfabeticamente(datos.perfiles).map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nombre}
+                    </option>
+                  ))}
                 {!datos && responsable && (
                   <option value={responsable}>Responsable seleccionado</option>
                 )}
@@ -429,7 +431,10 @@ export function TableroInicio({ gestion, perfil, renderRendimiento }) {
                         </tr>
                       </thead>
                       <tbody>
-                        {detalle.filas
+                        {ordenarAlfabeticamente(
+                          detalle.filas,
+                          (r) => r.nombre || r.prospectos?.nombre,
+                        )
                           .slice(pagina * 20, pagina * 20 + 20)
                           .map((r) => (
                             <tr key={r.id}>

@@ -67,6 +67,8 @@ El cliente Supabase compartido pertenece a `src/infrastructure`; cada adaptador 
 
 ## Estado, errores y seguridad
 
+Orden visual A–Z: catálogo y conjuntos completos en memoria se ordenan sobre copias; las consultas paginadas ordenan en servidor antes del límite, con ID de desempate. Migración 022 actualiza las lecturas de contactos de Cotizaciones y Ventas, conservando filtros, contratos y seguridad. Debe aplicarse antes de publicar el ajuste. Agenda, avisos, historiales y rankings mantienen su secuencia funcional.
+
 Los importes en presentación usan formato argentino ($, punto para miles y coma decimal). `shared/ui/CampoImporte` adapta la entrada localizada a cadenas decimales canónicas sin operar con Number ni redondear precios fuente; admite vacío y cero distintos. Catálogo conserva hasta seis decimales y pago en efectivo dos. Totales, ventas e informes comparten `monedaArgentina`. La adaptación es de UI: no modifica contratos, reglas de cálculo ni valores históricos.
 
 Inicio compone su lectura mensual existente con oportunidades paginadas bajo RLS y la RPC de ventas (010), sin imports entre features. El dominio calcula cohortes, atribuciones y pendientes actuales por separado; la presentación permite abrir el detalle de cada cifra. El histórico usa resultado/responsable originales, no sobrescribe septiembre con estados actuales. Lecturas con error o más de 10.000 filas fallan explícitamente, sin totales truncados. No hay migración ni escritura comercial en este rediseño. Rige el principio de simpleza con criterio del documento rector: resumen a primera vista y detalle accesible a demanda, adaptado al rol.

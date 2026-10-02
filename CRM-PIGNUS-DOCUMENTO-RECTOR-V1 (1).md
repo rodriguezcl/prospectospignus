@@ -475,4 +475,10 @@ Los nombres de personas/empresas, usuarios, marcas, tipos, productos, planes, ki
 
 La normalización se aplica a nuevas altas y ediciones, también en servidor mediante 021. Los nombres anteriores se normalizan al editar; guardar el catálogo publica una nueva versión normalizada. No se reescriben eventos, propuestas ni ventas históricas. La migración y publicación remotas requieren confirmación.
 
+## 28. Orden de listados
+
+Los listados de catálogo, personas, prospectos, cotizaciones y ventas se presentan de A a Z por nombre; promociones por título y negociaciones de un contacto por necesidad. Los selectores de nombres y catálogo siguen el mismo criterio. En consultas paginadas el orden se aplica en servidor antes del límite, con ID como desempate estable; no se ordena únicamente la página visible.
+
+Agenda, notificaciones e historiales conservan su secuencia temporal. Los rankings y gráficos de rendimiento mantienen su criterio cuantitativo; niveles de precio, etapas, cuotas y plazos conservan su orden funcional. El cambio no modifica datos, permisos ni snapshots comerciales.
+
 **Fin.**
