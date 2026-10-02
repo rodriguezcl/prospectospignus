@@ -12,16 +12,28 @@ export function crearRepositorioCatalogo(cliente) {
         CATALOGO_ESCALA:
           "Los precios deben ir de mayor a menor: Catálogo, Alto, Medio, Bajo y Telefónico.",
         CATALOGO_VALIDACION:
-          "Activá la familia y confirmá la validación técnica del producto.",
+          "Activá la marca y confirmá la validación técnica del producto.",
         CATALOGO_COMPATIBILIDAD:
-          "Revisá la familia, componentes y compatibilidades del kit.",
+          "Revisá marca, servicio, componentes activos y compatibilidades del plan o kit.",
         CATALOGO_CONSERVAR:
-          "Los productos y familias se deshabilitan; no se eliminan del historial.",
+          "El registro debe conservarse en el historial. Podés darlo de baja.",
+        CATALOGO_USADO:
+          "Este registro tiene uso en cotizaciones. Podés deshabilitarlo, pero no eliminarlo.",
+        CATALOGO_REFERENCIA:
+          "Hay vínculos pendientes: revisá marca, servicio y registros asociados antes de eliminar.",
+        CATALOGO_DEPENDENCIAS:
+          "Primero deshabilitá los registros activos que dependen de este elemento.",
+        CATALOGO_CLASIFICACION:
+          "Seleccioná Plan o Kit y un tipo comercial activo antes de activar.",
+        CATALOGO_MODALIDAD:
+          "Revisá modalidad y tipo. Solo Alarma admite planes en comodato.",
+        CATALOGO_ESQUEMA:
+          "Actualizá la aplicación para administrar el nuevo catálogo.",
       };
       throw new Error(
         mensajes[error.message] ||
           (["PGRST202", "42P01"].includes(error.code)
-            ? "Falta aplicar la migración de Catálogo comercial (013)."
+            ? "Falta aplicar la migración de Catálogo comercial (020)."
             : "No se pudo guardar o consultar el catálogo. Revisá campos, precios y conexión."),
       );
     }
@@ -31,7 +43,7 @@ export function crearRepositorioCatalogo(cliente) {
     leer: (oportunidad = null) =>
       llamar("leer_catalogo", { p_oportunidad: oportunidad }),
     guardar: ({ version, operacion, datos }) =>
-      llamar("guardar_catalogo", {
+      llamar("guardar_catalogo_020", {
         p_version: version,
         p_operacion: operacion,
         p_datos: datos,

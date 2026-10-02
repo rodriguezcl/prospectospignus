@@ -89,17 +89,33 @@ export function DetalleVenta({ id, gestion, perfil }) {
               </p>
               {detalle.propuesta.conceptos.map((c, i) => (
                 <p key={i}>
-                  {c.familia} · {c.kit?.nombre || "Cerco"} · {c.seleccion.nivel}{" "}
-                  ·{" "}
+                  {c.marca || c.familia} ·{" "}
+                  {c.modalidad === "plan"
+                    ? "Plan (comodato)"
+                    : c.modalidad === "kit"
+                      ? "Kit (venta directa)"
+                      : ""}{" "}
+                  · {c.kit?.nombre || "Cerco"} · {c.seleccion.nivel} ·{" "}
                   {c.incluido_expensas
                     ? "Instalación y abono incluidos en expensas"
                     : ""}
                   {c.extras
                     .map(
                       (e) =>
-                        `${e.cantidad} × ${e.nombre} (${e.distribucion.bonificados || 0} bonificados)`,
+                        `${e.cantidad} × ${e.nombre} (${e.distribucion.bonificados || 0} bonificados)${e.propiedad ? ` · ${e.propiedad.comodato} en comodato / ${e.propiedad.cliente} del cliente (${e.propiedad.obsequio} de obsequio)` : ""}`,
                     )
                     .join(", ")}
+                  {c.modalidad && (
+                    <span className="d-block">
+                      Incluidos:{" "}
+                      {c.kit?.incluidos
+                        .map(
+                          (i) =>
+                            `${i.cantidad} × ${i.nombre || i.item_id} · ${i.propiedad === "comodato" ? "comodato" : "propiedad del cliente"}`,
+                        )
+                        .join(", ")}
+                    </span>
+                  )}
                 </p>
               ))}
             </>

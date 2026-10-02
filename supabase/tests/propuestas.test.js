@@ -5,6 +5,10 @@ import { randomUUID } from "node:crypto";
 import { PGlite } from "@electric-sql/pglite";
 import { generarAlternativas } from "../../src/features/oportunidades/domain/alternativas.js";
 import { calcularPago } from "../../src/features/oportunidades/domain/pago.js";
+import {
+  prepararCatalogo,
+  completarGrupos,
+} from "../../src/features/productos/domain/catalogo.js";
 
 test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", async (t) => {
   const db = new PGlite();
@@ -633,5 +637,22 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
   assert.equal(
     medicion.filas.find((f) => f.id === agente).ticket_inicial,
     null,
+  );
+  const ultima = (
+    await db.query("select max(version) v from public.versiones_catalogo")
+  ).rows[0].v;
+  const nuevo = completarGrupos(prepararCatalogo(catalogo), randomUUID);
+  await db.query("select public.guardar_catalogo($1,$2,$3)", [
+    ultima,
+    randomUUID(),
+    nuevo,
+  ]);
+  await assert.rejects(
+    db.query("select public.guardar_catalogo($1,$2,$3)", [
+      ultima + 1,
+      randomUUID(),
+      { esquema: 2, marcas: [], tipos: [], familias: [], items: [] },
+    ]),
+    /CATALOGO_USADO/,
   );
 });

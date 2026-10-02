@@ -39,6 +39,8 @@ export function PropuestaComercial({
     interes?.servicios?.[0] || "alarma",
   );
   const [familiaId, elegirFamilia] = useState("");
+  const [modalidadEquipo, elegirModalidadEquipo] = useState("plan");
+  const [tipoComercial, elegirTipoComercial] = useState("");
   const [kitId, elegirKit] = useState("");
   const [subcategoria, elegirSubcategoria] = useState(
     interes?.servicios?.includes("alarma")
@@ -95,6 +97,7 @@ export function PropuestaComercial({
   }
   function cambiarFamilia(valor) {
     elegirFamilia(valor);
+    elegirTipoComercial("");
     elegirKit("");
     elegirExtras({});
     elegirNivel("catalogo");
@@ -118,7 +121,15 @@ export function PropuestaComercial({
     (f) => activo(f) && f.servicio === servicio,
   );
   const kits = catalogo.items.filter(
-    (i) => activo(i) && i.familia_id === familiaId && i.tipo === "kit",
+    (i) =>
+      activo(i) &&
+      i.familia_id === familiaId &&
+      i.tipo === "kit" &&
+      (catalogo.esquema !== 2 ||
+        (i.modalidad === (servicio === "alarma" ? modalidadEquipo : "kit") &&
+          catalogo.tipos.some(
+            (t) => t.id === i.tipo_comercial_id && activo(t),
+          ))),
   );
   const kit = kits.find((i) => i.id === kitId);
   const adicionales = catalogo.items.filter(
@@ -126,6 +137,9 @@ export function PropuestaComercial({
       activo(i) &&
       i.familia_id === familiaId &&
       i.tipo !== "kit" &&
+      (catalogo.esquema !== 2 ||
+        i.tipo === "mano_obra" ||
+        i.adicional_habilitado) &&
       (!i.kits_compatibles.length || i.kits_compatibles.includes(kitId)),
   );
   const conAbono = servicio === "alarma" && subcategoria === "con_monitoreo";
@@ -276,8 +290,24 @@ export function PropuestaComercial({
                     </option>
                   </select>
                 </label>
+                {catalogo.esquema === 2 && servicio === "alarma" && (
+                  <label className="col-md-6">
+                    Modalidad de equipos
+                    <select
+                      className="form-select"
+                      value={modalidadEquipo}
+                      onChange={(e) => {
+                        elegirModalidadEquipo(e.target.value);
+                        cambiarFamilia("");
+                      }}
+                    >
+                      <option value="plan">Plan · comodato</option>
+                      <option value="kit">Kit · venta directa</option>
+                    </select>
+                  </label>
+                )}
                 <label className="col-md-6">
-                  Marca / familia
+                  Marca
                   <select
                     className="form-select"
                     value={familiaId}
@@ -286,14 +316,42 @@ export function PropuestaComercial({
                     <option value="">Seleccioná…</option>
                     {familias.map((f) => (
                       <option key={f.id} value={f.id}>
-                        {f.marca} · {f.nombre}
+                        {f.marca}
                       </option>
                     ))}
                   </select>
                 </label>
+                {catalogo.esquema === 2 && servicio !== "cerco" && (
+                  <label className="col-md-6">
+                    Tipo comercial
+                    <select
+                      className="form-select"
+                      value={tipoComercial}
+                      onChange={(e) => {
+                        elegirTipoComercial(e.target.value);
+                        elegirKit("");
+                        elegirExtras({});
+                        invalidar();
+                      }}
+                    >
+                      <option value="">Seleccioná…</option>
+                      {catalogo.tipos
+                        .filter(
+                          (t) =>
+                            activo(t) &&
+                            kits.some((k) => k.tipo_comercial_id === t.id),
+                        )
+                        .map((t) => (
+                          <option key={t.id} value={t.id}>
+                            {t.nombre}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                )}
                 {servicio !== "cerco" && (
                   <label className="col-md-6">
-                    Kit inicial
+                    Plan o kit
                     <select
                       className="form-select"
                       value={kitId}
@@ -304,17 +362,23 @@ export function PropuestaComercial({
                       }}
                     >
                       <option value="">Seleccioná…</option>
-                      {kits.map((k) => (
-                        <option key={k.id} value={k.id}>
-                          {k.nombre}
-                        </option>
-                      ))}
+                      {kits
+                        .filter(
+                          (k) =>
+                            catalogo.esquema !== 2 ||
+                            k.tipo_comercial_id === tipoComercial,
+                        )
+                        .map((k) => (
+                          <option key={k.id} value={k.id}>
+                            {k.nombre}
+                          </option>
+                        ))}
                     </select>
                   </label>
                 )}
                 {servicio === "alarma" && (
                   <label className="col-md-6">
-                    Modalidad
+                    Condición del servicio de alarma
                     <select
                       className="form-select"
                       value={subcategoria}
@@ -404,7 +468,7 @@ export function PropuestaComercial({
               </fieldset>
               {servicio === "alarma" && (
                 <label className="d-block mb-3">
-                  Nivel del kit
+                  Nivel del plan o kit
                   <select
                     className="form-select"
                     value={nivel}
@@ -657,13 +721,30 @@ export function PropuestaComercial({
             </p>
             {p.detalle.conceptos.map((c, i) => (
               <p key={i}>
-                {c.familia} · {c.kit?.nombre || "Cerco"} · {c.seleccion.nivel} ·{" "}
+                {c.marca || c.familia} ·{" "}
+                {c.modalidad === "plan"
+                  ? "Plan (comodato)"
+                  : c.modalidad === "kit"
+                    ? "Kit (venta directa)"
+                    : ""}{" "}
+                · {c.kit?.nombre || "Cerco"} · {c.seleccion.nivel} ·{" "}
                 {c.extras
                   .map(
                     (e) =>
-                      `${e.cantidad} × ${e.nombre} (${e.distribucion.bonificados || 0} bonificados)`,
+                      `${e.cantidad} × ${e.nombre} (${e.distribucion.bonificados || 0} bonificados)${e.propiedad ? ` · ${e.propiedad.comodato} en comodato / ${e.propiedad.cliente} del cliente (${e.propiedad.obsequio} de obsequio)` : ""}`,
                   )
                   .join(", ")}
+                {c.modalidad && (
+                  <span className="d-block">
+                    Incluidos:{" "}
+                    {c.kit?.incluidos
+                      .map(
+                        (i) =>
+                          `${i.cantidad} × ${i.nombre || i.item_id} · ${i.propiedad === "comodato" ? "comodato" : "propiedad del cliente"}`,
+                      )
+                      .join(", ")}
+                  </span>
+                )}
               </p>
             ))}
           </article>

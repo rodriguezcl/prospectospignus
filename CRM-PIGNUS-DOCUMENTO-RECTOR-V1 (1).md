@@ -442,7 +442,7 @@ Este acuerdo sustituye la terminología y los requisitos de inicio de 25 y 25.1:
 
 ## 26. Catálogo comercial: planes, kits y productos (02-10-2026)
 
-El módulo administrativo **Productos** pasa a llamarse **Catálogo comercial**. Se conserva su ruta y acceso exclusivo de administración. El cambio de nombre está separado de la reorganización estructural siguiente, aprobada pero pendiente de implementación; no convierte las familias existentes automáticamente en marcas o planes.
+El módulo administrativo **Productos** pasa a llamarse **Catálogo comercial**. Se conserva su ruta y acceso exclusivo de administración. El cambio de nombre se publicó por separado de la reorganización estructural siguiente, implementada localmente mediante 020 (ver 26.1); no se deduce la clasificación de planes o kits a partir de nombres anteriores.
 
 Administración debe poder crear, editar y deshabilitar marcas, tipos comerciales, productos/componentes y planes/kits con composición, cantidades incluidas, adicionales compatibles y precios. Configuración conserva políticas de pago y permisos/plazos de congelamiento. No crear un módulo independiente por cada catálogo auxiliar.
 
@@ -456,5 +456,13 @@ Administración debe poder crear, editar y deshabilitar marcas, tipos comerciale
 - El abono se aplica con las mismas reglas de servicio/subcategoría para Plan y Kit. La propiedad del equipo no determina por sí sola si corresponde abono ni modifica las excepciones Docta/Nobu.
 
 La implementación deberá conservar composición y condición de propiedad en la versión de propuesta aceptada. Deshabilitar o editar el catálogo no cambia ventas ni propuestas históricas. No se modifica por esta definición el cálculo de precios, los permisos de Telefónico ni las reglas contables pendientes.
+
+### 26.1 ABM y conservación del historial
+
+Administración dispone de secciones Marcas, Tipos, Productos, Planes y kits y Adicionales. Cada registro admite alta, edición y baja. La baja lógica impide nuevas ofertas y se revierte desde Editar; no altera versiones históricas. La eliminación del catálogo vigente exige confirmación y ausencia de dependencias y uso comercial. Si existen vínculos se informa el impedimento; no se borran cotizaciones ni ventas para permitir una baja.
+
+Adicionales es una vista de los mismos productos habilitados para ofrecer por separado, no un catálogo duplicado. Desmarcar «Ofrecer también como adicional» retira esa opción sin retirar componentes incluidos. Para dar de baja un componente incluido se deben revisar primero los planes/kits activos que lo necesitan; marcas y tipos con elementos activos tampoco se deshabilitan en cascada silenciosamente. Componentes solo incluidos no necesitan precio individual; los adicionales y conceptos cobrables requieren precios completos para activarse.
+
+Implementación local: esquema versionado 2 y migración 020. Los registros anteriores se presentan para revisión, conservando identidades y precios; no se interpreta «comodato» en texto libre como una clasificación confirmada. Hasta revisión y activación permanecen en borrador tras publicar la adaptación. Ninguna modificación cambia propuestas históricas. La aplicación remota de la migración y el despliegue se verifican por separado.
 
 **Fin.**

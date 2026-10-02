@@ -35,6 +35,31 @@ const opciones = (nivel, extra = {}) =>
     extras: [{ item_id: "p", cantidad: 2 }],
     ...extra,
   });
+
+test("catálogo nuevo: clasificaciones y adicionales deshabilitados no son cotizables", () => {
+  const nuevo = {
+    ...structuredClone(catalogo),
+    esquema: 2,
+    tipos: [{ id: "t", estado: "activo" }],
+  };
+  nuevo.items[0].modalidad = "plan";
+  nuevo.items[0].tipo_comercial_id = "t";
+  nuevo.items[1].adicional_habilitado = true;
+  assert.equal(
+    opciones("catalogo", { catalogo: nuevo }).at(-1).total,
+    "449999.00",
+  );
+  nuevo.items[1].adicional_habilitado = false;
+  assert.throws(
+    () => opciones("catalogo", { catalogo: nuevo }),
+    /incompatible/,
+  );
+  nuevo.tipos[0].estado = "inactivo";
+  assert.throws(
+    () => opciones("catalogo", { catalogo: nuevo, extras: [] }),
+    /clasificación/,
+  );
+});
 test("alternativas AXPRO conservan bolsa, piso y efectivo acumulable", () => {
   assert.equal(opciones("catalogo")[0].total, "674456.42");
   for (const [nivel, total] of [

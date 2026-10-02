@@ -3,6 +3,10 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { PGlite } from "@electric-sql/pglite";
+import {
+  prepararCatalogo,
+  completarGrupos,
+} from "../../src/features/productos/domain/catalogo.js";
 test("catálogo: versiones, activación, RLS y precios restringidos", async (t) => {
   const db = new PGlite();
   t.after(() => db.close());
@@ -168,5 +172,135 @@ test("catálogo: versiones, activación, RLS y precios restringidos", async (t) 
       { ...condiciones.datos, meses_congelamiento: [4, 4] },
     ]),
     /CATALOGO_CONDICIONES/,
+  );
+  const nuevo = completarGrupos(prepararCatalogo(datos), randomUUID);
+  const tipo = randomUUID();
+  nuevo.tipos.push({ id: tipo, nombre: "Inicial", estado: "activo" });
+  nuevo.items.forEach((i) => {
+    i.estado = "activo";
+    if (i.tipo === "kit") {
+      i.modalidad = "plan";
+      i.tipo_comercial_id = tipo;
+    }
+  });
+  const opNuevo = randomUUID();
+  await guardar(2, nuevo, opNuevo);
+  await guardar(2, nuevo, opNuevo);
+  await assert.rejects(guardar(3, datos), /CATALOGO_ESQUEMA/);
+  await assert.rejects(
+    db.query("select public.guardar_catalogo_013(3,$1,$2)", [
+      randomUUID(),
+      datos,
+    ]),
+    /permission denied/,
+  );
+  const invalidoNuevo = structuredClone(nuevo);
+  invalidoNuevo.tipos[0].estado = "inactivo";
+  await assert.rejects(guardar(3, invalidoNuevo), /CATALOGO_CLASIFICACION/);
+  const sinMarca = structuredClone(nuevo);
+  sinMarca.marcas = [];
+  await assert.rejects(guardar(3, sinMarca), /CATALOGO_REFERENCIA/);
+  const sinComponente = structuredClone(nuevo);
+  sinComponente.items = sinComponente.items.filter((i) => i.id !== pir);
+  await assert.rejects(guardar(3, sinComponente), /CATALOGO_COMPATIBILIDAD/);
+  await como(vendedor);
+  const vistaNueva = (await db.query("select public.leer_catalogo() v")).rows[0]
+    .v;
+  assert.equal(
+    vistaNueva.datos.items.find((i) => i.id === kit).modalidad,
+    "plan",
+  );
+  assert.equal(vistaNueva.datos.tipos[0].nombre, "Inicial");
+  assert.equal(JSON.stringify(vistaNueva).includes("telefonico"), false);
+  await assert.rejects(
+    db.query("select public.guardar_catalogo_020(3,$1,$2)", [
+      randomUUID(),
+      nuevo,
+    ]),
+    /CATALOGO_ACCESO/,
+  );
+  await db.exec("reset role");
+  const seleccion = {
+    familia_id: nuevo.items[0].familia_id,
+    kit_id: kit,
+    subcategoria: "sin_monitoreo",
+    nivel: "catalogo",
+    extras: [
+      {
+        item_id: pir,
+        cantidad: "3",
+        bonificados: 1,
+        altos: 0,
+        bajos: 2,
+        telefonicos: 0,
+      },
+    ],
+  };
+  const calcular = async (cat, sel = seleccion) =>
+    (
+      await db.query("select privado.calcular_propuesta($1,$2,false) r", [
+        cat,
+        sel,
+      ])
+    ).rows[0].r;
+  const plan = await calcular(nuevo);
+  assert.equal(plan.kit.incluidos[0].propiedad, "comodato");
+  assert.deepEqual(plan.extras[0].propiedad, {
+    comodato: 1,
+    cliente: 2,
+    obsequio: 0,
+  });
+  const venta = structuredClone(nuevo);
+  venta.items[1].modalidad = "kit";
+  const vendido = await calcular(venta);
+  assert.equal(vendido.kit.incluidos[0].propiedad, "cliente");
+  assert.deepEqual(vendido.extras[0].propiedad, {
+    comodato: 0,
+    cliente: 3,
+    obsequio: 1,
+  });
+  const noExtra = structuredClone(nuevo);
+  noExtra.items[0].adicional_habilitado = false;
+  await assert.rejects(calcular(noExtra), /PROPUESTA_COMPOSICION/);
+  assert.ok(await calcular(noExtra, { ...seleccion, extras: [] }));
+  await como(admin);
+  await db.exec("reset role");
+  const soloIncluido = structuredClone(nuevo);
+  soloIncluido.items[0].adicional_habilitado = false;
+  soloIncluido.items[0].precios = {};
+  await db.query("select privado.validar_catalogo_020($1)", [soloIncluido]);
+  soloIncluido.items[0].adicional_habilitado = true;
+  await assert.rejects(
+    db.query("select privado.validar_catalogo_020($1)", [soloIncluido]),
+    /CATALOGO_INCOMPLETO/,
+  );
+  const camaras = structuredClone(nuevo);
+  camaras.familias[0].servicio = "camaras";
+  camaras.items.forEach((i) => {
+    i.servicio = "camaras";
+    i.precios = { unico: "100" };
+    i.abonos = {};
+  });
+  await assert.rejects(
+    db.query("select privado.validar_catalogo_020($1)", [camaras]),
+    /CATALOGO_MODALIDAD/,
+  );
+  camaras.items[1].modalidad = "kit";
+  await db.query("select privado.validar_catalogo_020($1)", [camaras]);
+  await como(admin);
+  const vacio = { esquema: 2, marcas: [], tipos: [], familias: [], items: [] };
+  await guardar(3, vacio);
+  assert.equal(
+    (await db.query("select count(*) n from public.versiones_catalogo")).rows[0]
+      .n,
+    4,
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select datos from public.versiones_catalogo where version=3",
+      )
+    ).rows[0].datos.items.length,
+    2,
   );
 });
