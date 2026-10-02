@@ -109,6 +109,14 @@ export function VentasPagina({ gestion, perfil }) {
         Casos ganados por aceptación comercial. No acredita instalación,
         contrato ni cobro.
       </p>
+      <p>
+        Las ventas aparecen automáticamente al registrar la aceptación en{" "}
+        <Link to="/prospectos">Prospectos</Link>; no tenés que volver a
+        cargarlas aquí.{" "}
+        {perfil.rol === "administrador"
+          ? "La instalación se registra por separado con su respaldo."
+          : "Administración confirma la instalación por separado."}
+      </p>
       <details className="detalle-secundario mb-3">
         <summary>
           {perfil.rol === "administrador"

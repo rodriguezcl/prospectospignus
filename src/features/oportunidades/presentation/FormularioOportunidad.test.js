@@ -49,6 +49,20 @@ test("formularios: calificación exige respuesta humana, vendedor y horario de C
     assert.ok(html.includes(`name="${campo}"`));
   assert.ok(html.includes("Córdoba"));
 });
+
+test("crear prospecto: conserva el registro elegido sin volver a pedir datos personales", () => {
+  const html = dibujar({ registroSeleccionado: { id: "registro-elegido" } });
+  assert.match(
+    html,
+    /type="hidden" name="registro_id" value="registro-elegido"/,
+  );
+  assert.doesNotMatch(
+    html,
+    /Buscar registro por nombre|name="telefono"|name="ubicacion"/,
+  );
+  assert.match(html, /Crear prospecto y coordinar visita/);
+  assert.match(html, /preparar la cotización/);
+});
 test("derivación registra condiciones finales, sin secuencia de ofertas", () => {
   const html = dibujar({
     oportunidad: { estado: "visita" },

@@ -6,13 +6,13 @@ export const estados = {
   perdida: "Perdida",
 };
 export const acciones = {
-  crear: "Calificar y coordinar visita",
+  crear: "Crear prospecto y coordinar visita",
   reprogramar: "Reprogramar visita",
   seguimiento: "Registrar seguimiento",
   derivar: "Derivar a recuperación",
   asignar: "Asignar equilibradamente",
   reasignar: "Reasignar responsable",
-  ganar: "Registrar aceptación · Ganada",
+  ganar: "Registrar venta concretada · Ganada",
   perder: "Cerrar como Perdida",
   reactivar: "Reactivar oportunidad perdida",
   corregir_perdida: "Corregir pérdida cargada por error (mismo ciclo)",

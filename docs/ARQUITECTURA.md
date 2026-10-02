@@ -63,6 +63,8 @@ La gestión posterior de cuentas utiliza la RPC transaccional `gestionar_cuenta`
 
 ## Routing y accesibilidad
 
+Continuidad comercial (02-10-2026): app inyecta la continuación de Oportunidades en el detalle de Registros iniciales mediante su API pública. La consulta por registro y sus casos usa RLS existente; no hay imports entre internals ni nuevas escrituras/migraciones. Ambos accesos convergen en un único selector y formulario de alta, con contacto preseleccionado y advertencia de casos existentes. Crear otra necesidad requiere confirmación explícita de UI; no es una nueva restricción de unicidad del servidor. Datos incompletos se corrigen en el registro, no se duplican en el alta. Cotizar, guardar una oferta y declarar aceptación siguen siendo acciones diferentes. Agenda no es requisito previo de captación ni acredita un cierre.
+
 La simpleza transversal usa desplegables nativos de presentación para ayuda, historial y detalle comercial secundario, conservando validaciones y permisos. Los módulos sin implementación se agrupan en un menú plegable «En preparación», sin retirar rutas. El ciclo de foco del menú móvil incluye sus resúmenes y excluye enlaces ocultos en desplegables cerrados. No se crean consultas ni capas nuevas por este ajuste visual.
 
 HashRouter mantiene el hosting independiente de las features. `#prospectos` se normaliza a `#/prospectos` conservando consultas; destinos desconocidos muestran 404. El menú y los accesos de Inicio reciben destinos desde app.

@@ -5,6 +5,7 @@ export function crearGestionOportunidades(repositorio, referencias = {}) {
     detalle: repositorio.detalle,
     equipo: repositorio.equipo,
     registros: repositorio.registros,
+    contextoRegistro: repositorio.contextoRegistro,
     disponibilidad: repositorio.disponibilidad,
     notificaciones: repositorio.notificaciones,
     leer: repositorio.leer,

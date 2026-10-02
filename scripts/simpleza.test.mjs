@@ -39,6 +39,36 @@ const { OportunidadesPagina } = cargar(
 const { FilasVentas } = cargar(
   "../src/features/ventas/presentation/VentasPagina.jsx",
 );
+const { CasosDelRegistro } = cargar(
+  "../src/features/oportunidades/presentation/ContinuarRegistro.jsx",
+);
+const { CrearProspecto } = cargar(
+  "../src/features/oportunidades/presentation/CrearProspecto.jsx",
+);
+
+test("recorrido: abrir un prospecto existente conserva identidad y necesidad", () => {
+  const html = dibujar(CasosDelRegistro, {
+    casos: [
+      { id: "caso-1", necesidad: "Alarma vivienda", estado: "ganada" },
+      { id: "caso-2", necesidad: "Cámaras comercio", estado: "visita" },
+    ],
+  });
+  assert.match(html, /href="\/prospectos\?id=caso-1"/);
+  assert.match(html, /Abrir prospecto: Alarma vivienda/);
+  assert.match(html, /Ganada/);
+  assert.match(html, /href="\/prospectos\?id=caso-2"/);
+});
+test("recorrido: alta desde Prospectos ofrece búsqueda, no duplicación de contacto", () => {
+  const html = dibujar(CrearProspecto, {
+    gestion: {},
+    perfil: { id: "v", rol: "vendedor" },
+    equipo: [],
+    guardar: () => {},
+  });
+  assert.match(html, /Crear prospecto desde un registro inicial/);
+  assert.match(html, /Buscar contacto por nombre/);
+  assert.doesNotMatch(html, /name="telefono"/);
+});
 
 test("simpleza: menú conserva rutas y límites por rol; solo pendientes se pliegan", () => {
   for (const rol of ["administrador", "vendedor", "agente"]) {

@@ -8,6 +8,7 @@ import {
 } from "../domain/circuito.js";
 import { FormularioOportunidad } from "./FormularioOportunidad.jsx";
 import { PropuestaComercial } from "./PropuestaComercial.jsx";
+import { CrearProspecto } from "./CrearProspecto.jsx";
 
 export function OportunidadesPagina({
   gestion,
@@ -24,7 +25,6 @@ export function OportunidadesPagina({
   const [busqueda, buscar] = useState("");
   const [lista, listar] = useState({ filas: [], total: 0 });
   const [equipo, guardarEquipo] = useState([]);
-  const [registros, guardarRegistros] = useState([]);
   const [detalle, detallar] = useState(null);
   const [error, fallar] = useState("");
   const [mensaje, informar] = useState("");
@@ -38,7 +38,7 @@ export function OportunidadesPagina({
     fallar("");
     detallar(null);
     Promise.all([
-      gestion.listar({ pagina, estado }),
+      gestion.listar({ pagina, estado, busqueda }),
       gestion.equipo(),
       id ? gestion.detalle(id) : null,
     ])
@@ -58,34 +58,7 @@ export function OportunidadesPagina({
     return () => {
       vigente = false;
     };
-  }, [gestion, id, pagina, estado, revision]);
-  useEffect(() => {
-    let vigente = true;
-    if (!nueva) return;
-    const tiempo = setTimeout(
-      () =>
-        gestion
-          .registros(busqueda)
-          .then((r) => {
-            if (vigente)
-              guardarRegistros(
-                r.filter(
-                  (p) =>
-                    perfil.rol === "administrador" ||
-                    p.responsable_id === perfil.id,
-                ),
-              );
-          })
-          .catch((e) => {
-            if (vigente) fallar(e.message);
-          }),
-      250,
-    );
-    return () => {
-      vigente = false;
-      clearTimeout(tiempo);
-    };
-  }, [gestion, nueva, busqueda, perfil]);
+  }, [gestion, id, pagina, estado, busqueda, revision]);
   async function guardar(accion, datos) {
     ocupar(true);
     fallar("");
@@ -106,7 +79,13 @@ export function OportunidadesPagina({
       });
       intento.current = null;
       idNuevo.current = crypto.randomUUID();
-      informar("Cambio confirmado y guardado en el historial.");
+      informar(
+        accion === "crear"
+          ? "Prospecto creado y visita coordinada. Abrí Preparar cotización para armar la propuesta."
+          : accion === "ganar"
+            ? "Venta confirmada. Ya aparece en Ventas concretadas para el responsable del cierre y administración."
+            : "Cambio confirmado y guardado en el historial.",
+      );
       navegar({ id: resultado });
       revisar((n) => n + 1);
     } catch (e) {
@@ -142,7 +121,7 @@ export function OportunidadesPagina({
       <p className="text-muted">
         {soloRecuperacion
           ? "Retomá los casos derivados y registrá la propuesta final."
-          : "Coordiná visitas y registrá el próximo paso de cada caso."}
+          : "Abrí un prospecto para cotizar, coordinar visitas o registrar el resultado comercial."}
       </p>
       <details className="detalle-secundario mb-3">
         <summary>Cómo funciona esta bandeja</summary>
@@ -167,7 +146,7 @@ export function OportunidadesPagina({
       )}
       <div className="d-flex flex-wrap gap-2 mb-3">
         <Link to="/prospectos?nueva=si" className="btn btn-primary">
-          Calificar y coordinar visita
+          Crear desde un registro inicial
         </Link>
         <Link to="/registros?nuevo=1" className="btn btn-outline-secondary">
           Cargar registro inicial
@@ -194,14 +173,14 @@ export function OportunidadesPagina({
       {!cargando && nueva && (
         <div className="card">
           <div className="card-body">
-            <h2 className="h4">Calificar y coordinar visita</h2>
-            <FormularioOportunidad
+            <CrearProspecto
+              key={parametros.get("registro") || "buscar"}
+              gestion={gestion}
+              registroId={parametros.get("registro")}
               perfil={perfil}
               equipo={equipo}
-              registros={registros}
               guardar={guardar}
               ocupado={ocupado}
-              buscar={buscar}
             />
             <Link to={rutaBandeja}>Cancelar</Link>
           </div>
@@ -217,6 +196,17 @@ export function OportunidadesPagina({
               {detalle.prospectos.telefono} · {detalle.prospectos.direccion}
             </p>
             <p>{detalle.necesidad}</p>
+            {detalle.estado === "ganada" && (
+              <p className="alert alert-success">
+                Venta concretada. No la vuelvas a cargar.{" "}
+                {perfil.rol === "administrador" ||
+                detalle.cerrado_por === perfil.id ? (
+                  <Link to="/ventas">Consultar en Ventas concretadas</Link>
+                ) : (
+                  "El cierre se consulta por su responsable y administración."
+                )}
+              </p>
+            )}
             {detalle.periodo_historico && (
               <p className="alert alert-info">
                 Importación histórica de {detalle.periodo_historico.slice(0, 7)}
@@ -320,6 +310,25 @@ export function OportunidadesPagina({
       {!nueva && !id && (
         <div className="card">
           <div className="card-body">
+            <form
+              className="d-flex flex-wrap align-items-end gap-2 mb-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                buscar(new FormData(e.currentTarget).get("nombre") || "");
+                paginar(0);
+              }}
+            >
+              <label>
+                Buscar prospecto por nombre
+                <input
+                  type="search"
+                  name="nombre"
+                  className="form-control"
+                  maxLength={150}
+                />
+              </label>
+              <button className="btn btn-outline-primary">Buscar</button>
+            </form>
             <label className="mb-3">
               Filtrar etapa
               <select

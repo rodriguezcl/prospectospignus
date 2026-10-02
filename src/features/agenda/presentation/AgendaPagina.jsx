@@ -870,6 +870,30 @@ function AgendaAutorizada({ gestion, perfil }) {
           declaradas: no acreditan presencia ni ubicación.
         </p>
       </header>
+      {esVendedor && (
+        <details className="detalle-secundario mb-3">
+          <summary>¿Actividad, contacto o cotización?</summary>
+          <p>
+            Agenda organiza lo que vas a hacer y registra lo que hiciste. No es
+            un paso obligatorio para crear un contacto.
+          </p>
+          <p>
+            Si encontraste una persona interesada,{" "}
+            <Link to="/registros?nuevo=1">cargá un registro inicial</Link>. Si
+            ya existe,{" "}
+            <Link to="/registros">
+              buscá el contacto y continuá a Prospectos
+            </Link>
+            .
+          </p>
+          <p>
+            Para cotizar o registrar una venta,{" "}
+            <Link to="/prospectos">abrí su prospecto</Link>. Finalizar una
+            actividad no cambia el resultado comercial. Las visitas coordinadas
+            desde Prospectos aparecen en Agenda; no las cargues otra vez.
+          </p>
+        </details>
+      )}
       <section className="card">
         <div className="card-body">
           <div className="agenda-controles">

@@ -9,7 +9,11 @@ const fecha = (valor) =>
     timeStyle: "short",
     timeZone: "America/Argentina/Cordoba",
   }).format(new Date(valor));
-export function RegistrosInicialesPagina({ gestion, perfil }) {
+export function RegistrosInicialesPagina({
+  gestion,
+  perfil,
+  renderContinuacion,
+}) {
   const [parametros, cambiarParametros] = useSearchParams();
   const seleccionado = parametros.get("registro");
   const nuevo = parametros.get("nuevo") === "1";
@@ -32,6 +36,7 @@ export function RegistrosInicialesPagina({ gestion, perfil }) {
   const [guardando, cambiarGuardando] = useState(false);
   const [error, cambiarError] = useState("");
   const [aviso, cambiarAviso] = useState("");
+  const [modificado, marcarModificado] = useState(false);
   const guardia = useRef(false);
   const turno = useRef(0);
   const nombrePerfil = (id) =>
@@ -45,6 +50,7 @@ export function RegistrosInicialesPagina({ gestion, perfil }) {
     cambiarCargando(true);
     cambiarError("");
     cambiarDetalle(null);
+    marcarModificado(false);
     cambiarEventos([]);
     if (!gestion || !perfil) {
       cambiarError("No hay una sesión configurada.");
@@ -123,7 +129,7 @@ export function RegistrosInicialesPagina({ gestion, perfil }) {
       cambiarAviso(
         detalle.version
           ? "Cambios guardados."
-          : "Registro creado. Todavía no es un Prospecto.",
+          : "Registro guardado. Podés crear el prospecto ahora desde Siguiente paso o continuar después.",
       );
       cambiarParametros({ registro: resultado.id });
       actualizar((v) => v + 1);
@@ -149,8 +155,8 @@ export function RegistrosInicialesPagina({ gestion, perfil }) {
       />
       {(nuevo || seleccionado) && (
         <p className="text-muted small">
-          Podés guardar datos incompletos. Para avanzar, calificá el contacto
-          desde Prospectos.
+          Guardá los datos del contacto. Después elegí Crear prospecto para
+          cotizar; si ya tiene uno, abrilo para continuar.
         </p>
       )}
       {error && (
@@ -173,7 +179,9 @@ export function RegistrosInicialesPagina({ gestion, perfil }) {
               cambiarParametros({});
             }}
           >
-            Volver al listado
+            {aviso
+              ? "Continuar después · volver al listado"
+              : "Volver al listado"}
           </button>
         ) : (
           <button
@@ -199,6 +207,15 @@ export function RegistrosInicialesPagina({ gestion, perfil }) {
       ) : seleccionado || nuevo ? (
         detalle && (
           <>
+            {!!detalle.version &&
+              (modificado ? (
+                <p className="alert alert-warning">
+                  Guardá los cambios del contacto antes de continuar a
+                  Prospectos.
+                </p>
+              ) : (
+                renderContinuacion?.(detalle)
+              ))}
             <section className="card">
               <div className="card-body">
                 <h2 className="h5">
@@ -222,6 +239,7 @@ export function RegistrosInicialesPagina({ gestion, perfil }) {
                 <form
                   key={`${detalle.id}-${detalle.version}-${revision}`}
                   onSubmit={guardar}
+                  onChange={() => marcarModificado(true)}
                   aria-busy={guardando}
                 >
                   <fieldset disabled={guardando || !!detalle.lote_demostracion}>
@@ -527,7 +545,7 @@ export function RegistrosInicialesPagina({ gestion, perfil }) {
                               }}
                               aria-label={`Abrir ${r.nombre}`}
                             >
-                              Abrir
+                              Ver contacto y siguiente paso
                             </button>
                           </td>
                         </tr>

@@ -414,4 +414,10 @@ Estas aclaraciones sustituyen los pendientes anteriores solo en los puntos expre
 
 Confirmación adicional durante implementación: el descuento por efectivo se reparte proporcionalmente entre kit/instalación y adicionales. La asignación de centavos usa mayores restos con desempate estable, conserva la suma y permite calcular tickets netos. En casos visitados por varios vendedores, el caso/ciclo se cuenta una vez en las visitas de cada participante; solo quien cerró recibe la venta. La empresa deduplica el caso/ciclo una vez. Esta confirmación resuelve los dos pendientes de distribución y denominador compartido mencionados antes.
 
+## 25. Continuidad del recorrido comercial (02-10-2026)
+
+Agenda planifica y registra actividades; no es paso obligatorio antes de captar un contacto. Cuando surge un interesado se carga un Registro inicial. Desde ese registro se ofrece Crear prospecto, o Abrir prospecto si ya existe una necesidad accesible; desde Prospectos se puede iniciar el mismo recorrido buscando el registro existente. No pedir nuevamente sus datos personales. Una necesidad distinta se crea mediante acción y confirmación explícitas, no para repetir cotizaciones del mismo caso.
+
+Se conservan los requisitos vigentes de calificación, responsable y coordinación de visita. Datos incompletos se completan en Registros iniciales. Las visitas coordinadas aparecen en Agenda y no se cargan por duplicado; finalizar su actividad no cambia el resultado comercial. En Prospectos se prepara y guarda la cotización, luego se registra la aceptación mediante Registrar venta concretada. Guardar una oferta no basta para ganar. Ventas concretadas se alimenta automáticamente del cierre; administración registra instalación/activación por separado. No se alteran permisos ni métricas por estos ajustes de presentación.
+
 **Fin.**

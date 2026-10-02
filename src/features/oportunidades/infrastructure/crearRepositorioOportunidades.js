@@ -63,6 +63,21 @@ export function crearRepositorioOportunidades(cliente) {
     return data;
   }
   return {
+    async contextoRegistro(id) {
+      const registro = await cliente
+        .from("registros_iniciales")
+        .select("id,nombre,telefono,ubicacion,responsable_id,lote_demostracion")
+        .eq("id", id)
+        .single();
+      comprobar(registro.error);
+      const casos = await cliente
+        .from("oportunidades")
+        .select("id,necesidad,estado,prospectos!inner(registro_id)")
+        .eq("prospectos.registro_id", id)
+        .order("actualizado_en", { ascending: false });
+      comprobar(casos.error);
+      return { registro: registro.data, casos: casos.data };
+    },
     async propuestas(id) {
       const { data, error } = await cliente
         .from("propuestas_comerciales")
@@ -91,10 +106,10 @@ export function crearRepositorioOportunidades(cliente) {
         p_condiciones: condiciones,
         p_datos: datos,
       }),
-    async listar({ pagina = 0, estado = "" } = {}) {
+    async listar({ pagina = 0, estado = "", busqueda = "" } = {}) {
       let consulta = cliente
         .from("oportunidades")
-        .select("*,prospectos(nombre,telefono,direccion,captado_por)", {
+        .select("*,prospectos!inner(nombre,telefono,direccion,captado_por)", {
           count: "exact",
         })
         .order("actualizado_en", { ascending: false })
@@ -105,6 +120,11 @@ export function crearRepositorioOportunidades(cliente) {
           .eq("estado", "recuperacion")
           .is("responsable_id", null);
       else if (estado) consulta = consulta.eq("estado", estado);
+      if (busqueda.trim())
+        consulta = consulta.ilike(
+          "prospectos.nombre",
+          `%${busqueda.trim().replace(/[%_]/g, "")}%`,
+        );
       const { data, error, count } = await consulta;
       comprobar(error);
       return { filas: data, total: count };

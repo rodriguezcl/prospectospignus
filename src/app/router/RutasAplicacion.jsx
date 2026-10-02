@@ -4,7 +4,10 @@ import { InicioPagina } from "../../features/inicio/index.js";
 import { PaginaNoEncontrada } from "../../shared/ui/feedback/PaginaNoEncontrada.jsx";
 import { accesosInicio } from "../navegacion/menu.js";
 import { RegistrosInicialesPagina } from "../../features/registros-iniciales/index.js";
-import { OportunidadesPagina } from "../../features/oportunidades/index.js";
+import {
+  OportunidadesPagina,
+  ContinuarRegistro,
+} from "../../features/oportunidades/index.js";
 import { VentasPagina } from "../../features/ventas/index.js";
 import { PromocionesPagina } from "../../features/promociones/index.js";
 import { AgendaPagina } from "../../features/agenda/index.js";
@@ -84,6 +87,14 @@ export function RutasAplicacion() {
                 key={perfil?.id}
                 gestion={registros}
                 perfil={perfil}
+                renderContinuacion={(registro) => (
+                  <ContinuarRegistro
+                    key={`${registro.id}-${registro.version}`}
+                    registro={registro}
+                    gestion={oportunidades}
+                    perfil={perfil}
+                  />
+                )}
               />
             }
           />

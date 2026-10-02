@@ -55,6 +55,7 @@ export function FormularioOportunidad({
   guardar,
   ocupado,
   buscar,
+  registroSeleccionado,
 }) {
   const [accion, cambiar] = useState(oportunidad ? opciones[0] : "crear");
   const recuperacion = oportunidad?.estado === "recuperacion";
@@ -159,27 +160,36 @@ export function FormularioOportunidad({
           {accion === "crear" && (
             <>
               <p>
-                Primero cargá el contacto en Registros iniciales. Esta acción
-                confirma su calificación y coordina una visita. Para una nueva
-                necesidad del mismo prospecto, seleccioná nuevamente su
-                registro.
+                Los datos del contacto se toman del registro guardado. Confirmá
+                su necesidad y coordiná la visita; después podrás preparar la
+                cotización en su ficha.
               </p>
-              <label className="d-block mb-3">
-                Buscar registro por nombre
+              {registroSeleccionado ? (
                 <input
-                  type="search"
-                  className="form-control"
-                  onChange={(e) => buscar(e.target.value)}
+                  type="hidden"
+                  name="registro_id"
+                  value={registroSeleccionado.id}
                 />
-              </label>
-              <Campo
-                nombre="registro_id"
-                titulo="Registro inicial (hasta 100 coincidencias recientes)"
-                opciones={registros.map((r) => [
-                  r.id,
-                  `${r.nombre} · ${r.telefono || "sin teléfono"} · ${r.ubicacion || "sin dirección"}`,
-                ])}
-              />
+              ) : (
+                <>
+                  <label className="d-block mb-3">
+                    Buscar registro por nombre
+                    <input
+                      type="search"
+                      className="form-control"
+                      onChange={(e) => buscar(e.target.value)}
+                    />
+                  </label>
+                  <Campo
+                    nombre="registro_id"
+                    titulo="Registro inicial (hasta 100 coincidencias recientes)"
+                    opciones={registros.map((r) => [
+                      r.id,
+                      `${r.nombre} · ${r.telefono || "sin teléfono"} · ${r.ubicacion || "sin dirección"}`,
+                    ])}
+                  />
+                </>
+              )}
               <label className="d-block mb-3">
                 <input
                   type="checkbox"
@@ -347,7 +357,11 @@ export function FormularioOportunidad({
             </>
           )}
           <button className="btn btn-primary" type="submit">
-            {ocupado ? "Guardando…" : acciones[accion]}
+            {ocupado
+              ? "Guardando…"
+              : accion === "crear"
+                ? "Crear prospecto y coordinar visita"
+                : acciones[accion]}
           </button>
         </fieldset>
       </form>

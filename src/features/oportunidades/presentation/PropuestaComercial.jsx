@@ -209,7 +209,14 @@ export function PropuestaComercial({
   }
   return (
     <details className="detalle-secundario my-4">
-      <summary>Propuesta comercial · kits, adicionales y pago</summary>
+      <summary>
+        {puedeEditar ? "Preparar cotización" : "Consultar cotizaciones"} · kits,
+        adicionales y pago
+      </summary>
+      <p>
+        Guardar la cotización no confirma una venta. Si el cliente acepta, elegí
+        Registrar venta concretada en las acciones de esta ficha.
+      </p>
       {error && (
         <p role="alert" className="alert alert-danger">
           {error}
