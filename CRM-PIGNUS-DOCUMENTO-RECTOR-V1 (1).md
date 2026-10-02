@@ -1,6 +1,8 @@
-# Prospectos Pignus — Documento rector V1.5
+# Prospectos Pignus — Documento rector V1.6
 
-**Fecha:** 30 de septiembre de 2026
+**Fecha de consolidación:** 1 de octubre de 2026
+
+**Control de alcance V1.6:** la sección 24 consolida los acuerdos comerciales aprobados para desarrollo futuro. No declara esas funciones implementadas ni autoriza migraciones, commit, push o despliegue. Ante diferencias sobre precios, conversión, ciclos y activación, prevalece la sección 24 sobre los criterios iniciales. Las secciones anteriores conservan contexto e historia de entregas. Plan asociado: [implementación por módulos](docs/PLAN-COMERCIAL-V1.6.md).
 
 **Estado:** especificación de producto autónomo para análisis y desarrollo.  
 **Idioma del documento y del producto:** español en pantallas, estados, mensajes, ayuda, informes, especificaciones, nombres de dominio e identificadores nuevos de código y datos. Se permiten únicamente nombres propios, direcciones de fuentes y convenciones técnicas externas que no controla el proyecto (por ejemplo, el identificador oficial de zona horaria).  
@@ -12,7 +14,7 @@
 2. Su alcance es la captación de registros iniciales, calificación de Prospectos, desarrollo de Oportunidades y evaluación del desempeño comercial del equipo.
 3. Los criterios de negocio son: aislamiento por cartera, atribución de creador y responsable, origen de los registros iniciales, deduplicación, responsable principal único, gestiones verificables, seguimiento, pérdidas justificadas e historial auditable.
 4. EspoCRM es referencia funcional y técnica, no dependencia, plantilla de código ni autorización para copiar su implementación. Catálogos y umbrales propuestos son configurables.
-5. El producto no implementa procesos posteriores al resultado de la prospección. La condición Ganada es un resultado comercial declarado, con significado y métricas propios.
+5. Ganada es un resultado comercial declarado, no prueba de cobro o instalación. La ampliación aprobada permite registrar administrativamente la instalación efectiva/activación y el inicio del congelamiento, sin gestionar ejecución técnica, cobranza ni facturación (sección 24).
 6. **Simpleza con criterio:** cada pantalla debe ayudar a entender, decidir o actuar. Se eliminan textos decorativos, repeticiones y módulos redundantes, pero nunca información necesaria para trabajar, advertencias relevantes ni trazabilidad. La simpleza se evalúa por claridad y esfuerzo de uso, no solamente por cantidad de elementos. Vendedores y agentes deben poder encontrar sus tareas, cargar información y retomar gestiones con pocos pasos, especialmente desde el celular; una vista gerencial resumida no debe imponerles una experiencia incompleta. Detalles y explicaciones secundarias se despliegan a demanda, sin esconder acciones frecuentes, errores o permisos. Colores semánticos consistentes, cantidades y etiquetas legibles en ambos temas; el color nunca será la única forma de interpretar un estado.
 
 ## 2. Hallazgos útiles de EspoCRM y límites
@@ -47,7 +49,9 @@ La gerencia debe poder abrir cada cifra y ver el conjunto de registros que la pr
 
 **Evolución posible dentro del producto:** jornadas comerciales puerta a puerta, campañas, formularios de captación, referencia o adjunto de propuestas comerciales, objetivos y paneles avanzados. Una visita comercial puede registrarse como gestión; las actividades de campo incluidas en este documento son exclusivamente comerciales.
 
-**Fuera de alcance:** alta y administración de Clientes operativos; contratos, firmas y autorizaciones contractuales; coordinación y ejecución técnicas; relevamientos técnicos; reservas; inventario; cobranza; facturación; comisiones; motor de presupuestos/precios; envío automático de WhatsApp; geolocalización continua o vigilancia del personal. Se registra solamente una referencia comercial a la propuesta cuando exista. Ninguno de esos procesos es requisito para usar Prospectos Pignus o cerrar una Oportunidad.
+**Ampliación aprobada, pendiente de implementación:** catálogo comercial, kits, propuestas y motor de alternativas/precios; métricas por ciclos visitados; registro administrativo de activación. Alcance preciso en sección 24.
+
+**Fuera de alcance:** alta y administración de Clientes operativos; contratos, firmas y autorizaciones contractuales; coordinación y ejecución técnicas; relevamientos técnicos operativos; reservas; inventario; cobranza; emisión de facturas; comisiones; envío automático de WhatsApp; geolocalización continua o vigilancia del personal. No se automatizan IPC ni primera factura mientras sus reglas permanezcan pendientes. Ninguno de esos procesos es requisito para cerrar una Oportunidad.
 
 ## 5. Lenguaje común y entidades
 
@@ -118,7 +122,7 @@ Cada cambio crítico añade evento con `id_evento`, `id_registro`, `id_ciclo` cu
 
 Transacciones atómicas para la asignación por turnos, el cambio de responsable y el cierre. Cada reintento de captura debe conservar la clave de operación para evitar duplicados. Control de versión en edición simultánea: ante conflicto, rechazar con estado actual y permitir resolverlo; jamás sobrescribir silenciosamente. Índices y restricciones para claves de reintento único y búsqueda de posibles duplicados. Reintentos de captura o guardado deben producir una sola consecuencia; los errores quedan visibles y recuperables para usuarios autorizados.
 
-**Autonomía de datos:** Prospectos Pignus crea y gobierna sus propios registros y eventos. Las referencias o adjuntos de propuestas comerciales tienen permisos propios y no sustituyen un sistema de presupuestación.
+**Autonomía de datos:** Prospectos Pignus crea y gobierna sus propios registros y eventos. Los adjuntos conservan permisos propios; no sustituyen las propuestas estructuradas y versionadas previstas en sección 24.
 
 ## 11. Métricas: contrato semántico
 
@@ -270,5 +274,132 @@ El criterio de simpleza se aplica a todos los módulos, no solo a Inicio. La pri
 Vendedor: carga, seguimiento y agenda propia a mano. Agente: coordinación, disponibilidad y recuperación accesibles sin mezclar gestión de cuentas. Administración: filtros de equipo y gestión de usuarios; módulos todavía no implementados agrupados como «En preparación», sin presentarlos como funciones operativas. Las rutas y restricciones existentes se conservan.
 
 Crear cuentas es una acción explícita, no un formulario que ocupa la vista inicial del equipo. Ventas muestra un listado compacto con condiciones y confirmación a demanda. Agenda conserva a la vista que es compartida y que no acredita presencia; detalles de franjas y recordatorios se expanden. Promociones mantiene vigencia, condiciones y descarga accesibles para sus destinatarios. Mi cuenta conserva un formulario directo sin pasos adicionales. No se ocultan errores, confirmaciones destructivas, avisos de datos históricos ni requisitos de validación.
+
+## 24. Catálogo, propuestas, atribución y métricas comerciales (01-10-2026)
+
+### 24.1 Estado, decisiones sustituidas y límites
+
+Criterios confirmados para implementación incremental, no descripción de capacidades desplegadas. Se mantiene la simpleza con criterio. Se incorpora un solo módulo nuevo visible, **Productos**; las demás funciones se integran en módulos existentes. Configuración e Informes hoy contienen pantallas preparatorias: deben desarrollarse, no presentarse como operativos por existir una ruta.
+
+Quedan sustituidas estas propuestas previas: un único nivel obligatorio para kit y abono; valorar bonificaciones del vendedor con Telefónico; excluir ventas sin importe; iniciar facturación en una fecha distinta de la instalación; impedir acumular efectivo con bonificaciones. El Excel de simulación es una referencia de validación, no un backend ni una fuente de permisos. Sus límites técnicos, ejemplos y advertencias anteriores no reemplazan estos acuerdos.
+
+### 24.2 Servicios y composición
+
+| Servicio / subcategoría | Instalación y abono | Armado |
+| --- | --- | --- |
+| Instalación de Alarma / Docta Urbanización | Incluidos en expensas según acuerdo y cliente al día; sin cobro adicional por esos conceptos | Kit y periféricos adicionales cobrables |
+| Instalación de Alarma / Nobu Town | Igual criterio que Docta | Kit y periféricos adicionales cobrables |
+| Instalación de Alarma / Residencial con monitoreo | Instalación y abono cobrados | Kit y adicionales |
+| Instalación de Alarma / Residencial sin monitoreo | Instalación cobrada; abono no corresponde | Kit y adicionales |
+| Instalación de Cámaras | Instalación incluida en kit; sin abono | Kit base y adicionales por unidad |
+| Instalación de Cerco Eléctrico | Mano de obra como concepto separado; sin abono | Desde cero: metros, componentes y mano de obra |
+
+Docta/Nobu cuentan como ventas aunque no haya adicionales cobrados. Mostrar **Incluido en expensas**, no descuento del vendedor. Distinguir ventas con importe inicial y sin importe adicional. Solo alarmas con monitoreo y cobro al cliente admiten abono monetario en estos indicadores.
+
+Una venta puede contener varios conceptos/categorías (por ejemplo alarma y cámaras). Cuenta una vez como cierre y en el ticket inicial; distribuir importes por concepto sin duplicar el total. Los conteos por categoría se superponen y no son sumables como operaciones únicas.
+
+### 24.3 Productos y validación técnica
+
+Administración gestiona familias, marcas, productos, unidades comerciales, kits, cantidades incluidas, adicionales compatibles, precios y vigencia/disponibilidad. Un componente puede estar incluido y también ofrecerse como adicional; registrar cantidades incluidas, extras, cobradas y bonificadas por separado. Un pack no equivale a una unidad suelta ni implica automáticamente el doble de precio.
+
+Catálogo inicial de referencia: Garnet híbrido cableado; Garnet híbrido inalámbrico con teclado RF; Garnet híbrido inalámbrico con control remoto; Innova Garnet inicial; Ajax inicial; Hikvision inicial. Se excluyen Titanium (también Innova Titanium) y Netio/DSC. No existen planes Esencial, Plus o Premium: solo kits base y adicionales. Nuevas familias/items se crean desde administración, sin codificar una lista cerrada en la UI.
+
+Antes de habilitar: administración confirma composición, modelos, compatibilidad y unidades con el área técnica y completa precios requeridos. Borradores no son seleccionables por vendedor/agente. Faltante no equivale a cero. Productos usados se deshabilitan, sin eliminar historia. Cambios de kit/precio no alteran propuestas guardadas ni ventas aceptadas.
+
+Fuentes de referencia: «Catalogo Alarmas Pignus» y «PRECIOS VENDEDORES.xlsx», recibidos el 01-10-2026. AXPRO es la referencia numérica del simulador; la planilla GARNET contiene descripción AXPRO y precios faltantes, por lo que requiere revisión. No importar automáticamente esos datos como catálogo definitivo ni inventar precios de otras familias.
+
+### 24.4 Propuesta, niveles y código interno
+
+Flujo: servicio/subcategoría → marca → variante de kit si corresponde → adicionales sí/no → items y cantidades → Confirmar → alternativas. Cerco utiliza metros/componentes/mano de obra en lugar de kit. El primer selector de alternativas es nivel de kit, **Catálogo por defecto**. Ordenar las alternativas de mayor a menor total y permitir comparar mejoras; bajar de nivel no garantiza menor total al cambiar bonificaciones.
+
+Administración establece precios finales con IVA incluido. Alarmas: kit Catálogo, Alto, Medio, Bajo y Telefónico; adicionales Alto/Bajo para vendedor, Telefónico adicional reservado al agente en recuperación. Abono Alto/Medio/Bajo y Telefónico para agente. Instalación y abono son independientes (por ejemplo kit Medio y abono Bajo). No exigir nivel uniforme a kit y adicionales ni permitir importes libres no autorizados.
+
+Cada alternativa debe tener un código interno inequívoco para el equipo autorizado. Distinguir identidad de la alternativa/versionado de la propuesta y posición por precio en la escalera. Un código guardado debe resolver la composición, condiciones y precios de esa versión, sin reinterpretarse con listas nuevas. No concede permisos ni habilita lectura de otra cartera. Una aprobación real identifica al usuario autorizado; una llamada informal no sustituye el control del servidor.
+
+No se obliga a registrar todas las ofertas presenciales ni a pasar por todos los niveles. Guardar la última efectivamente ofrecida y la finalmente aceptada. Los niveles no son estados del prospecto. Propuestas estructuradas se preparan en Prospectos, no en Registros iniciales. La aceptación debe vincularse a una versión completa y congelada de la propuesta.
+
+### 24.5 Bonificaciones de alarmas y control del mínimo
+
+Para vendedor, valorar las unidades adicionales bonificadas a **Bajo**, nunca a Telefónico. Para un kit en nivel L:
+
+- Bolsa disponible = precio del kit en L − precio del kit en Bajo.
+- Consumo = suma de cantidades adicionales bonificadas × precio Bajo de cada adicional.
+- Consumo no puede superar la bolsa. Los restantes adicionales pueden cobrarse en Alto o Bajo; bajar a Bajo usa su propia diferencia de precio, sin volver a descontarla de la bolsa del kit.
+- Verificar además total antes de descuento por pago ≥ kit Bajo + todos los adicionales requeridos en Bajo. El margen de otros adicionales cobrados en Alto no amplía automáticamente la bolsa de bonificaciones del kit.
+- Kit Bajo tiene bolsa cero. La cobertura/equipos instalados no disminuye al bonificar.
+
+Agente: kit Telefónico y adicionales Alto/Bajo/Telefónico, sin nuevas bonificaciones automáticas en ese nivel. No habilitar Telefónico para adicionales del vendedor. Toda ampliación de esa política requiere decisión explícita.
+
+Ejemplo de aceptación AXPRO, no tarifa obligatoria: kit Catálogo 449999, Alto 359999, Medio 259999, Bajo 149999, Telefónico 53000; PIR Bajo 92914,932 y Telefónico 86999; magnético Bajo 66214,932; sirena exterior Bajo 160198,932. Kit + 2 PIR adicionales: Catálogo con 2 bonificados = 449999; Alto con 2 bonificados = 359999; Medio con 1 bonificado y otro Bajo = 352913,93; Bajo sin bonificar = 335828,86; Telefónico con ambos Telefónico = 226998. Mantener precisión de la lista y definir explícitamente el redondeo de presentación/cierre para no perder centavos.
+
+### 24.6 Cámaras y cerco: límites de la experimentación
+
+Cámaras puede bonificar componentes incluidos, como caja estanca y microSD, conservándolos en el equipo entregado. Administración debe definir componentes elegibles, valor bonificable y límite; no restar automáticamente el precio individual de catálogo de un kit ni descontar dos veces la misma unidad.
+
+Cerco puede contemplar bonificación sobre metros y componentes, distinguiendo instalado de cobrado (30 metros instalados y 5 bonificados no son 25 instalados). Mano de obra se cobra separadamente; no asumir que es bonificable sin regla aprobada.
+
+Hoy no hay niveles definidos para cámaras/cerco. Se autoriza preparar su configuración experimental, no inventar precios ni mínimos. Mantener un precio vigente y la estrategia escalonada deshabilitada hasta aprobación/carga de gerencia. Las reglas de bonificación propias requieren valores y topes explícitos antes de habilitar el cálculo.
+
+### 24.7 Pago, abonos y congelamiento
+
+Débito y transferencia: total acordado. Crédito: **1, 3 o 6 cuotas sin interés**, mismo total que débito. Efectivo: **10 % adicional sobre el precio ya bonificado**, acumulable, incluso si queda por debajo del mínimo del rol. Validar el mínimo antes del descuento por efectivo; no bloquear después por esa única razón. Aplicación exclusiva a instalación y adicionales/conceptos iniciales, nunca al abono. Para cerco el total inicial incluye mano de obra. Guardar base, bonificaciones, descuento por pago e importe final sin doble descuento. Cuotas no multiplican ventas; ajustar centavos de la última para conciliar total. Medio acordado no acredita cobro.
+
+Congelamiento independiente del nivel: inicialmente 4 o 6 meses, o sin congelamiento. Administración edita plazos y habilita/deshabilita el ofrecimiento por separado para vendedor y agente; inicialmente ambos. Se cobra el abono normalmente, no son meses gratis. No exigir registrar una oferta de 4 antes de 6. Condiciones aceptadas se conservan aunque se deshabiliten; propuestas pendientes afectadas se advierten y revisan, sin cambiarse silenciosamente.
+
+### 24.8 Recuperación y atribución
+
+Derivar conserva composición, cantidades, niveles, importes, pago y congelamiento de la última propuesta, junto con resultado de visita, motivo de no cierre y objeción concreta; próximo contacto si se acordó. No exigir llegar a Bajo antes de derivar. La notificación abre el caso autorizado; no crea copia. El agente conserva versiones al modificar la propuesta. Aceptación: Ganada; rechazo final: Perdida con motivo; sin respuesta o pedido de tiempo: seguimiento, no pérdida automática.
+
+Conservar por separado captador/origen, vendedor de visita, agente coordinador/asignador y responsable que consiguió el cierre. El actor que carga el resultado no recibe automáticamente el mérito. Una recuperación ganada cuenta una venta de empresa y un cierre del agente; al vendedor se le reconoce la visita y el caso recuperado, no otra venta propia. Importes/tickets se atribuyen al responsable al cierre; vistas por origen no se suman a esa atribución. No define comisiones. Reasignar luego no reescribe historia.
+
+Origen comercial: propio del vendedor o asignado por agente; distinto del canal (WhatsApp, redes, referido, puerta a puerta, etc.). Conservar ambos y el origen del ciclo/reactivación sin borrar procedencia original. Recuperación no transforma un propio en asignado por agente. Datos anteriores no comprobados: **Sin identificar**, no deducción del creador actual.
+
+### 24.9 Meses, conversión y tickets
+
+Ventas e importes: mes de cierre comercial en Córdoba. Conversión principal de vendedores: cohorte del mes de la **primera visita efectivamente realizada del ciclo**, deduplicada por caso/ciclo. Incluye propios y asignados por agente; visitas programadas no prueban ejecución. Revisitas cuentan como actividad por su fecha real, no aumentan el denominador ni cambian la cohorte. Cierre posterior actualiza la conversión de la cohorte visitada y cuenta como venta en su mes de cierre.
+
+Por vendedor y origen mostrar: casos visitados, cierres directos, derivados, recuperados y conversión directa. Conversión directa = casos de esa cohorte cerrados por ese vendedor / casos efectivamente visitados de esa cohorte. Resultado final de la cohorte incluye recuperaciones, identificado por separado; no incrementa cierres directos del vendedor. Mostrar fecha de corte y pendientes. Denominador cero = —. Las cohortes por creación/captación de secciones 11/22 pueden conservarse como indicadores secundarios claramente rotulados, nunca bajo el mismo nombre de conversión de visitas.
+
+| Indicador monetario | Regla confirmada |
+| --- | --- |
+| Volumen inicial vendido | Suma final de instalación y adicionales/conceptos iniciales, después de descuentos; no abonos ni cuotas multiplicadas |
+| Ticket inicial total | Volumen inicial de operaciones completas con importe > 0 / cantidad de esas ventas; venta combinada una vez |
+| Ticket instalación | Importe final de instalación/kit cobrado / ventas con instalación cobrada; excluir adicionales e instalación incluida en expensas |
+| Abono mensual vendido | Suma del importe mensual original acordado, sin multiplicar por meses ni sumar al inicial |
+| Ticket abono | Suma de abonos originales cobrables / ventas con abono cobrado al cliente |
+
+Docta/Nobu sin extras: venta sin importe adicional, fuera de promedios monetarios. Con extras cobrados: entra en ticket inicial, no en instalación/abono. Diferenciar cero real, no corresponde y desconocido. Históricos incompletos no reciben importes/visitas inventados; mostrar cantidad/cobertura de datos completos de cada indicador, no un promedio con denominador mayor que el conjunto informado. Ajustes futuros de abono no cambian el ticket original. Para ventas combinadas se debe aprobar/documentar antes de implementar la distribución de descuentos globales entre conceptos y redondeos, preservando la suma y evitando elegir arbitrariamente categorías para alterar tickets.
+
+### 24.10 Ciclos y correcciones
+
+Seguimientos, revisitas, cambios de propuesta y derivación a recuperación continúan el mismo ciclo. Después de una pérdida definitiva, interés retomado o nueva propuesta que el cliente acepta evaluar inicia nuevo ciclo, con motivo obligatorio y evidencia de negociación real. Una llamada sin respuesta no inicia ciclo; se registra actividad. No hay umbral automático de 30/60/90 días.
+
+Nueva necesidad, ampliación o instalación tras una venta: nueva oportunidad vinculada a la misma identidad, no reapertura de Ganada. Corrección de pérdida errónea: solo administración, mismo ciclo, motivo y auditoría conservando el evento original. Reactivación auténtica conserva pérdida, visitas y atribución del ciclo anterior. Venta por teléfono sin visita del nuevo ciclo cuenta como venta/cierre sin visita, pero no entra en conversión por visitas ni reutiliza la visita del ciclo perdido.
+
+### 24.11 Instalación efectiva, activación y pendientes contables
+
+Administración registra desde **Ventas concretadas** la instalación efectiva confirmada en **Agenda Pignus** (sistema técnico externo, no módulo Agenda de este CRM). Esa misma fecha representa activación e inicio de facturación y comienza el congelamiento. Por ahora carga manual respaldada, no integración automática. Vendedor/agente consultan según acceso, no modifican. Correcciones conservan actor/motivo e historia. Sin fecha: activación pendiente, sin vencimiento definitivo del congelamiento. Ganada sigue contando por mes de cierre, no por instalación.
+
+Al vencer el congelamiento se acordó actualización trimestral por IPC, pero quedan pendientes serie, meses utilizados, desfase, calendario individual/general, primer ajuste y redondeo. Cierre de facturación supuesto del día 20, prorrateo, período de primera factura y posibles bonificaciones de días: **sin confirmar**. No prometer días gratis, no desplazar la fecha de activación/facturación, no calcular aumentos ni emitir facturas. Esos pendientes no bloquean catálogo, propuestas, métricas ni registro de activación; sí bloquean automatizaciones contables.
+
+### 24.12 Ubicación funcional aprobada
+
+| Función | Módulo / sección |
+| --- | --- |
+| Familias, marcas, productos, kits, compatibilidad, validación técnica y precios | Productos (nuevo; administración) |
+| Medios de pago, plazos, permisos de congelamiento y políticas comerciales | Configuración / Condiciones comerciales (a desarrollar) |
+| Armado, alternativas, código interno, última propuesta y derivación | Prospectos / Propuesta comercial |
+| Negociación final, Telefónico y versiones | Recuperación comercial (mismo caso y propuesta) |
+| Propuesta aceptada, importes y activación administrativa | Ventas concretadas |
+| Resumen mensual propio o de equipo | Inicio, adaptado al rol |
+| Comparativas por vendedor/agente, origen, categoría y cohorte | Informes (administración inicialmente) |
+
+Registros iniciales mantiene captación; Agenda mantiene actividades y evidencia declarada de visitas; Promociones mantiene material descargable, sin convertirse en fuente de precios del motor; Usuarios conserva cuentas/roles. No agregar módulos Cotizador, Facturación, Stock, Clientes ni ejecución técnica por esta ampliación. No duplicar métricas en Supervisión mientras Informes cubra esa responsabilidad.
+
+### 24.13 Pendientes acotados y aprobación de implementación
+
+Pendientes de datos: catálogo definitivo validado y precios por familia, cámaras/cerco y sus topes bonificables. Pendientes técnicos a documentar antes de su etapa: precisión/redondeo/distribución de descuentos; formato y persistencia del código interno; vínculo inequívoco visita-ciclo y atribución ante cambios de vendedor; semántica de meses calendario al calcular fin de congelamiento (incluidos fin de mes y correcciones). No convertir sugerencias técnicas en tarifas o reglas gerenciales aprobadas.
+
+Pendientes contables de 24.11 se mantienen fuera de implementación. Este acuerdo autoriza consolidar documentos y planificar; la ejecución del plan, migraciones remotas y publicación requieren autorización específica. El Excel previo queda como simulador histórico: su advertencia de efectivo pendiente y ausencia de crédito en una cuota no reflejan ya el criterio final y no deben trasladarse al producto.
 
 **Fin.**

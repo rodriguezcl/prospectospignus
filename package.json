@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "pretest": "node --test scripts/iconos.test.mjs scripts/simpleza.test.mjs",
+    "pretest": "node --test scripts/iconos.test.mjs scripts/simpleza.test.mjs src/features/oportunidades/domain/dinero.test.js",
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",

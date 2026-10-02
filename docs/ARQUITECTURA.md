@@ -4,6 +4,14 @@
 
 Organizar por funcionalidades, con alta cohesión, bajo acoplamiento, composición y dependencias hacia las reglas comerciales. Aplicar Clean Code, SOLID y Clean Architecture de manera proporcional a necesidades reales. El documento rector conserva autoridad sobre las reglas comerciales. La visión futura de CRM no incorpora Clientes, Stock ni Operaciones al alcance actual.
 
+### Ampliación comercial planificada (01-10-2026)
+
+El rector V1.6, sección 24, aprueba catálogo/precios, propuestas versionadas, métricas por visitas/ciclos y registro administrativo de instalación efectiva/activación. **No están implementados por esta actualización documental.** El [plan por módulos](PLAN-COMERCIAL-V1.6.md) distingue las features operativas de las pantallas preparatorias y fija entregas verificables.
+
+Productos será el único módulo visible nuevo. Configuración administra condiciones; Prospectos y Recuperación comparten la propuesta por composición de puertos, sin imports entre internals. Ventas conserva el cierre autoritativo y su versión aceptada, sin duplicar eventos para generar estadísticas. Inicio/Informes consumirán proyecciones autorizadas por cierre y por primera visita de cada ciclo, no confundirán la cohorte actual por creación con la nueva métrica.
+
+Las reglas puras de precios no dependen del Excel ni de React/Supabase. El servidor valida reglas, rol, versión e idempotencia; el navegador no recibe precios Telefónicos restringidos al vendedor. La fecha de instalación se carga manualmente por administración con respaldo del sistema externo Agenda Pignus; no es una integración automática ni gestión técnica. Facturación e IPC automáticos continúan fuera de implementación mientras faltan sus definiciones. No se crean capas o entidades vacías anticipadamente.
+
 ## Estructura actual
 
 - `src/principal.jsx`: entrada React y compatibilidad de enlaces.
