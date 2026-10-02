@@ -181,4 +181,74 @@ test("catálogo: editor ofrece modalidad, marca, tipo y componentes sin campo fa
   ])
     assert.ok(html.includes(texto));
   assert.doesNotMatch(html, /Familia/);
+  const entidades = (prefijo) =>
+    ["activo", "inactivo", "borrador"].map((estado) => ({
+      id: `${prefijo}-${estado}`,
+      nombre: `${prefijo}-${estado}`,
+      estado,
+    }));
+  const datos = {
+    marcas: entidades("marca"),
+    tipos: entidades("tipo"),
+    items: ["adicional", "kit"].flatMap((tipo) =>
+      entidades(tipo).map((i) => ({
+        ...i,
+        codigo: i.id,
+        tipo,
+        marca_id: "marca-activo",
+        servicio: "alarma",
+        modalidad: "plan",
+      })),
+    ),
+  };
+  const valor = {
+    id: "nuevo",
+    nombre: "OFERTA",
+    codigo: "N",
+    marca_id: "marca-activo",
+    tipo_comercial_id: "tipo-activo",
+    servicio: "alarma",
+    tipo: "kit",
+    modalidad: "plan",
+    estado: "borrador",
+    precios: {},
+    abonos: {},
+    incluidos: [],
+    kits_compatibles: [],
+  };
+  const render = (v, oferta = true) =>
+    renderToStaticMarkup(
+      createElement(modulo.exports.EditorCatalogo, {
+        datos,
+        grupo: "items",
+        oferta,
+        valor: v,
+      }),
+    );
+  const alta = render(valor);
+  assert.match(alta, /adicional-activo/);
+  for (const prefijo of ["marca", "tipo", "adicional"]) {
+    assert.doesNotMatch(
+      alta,
+      new RegExp(`${prefijo}-inactivo|${prefijo}-borrador`),
+    );
+  }
+  const editado = render({
+    ...valor,
+    tipo_comercial_id: "tipo-inactivo",
+    incluidos: [{ item_id: "adicional-inactivo", cantidad: 2 }],
+  });
+  assert.match(editado, /Hay vínculos no activos/);
+  assert.match(editado, /value="tipo-inactivo" disabled="" selected=""/);
+  assert.match(editado, /adicional-inactivo/);
+  assert.match(editado, /max="2"/);
+  const extra = render({ ...valor, tipo: "adicional" }, false);
+  assert.match(extra, /kit-activo/);
+  assert.doesNotMatch(extra, /kit-inactivo|kit-borrador/);
+  const extraAnterior = render(
+    { ...valor, tipo: "adicional", kits_compatibles: ["kit-inactivo"] },
+    false,
+  );
+  assert.match(extraAnterior, /kit-inactivo/);
+  assert.match(extraAnterior, /Hay vínculos no activos/);
 });

@@ -47,8 +47,22 @@ export function EditorCatalogo({
     (i) =>
       i.marca_id === item.marca_id &&
       i.servicio === item.servicio &&
-      i.id !== item.id,
+      i.id !== item.id &&
+      (i.estado === "activo" ||
+        item.incluidos?.some((c) => c.item_id === i.id) ||
+        item.kits_compatibles?.includes(i.id)),
   );
+  const marcas = datos.marcas.filter(
+    (m) => m.estado === "activo" || m.id === item.marca_id,
+  );
+  const tipos = datos.tipos.filter(
+    (t) => t.estado === "activo" || t.id === item.tipo_comercial_id,
+  );
+  const vinculadosNoActivos = [
+    ...marcas.filter((m) => m.id === item.marca_id),
+    ...tipos.filter((t) => t.id === item.tipo_comercial_id),
+    ...referencias,
+  ].filter((i) => i.estado !== "activo");
   function precio(grupoPrecios, nivel, valor) {
     const p = { ...item[grupoPrecios] };
     if (valor === "") delete p[nivel];
@@ -98,6 +112,16 @@ export function EditorCatalogo({
               : "producto"}
       </h2>
       <fieldset disabled={ocupado}>
+        {vinculadosNoActivos.length > 0 && (
+          <p role="status" className="alert alert-warning">
+            Hay vínculos no activos:{" "}
+            {vinculadosNoActivos
+              .map((i) => `${i.nombre} (${i.estado})`)
+              .join(", ")}
+            . Se conservan para revisión; reemplazalos o reactivá sus registros
+            antes de ofrecerlos.
+          </p>
+        )}
         <Campo titulo="Nombre">
           <input
             className="form-control"
@@ -184,8 +208,12 @@ export function EditorCatalogo({
                 }
               >
                 <option value="">Seleccioná…</option>
-                {datos.marcas.map((m) => (
-                  <option key={m.id} value={m.id}>
+                {marcas.map((m) => (
+                  <option
+                    key={m.id}
+                    value={m.id}
+                    disabled={m.estado !== "activo"}
+                  >
                     {m.nombre} · {m.estado}
                   </option>
                 ))}
@@ -200,8 +228,12 @@ export function EditorCatalogo({
                   onChange={(e) => cambiar("tipo_comercial_id", e.target.value)}
                 >
                   <option value="">Seleccioná…</option>
-                  {datos.tipos.map((t) => (
-                    <option key={t.id} value={t.id}>
+                  {tipos.map((t) => (
+                    <option
+                      key={t.id}
+                      value={t.id}
+                      disabled={t.estado !== "activo"}
+                    >
                       {t.nombre} · {t.estado}
                     </option>
                   ))}
@@ -293,7 +325,12 @@ export function EditorCatalogo({
                         className="form-control"
                         type="number"
                         min="0"
-                        max="9999"
+                        max={
+                          p.estado === "activo"
+                            ? 9999
+                            : item.incluidos.find((c) => c.item_id === p.id)
+                                ?.cantidad || 0
+                        }
                         step="1"
                         value={
                           item.incluidos.find((c) => c.item_id === p.id)
@@ -316,7 +353,10 @@ export function EditorCatalogo({
                     </Campo>
                   ))}
                 {!referencias.some((i) => i.tipo === "adicional") && (
-                  <p>Creá primero productos de esta marca y servicio.</p>
+                  <p>
+                    No hay productos activos disponibles para esta marca y
+                    servicio. Crealos o activalos en Productos.
+                  </p>
                 )}
               </section>
             )}
@@ -346,7 +386,7 @@ export function EditorCatalogo({
                           )
                         }
                       />
-                      {k.nombre} · {k.modalidad}
+                      {k.nombre} · {k.modalidad} · {k.estado}
                     </label>
                   ))}
               </details>

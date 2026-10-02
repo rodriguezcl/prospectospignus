@@ -459,6 +459,8 @@ La implementación deberá conservar composición y condición de propiedad en l
 
 ### 26.1 ABM y conservación del historial
 
+Los selectores para nuevas asociaciones muestran solo registros activos (no inactivos ni borradores). Al editar se conservan los vínculos anteriores no activos con una advertencia, sin sustitución automática; pueden retirarse para reemplazarlos por activos. Los listados administrativos mantienen todos los estados para permitir edición y reactivación. Este filtro no altera propuestas ni ventas históricas.
+
 Administración dispone de secciones Marcas, Tipos, Productos, Planes y kits y Adicionales. Cada registro admite alta, edición y baja. La baja lógica impide nuevas ofertas y se revierte desde Editar; no altera versiones históricas. La eliminación del catálogo vigente exige confirmación y ausencia de dependencias y uso comercial. Si existen vínculos se informa el impedimento; no se borran cotizaciones ni ventas para permitir una baja.
 
 Adicionales es una vista de los mismos productos habilitados para ofrecer por separado, no un catálogo duplicado. Desmarcar «Ofrecer también como adicional» retira esa opción sin retirar componentes incluidos. Para dar de baja un componente incluido se deben revisar primero los planes/kits activos que lo necesitan; marcas y tipos con elementos activos tampoco se deshabilitan en cascada silenciosamente. Componentes solo incluidos no necesitan precio individual; los adicionales y conceptos cobrables requieren precios completos para activarse.
