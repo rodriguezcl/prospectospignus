@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { prepararCatalogo, modificarCatalogo } from "./catalogo.js";
 
-test("retirar plantillas conserva composición, precios, estados e identidades sin mutar el histórico", () => {
+test("adaptar conserva composición e identidades y deja pendientes los precios incompletos sin mutar el histórico", () => {
   const previo = {
     esquema: 2,
     plantillas_version: 1,
@@ -44,13 +44,13 @@ test("retirar plantillas conserva composición, precios, estados e identidades s
   };
   const original = structuredClone(previo);
   const actual = prepararCatalogo(previo);
-  assert.equal(actual.esquema, 3);
+  assert.equal(actual.esquema, 4);
   assert.equal("tipos" in actual, false);
   assert.equal("plantillas_version" in actual, false);
   assert.equal("tipo_comercial_id" in actual.items[1], false);
   assert.deepEqual(actual.items[1].incluidos, original.items[1].incluidos);
   assert.deepEqual(actual.items[1].precios, original.items[1].precios);
-  assert.equal(actual.items[1].estado, "activo");
+  assert.equal(actual.items[1].estado, "borrador");
   assert.deepEqual(previo, original);
   assert.deepEqual(prepararCatalogo(actual), actual);
   assert.throws(

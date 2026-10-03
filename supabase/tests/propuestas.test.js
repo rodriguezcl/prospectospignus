@@ -642,6 +642,15 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
     await db.query("select max(version) v from public.versiones_catalogo")
   ).rows[0].v;
   const nuevo = completarGrupos(prepararCatalogo(catalogo), randomUUID);
+  // Tampoco se permite borrar equipos usados al saltar desde un formato sin servicio por ítem.
+  await assert.rejects(
+    db.query("select public.guardar_catalogo($1,$2,$3)", [
+      ultima,
+      randomUUID(),
+      { esquema: 4, marcas: [], familias: [], items: [] },
+    ]),
+    /CATALOGO_USADO/,
+  );
   await db.query("select public.guardar_catalogo($1,$2,$3)", [
     ultima,
     randomUUID(),
@@ -651,7 +660,7 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
     db.query("select public.guardar_catalogo($1,$2,$3)", [
       ultima + 1,
       randomUUID(),
-      { esquema: 3, marcas: [], familias: [], items: [] },
+      { esquema: 4, marcas: [], familias: [], items: [] },
     ]),
     /CATALOGO_USADO/,
   );

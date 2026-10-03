@@ -711,7 +711,7 @@ test("Agente: calificación, visitas, recuperación equilibrada, RLS, cierre e i
   await gestionar(corta, 0, "crear", {
     ...altaGuiada,
     observaciones: "OK",
-    interes_comercial: { servicios: ["cerco"], tipo_alarma: null },
+    interes_comercial: { servicios: ["camaras"], tipo_alarma: null },
   });
   assert.equal(
     (

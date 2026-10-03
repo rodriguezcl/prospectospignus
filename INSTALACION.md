@@ -19,6 +19,14 @@ Navegación en español, menú adaptable e interfaz comercial inicial. Login con
 
 Hay formularios de login, creación de cuentas, cambio de contraseña propio y registros iniciales. React Router usa fragmentos de URL (`#/prospectos`) para permitir recarga y navegación atrás/adelante sin reglas SPA adicionales del servidor. Los enlaces anteriores (`#prospectos`) siguen funcionando. El proyecto Hobby `prospectospignus` en Vercel está conectado a `main`; cada push inicia un despliegue. Los cambios locales no se publican hasta confirmar commit y despliegue.
 
+## Precios por modalidad — actualización 025
+
+La migración `supabase/migrations/202610020025_precios_por_modalidad.sql` se aplicó en `sjoounysrvxreazgbjkv` el 02/10/2026, después de 024. No repetirla en ese proyecto. En instalaciones nuevas debe aplicarse antes de publicar este frontend; no se ejecuta al iniciar la aplicación. La aplicación conservó el catálogo versión 33, esquema 3, pendiente del primer guardado administrativo de adaptación.
+
+Administración debe revisar y guardar el catálogo desde `guardar_catalogo_025`, publicando esquema 4. Se retiran cerco/mano de obra del vigente; los precios incompletos dejan componentes y ofertas dependientes en borrador. Los antiguos precios Únicos de cámaras se muestran como referencia sin convertirse automáticamente en Telefónico. Confirmar esos importes y activar los registros antes de cotizar. El frontend requiere esquema 4 para nuevas propuestas.
+
+Verificación: planes con cinco niveles y permisos de negociación, kits de ambas categorías exclusivamente Telefónico, adicionales habilitados por modalidad, base independiente de incluidos, idempotencia, lectura por vendedor y conservación de snapshots. No se actualizan ni eliminan versiones históricas. Un cambio de catálogo no cambia propuestas guardadas. La publicación remota requiere confirmación separada.
+
 ## Catálogo comercial sin plantillas — actualización 024
 
 Aplicar `supabase/migrations/202610020024_catalogo_sin_plantillas.sql` después de 023 y antes de publicar este frontend. El catálogo queda en Marcas, Productos y Planes y kits; Productos conserva la habilitación de adicionales. El primer guardado desde `guardar_catalogo_024` publica esquema 3 sin plantillas, manteniendo la composición e identidad de las ofertas. La migración no reescribe versiones ni datos comerciales y no importa productos del Word. Desde ese guardado se rechazan escrituras de formatos anteriores; las versiones históricas y sus reintentos exactos se conservan.

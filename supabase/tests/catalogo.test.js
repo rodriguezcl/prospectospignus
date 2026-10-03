@@ -380,6 +380,8 @@ test("catálogo: versiones, activación, RLS y precios restringidos", async (t) 
   await assert.rejects(guardar(4, clienteAnterior), /CATALOGO_ESQUEMA/);
   await assert.rejects(guardar(4, nuevo), /CATALOGO_PLANTILLA/);
   const sinPlantillas = completarGrupos(prepararCatalogo(guardado.datos), randomUUID);
+  // Ejercita explícitamente el contrato histórico 024 antes de publicar esquema 4.
+  sinPlantillas.esquema = 3;
   const opSinPlantillas = randomUUID();
   await db.query("select public.guardar_catalogo_024(4,$1,$2)", [opSinPlantillas, sinPlantillas]);
   await db.query("select public.guardar_catalogo_024(4,$1,$2)", [opSinPlantillas, sinPlantillas]);

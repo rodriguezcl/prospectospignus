@@ -1,7 +1,7 @@
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useState } from "react";
 import { CampoImporte } from "../../../shared/ui/CampoImporte.jsx";
-import { servicios, estados } from "../domain/catalogo.js";
+import { servicios, estados, nivelesPrecios } from "../domain/catalogo.js";
 const Campo = ({ titulo, children }) => (
   <label className="d-block mb-3">
     {titulo}
@@ -69,12 +69,7 @@ export function EditorCatalogo({
     else p[nivel] = valor;
     cambiar(grupoPrecios, p);
   }
-  const niveles =
-    item.servicio === "alarma"
-      ? item.tipo === "kit"
-        ? ["catalogo", "alto", "medio", "bajo", "telefonico"]
-        : ["alto", "bajo", "telefonico"]
-      : ["unico"];
+  const niveles = nivelesPrecios(item);
   function precios(grupoPrecios, nombres) {
     return (
       <div className="row">
@@ -98,7 +93,19 @@ export function EditorCatalogo({
       className="card card-body"
       onSubmit={(e) => {
         e.preventDefault();
-        guardar(item);
+        guardar({
+          ...item,
+          ...(grupo === "items"
+            ? {
+                tipo: oferta ? "kit" : "adicional",
+                precios: Object.fromEntries(
+                  Object.entries(item.precios).filter(([n]) =>
+                    niveles.includes(n),
+                  ),
+                ),
+              }
+            : {}),
+        });
       }}
     >
       <h2 className="h4">
@@ -170,13 +177,11 @@ export function EditorCatalogo({
                   }))
                 }
               >
-                {Object.entries(servicios)
-                  .filter(([s]) => !oferta || s !== "cerco")
-                  .map(([s, n]) => (
-                    <option key={s} value={s}>
-                      {n}
-                    </option>
-                  ))}
+                {Object.entries(servicios).map(([s, n]) => (
+                  <option key={s} value={s}>
+                    {n}
+                  </option>
+                ))}
               </select>
             </Campo>
             {oferta && (
@@ -224,48 +229,18 @@ export function EditorCatalogo({
             </Campo>
             {!oferta && (
               <>
-                <Campo titulo="Clase de producto">
-                  <select
-                    className="form-select"
-                    value={item.tipo}
-                    onChange={(e) =>
-                      editar((i) => ({
-                        ...i,
-                        tipo: e.target.value,
-                        adicional_habilitado: e.target.value === "adicional",
-                        unidad:
-                          e.target.value === "mano_obra"
-                            ? "servicio"
-                            : "unidad",
-                      }))
-                    }
-                  >
-                    <option value="adicional">Componente</option>
-                    {item.servicio === "cerco" && (
-                      <option value="mano_obra">Mano de obra</option>
-                    )}
-                  </select>
-                </Campo>
                 <Campo titulo="Se vende por">
                   <select
                     className="form-select"
                     value={item.unidad}
                     onChange={(e) => cambiar("unidad", e.target.value)}
                   >
-                    {[
-                      "unidad",
-                      "pack",
-                      ...(item.servicio === "cerco"
-                        ? ["metro", "servicio"]
-                        : []),
-                    ].map((u) => (
+                    {["unidad", "pack"].map((u) => (
                       <option key={u} value={u}>
                         {
                           {
                             unidad: "Unidad",
                             pack: "Paquete (pack)",
-                            metro: "Metro",
-                            servicio: "Servicio",
                           }[u]
                         }
                       </option>
@@ -290,15 +265,24 @@ export function EditorCatalogo({
             <h3 className="h5">Precios finales con IVA</h3>
             <p className="small">
               Vacío significa pendiente; cero es un precio explícito. No se
-              modifican cotizaciones anteriores.
+              modifican cotizaciones anteriores. El precio del plan o kit es
+              propio; los componentes incluidos no se suman a ese importe.
             </p>
-            {precios("precios", niveles)}
-            {oferta && item.servicio === "alarma" && (
-              <details className="mb-3">
-                <summary>Abono mensual · con monitoreo</summary>
-                {precios("abonos", ["alto", "medio", "bajo", "telefonico"])}
-              </details>
+            {item.precio_unico_anterior !== undefined && (
+              <p className="small">
+                Precio único anterior: {item.precio_unico_anterior}. Confirmá el
+                precio Telefónico; no se asigna automáticamente.
+              </p>
             )}
+            {precios("precios", niveles)}
+            {oferta &&
+              item.servicio === "alarma" &&
+              item.modalidad === "plan" && (
+                <details className="mb-3">
+                  <summary>Abono mensual · con monitoreo</summary>
+                  {precios("abonos", ["alto", "medio", "bajo", "telefonico"])}
+                </details>
+              )}
             {oferta && (
               <section className="mb-3">
                 <h3 className="h5">Productos incluidos</h3>

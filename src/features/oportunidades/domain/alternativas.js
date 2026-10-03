@@ -33,17 +33,24 @@ export function generarAlternativas({
       i.tipo === "kit" &&
       habilitado(i),
   );
+  const venta = catalogo.esquema >= 4 && kit?.modalidad === "kit";
+  if (
+    catalogo.esquema >= 4 &&
+    !["alarma", "camaras"].includes(familia.servicio)
+  )
+    throw new Error("Servicio no habilitado.");
   const alarma = familia.servicio === "alarma",
-    incluido = alarma && ["docta", "nobu"].includes(subcategoria);
-  if (alarma && !subcategorias[subcategoria])
+    incluido = alarma && !venta && ["docta", "nobu"].includes(subcategoria);
+  if (alarma && !venta && !subcategorias[subcategoria])
     throw new Error("Seleccioná una subcategoría.");
   if (familia.servicio !== "cerco" && !kit)
     throw new Error("Seleccioná un plan o kit.");
   if (catalogo.esquema >= 2 && kit && !["plan", "kit"].includes(kit.modalidad))
     throw new Error("Seleccioná la modalidad del plan o kit.");
-  if (nivel === "telefonico" && !telefonico)
+  if (venta) nivel = "telefonico";
+  if (!venta && nivel === "telefonico" && !telefonico)
     throw new Error("Nivel no habilitado.");
-  if (!alarma) nivel = "unico";
+  if (!alarma && !venta) nivel = "unico";
   if (
     alarma &&
     !["catalogo", "alto", "medio", "bajo", "telefonico"].includes(nivel)
@@ -78,6 +85,19 @@ export function generarAlternativas({
       throw new Error("Cantidad inválida.");
     const n = Number(cantidad),
       opciones = [];
+    if (venta)
+      return [
+        {
+          item_id: item.id,
+          cantidad,
+          bonificados: 0,
+          altos: 0,
+          bajos: 0,
+          telefonicos: n,
+          importe: precio(item, "telefonico") * BigInt(n),
+          consumo: 0n,
+        },
+      ];
     if (!alarma)
       return [
         {
@@ -201,7 +221,7 @@ export function generarAlternativas({
       seleccion: {
         familia_id: familiaId,
         kit_id: kit?.id || null,
-        subcategoria: alarma ? subcategoria : null,
+        subcategoria: alarma && !venta ? subcategoria : null,
         nivel,
         extras: c.items.map(({ importe, consumo, ...x }) => x),
       },

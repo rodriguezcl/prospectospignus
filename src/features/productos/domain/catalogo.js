@@ -1,7 +1,6 @@
 export const servicios = {
   alarma: "Alarma",
   camaras: "Cámaras",
-  cerco: "Cerco eléctrico",
 };
 export const estados = ["borrador", "activo", "inactivo"];
 export function normalizarNombresCatalogo(datos) {
@@ -16,9 +15,9 @@ export function normalizarNombresCatalogo(datos) {
   }
   return nuevo;
 }
-export function prepararCatalogo(datos) {
+function adaptarEstructura(datos) {
   datos = normalizarNombresCatalogo(datos);
-  if ([2, 3].includes(datos.esquema)) {
+  if ([2, 3, 4].includes(datos.esquema)) {
     const { tipos, plantillas_version, ...vigente } = datos;
     return {
       ...vigente,
@@ -55,6 +54,49 @@ export function prepararCatalogo(datos) {
       };
     }),
   };
+}
+export function nivelesPrecios(item) {
+  if (item.tipo === "kit")
+    return item.modalidad === "plan" || item.modalidad === "pendiente"
+      ? ["catalogo", "alto", "medio", "bajo", "telefonico"]
+      : ["telefonico"];
+  return item.servicio === "camaras"
+    ? ["telefonico"]
+    : ["alto", "bajo", "telefonico"];
+}
+export function prepararCatalogo(datos) {
+  const nuevo = adaptarEstructura(datos);
+  nuevo.esquema = 4;
+  nuevo.familias = nuevo.familias.filter((f) => f.servicio !== "cerco");
+  nuevo.items = nuevo.items.filter(
+    (i) => i.servicio !== "cerco" && i.tipo !== "mano_obra",
+  );
+  for (const i of nuevo.items) {
+    if (i.precios?.unico !== undefined) {
+      i.precio_unico_anterior = i.precios.unico;
+      delete i.precios.unico;
+    }
+    const niveles = nivelesPrecios(i);
+    i.precios = Object.fromEntries(
+      Object.entries(i.precios || {}).filter(([n]) => niveles.includes(n)),
+    );
+    if (
+      i.estado === "activo" &&
+      niveles.some((n) => i.precios?.[n] === undefined)
+    )
+      i.estado = "borrador";
+  }
+  for (const i of nuevo.items) {
+    if (
+      i.estado === "activo" &&
+      i.incluidos?.some(
+        (c) =>
+          !nuevo.items.some((p) => p.id === c.item_id && p.estado === "activo"),
+      )
+    )
+      i.estado = "borrador";
+  }
+  return nuevo;
 }
 export function completarGrupos(datos, crearId) {
   const nuevo = normalizarNombresCatalogo(datos);

@@ -483,6 +483,17 @@ Adicionales deja de ser una sección separada: es una condición del mismo produ
 
 El esquema 3 conserva las ofertas existentes con sus IDs, estados, precios y cantidades, sin copiar ni deducir composición desde las plantillas anteriores. Las plantillas y sus asociaciones permanecen solo en las versiones históricas ya guardadas; no se modifican propuestas ni ventas. La corrección de referencia de Innova sigue vigente: un control en todas sus variantes, incluido Premium. No se importa el Word automáticamente.
 
+### 26.4 Servicios y precios por modalidad (02-10-2026)
+
+Este criterio confirmado sustituye las reglas anteriores en estos puntos:
+
+- La plataforma ofrece inicialmente Alarmas y Cámaras. Se retira Cerco eléctrico de altas, catálogo vigente y nuevas cotizaciones. Todos los productos son componentes; se elimina la carga de clase de producto y mano de obra.
+- Los planes de alarma en comodato tienen precios propios Catálogo, Alto, Medio, Bajo y Telefónico. Sus componentes tienen Alto, Bajo y Telefónico para las unidades adicionales, bajo las reglas de negociación, permisos, bolsa y piso ya aprobadas para planes.
+- Los kits de venta de equipos, tanto de alarma como de cámaras, tienen únicamente precio Telefónico. Sus adicionales, cuando existan y estén habilitados, se cobran únicamente al precio Telefónico del componente. No hay niveles negociables ni bonificaciones de componentes en venta de kits. Telefónico es aquí el precio ordinario de venta de equipos, utilizable por el vendedor; no habilita el nivel de recuperación Telefónico de los planes o abonos.
+- Los componentes de cámaras tienen solo precio Telefónico. No se inventan adicionales de cámaras ni se habilitan automáticamente: solo se ofrecen los productos marcados expresamente como adicionales compatibles.
+- El precio del plan o kit es independiente de la suma de los productos incluidos. La composición sirve como referencia técnica; el motor parte del precio de la oferta y agrega únicamente las unidades adicionales elegidas. Los incluidos no se cobran dos veces. Las excepciones ya aprobadas de planes Docta/Nobu incluidos en expensas y las condiciones de pago se mantienen; no convierten un kit de venta en gratuito.
+- Las versiones, cotizaciones y ventas históricas se conservan. No se deduce un Telefónico a partir del antiguo precio Único de cámaras: queda como referencia para revisión. Los registros sin las tarifas requeridas y sus ofertas dependientes quedan en borrador hasta completarse y activarse.
+
 ## 27. Nombres uniformes
 
 Los nombres de personas/empresas, usuarios, marcas, tipos, productos, planes, kits y adicionales se guardan en mayúsculas, conservando tildes y Ñ y quitando espacios exteriores. No es una transformación general del texto: correos, contraseñas, códigos, archivos, direcciones y observaciones mantienen sus reglas anteriores.

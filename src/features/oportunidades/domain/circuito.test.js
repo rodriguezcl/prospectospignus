@@ -26,7 +26,7 @@ test("alta estructurada: notas opcionales y servicios combinados sin duplicar", 
     }).datos.observaciones,
     "OK",
   );
-  for (const servicios of [[], ["alarma", "alarma"], ["inventado"]])
+  for (const servicios of [[], ["alarma", "alarma"], ["inventado"], ["cerco"]])
     assert.throws(() =>
       validarInteres({ servicios, tipo_alarma: "a_definir" }),
     );
@@ -40,8 +40,8 @@ test("alta estructurada: notas opcionales y servicios combinados sin duplicar", 
     }),
   );
   assert.deepEqual(
-    validarInteres({ servicios: ["cerco"], tipo_alarma: "docta" }),
-    { servicios: ["cerco"], tipo_alarma: null },
+    validarInteres({ servicios: ["camaras"], tipo_alarma: "docta" }),
+    { servicios: ["camaras"], tipo_alarma: null },
   );
 });
 

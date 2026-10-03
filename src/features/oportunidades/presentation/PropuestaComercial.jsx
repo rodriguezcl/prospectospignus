@@ -33,7 +33,8 @@ export function PropuestaComercial({
   const [ocupado, ocupar] = useState(false);
   const interes = oportunidad.interes_comercial;
   const [servicio, elegirServicio] = useState(
-    interes?.servicios?.[0] || "alarma",
+    interes?.servicios?.find((s) => ["alarma", "camaras"].includes(s)) ||
+      "alarma",
   );
   const [familiaId, elegirFamilia] = useState("");
   const [modalidadEquipo, elegirModalidadEquipo] = useState("plan");
@@ -125,17 +126,19 @@ export function PropuestaComercial({
         i.modalidad === (servicio === "alarma" ? modalidadEquipo : "kit")),
   );
   const kit = kits.find((i) => i.id === kitId);
+  const venta =
+    catalogo.esquema >= 4 &&
+    (servicio === "camaras" || modalidadEquipo === "kit");
   const adicionales = ordenarAlfabeticamente(catalogo.items).filter(
     (i) =>
       activo(i) &&
       i.familia_id === familiaId &&
       i.tipo !== "kit" &&
-      (!(catalogo.esquema >= 2) ||
-        i.tipo === "mano_obra" ||
-        i.adicional_habilitado) &&
+      (!(catalogo.esquema >= 2) || i.adicional_habilitado) &&
       (!i.kits_compatibles.length || i.kits_compatibles.includes(kitId)),
   );
-  const conAbono = servicio === "alarma" && subcategoria === "con_monitoreo";
+  const conAbono =
+    !venta && servicio === "alarma" && subcategoria === "con_monitoreo";
   const permiteCongelar =
     perfil.rol === "administrador" ||
     condiciones[`congelamiento_${perfil.rol}`];
@@ -246,8 +249,14 @@ export function PropuestaComercial({
       {interes?.servicios?.length > 0 && (
         <p className="small">
           Servicios de interés:{" "}
-          {interes.servicios.map((s) => serviciosInteres[s]).join(" + ")}. Podés
-          ajustar la cotización según el relevamiento.
+          {interes.servicios
+            .map(
+              (s) =>
+                serviciosInteres[s] ||
+                (s === "cerco" ? "Cerco eléctrico (histórico)" : s),
+            )
+            .join(" + ")}
+          . Podés ajustar la cotización según el relevamiento.
         </p>
       )}
       {error && (
@@ -258,10 +267,10 @@ export function PropuestaComercial({
       {puedeEditar && (
         <fieldset disabled={ocupado}>
           <legend className="h5">Preparar lo que vas a ofrecer</legend>
-          {!catalogo.items.length ? (
+          {catalogo.esquema !== 4 || !catalogo.items.length ? (
             <p>
-              Administración debe cargar y habilitar los productos y precios. No
-              se usan tarifas de ejemplo.
+              Administración debe revisar y guardar el catálogo actualizado y
+              habilitar sus productos y precios.
             </p>
           ) : (
             <>
@@ -278,9 +287,6 @@ export function PropuestaComercial({
                   >
                     <option value="alarma">Instalación de Alarma</option>
                     <option value="camaras">Instalación de Cámaras</option>
-                    <option value="cerco">
-                      Instalación de Cerco Eléctrico
-                    </option>
                   </select>
                 </label>
                 {catalogo.esquema >= 2 && servicio === "alarma" && (
@@ -314,7 +320,7 @@ export function PropuestaComercial({
                     ))}
                   </select>
                 </label>
-                {servicio !== "cerco" && (
+                {
                   <label className="col-md-6">
                     Plan o kit
                     <select
@@ -334,8 +340,8 @@ export function PropuestaComercial({
                       ))}
                     </select>
                   </label>
-                )}
-                {servicio === "alarma" && (
+                }
+                {servicio === "alarma" && !venta && (
                   <label className="col-md-6">
                     Condición del servicio de alarma
                     <select
@@ -372,11 +378,7 @@ export function PropuestaComercial({
                 </p>
               )}
               <fieldset className="my-3">
-                <legend className="h6">
-                  {servicio === "cerco"
-                    ? "Metros, componentes y mano de obra"
-                    : "Adicionales (opcional)"}
-                </legend>
+                <legend className="h6">Adicionales (opcional)</legend>
                 {adicionales.map((i) => (
                   <div
                     key={i.id}
@@ -425,7 +427,7 @@ export function PropuestaComercial({
                   </div>
                 ))}
               </fieldset>
-              {servicio === "alarma" && (
+              {servicio === "alarma" && !venta && (
                 <label className="d-block mb-3">
                   Nivel del plan o kit
                   <select
@@ -449,6 +451,13 @@ export function PropuestaComercial({
                     )}
                   </select>
                 </label>
+              )}
+              {venta && (
+                <p>
+                  Precio del kit: Telefónico. Los adicionales se suman también a
+                  precio Telefónico. Los componentes incluidos no se cobran
+                  nuevamente.
+                </p>
               )}
               {conAbono && (
                 <div className="row g-3 mb-3">
@@ -536,7 +545,8 @@ export function PropuestaComercial({
                                     }
                                     : {e.cantidad} · {e.bonificados || 0}{" "}
                                     bonificados
-                                    {servicio === "alarma" &&
+                                    {!venta &&
+                                      servicio === "alarma" &&
                                       ` · Alto ${e.altos} / Bajo ${e.bajos} / Telefónico ${e.telefonicos}`}
                                   </div>
                                 ))}

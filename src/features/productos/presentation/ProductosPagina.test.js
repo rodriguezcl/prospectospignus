@@ -61,7 +61,7 @@ test("productos: puerto envía versión e idempotencia, no identidad de actor", 
     datos: { familias: [], items: [] },
   });
   assert.deepEqual(llamadas[0], ["leer_catalogo", { p_oportunidad: null }]);
-  assert.equal(llamadas[1][0], "guardar_catalogo_024");
+  assert.equal(llamadas[1][0], "guardar_catalogo_025");
   assert.deepEqual(Object.keys(llamadas[1][1]), [
     "p_version",
     "p_operacion",
@@ -268,6 +268,28 @@ test("catálogo: editor ofrece modalidad, marca, tipo y componentes sin campo fa
   assert.match(editado, /adicional-inactivo/);
   assert.match(editado, /max="2"/);
   const extra = render({ ...valor, tipo: "adicional" }, false);
+  assert.doesNotMatch(extra, /Clase de producto|Mano de obra|Cerco/);
+  assert.match(extra, /Precio alto/);
+  assert.match(extra, /Precio bajo/);
+  assert.match(extra, /Precio telefonico/);
+  assert.doesNotMatch(extra, /Precio catalogo|Precio medio/);
+  for (const servicio of ["alarma", "camaras"]) {
+    const venta = render({ ...valor, servicio, modalidad: "kit" });
+    assert.match(venta, /Precio telefonico/);
+    assert.doesNotMatch(
+      venta,
+      /Precio alto|Precio bajo|Precio medio|Precio catalogo/,
+    );
+  }
+  const componenteCamara = render(
+    { ...valor, servicio: "camaras", tipo: "adicional", modalidad: null },
+    false,
+  );
+  assert.match(componenteCamara, /Precio telefonico/);
+  assert.doesNotMatch(
+    componenteCamara,
+    /Precio alto|Precio bajo|Precio medio|Precio catalogo/,
+  );
   assert.match(extra, /Se vende por/);
   assert.doesNotMatch(extra, /Unidad comercial/);
   assert.match(extra, /value="unidad">Unidad<\/option>/);

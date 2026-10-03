@@ -26,7 +26,7 @@ export function ProductosPagina({ gestion }) {
     return {
       ...v,
       datos: prepararCatalogo(v.datos),
-      anterior: ![2, 3].includes(v.datos.esquema) && v.version > 0,
+      anterior: v.datos.esquema !== 4 && v.version > 0,
     };
   }
   useEffect(() => {
@@ -138,10 +138,11 @@ export function ProductosPagina({ gestion }) {
         <>
           {catalogo.anterior && (
             <div className="alert alert-warning">
-              Catálogo anterior pendiente de revisión. Se conservan marcas y
-              productos; los productos quedan en borrador hasta confirmar su
-              clasificación y activarlos. El primer guardado publica esta
-              adaptación sin cambiar propuestas históricas.
+              Catálogo pendiente de adaptación: solo Alarmas y Cámaras. Los
+              registros sin los precios requeridos quedan en borrador, junto con
+              las ofertas que los incluyen. Revisá precios y modalidad antes de
+              activarlos. El primer guardado publica esta adaptación; el
+              historial se conserva.
             </div>
           )}
           <nav

@@ -3,7 +3,6 @@ import { subcategorias } from "./alternativas.js";
 export const serviciosInteres = {
   alarma: "Instalación de Alarma",
   camaras: "Instalación de Cámaras",
-  cerco: "Instalación de Cerco Eléctrico",
 };
 
 export function validarInteres(interes) {
@@ -11,7 +10,7 @@ export function validarInteres(interes) {
     !interes ||
     !Array.isArray(interes.servicios) ||
     !interes.servicios.length ||
-    interes.servicios.length > 3 ||
+    interes.servicios.length > 2 ||
     new Set(interes.servicios).size !== interes.servicios.length ||
     interes.servicios.some((s) => !Object.hasOwn(serviciosInteres, s))
   )

@@ -22,7 +22,7 @@ function comprobar(error) {
     PROPUESTA_VIGENCIA:
       "Cambió el catálogo o las condiciones. Volvé a preparar la propuesta con la versión actual.",
     PROPUESTA_COMPOSICION:
-      "Revisá el kit, sus adicionales compatibles y la mano de obra del cerco.",
+      "Revisá el plan o kit y sus adicionales compatibles.",
     PROPUESTA_PRECIO:
       "Administración debe completar los precios antes de ofrecer esta composición.",
     PROPUESTA_CANTIDAD: "Revisá las cantidades de los componentes.",
