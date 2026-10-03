@@ -33,7 +33,7 @@ export function crearRepositorioCatalogo(cliente) {
       throw new Error(
         mensajes[error.message] ||
           (["PGRST202", "42P01"].includes(error.code)
-            ? "Falta aplicar la actualización del catálogo comercial (025)."
+            ? "Falta aplicar la actualización del catálogo comercial (026)."
             : "No se pudo guardar o consultar el catálogo. Revisá campos, precios y conexión."),
       );
     }
@@ -43,7 +43,7 @@ export function crearRepositorioCatalogo(cliente) {
     leer: (oportunidad = null) =>
       llamar("leer_catalogo", { p_oportunidad: oportunidad }),
     guardar: ({ version, operacion, datos }) =>
-      llamar("guardar_catalogo_025", {
+      llamar("guardar_catalogo_026", {
         p_version: version,
         p_operacion: operacion,
         p_datos: datos,

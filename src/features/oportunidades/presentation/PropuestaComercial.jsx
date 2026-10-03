@@ -2,7 +2,11 @@ import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
 import { CampoImporte } from "../../../shared/ui/CampoImporte.jsx";
 import { monedaArgentina } from "../../../shared/ui/importe.js";
-import { generarAlternativas, subcategorias } from "../domain/alternativas.js";
+import {
+  generarAlternativas,
+  subcategorias,
+  adicionalCompatible,
+} from "../domain/alternativas.js";
 import { calcularPago } from "../domain/pago.js";
 import { totalConceptos } from "../domain/propuesta.js";
 import { serviciosInteres } from "../domain/interesComercial.js";
@@ -116,7 +120,9 @@ export function PropuestaComercial({
   const familias = ordenarAlfabeticamente(
     catalogo.familias,
     (f) => f.marca || f.nombre,
-  ).filter((f) => activo(f) && f.servicio === servicio);
+  ).filter(
+    (f) => activo(f) && f.servicio === servicio && f.marca !== "COMPONENTES",
+  );
   const kits = ordenarAlfabeticamente(catalogo.items).filter(
     (i) =>
       activo(i) &&
@@ -132,7 +138,7 @@ export function PropuestaComercial({
   const adicionales = ordenarAlfabeticamente(catalogo.items).filter(
     (i) =>
       activo(i) &&
-      i.familia_id === familiaId &&
+      adicionalCompatible(catalogo, i, familiaId) &&
       i.tipo !== "kit" &&
       (!(catalogo.esquema >= 2) || i.adicional_habilitado) &&
       (!i.kits_compatibles.length || i.kits_compatibles.includes(kitId)),
@@ -267,7 +273,7 @@ export function PropuestaComercial({
       {puedeEditar && (
         <fieldset disabled={ocupado}>
           <legend className="h5">Preparar lo que vas a ofrecer</legend>
-          {catalogo.esquema !== 4 || !catalogo.items.length ? (
+          {![4, 5].includes(catalogo.esquema) || !catalogo.items.length ? (
             <p>
               Administración debe revisar y guardar el catálogo actualizado y
               habilitar sus productos y precios.

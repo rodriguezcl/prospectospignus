@@ -494,6 +494,12 @@ Este criterio confirmado sustituye las reglas anteriores en estos puntos:
 - El precio del plan o kit es independiente de la suma de los productos incluidos. La composición sirve como referencia técnica; el motor parte del precio de la oferta y agrega únicamente las unidades adicionales elegidas. Los incluidos no se cobran dos veces. Las excepciones ya aprobadas de planes Docta/Nobu incluidos en expensas y las condiciones de pago se mantienen; no convierten un kit de venta en gratuito.
 - Las versiones, cotizaciones y ventas históricas se conservan. No se deduce un Telefónico a partir del antiguo precio Único de cámaras: queda como referencia para revisión. Los registros sin las tarifas requeridas y sus ofertas dependientes quedan en borrador hasta completarse y activarse.
 
+### 26.5 Componentes compartidos entre marcas (02-10-2026)
+
+La marca administrativa **COMPONENTES** agrupa productos reutilizables como SIM M2M, batería, transformador y cartel disuasivo. Cada producto selecciona explícitamente sus marcas compatibles mediante casillas. No equivale a compatibilidad universal ni convierte COMPONENTES en marca de planes o kits. Las ofertas conservan su marca comercial y admiten componentes propios o compartidos compatibles del mismo servicio. Las restricciones opcionales por plan/kit se mantienen para adicionales.
+
+Cada componente compartido tiene una sola identidad y sus propios precios por modalidad según 26.4. Se valida la compatibilidad también en servidor, para incluidos y adicionales. Retirar una compatibilidad utilizada en una oferta exige corregir previamente esa composición. No se modifican cotizaciones ni ventas históricas. Los duplicados solo se consolidan tras comprobar precios y configuración; el control de uso histórico impide eliminar identidades utilizadas.
+
 ## 27. Nombres uniformes
 
 Los nombres de personas/empresas, usuarios, marcas, tipos, productos, planes, kits y adicionales se guardan en mayúsculas, conservando tildes y Ñ y quitando espacios exteriores. No es una transformación general del texto: correos, contraseñas, códigos, archivos, direcciones y observaciones mantienen sus reglas anteriores.

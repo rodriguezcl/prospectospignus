@@ -647,7 +647,7 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
     db.query("select public.guardar_catalogo($1,$2,$3)", [
       ultima,
       randomUUID(),
-      { esquema: 4, marcas: [], familias: [], items: [] },
+      { esquema: 5, marcas: [], familias: [], items: [] },
     ]),
     /CATALOGO_USADO/,
   );
@@ -660,7 +660,7 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
     db.query("select public.guardar_catalogo($1,$2,$3)", [
       ultima + 1,
       randomUUID(),
-      { esquema: 4, marcas: [], familias: [], items: [] },
+      { esquema: 5, marcas: [], familias: [], items: [] },
     ]),
     /CATALOGO_USADO/,
   );

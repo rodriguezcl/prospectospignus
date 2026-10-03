@@ -19,6 +19,14 @@ Navegación en español, menú adaptable e interfaz comercial inicial. Login con
 
 Hay formularios de login, creación de cuentas, cambio de contraseña propio y registros iniciales. React Router usa fragmentos de URL (`#/prospectos`) para permitir recarga y navegación atrás/adelante sin reglas SPA adicionales del servidor. Los enlaces anteriores (`#prospectos`) siguen funcionando. El proyecto Hobby `prospectospignus` en Vercel está conectado a `main`; cada push inicia un despliegue. Los cambios locales no se publican hasta confirmar commit y despliegue.
 
+## Componentes compartidos — actualización 026 (aplicada)
+
+Migración `supabase/migrations/202610020026_componentes_compartidos.sql` aplicada en `sjoounysrvxreazgbjkv` el 02/10/2026. No repetirla en este proyecto. En instalaciones nuevas, aplicar después de 025 y antes del frontend. Publicar el catálogo con `guardar_catalogo_026`, esquema 5. La migración conserva todos los datos existentes; no carga marcas ni unifica productos por sí sola. Cotizaciones admite los esquemas 4 y 5 durante la transición.
+
+Para la unificación solicitada, exportar la respuesta administrativa de `leer_catalogo` a un archivo local y ejecutar `node scripts/componentes-compartidos.mjs catalogo.json preparado.json`. El resultado crea COMPONENTES y agrupa únicamente los códigos conocidos de SIM M2M, cartel disuasivo, batería 12 V 7 AMP y transformador 16.5 V 1.5 AMP. Conserva una identidad por grupo, precios y cantidades; compatibilidades iniciales limitadas a las marcas de origen. Se detiene ante diferencias de precios/configuración. Revisar `resumen` y publicar únicamente `datos`, `version` y `operacion` mediante la RPC 026 con sesión administrativa. No ejecutar INSERT directo. Si una identidad retirada tiene uso en propuestas, la RPC rechaza la eliminación: conservarla inactiva y revisar sus vínculos antes de reintentar. Ante conflicto de versión, releer y preparar de nuevo. No usar los archivos exportados como fixtures ni subirlos al repositorio.
+
+Carga aplicada mediante la RPC 026: versión 38, esquema 5; cuatro componentes compartidos y dos copias retiradas (SIM y cartel), con control de uso e historial. Verificar la marca COMPONENTES, cuatro productos compartidos y sus marcas compatibles, ausencia de duplicados retirados sin uso y conservación de ofertas/precios. SIM y cartel parten con Hikvision y Garnet Híbrido; batería y transformador conservan Garnet Híbrido hasta confirmar otras compatibilidades técnicas. Las propuestas históricas no se modifican.
+
 ## Precios por modalidad — actualización 025
 
 La migración `supabase/migrations/202610020025_precios_por_modalidad.sql` se aplicó en `sjoounysrvxreazgbjkv` el 02/10/2026, después de 024. No repetirla en ese proyecto. En instalaciones nuevas debe aplicarse antes de publicar este frontend; no se ejecuta al iniciar la aplicación. La aplicación conservó el catálogo versión 33, esquema 3, pendiente del primer guardado administrativo de adaptación.

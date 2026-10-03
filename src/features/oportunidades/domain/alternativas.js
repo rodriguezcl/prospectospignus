@@ -11,6 +11,22 @@ const precio = (item, nivel) => importeExacto(item.precios[nivel]) * 1000n;
 const redondear = (importe) => (importe + 5000000n) / 10000000n;
 // Límite exclusivamente computacional: rechaza explícitamente, nunca ofrece lista parcial.
 const MAX_COMBINACIONES = 50000;
+export function adicionalCompatible(catalogo, item, familiaId) {
+  if (item.familia_id === familiaId) return true;
+  const familia = catalogo.familias.find((f) => f.id === familiaId);
+  return (
+    catalogo.esquema >= 5 &&
+    familia &&
+    item.servicio === familia.servicio &&
+    item.marcas_compatibles?.includes(familia.marca_id) &&
+    catalogo.marcas?.some(
+      (m) =>
+        m.id === item.marca_id &&
+        m.nombre === "COMPONENTES" &&
+        (!m.estado || m.estado === "activo"),
+    )
+  );
+}
 export function generarAlternativas({
   catalogo,
   familiaId,
@@ -63,7 +79,7 @@ export function generarAlternativas({
     const item = catalogo.items.find(
       (x) =>
         x.id === e.item_id &&
-        x.familia_id === familiaId &&
+        adicionalCompatible(catalogo, x, familiaId) &&
         x.tipo !== "kit" &&
         (!(catalogo.esquema >= 2) ||
           x.tipo === "mano_obra" ||

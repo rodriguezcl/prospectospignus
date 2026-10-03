@@ -29,7 +29,7 @@ export function ProductosPagina({ gestion }) {
     return {
       ...v,
       datos: prepararCatalogo(v.datos),
-      anterior: v.datos.esquema !== 4 && v.version > 0,
+      anterior: v.datos.esquema < 4 && v.version > 0,
     };
   }
   useEffect(() => {
@@ -99,6 +99,9 @@ export function ProductosPagina({ gestion }) {
     }
   }
   const grupo = seccion === "marcas" ? "marcas" : "items";
+  const activando =
+    baja?.accion === "guardar" && baja.valor.estado === "inactivo";
+  const accionEstado = activando ? "Activar" : "Desactivar";
   const filas = !catalogo
     ? []
     : catalogo.datos[grupo].filter(
@@ -218,18 +221,22 @@ export function ProductosPagina({ gestion }) {
                   ? "Eliminar del catálogo vigente"
                   : baja.accion === "retirar_adicional"
                     ? "Retirar como adicional"
-                    : "Desactivar"}
+                    : accionEstado}
                 : {baja.valor.nombre}
               </h2>
               {baja.accion === "guardar" && (
-                <p>¿Querés desactivar {baja.valor.nombre}?</p>
+                <p>
+                  ¿Querés {accionEstado.toLowerCase()} {baja.valor.nombre}?
+                </p>
               )}
               <p>
                 {baja.accion === "eliminar"
                   ? "Solo se permite sin vínculos ni uso en propuestas. Las versiones históricas no se borran."
                   : baja.accion === "retirar_adicional"
                     ? "Ya no podrá ofrecerse por separado. Se conserva el producto y su inclusión en planes y kits, sin alterar cotizaciones anteriores."
-                    : "Dejará de estar disponible para nuevas cotizaciones. Primero deben deshabilitarse los elementos activos que dependan de este registro."}
+                    : activando
+                      ? "Volverá a estar disponible en el catálogo. Se comprobarán los datos requeridos y sus dependencias antes de activarlo."
+                      : "Dejará de estar disponible para nuevas cotizaciones. Primero deben deshabilitarse los elementos activos que dependan de este registro."}
               </p>
               {error && (
                 <div role="alert" className="alert alert-danger">
@@ -238,14 +245,17 @@ export function ProductosPagina({ gestion }) {
               )}
               <div className="d-flex gap-2">
                 <button
-                  className="btn btn-danger"
+                  className={`btn ${activando ? "btn-primary" : "btn-danger"}`}
                   disabled={ocupado}
                   onClick={() =>
                     guardar(
                       baja.grupo,
                       baja.accion === "retirar_adicional"
                         ? { ...baja.valor, adicional_habilitado: false }
-                        : { ...baja.valor, estado: "inactivo" },
+                        : {
+                            ...baja.valor,
+                            estado: activando ? "activo" : "inactivo",
+                          },
                       baja.accion === "retirar_adicional"
                         ? "guardar"
                         : baja.accion,
@@ -253,7 +263,7 @@ export function ProductosPagina({ gestion }) {
                   }
                 >
                   {baja.accion === "guardar"
-                    ? "Desactivar"
+                    ? accionEstado
                     : baja.accion === "eliminar"
                       ? "Confirmar eliminación"
                       : "Confirmar baja"}
@@ -292,7 +302,7 @@ export function ProductosPagina({ gestion }) {
               seccion={seccion}
               titulo={secciones[seccion]}
               ocupado={ocupado}
-              desactivar={(i) => {
+              cambiarEstado={(i) => {
                 setError("");
                 setAviso("");
                 setEdicion(null);

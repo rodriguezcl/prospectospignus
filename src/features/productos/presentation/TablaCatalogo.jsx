@@ -27,7 +27,7 @@ export function TablaCatalogo({
   seccion,
   titulo,
   acciones,
-  desactivar,
+  cambiarEstado,
   ocupado,
 }) {
   const [busqueda, buscar] = useState("");
@@ -68,6 +68,17 @@ export function TablaCatalogo({
     },
     ...(seccion === "productos"
       ? [
+          {
+            campo: "compatibilidad",
+            titulo: "Marcas compatibles",
+            valor: (i) =>
+              i.marcas_compatibles?.length
+                ? i.marcas_compatibles
+                    .map((id) => nombresMarcas.get(id) || "Marca no disponible")
+                    .sort(comparar.compare)
+                    .join(", ")
+                : nombresMarcas.get(i.marca_id) || "—",
+          },
           {
             campo: "adicional",
             titulo: "Adicional",
@@ -214,23 +225,17 @@ export function TablaCatalogo({
                           c.campo === "codigo" ? "text-nowrap" : undefined
                         }
                       >
-                        {c.campo === "estado" && i.estado !== "inactivo" ? (
+                        {c.campo === "estado" ? (
                           <button
                             type="button"
-                            className={`badge border-0 ${i.estado === "activo" ? "bg-success" : "bg-warning text-dark"}`}
+                            className={`badge border-0 ${i.estado === "activo" ? "bg-success" : i.estado === "borrador" ? "bg-warning text-dark" : "bg-secondary"}`}
                             disabled={ocupado}
-                            aria-label={`${c.valor(i)}: desactivar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""}`}
+                            aria-label={`${c.valor(i)}: ${i.estado === "inactivo" ? "activar" : "desactivar"} ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""}`}
                             aria-haspopup="dialog"
-                            onClick={() => desactivar(i)}
+                            onClick={() => cambiarEstado(i)}
                           >
                             {c.valor(i)}
                           </button>
-                        ) : c.campo === "estado" ? (
-                          <span
-                            className={`badge ${i.estado === "activo" ? "bg-success" : i.estado === "borrador" ? "bg-warning text-dark" : "bg-secondary"}`}
-                          >
-                            {c.valor(i)}
-                          </span>
                         ) : (
                           c.valor(i)
                         )}

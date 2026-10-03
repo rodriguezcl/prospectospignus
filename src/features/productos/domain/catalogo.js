@@ -3,6 +3,18 @@ export const servicios = {
   camaras: "Cámaras",
 };
 export const estados = ["borrador", "activo", "inactivo"];
+export const esMarcaComponentes = (marca) =>
+  marca?.nombre?.trim().toUpperCase() === "COMPONENTES";
+export function componenteCompatible(datos, componente, oferta) {
+  return (
+    componente.servicio === oferta.servicio &&
+    (componente.marca_id === oferta.marca_id ||
+      (esMarcaComponentes(
+        datos.marcas.find((m) => m.id === componente.marca_id),
+      ) &&
+        componente.marcas_compatibles?.includes(oferta.marca_id)))
+  );
+}
 export function normalizarNombresCatalogo(datos) {
   const nuevo = structuredClone(datos);
   for (const coleccion of ["marcas", "familias", "items"]) {
@@ -17,7 +29,7 @@ export function normalizarNombresCatalogo(datos) {
 }
 function adaptarEstructura(datos) {
   datos = normalizarNombresCatalogo(datos);
-  if ([2, 3, 4].includes(datos.esquema)) {
+  if ([2, 3, 4, 5].includes(datos.esquema)) {
     const { tipos, plantillas_version, ...vigente } = datos;
     return {
       ...vigente,
@@ -66,7 +78,7 @@ export function nivelesPrecios(item) {
 }
 export function prepararCatalogo(datos) {
   const nuevo = adaptarEstructura(datos);
-  nuevo.esquema = 4;
+  nuevo.esquema = 5;
   nuevo.familias = nuevo.familias.filter((f) => f.servicio !== "cerco");
   nuevo.items = nuevo.items.filter(
     (i) => i.servicio !== "cerco" && i.tipo !== "mano_obra",
@@ -132,7 +144,8 @@ export function dependencias(datos, seccion, id, soloActivas = false) {
       (i) =>
         (!soloActivas || i.estado === "activo") &&
         (seccion === "marcas"
-          ? i.marca_id === id
+          ? i.marca_id === id ||
+            (!soloActivas && i.marcas_compatibles?.includes(id))
           : i.id !== id &&
             ((i.incluidos || []).some((c) => c.item_id === id) ||
               (!soloActivas && (i.kits_compatibles || []).includes(id)))),

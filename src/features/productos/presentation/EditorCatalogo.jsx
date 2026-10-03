@@ -1,7 +1,13 @@
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useState } from "react";
 import { CampoImporte } from "../../../shared/ui/CampoImporte.jsx";
-import { servicios, estados, nivelesPrecios } from "../domain/catalogo.js";
+import {
+  servicios,
+  estados,
+  nivelesPrecios,
+  esMarcaComponentes,
+  componenteCompatible,
+} from "../domain/catalogo.js";
 const Campo = ({ titulo, children }) => (
   <label className="d-block mb-3">
     {titulo}
@@ -27,6 +33,7 @@ export function EditorCatalogo({
               nombre: "",
               codigo: "",
               marca_id: "",
+              marcas_compatibles: [],
               servicio: "alarma",
               tipo: oferta ? "kit" : "adicional",
               modalidad: oferta ? "plan" : null,
@@ -49,7 +56,11 @@ export function EditorCatalogo({
     }));
   const referencias = ordenarAlfabeticamente(datos.items).filter(
     (i) =>
-      i.marca_id === item.marca_id &&
+      ((oferta
+        ? componenteCompatible(datos, i, item)
+        : componenteCompatible(datos, item, i)) ||
+        item.incluidos?.some((c) => c.item_id === i.id) ||
+        item.kits_compatibles?.includes(i.id)) &&
       i.servicio === item.servicio &&
       i.id !== item.id &&
       (i.estado === "activo" ||
@@ -57,7 +68,9 @@ export function EditorCatalogo({
         item.kits_compatibles?.includes(i.id)),
   );
   const marcas = ordenarAlfabeticamente(datos.marcas).filter(
-    (m) => m.estado === "activo" || m.id === item.marca_id,
+    (m) =>
+      (!oferta || !esMarcaComponentes(m)) &&
+      (m.estado === "activo" || m.id === item.marca_id),
   );
   const vinculadosNoActivos = [
     ...marcas.filter((m) => m.id === item.marca_id),
@@ -209,6 +222,7 @@ export function EditorCatalogo({
                   editar((i) => ({
                     ...i,
                     marca_id: e.target.value,
+                    marcas_compatibles: [],
                     validado_tecnicamente: false,
                     incluidos: [],
                     kits_compatibles: [],
@@ -227,6 +241,52 @@ export function EditorCatalogo({
                 ))}
               </select>
             </Campo>
+            {!oferta &&
+              esMarcaComponentes(
+                datos.marcas.find((m) => m.id === item.marca_id),
+              ) && (
+                <fieldset className="mb-3">
+                  <legend className="h5">Marcas compatibles</legend>
+                  <p>
+                    Marcá las marcas que pueden usar este componente. El
+                    producto y sus precios se comparten entre ellas.
+                  </p>
+                  {ordenarAlfabeticamente(datos.marcas)
+                    .filter(
+                      (m) =>
+                        !esMarcaComponentes(m) &&
+                        (m.estado === "activo" ||
+                          item.marcas_compatibles?.includes(m.id)),
+                    )
+                    .map((m) => (
+                      <label className="d-block" key={m.id}>
+                        <input
+                          type="checkbox"
+                          className="form-check-input me-2"
+                          checked={
+                            item.marcas_compatibles?.includes(m.id) || false
+                          }
+                          disabled={
+                            m.estado !== "activo" &&
+                            !item.marcas_compatibles?.includes(m.id)
+                          }
+                          onChange={(e) =>
+                            editar((i) => ({
+                              ...i,
+                              marcas_compatibles: e.target.checked
+                                ? [...(i.marcas_compatibles || []), m.id]
+                                : i.marcas_compatibles.filter(
+                                    (id) => id !== m.id,
+                                  ),
+                              validado_tecnicamente: false,
+                            }))
+                          }
+                        />
+                        {m.nombre} · {m.estado}
+                      </label>
+                    ))}
+                </fieldset>
+              )}
             {!oferta && (
               <>
                 <Campo titulo="Se vende por">
@@ -340,8 +400,8 @@ export function EditorCatalogo({
               <details className="mb-3">
                 <summary>Compatibilidad con planes y kits</summary>
                 <p>
-                  Sin selección: todos los de la misma marca y servicio.
-                  Confirmá la compatibilidad técnica antes de activar.
+                  Sin selección: todos los de las marcas compatibles y el mismo
+                  servicio. Confirmá la compatibilidad técnica antes de activar.
                 </p>
                 {referencias
                   .filter((i) => i.tipo === "kit")
