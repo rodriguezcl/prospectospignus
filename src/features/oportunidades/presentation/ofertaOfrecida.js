@@ -64,16 +64,22 @@ export function ofertaOfrecida(
   historial,
   { ciclo, catalogo, condiciones, nivelAbono, meses },
 ) {
-  return historial.some(
-    (p) =>
-      p.ciclo === ciclo &&
-      p.catalogo_version === catalogo &&
-      p.condiciones_version === condiciones &&
-      p.detalle.conceptos.some(
-        (c) =>
-          mismaSeleccion(c.seleccion, alternativa.seleccion) &&
-          (c.nivel_abono || null) === nivelAbono &&
-          Number(c.meses_congelamiento) === meses,
-      ),
-  );
+  return historial
+    .filter((p) => p.ciclo === ciclo)
+    .sort((a, b) =>
+      String(b.creado_en || "").localeCompare(String(a.creado_en || "")),
+    )
+    .slice(0, 1)
+    .some(
+      (p) =>
+        p.ciclo === ciclo &&
+        p.catalogo_version === catalogo &&
+        p.condiciones_version === condiciones &&
+        p.detalle.conceptos.some(
+          (c) =>
+            mismaSeleccion(c.seleccion, alternativa.seleccion) &&
+            (c.nivel_abono || null) === nivelAbono &&
+            Number(c.meses_congelamiento) === meses,
+        ),
+    );
 }

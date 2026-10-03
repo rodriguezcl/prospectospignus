@@ -48,7 +48,9 @@ export function OfertaComercial({
         style={{ scrollMarginTop: "1rem" }}
       >
         Oferta {alternativa.ordinal} · {kit?.nombre}
-        {ofrecida && <span className="badge bg-success ms-2">Ofrecida</span>}
+        {ofrecida && (
+          <span className="badge bg-success ms-2">Última ofrecida</span>
+        )}
       </h4>
       {comparacion ? (
         <aside

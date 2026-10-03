@@ -93,4 +93,25 @@ test("Ofrecida requiere una propuesta persistida con composición, ciclo y condi
   otra.seleccion.extras[0].altos = 0;
   otra.seleccion.extras[0].bajos = 1;
   assert.equal(ofertaOfrecida(otra, [p], contexto), false);
+  const anterior = { ...p, creado_en: "2026-10-03T10:00:00Z" };
+  const ultima = {
+    ...p,
+    creado_en: "2026-10-03T11:00:00Z",
+    detalle: {
+      conceptos: [{ ...p.detalle.conceptos[0], seleccion: otra.seleccion }],
+    },
+  };
+  assert.equal(
+    ofertaOfrecida(alternativa, [anterior, ultima], contexto),
+    false,
+  );
+  assert.equal(ofertaOfrecida(otra, [anterior, ultima], contexto), true);
+  assert.equal(
+    ofertaOfrecida(
+      alternativa,
+      [anterior, { ...ultima, catalogo_version: 5 }],
+      contexto,
+    ),
+    false,
+  );
 });

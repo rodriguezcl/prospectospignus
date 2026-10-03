@@ -312,16 +312,11 @@ export function PropuestaComercial({
     }
   }
   function agregar(opcion) {
-    if (conceptos.length >= 10) {
-      fallar("La propuesta admite hasta diez conceptos.");
-      return;
-    }
     if (conAbono && kit?.abonos[nivelAbono] == null) {
       fallar("Falta el precio del abono. Administración debe completarlo.");
       return;
     }
     agregarConceptos([
-      ...conceptos,
       {
         ...opcion,
         etiqueta: `${familias.find((f) => f.id === familiaId)?.nombre} · ${kit?.nombre || "Cerco"}`,
@@ -331,7 +326,8 @@ export function PropuestaComercial({
         meses_congelamiento: conAbono ? meses : 0,
       },
     ]);
-    generar([]);
+    confirmarOfrecida(false);
+    elegirEfectivo("0");
     abrirPago((n) => n + 1);
   }
   async function guardar() {
@@ -362,7 +358,14 @@ export function PropuestaComercial({
       await gestion.guardarPropuesta({ ...entrada, id: intento.current.id });
       guardada.current = true;
       try {
-        window.localStorage.removeItem(claveBorrador(perfil, oportunidad));
+        window.localStorage.setItem(
+          claveBorrador(perfil, oportunidad),
+          JSON.stringify({
+            ...JSON.parse(borrador),
+            conceptos: [],
+            pago: { baseEfectivo: "0", medioSaldo, cuotas },
+          }),
+        );
       } catch {
         /* El guardado del servidor ya fue confirmado. */
       }
@@ -390,7 +393,7 @@ export function PropuestaComercial({
           aria-label="Última propuesta guardada"
         >
           <h3 className="h5">
-            <span className="badge bg-success me-2">Ofrecida</span>
+            <span className="badge bg-success me-2">Última ofrecida</span>
             Última propuesta guardada
             {historial[0].ciclo !== (oportunidad.ciclo || 1)
               ? " · ciclo anterior"
@@ -839,7 +842,10 @@ export function PropuestaComercial({
               </h3>
               <p>
                 Elegir una oferta prepara el borrador. Marcá «Ofrecido» cuando
-                efectivamente la hayas presentado al prospecto.
+                efectivamente la hayas presentado al prospecto. Cada nueva
+                oferta reemplaza a la anterior: sus importes no se suman. La
+                última registrada será la referencia de comparación; las
+                anteriores se conservan en el historial.
               </p>
               {conceptos.map((c, i) => (
                 <div key={i} className="mb-3">
@@ -944,11 +950,15 @@ export function PropuestaComercial({
         </fieldset>
       )}
       <details className="mt-3">
-        <summary>Propuestas guardadas · últimas 20 accesibles</summary>
+        <summary>
+          Historial de ofrecimientos · últimas 20 propuestas accesibles
+        </summary>
         {!historial.length && <p>Sin propuestas estructuradas accesibles.</p>}
         {historial.map((p) => (
           <article key={p.id} className="border-bottom py-3">
-            <span className="badge bg-success me-2">Ofrecida</span>
+            <span className="badge bg-secondary me-2">
+              Ofrecimiento registrado
+            </span>
             <strong>{p.detalle.codigo}</strong>
             <p>
               Ciclo {p.ciclo} · catálogo {p.catalogo_version} · inicial{" "}
