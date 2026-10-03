@@ -40,6 +40,7 @@ function Campo({
           maxLength={2000}
           rows={3}
           placeholder={ayuda}
+          defaultValue={valor || ""}
         />
       ) : (
         <input
@@ -47,6 +48,7 @@ function Campo({
           type={tipo}
           className="form-control"
           required={requerido}
+          defaultValue={valor || ""}
         />
       )}
     </label>
@@ -73,10 +75,20 @@ export function FormularioOportunidad({
   );
   const alta = ["crear", "iniciar_cotizacion"].includes(accion);
   const [servicios, elegirServicios] = useState([""]);
+  const propuestas = (oportunidad?.propuestas || []).filter(
+    (p) => p.ciclo === oportunidad.ciclo,
+  );
+  const [propuestaId, elegirPropuesta] = useState(propuestas[0]?.id || "");
+  const propuesta = propuestas.find((p) => p.id === propuestaId);
+  const [contactoSugerido] = useState(() =>
+    new Date(Date.now() + 24 * 3600000 - 3 * 3600000)
+      .toISOString()
+      .slice(0, 16),
+  );
   const recuperacion = oportunidad?.estado === "recuperacion";
   return (
     <>
-      {oportunidad && (
+      {oportunidad && opciones.length > 1 && (
         <label className="d-block mb-3">
           Acción
           <select
@@ -95,6 +107,9 @@ export function FormularioOportunidad({
       )}
       <form
         key={accion}
+        onChange={(e) => {
+          if (e.target.name === "propuesta_id") elegirPropuesta(e.target.value);
+        }}
         onSubmit={(e) => {
           e.preventDefault();
           const datos = Object.fromEntries(new FormData(e.currentTarget));
@@ -144,6 +159,7 @@ export function FormularioOportunidad({
           {["ganar", "derivar"].includes(accion) && (
             <Campo
               nombre="propuesta_id"
+              valor={propuestaId}
               titulo={
                 accion === "ganar"
                   ? "Propuesta aceptada por el cliente"
@@ -161,11 +177,32 @@ export function FormularioOportunidad({
             />
           )}
           {accion === "derivar" && (
-            <Campo
-              nombre="objecion"
-              titulo="¿Qué impidió cerrar la venta? Objeción concreta para el agente"
-              tipo="textarea"
-            />
+            <>
+              <p className="alert alert-info">
+                Adjuntamos la propuesta ofrecida con equipos, adicionales,
+                precios, abono y pago. Completá lo que el agente necesita saber
+                para retomar la conversación.
+              </p>
+              <Campo
+                nombre="objecion"
+                titulo="¿Qué impidió cerrar la venta? Objeción concreta para el agente"
+                tipo="textarea"
+                ayuda="Qué dijo el prospecto: precio inicial, abono, comparación con otra empresa, decisión pendiente… Evitá escribir solo 'caro'."
+              />
+              <Campo
+                nombre="contacto_preferido"
+                titulo="Cómo y cuándo conviene contactar al prospecto"
+                tipo="textarea"
+                ayuda="Canal y horario que prefiere, con quién hablar y si está esperando la llamada. Si no se acordó, indicalo."
+              />
+              <Campo
+                nombre="decision_pendiente"
+                titulo="Información adicional para el cierre (opcional)"
+                tipo="textarea"
+                requerido={false}
+                ayuda="Quién decide, urgencia, presupuesto mencionado, competencia, compromisos asumidos o particularidades de la instalación. Solo datos confirmados."
+              />
+            </>
           )}
           {accion === "reactivar" && (
             <label className="d-block mb-3">
@@ -364,10 +401,20 @@ export function FormularioOportunidad({
                   : "Próximo contacto · Córdoba"
               }
               tipo="datetime-local"
+              valor={accion === "derivar" ? contactoSugerido : undefined}
             />
+          )}
+          {accion === "derivar" && (
+            <p className="small">
+              Objetivo sugerido: contactar el mismo día o dentro de 24 horas.
+              Revisá la fecha según la disponibilidad del prospecto; usá 48
+              horas si así lo acordaron. La fecha indicada queda como próxima
+              acción para Recuperación.
+            </p>
           )}
           {["derivar", "seguimiento", "ganar", "perder"].includes(accion) && (
             <Campo
+              key={accion === "derivar" ? propuestaId : accion}
               nombre="condiciones"
               titulo={
                 recuperacion
@@ -375,6 +422,16 @@ export function FormularioOportunidad({
                   : "Condiciones finales ofrecidas y bonificaciones"
               }
               tipo="textarea"
+              valor={
+                accion === "derivar" && propuesta
+                  ? `Propuesta ofrecida ${propuesta.detalle.codigo}. Inicial: ${monedaArgentina(propuesta.detalle.total)}. Abono: ${monedaArgentina(propuesta.detalle.abono, "no corresponde")}. Pago: ${propuesta.detalle.pago?.medio_saldo || "ver propuesta"}.`
+                  : undefined
+              }
+              ayuda={
+                accion === "derivar"
+                  ? "Aclaraciones de la oferta y compromisos conversados. El detalle de equipos y precios se adjunta automáticamente."
+                  : undefined
+              }
               requerido={
                 accion === "derivar" ||
                 accion === "ganar" ||
@@ -387,14 +444,18 @@ export function FormularioOportunidad({
             titulo={
               alta
                 ? "Observaciones de la negociación (opcional)"
-                : "Resumen, resultado, objeciones o motivo del cambio"
+                : accion === "derivar"
+                  ? "Contexto del caso y qué necesita el prospecto"
+                  : "Resumen, resultado, objeciones o motivo del cambio"
             }
             tipo="textarea"
             requerido={!alta}
             ayuda={
               accion === "crear"
                 ? "Por ejemplo: avisar antes de llegar, ingresar por la cochera o consultar por cámaras para el patio."
-                : undefined
+                : accion === "derivar"
+                  ? "Qué quiere proteger, situación actual, interés y próximos pasos conversados. El agente debería poder continuar sin pedirle que repita todo."
+                  : undefined
             }
           />
           {accion === "ganar" && (

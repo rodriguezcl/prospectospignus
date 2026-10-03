@@ -25,6 +25,7 @@ export function OfertaComercial({
   meses,
   agregar,
   referencia,
+  ofrecida = false,
 }) {
   const comparacion = compararOfertas(alternativa, anterior, catalogo.items);
   const venta = kit?.modalidad === "kit";
@@ -46,6 +47,7 @@ export function OfertaComercial({
         style={{ scrollMarginTop: "1rem" }}
       >
         Oferta {alternativa.ordinal} · {kit?.nombre}
+        {ofrecida && <span className="badge bg-success ms-2">Ofrecida</span>}
       </h4>
       {comparacion ? (
         <aside
@@ -180,7 +182,9 @@ export function OfertaComercial({
         className="btn btn-primary"
         onClick={() => agregar(alternativa)}
       >
-        Elegir esta oferta
+        {ofrecida
+          ? "Volver a usar esta oferta"
+          : "Elegir y registrar como ofrecida"}
       </button>
       <details className="mt-3 small">
         <summary>Detalle de negociación y referencia interna</summary>

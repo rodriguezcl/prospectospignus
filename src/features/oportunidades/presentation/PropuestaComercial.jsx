@@ -1,4 +1,5 @@
 import { OfertaComercial } from "./OfertaComercial.jsx";
+import { ofertaOfrecida } from "./ofertaOfrecida.js";
 import { enfocarPanel } from "../../../shared/ui/enfocarPanel.js";
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +14,12 @@ import { calcularPago } from "../domain/pago.js";
 import { totalConceptos } from "../domain/propuesta.js";
 import { serviciosInteres } from "../domain/interesComercial.js";
 import { puedeCotizar } from "../domain/circuito.js";
+import {
+  claveBorrador,
+  leerBorrador,
+  seleccionBorrador,
+  reconstruirConceptos,
+} from "./borradorCotizacion.js";
 
 const moneda = (valor) => monedaArgentina(valor, "No corresponde");
 const activo = (item) => !item.estado || item.estado === "activo";
@@ -25,13 +32,27 @@ export function PropuestaComercial({
   actualizada,
   abierto = false,
   apertura = 0,
+  derivar,
 }) {
   const panel = useRef(null);
+  const panelPago = useRef(null);
+  const [ofrecidaConfirmada, confirmarOfrecida] = useState(false);
+  const [aperturaPago, abrirPago] = useState(0);
+  useEffect(() => {
+    if (aperturaPago) enfocarPanel(panelPago.current);
+  }, [aperturaPago]);
+  const [avisoBorrador, avisarBorrador] = useState("");
+  const [borradorListo, prepararBorrador] = useState(false);
+  const guardada = useRef(false);
   const [referencias, cargarReferencias] = useState(null);
   useEffect(() => {
-    if ((abierto || apertura > 0) && referencias && panel.current) {
+    if (
+      (apertura > 0 || (abierto && oportunidad.estado !== "recuperacion")) &&
+      referencias &&
+      panel.current
+    ) {
       panel.current.open = true;
-      panel.current.scrollIntoView({ block: "start", behavior: "smooth" });
+      enfocarPanel(panel.current);
     }
   }, [abierto, apertura, referencias]);
   const [historial, guardarHistorial] = useState([]);
@@ -86,6 +107,58 @@ export function PropuestaComercial({
         if (vigente) {
           cargarReferencias({ catalogo, condiciones });
           guardarHistorial(propuestas);
+          if (puedeEditar) {
+            try {
+              const b = leerBorrador(
+                window.localStorage,
+                claveBorrador(perfil, oportunidad),
+                { catalogo, condiciones },
+              );
+              if (b) {
+                restaurarSeleccion(b.seleccion);
+                if (b.vigente) {
+                  agregarConceptos(
+                    reconstruirConceptos(
+                      b.conceptos,
+                      catalogo.datos,
+                      telefonico,
+                    ),
+                  );
+                  elegirEfectivo(b.pago.baseEfectivo);
+                  elegirMedio(b.pago.medioSaldo);
+                  elegirCuotas(b.pago.cuotas);
+                  if (b.calculado)
+                    generar(
+                      generarAlternativas({
+                        catalogo: catalogo.datos,
+                        familiaId: b.seleccion.familiaId,
+                        kitId: b.seleccion.kitId,
+                        nivel: b.seleccion.nivel,
+                        subcategoria: b.seleccion.subcategoria,
+                        telefonico,
+                        extras: Object.entries(b.seleccion.extras)
+                          .filter(([, v]) => v.activo)
+                          .map(([item_id, v]) => ({
+                            item_id,
+                            cantidad: v.cantidad,
+                          })),
+                      }),
+                    );
+                  avisarBorrador(
+                    "Retomaste el borrador de esta negociación. Las ofertas calculadas y el pago se recuperaron.",
+                  );
+                } else
+                  avisarBorrador(
+                    "El catálogo o las condiciones cambiaron. Recuperamos tu selección; revisala y calculá los precios vigentes antes de elegir una oferta.",
+                  );
+              }
+            } catch (e) {
+              avisarBorrador(
+                "No se pudo recuperar todo el borrador. " + e.message,
+              );
+            }
+          }
+          prepararBorrador(true);
         }
       })
       .catch((e) => {
@@ -95,6 +168,48 @@ export function PropuestaComercial({
       vigente = false;
     };
   }, [gestion, oportunidad.id]);
+
+  function restaurarSeleccion(s) {
+    elegirServicio(s.servicio);
+    elegirFamilia(s.familiaId);
+    elegirModalidadEquipo(s.modalidadEquipo);
+    elegirKit(s.kitId);
+    elegirSubcategoria(s.subcategoria);
+    elegirExtras(s.extras);
+    elegirNivel(s.nivel);
+    elegirAbono(s.nivelAbono);
+    elegirMeses(s.meses);
+  }
+  const borrador = JSON.stringify({
+    esquema: 1,
+    catalogo: referencias?.catalogo.version,
+    condiciones: referencias?.condiciones.version,
+    seleccion: {
+      servicio,
+      familiaId,
+      modalidadEquipo,
+      kitId,
+      subcategoria,
+      extras,
+      nivel,
+      nivelAbono,
+      meses,
+    },
+    calculado: alternativas.length > 0,
+    conceptos: conceptos.map(seleccionBorrador),
+    pago: { baseEfectivo, medioSaldo, cuotas },
+  });
+  useEffect(() => confirmarOfrecida(false), [borrador]);
+  useEffect(() => {
+    if (!borradorListo || !puedeEditar || guardada.current) return;
+    try {
+      window.localStorage.setItem(claveBorrador(perfil, oportunidad), borrador);
+    } catch {
+      avisarBorrador(
+        "Este navegador no permite guardar el borrador. Guardá la propuesta ofrecida antes de salir para conservarla.",
+      );
+    }
+  }, [borrador, borradorListo, puedeEditar, perfil.id, oportunidad.id]);
 
   function invalidar() {
     generar([]);
@@ -210,9 +325,10 @@ export function PropuestaComercial({
       },
     ]);
     generar([]);
+    abrirPago((n) => n + 1);
   }
   async function guardar() {
-    if (!pago) return;
+    if (!pago || !ofrecidaConfirmada) return;
     const entrada = {
       oportunidad: oportunidad.id,
       version: oportunidad.version,
@@ -237,6 +353,12 @@ export function PropuestaComercial({
     fallar("");
     try {
       await gestion.guardarPropuesta({ ...entrada, id: intento.current.id });
+      guardada.current = true;
+      try {
+        window.localStorage.removeItem(claveBorrador(perfil, oportunidad));
+      } catch {
+        /* El guardado del servidor ya fue confirmado. */
+      }
       actualizada();
     } catch (e) {
       fallar(e.message);
@@ -247,6 +369,7 @@ export function PropuestaComercial({
   return (
     <details
       ref={panel}
+      tabIndex={-1}
       className="detalle-secundario my-4"
       open={abierto || undefined}
     >
@@ -254,9 +377,126 @@ export function PropuestaComercial({
         {puedeEditar ? "Preparar cotización" : "Consultar cotizaciones"} · kits,
         adicionales y pago
       </summary>
+      {historial.length > 0 && (
+        <section
+          className="border rounded p-3 my-3"
+          aria-label="Última propuesta guardada"
+        >
+          <h3 className="h5">
+            <span className="badge bg-success me-2">Ofrecida</span>
+            Última propuesta guardada
+            {historial[0].ciclo !== (oportunidad.ciclo || 1)
+              ? " · ciclo anterior"
+              : ""}
+          </h3>
+          <p className="mb-1">
+            <strong>Pago inicial: {moneda(historial[0].detalle.total)}</strong>{" "}
+            · Abono mensual: {moneda(historial[0].detalle.abono)}
+          </p>
+          <ul>
+            {historial[0].detalle.conceptos.map((c, i) => (
+              <li key={i}>
+                {c.kit?.nombre || c.familia} ·{" "}
+                {c.extras
+                  .map((e) => `${e.cantidad} × ${e.nombre}`)
+                  .join(", ") || "Sin adicionales"}
+              </li>
+            ))}
+          </ul>
+          <p>
+            Forma de pago: {historial[0].detalle.pago.medio_saldo} ·{" "}
+            {historial[0].detalle.pago.cantidad_cuotas} cuota(s) de{" "}
+            {moneda(historial[0].detalle.pago.cuota)}
+            {historial[0].detalle.pago.cuota !==
+            historial[0].detalle.pago.ultima_cuota
+              ? `; última de ${moneda(historial[0].detalle.pago.ultima_cuota)}`
+              : ""}
+            . Efectivo: {moneda(historial[0].detalle.pago.efectivo_a_abonar)}.
+          </p>
+          {puedeEditar && (
+            <button
+              type="button"
+              className="btn btn-outline-primary"
+              onClick={() => {
+                try {
+                  const ultima = historial[0],
+                    c = ultima.detalle.conceptos[0],
+                    s = c.seleccion;
+                  const item = catalogo.items.find((i) => i.id === s.kit_id);
+                  if (!item)
+                    throw new Error("El plan o kit ya no está disponible.");
+                  restaurarSeleccion({
+                    servicio: item.servicio,
+                    familiaId: s.familia_id,
+                    modalidadEquipo: item.modalidad,
+                    kitId: s.kit_id,
+                    subcategoria: s.subcategoria || "sin_monitoreo",
+                    extras: Object.fromEntries(
+                      s.extras.map((e) => [
+                        e.item_id,
+                        { activo: true, cantidad: e.cantidad },
+                      ]),
+                    ),
+                    nivel: s.nivel,
+                    nivelAbono: c.nivel_abono || "alto",
+                    meses: c.meses_congelamiento || 0,
+                  });
+                  invalidar();
+                  agregarConceptos([]);
+                  elegirEfectivo("0");
+                  elegirMedio("debito");
+                  elegirCuotas(1);
+                  if (
+                    ultima.catalogo_version === referencias.catalogo.version &&
+                    ultima.condiciones_version ===
+                      referencias.condiciones.version
+                  ) {
+                    agregarConceptos(
+                      reconstruirConceptos(
+                        ultima.detalle.conceptos,
+                        catalogo,
+                        telefonico,
+                      ),
+                    );
+                    elegirEfectivo(ultima.detalle.pago.base_efectivo);
+                    elegirMedio(ultima.detalle.pago.medio_saldo);
+                    elegirCuotas(ultima.detalle.pago.cantidad_cuotas);
+                    avisarBorrador(
+                      "Propuesta recuperada para preparar una nueva revisión. La propuesta original se conserva.",
+                    );
+                  } else
+                    avisarBorrador(
+                      "Recuperamos la selección del primer plan o kit. Los precios o condiciones cambiaron: calculá una nueva oferta y agregá los demás conceptos si corresponde. La propuesta original se conserva.",
+                    );
+                } catch (e) {
+                  fallar(e.message);
+                }
+              }}
+            >
+              Usar como base de una nueva cotización
+            </button>
+          )}
+          {derivar && (
+            <button
+              type="button"
+              className="btn btn-outline-primary ms-2"
+              onClick={derivar}
+            >
+              Derivar a Recuperación comercial
+            </button>
+          )}
+        </section>
+      )}
+      {puedeEditar && (
+        <p className="small" role="status">
+          {avisoBorrador ||
+            "Borrador automático en este navegador. Podés salir y volver a esta negociación. Para registrar lo presentado al cliente, elegí una oferta y guardá la propuesta ofrecida."}
+        </p>
+      )}
       <p>
         Guardar la cotización no confirma una venta. Si el cliente acepta, elegí
-        Registrar venta concretada en las acciones de esta ficha.
+        Registrar venta concretada en «Seguimiento, visitas y cierre de la
+        negociación».
       </p>
       {interes?.servicios?.length > 0 && (
         <p className="small">
@@ -535,6 +775,13 @@ export function PropuestaComercial({
                         referencia={a.ordinal === 1 ? primeraOferta : undefined}
                         key={a.ordinal}
                         alternativa={a}
+                        ofrecida={ofertaOfrecida(a, historial, {
+                          ciclo: oportunidad.ciclo || 1,
+                          catalogo: referencias.catalogo.version,
+                          condiciones: referencias.condiciones.version,
+                          nivelAbono: conAbono ? nivelAbono : null,
+                          meses: conAbono ? meses : 0,
+                        })}
                         anterior={alternativas[a.ordinal - 2]}
                         catalogo={catalogo}
                         kit={kit}
@@ -567,8 +814,18 @@ export function PropuestaComercial({
             </>
           )}
           {!!conceptos.length && (
-            <div className="border rounded p-3 my-3">
-              <h3 className="h5">Propuesta conjunta · una sola operación</h3>
+            <div
+              className="border rounded p-3 my-3"
+              ref={panelPago}
+              tabIndex={-1}
+            >
+              <h3 className="h5">
+                Confirmar la propuesta ofrecida y su forma de pago
+              </h3>
+              <p>
+                Elegir una oferta prepara el borrador. Marcá «Ofrecido» cuando
+                efectivamente la hayas presentado al prospecto.
+              </p>
               {conceptos.map((c, i) => (
                 <div key={i} className="mb-3">
                   <strong>{c.etiqueta}</strong> · {moneda(c.total)} · Abono:{" "}
@@ -639,18 +896,34 @@ export function PropuestaComercial({
                   por separado.
                 </p>
               )}
+              <label className="d-block mb-3">
+                <input
+                  type="checkbox"
+                  checked={ofrecidaConfirmada}
+                  onChange={(e) => confirmarOfrecida(e.target.checked)}
+                />{" "}
+                <strong>Ofrecido:</strong> presenté al prospecto esta propuesta
+                con estos importes y forma de pago.
+              </label>
               <button
                 type="button"
                 className="btn btn-primary"
-                disabled={!pago}
+                disabled={!pago || !ofrecidaConfirmada}
                 onClick={guardar}
               >
-                {ocupado ? "Guardando…" : "Guardar como propuesta ofrecida"}
+                {ocupado ? "Guardando…" : "Registrar como ofrecida"}
               </button>
               <p className="small mt-2">
                 No registra una venta ni un cobro. El servidor valida precios y
                 permisos vigentes.
               </p>
+              {derivar && (
+                <p>
+                  Si no avanza, registrá primero lo ofrecido. Después usá{" "}
+                  <strong>Derivar a Recuperación comercial</strong> para enviar
+                  el contexto al agente.
+                </p>
+              )}
             </div>
           )}
         </fieldset>
@@ -660,6 +933,7 @@ export function PropuestaComercial({
         {!historial.length && <p>Sin propuestas estructuradas accesibles.</p>}
         {historial.map((p) => (
           <article key={p.id} className="border-bottom py-3">
+            <span className="badge bg-success me-2">Ofrecida</span>
             <strong>{p.detalle.codigo}</strong>
             <p>
               Ciclo {p.ciclo} · catálogo {p.catalogo_version} · inicial{" "}

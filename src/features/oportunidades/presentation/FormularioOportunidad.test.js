@@ -99,6 +99,45 @@ test("derivación registra condiciones finales, sin secuencia de ofertas", () =>
   assert.ok(html.includes('name="resumen"'));
   assert.ok(!html.includes("Oferta A"));
   assert.ok(!html.includes("Oferta B"));
+  for (const campo of [
+    "objecion",
+    "contacto_preferido",
+    "decision_pendiente",
+    "plazo",
+  ])
+    assert.match(html, new RegExp(`name="${campo}"`));
+  assert.match(html, /24 horas/);
+  assert.match(html, /48 horas si así lo acordaron/);
+});
+test("derivación preselecciona solo ofertas del ciclo actual y adjunta sus importes", () => {
+  const html = dibujar({
+    oportunidad: {
+      estado: "seguimiento",
+      ciclo: 2,
+      propuestas: [
+        {
+          id: "vieja",
+          ciclo: 1,
+          detalle: { codigo: "VIEJA", total: "999", abono: null },
+        },
+        {
+          id: "ofrecida",
+          ciclo: 2,
+          detalle: {
+            codigo: "PC-OFRECIDA",
+            total: "120",
+            abono: "30",
+            pago: { medio_saldo: "credito" },
+          },
+        },
+      ],
+    },
+    opciones: ["derivar"],
+  });
+  assert.doesNotMatch(html, /VIEJA/);
+  assert.match(html, /value="ofrecida" selected/);
+  assert.match(html, /Propuesta ofrecida PC-OFRECIDA/);
+  assert.match(html, /Pago: credito/);
 });
 test("recuperación exige aceptación/rechazo explícito y no representa instalación", () => {
   const ganada = dibujar({

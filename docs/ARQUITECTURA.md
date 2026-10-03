@@ -178,3 +178,15 @@ Días en Córdoba, rangos semanales de siete días, intervalos sin duplicación 
 ## Cuotas iguales (027, 03-10-2026)
 
 Migración 027 conserva permisos, idempotencia y revisiones históricas. Nuevas propuestas truncan el saldo por cantidad de cuotas a centavos, bonifican el resto y guardan ajuste_redondeo y descuento_efectivo por separado; descuento_pago y componentes_netos incluyen ambos para conciliar ventas e informes. El navegador aplica la misma regla. Aplicar 027 antes del frontend. La presentación compara distribuciones de adicionales entre ofertas consecutivas, incluyendo límites de página.
+
+
+## Continuidad del cotizador (03-10-2026)
+
+La bandeja presenta las negociaciones como botones en Acción; el detalle abre el cotizador antes del seguimiento. La última propuesta accesible se muestra desde el snapshot de servidor, sin recalcularla. Reutilizarla prepara una revisión nueva. El borrador automático de presentación usa localStorage separado por usuario, negociación, ciclo y contexto de permisos: solo guarda selecciones y pago, nunca precios ni datos personales. Al volver se consulta acceso y catálogo vigentes antes de reconstruir las ofertas. Un cambio de versión del catálogo o condiciones exige volver a calcular y elegir; no se recuperan precios antiguos como vigentes. No sincroniza borradores entre navegadores; guardar como propuesta ofrecida sigue siendo una acción explícita en servidor.
+
+
+## Oferta presentada y derivación visible (03-10-2026)
+
+Registrar como ofrecida conserva el contrato de guardar_propuesta: revisión inmutable con actor y fecha. El formulario exige una confirmación humana explícita luego de revisar pago; cambiar selección o importes reinicia esa confirmación. El distintivo Ofrecida se obtiene de propuestas persistidas del ciclo y versiones actuales, con selección, abono y congelamiento coincidentes. No se confunde el borrador con una oferta presentada.
+
+La derivación usa gestionar_oportunidad existente y requiere propuesta del ciclo, objeción y plazo. Contacto preferido e información de decisión viajan en datos del evento ya auditado, sin nueva fuente de escritura. El agente ve el contexto de la última derivación del ciclo antes del cotizador. Se sugiere fecha editable a 24 horas, sin imponer un SLA ni prometer una llamada automática; el horario acordado con el prospecto prevalece. Se conservan asignación equilibrada, avisos, permisos Telefónicos y validaciones de vigencia del servidor.

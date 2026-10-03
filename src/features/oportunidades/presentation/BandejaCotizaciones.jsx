@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { CasosDelRegistro } from "./ContinuarRegistro.jsx";
+import { estados } from "../domain/circuito.js";
 
 export function BandejaCotizaciones({ gestion, perfil, revision }) {
   const [busqueda, buscar] = useState("");
@@ -76,7 +76,16 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
                       </td>
                       <td>
                         {r.casos.length ? (
-                          <CasosDelRegistro casos={r.casos} />
+                          <ul className="list-unstyled mb-0">
+                            {r.casos.map((c) => (
+                              <li className="mb-2" key={c.id}>
+                                <strong>{c.necesidad}</strong>
+                                <small className="d-block">
+                                  {estados[c.estado]}
+                                </small>
+                              </li>
+                            ))}
+                          </ul>
                         ) : (
                           <span className="badge bg-secondary">
                             Sin cotización
@@ -84,6 +93,23 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
                         )}
                       </td>
                       <td>
+                        {r.casos.map((c) => (
+                          <Link
+                            key={c.id}
+                            className="btn btn-primary btn-sm d-block mb-2"
+                            title={c.necesidad}
+                            aria-label={`Abrir negociación: ${c.necesidad} · ${estados[c.estado]}`}
+                            to={`/cotizaciones?id=${c.id}`}
+                          >
+                            {c.estado === "cotizacion"
+                              ? "Abrir negociación en preparación"
+                              : ["ganada", "perdida", "anulada"].includes(
+                                    c.estado,
+                                  )
+                                ? "Consultar negociación cerrada"
+                                : "Abrir negociación vigente"}
+                          </Link>
+                        ))}
                         {(perfil.rol === "administrador" ||
                           r.responsable_id === perfil.id) && (
                           <Link

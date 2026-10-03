@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "pretest": "node --test src/features/productos/domain/catalogo.test.js src/shared/ui/ordenAlfabetico.test.js src/shared/ui/importe.test.js scripts/iconos.test.mjs scripts/simpleza.test.mjs src/features/oportunidades/domain/dinero.test.js src/features/oportunidades/domain/alternativas.test.js src/features/oportunidades/domain/pago.test.js src/features/oportunidades/presentation/compararOfertas.test.js src/features/productos/presentation/ProductosPagina.test.js src/features/informes/presentation/InformesPagina.test.js supabase/tests/catalogo.test.js supabase/tests/propuestas.test.js supabase/tests/precios-modalidad.test.js supabase/tests/componentes-compartidos.test.js scripts/componentes-compartidos.test.mjs",
+    "pretest": "node --test src/features/productos/domain/catalogo.test.js src/shared/ui/ordenAlfabetico.test.js src/shared/ui/importe.test.js scripts/iconos.test.mjs scripts/simpleza.test.mjs src/features/oportunidades/domain/dinero.test.js src/features/oportunidades/domain/alternativas.test.js src/features/oportunidades/domain/pago.test.js src/features/oportunidades/presentation/compararOfertas.test.js src/features/oportunidades/presentation/borradorCotizacion.test.js src/features/oportunidades/presentation/ofertaOfrecida.test.js src/features/productos/presentation/ProductosPagina.test.js src/features/informes/presentation/InformesPagina.test.js supabase/tests/catalogo.test.js supabase/tests/propuestas.test.js supabase/tests/precios-modalidad.test.js supabase/tests/componentes-compartidos.test.js scripts/componentes-compartidos.test.mjs",
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
