@@ -1,13 +1,12 @@
-import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
 import { EncabezadoPagina } from "../../../shared/ui/contenido/EncabezadoPagina.jsx";
 import {
   prepararCatalogo,
   completarGrupos,
   modificarCatalogo,
-  servicios,
 } from "../domain/catalogo.js";
 import { EditorCatalogo } from "./EditorCatalogo.jsx";
+import { TablaCatalogo } from "./TablaCatalogo.jsx";
 const secciones = {
   marcas: "Marcas",
   productos: "Productos",
@@ -261,27 +260,21 @@ export function ProductosPagina({ gestion }) {
                 editarlos.
               </p>
             )}
-            {!filas.length && <p>No hay registros en esta sección.</p>}
-            {ordenarAlfabeticamente(filas).map((i) => (
-              <div
-                key={i.id}
-                className="d-flex flex-wrap justify-content-between gap-2 border-bottom py-3"
-              >
-                <span>
-                  {i.codigo && `${i.codigo} · `}
-                  {i.nombre} · {i.estado}
-                  {i.adicional_habilitado && " · Disponible como adicional"}
-                  {i.servicio && ` · ${servicios[i.servicio]}`}
-                  {i.tipo === "kit" &&
-                    ` · ${i.modalidad === "plan" ? "Plan (comodato)" : i.modalidad === "kit" ? "Kit (venta directa)" : "Clasificación pendiente"}`}
-                </span>
+            <TablaCatalogo
+              key={seccion}
+              filas={filas}
+              marcas={catalogo.datos.marcas}
+              seccion={seccion}
+              titulo={secciones[seccion]}
+              acciones={(i) => (
                 <div className="d-flex flex-wrap gap-2">
                   <button
                     className="btn btn-sm btn-outline-primary"
                     disabled={ocupado}
+                    aria-label={`Editar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""}`}
                     onClick={() => abrir(i)}
                   >
-                    Editar {i.nombre}
+                    Editar
                   </button>
                   {seccion === "productos" && i.adicional_habilitado && (
                     <button
@@ -322,8 +315,8 @@ export function ProductosPagina({ gestion }) {
                     Eliminar
                   </button>
                 </div>
-              </div>
-            ))}
+              )}
+            />
           </section>
         </>
       )}
