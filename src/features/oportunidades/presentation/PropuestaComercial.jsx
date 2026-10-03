@@ -1,3 +1,4 @@
+import { OfertaComercial } from "./OfertaComercial.jsx";
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
 import { CampoImporte } from "../../../shared/ui/CampoImporte.jsx";
@@ -518,60 +519,25 @@ export function PropuestaComercial({
                 <div className="my-3">
                   <p>
                     {alternativas.length} opciones · mayor a menor importe antes
-                    del descuento por pago. Código de simulación; solo se guarda
-                    lo efectivamente ofrecido.
+                    del descuento por pago. Elegí la oferta que vas a presentar
+                    al cliente; luego podrás combinar medios de pago y guardar
+                    la propuesta.
                   </p>
-                  <div className="table-responsive">
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Opción</th>
-                          <th>Composición adicional</th>
-                          <th>Inicial</th>
-                          <th>Acción</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {alternativas
-                          .slice(pagina * 10, pagina * 10 + 10)
-                          .map((a) => (
-                            <tr key={a.ordinal}>
-                              <td>
-                                <small>
-                                  SIM-{revision.current}-{a.ordinal}
-                                </small>
-                              </td>
-                              <td>
-                                {a.seleccion.extras.map((e) => (
-                                  <div key={e.item_id}>
-                                    {
-                                      catalogo.items.find(
-                                        (i) => i.id === e.item_id,
-                                      )?.nombre
-                                    }
-                                    : {e.cantidad} · {e.bonificados || 0}{" "}
-                                    bonificados
-                                    {!venta &&
-                                      servicio === "alarma" &&
-                                      ` · Alto ${e.altos} / Bajo ${e.bajos} / Telefónico ${e.telefonicos}`}
-                                  </div>
-                                ))}
-                              </td>
-                              <td>{moneda(a.total)}</td>
-                              <td>
-                                <button
-                                  type="button"
-                                  className="btn btn-outline-primary"
-                                  onClick={() => agregar(a)}
-                                >
-                                  Agregar a propuesta
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  {alternativas
+                    .slice(pagina * 10, pagina * 10 + 10)
+                    .map((a) => (
+                      <OfertaComercial
+                        key={a.ordinal}
+                        alternativa={a}
+                        catalogo={catalogo}
+                        kit={kit}
+                        revision={revision.current}
+                        conAbono={conAbono}
+                        nivelAbono={nivelAbono}
+                        meses={meses}
+                        agregar={agregar}
+                      />
+                    ))}
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
