@@ -28,15 +28,18 @@ export function calcularPago({
   )
     throw new Error("Seleccioná un medio y cuotas válidos para el saldo.");
   const descuento = (efectivo + 5n) / 10n;
-  const saldo = base - efectivo;
+  const saldoOriginal = base - efectivo;
+  const redondeo = saldoOriginal % BigInt(cuotas);
+  const saldo = saldoOriginal - redondeo;
   return {
     base: decimalCentavos(base),
     base_efectivo: decimalCentavos(efectivo),
     descuento: decimalCentavos(descuento),
+    ajuste_redondeo: decimalCentavos(redondeo),
     efectivo_a_abonar: decimalCentavos(efectivo - descuento),
     saldo: decimalCentavos(saldo),
     medio_saldo: medioSaldo,
     cuotas: cuotasSinInteres(saldo, cuotas),
-    total: decimalCentavos(base - descuento),
+    total: decimalCentavos(base - descuento - redondeo),
   };
 }

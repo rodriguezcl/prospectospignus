@@ -245,7 +245,9 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
       "select detalle from public.propuestas_comerciales order by creado_en desc",
     )
   ).rows[0].detalle;
-  assert.equal(conjunto.total, "699998.00");
+  assert.equal(conjunto.total, "699997.98");
+  assert.equal(conjunto.ajuste_redondeo, "0.02");
+  assert.equal(conjunto.pago.cuota, conjunto.pago.ultima_cuota);
   assert.equal(conjunto.abono, "140000.00");
   await como(admin);
   const conf = (await db.query("select public.leer_condiciones() c")).rows[0].c;

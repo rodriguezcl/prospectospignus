@@ -1,19 +1,22 @@
 import { monedaArgentina } from "../../../shared/ui/importe.js";
+import { compararOfertas } from "./compararOfertas.js";
+import { centavos, importeExacto, decimalCentavos } from "../domain/dinero.js";
 
 const moneda = (valor) => monedaArgentina(valor, "Precio pendiente de carga");
 function Cuotas({ importes }) {
-  const distintas = importes.at(-1) !== importes[0];
+  const total = decimalCentavos(
+    importes.reduce((s, i) => s + centavos(importeExacto(i)), 0n),
+  );
   return (
     <>
-      {distintas
-        ? `${importes.length - 1} cuotas de ${moneda(importes[0])} y una última de ${moneda(importes.at(-1))}`
-        : `${importes.length} cuotas de ${moneda(importes[0])}`}
+      {importes.length} cuotas de {moneda(importes[0])} · Total: {moneda(total)}
     </>
   );
 }
 
 export function OfertaComercial({
   alternativa,
+  anterior,
   catalogo,
   kit,
   revision,
@@ -23,6 +26,7 @@ export function OfertaComercial({
   agregar,
   referencia,
 }) {
+  const comparacion = compararOfertas(alternativa, anterior, catalogo.items);
   const venta = kit?.modalidad === "kit";
   const nombre = (id) =>
     catalogo.items.find((i) => i.id === id)?.nombre || "Componente";
@@ -43,6 +47,35 @@ export function OfertaComercial({
       >
         Oferta {alternativa.ordinal} · {kit?.nombre}
       </h4>
+      {comparacion ? (
+        <aside
+          className="alert alert-info"
+          aria-label="Cambios respecto de la oferta anterior"
+        >
+          <h5 className="h6 fw-bold">
+            Qué cambia respecto de la oferta {anterior.ordinal}
+          </h5>
+          <ul className="mb-2">
+            {comparacion.cambios.map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
+          <p className="mb-0 fw-bold">
+            {comparacion.sentido === "igual"
+              ? "Mismo importe inicial; cambia la distribución de precios o bonificaciones."
+              : `${comparacion.sentido === "ahorro" ? "Ahorro" : "Aumento"} en el pago inicial: ${moneda(comparacion.importe)}.`}
+          </p>
+          <p className="small mb-0">
+            Comparación antes de descuentos por forma de pago. Se mantiene la
+            cantidad de equipos y el abono mensual.
+          </p>
+        </aside>
+      ) : (
+        <p className="small">
+          Oferta inicial de referencia para comparar las siguientes
+          alternativas.
+        </p>
+      )}
       <div className="row g-3">
         <section className="col-12 col-lg-6">
           <h5 className="h6 fw-bold">
@@ -129,18 +162,17 @@ export function OfertaComercial({
           <dd className="col-sm-6">{moneda(alternativa.efectivo)}</dd>
           <dt className="col-sm-6">Crédito en 3 cuotas sin interés</dt>
           <dd className="col-sm-6">
-            <Cuotas importes={alternativa.cuotas3} /> · Total:{" "}
-            {moneda(alternativa.total)}
+            <Cuotas importes={alternativa.cuotas3} />
           </dd>
           <dt className="col-sm-6">Crédito en 6 cuotas sin interés</dt>
           <dd className="col-sm-6">
-            <Cuotas importes={alternativa.cuotas6} /> · Total:{" "}
-            {moneda(alternativa.total)}
+            <Cuotas importes={alternativa.cuotas6} />
           </dd>
         </dl>
         <p className="small">
-          Estos importes corresponden al pago completo de esta oferta. También
-          podés combinar medios de pago al armar la propuesta.
+          Cuotas iguales, con redondeo de centavos a favor del cliente. Estos
+          importes corresponden al pago completo de esta oferta. También podés
+          combinar medios de pago al armar la propuesta.
         </p>
       </section>
       <button

@@ -29,14 +29,15 @@ test("distingue ausente de cero y rechaza tarifas no válidas", () => {
   ])
     assert.throws(() => importeExacto(dato));
 });
-test("última cuota concilia cada centavo, sin interés", () => {
-  assert.deepEqual(cuotasSinInteres(10000n, 3), ["33.33", "33.33", "33.34"]);
+test("cuotas iguales redondean a favor del cliente como máximo n-1 centavos", () => {
+  assert.deepEqual(cuotasSinInteres(10000n, 3), ["33.33", "33.33", "33.33"]);
   for (const cantidad of [1, 3, 6])
     for (let total = 0n; total < 601n; total++) {
       const cuotas = cuotasSinInteres(total, cantidad);
+      assert.equal(new Set(cuotas).size, 1);
       assert.equal(
         cuotas.reduce((s, v) => s + centavos(importeExacto(v)), 0n),
-        total,
+        total - (total % BigInt(cantidad)),
       );
     }
   assert.throws(() => cuotasSinInteres(100n, 2));

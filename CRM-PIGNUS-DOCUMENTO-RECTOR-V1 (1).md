@@ -513,3 +513,10 @@ Los listados de catálogo, personas, prospectos, cotizaciones y ventas se presen
 Agenda, notificaciones e historiales conservan su secuencia temporal. Los rankings y gráficos de rendimiento mantienen su criterio cuantitativo; niveles de precio, etapas, cuotas y plazos conservan su orden funcional. El cambio no modifica datos, permisos ni snapshots comerciales.
 
 **Fin.**
+
+
+### Cuotas iguales y comparación de ofertas (03-10-2026)
+
+Por instrucción del titular, las nuevas propuestas en crédito de 3 o 6 cuotas dividen el saldo a centavos truncando hacia abajo y repiten ese importe en todas las cuotas. Se bonifica el resto (de 0 a 2 centavos en 3 cuotas y de 0 a 5 en 6), sin incrementar la última cuota. El total final y el saldo guardados se reducen por ese ajuste; se registra separado del descuento del 10 % por efectivo. El reparto proporcional de descuentos entre componentes incluye ambos ajustes para conciliar los netos. No cambia el precio fuente, el abono, los mínimos anteriores al descuento ni los snapshots históricos. Esta regla sustituye el reparto del resto a la última cuota indicado anteriormente. En pago mixto se aplica únicamente al saldo en crédito.
+
+Cada alternativa se compara con la inmediatamente anterior, incluso entre páginas. Se explican todos los cambios de tarifa y bonificaciones por componente, sin presentar como mejora individual un cambio que aumenta su cargo; se muestra la diferencia neta del inicial antes de la forma de pago.

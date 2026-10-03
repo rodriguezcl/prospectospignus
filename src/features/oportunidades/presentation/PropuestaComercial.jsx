@@ -535,6 +535,7 @@ export function PropuestaComercial({
                         referencia={a.ordinal === 1 ? primeraOferta : undefined}
                         key={a.ordinal}
                         alternativa={a}
+                        anterior={alternativas[a.ordinal - 2]}
                         catalogo={catalogo}
                         kit={kit}
                         revision={revision.current}
@@ -630,9 +631,10 @@ export function PropuestaComercial({
               {pago && (
                 <p className="my-3">
                   Acordado: {moneda(pago.base)} · Descuento:{" "}
-                  {moneda(pago.descuento)} · Efectivo a entregar:{" "}
+                  {moneda(pago.descuento)} · Redondeo a favor del cliente:{" "}
+                  {moneda(pago.ajuste_redondeo)} · Efectivo a entregar:{" "}
                   {moneda(pago.efectivo_a_abonar)} · Saldo: {moneda(pago.saldo)}{" "}
-                  ({pago.cuotas.map(moneda).join(" + ")}) ·{" "}
+                  ({pago.cuotas.length} cuota(s) de {moneda(pago.cuotas[0])}) ·{" "}
                   <strong>Total inicial: {moneda(pago.total)}</strong>. Abonos
                   por separado.
                 </p>

@@ -65,7 +65,13 @@ export function DetalleVenta({ id, gestion, perfil }) {
               </p>
               <p>
                 Inicial acordado: {moneda(detalle.propuesta.base)} · Descuento
-                efectivo: {moneda(detalle.propuesta.descuento_pago)} ·{" "}
+                efectivo:{" "}
+                {moneda(
+                  detalle.propuesta.descuento_efectivo ??
+                    detalle.propuesta.descuento_pago,
+                )}{" "}
+                · Redondeo a favor del cliente:{" "}
+                {moneda(detalle.propuesta.ajuste_redondeo ?? "0")} ·{" "}
                 <strong>
                   Total inicial: {moneda(detalle.propuesta.total)}
                 </strong>
@@ -78,9 +84,11 @@ export function DetalleVenta({ id, gestion, perfil }) {
                 Efectivo: {moneda(detalle.propuesta.pago.efectivo_a_abonar)} ·
                 Saldo {detalle.propuesta.pago.medio_saldo}:{" "}
                 {moneda(detalle.propuesta.pago.saldo)} ·{" "}
-                {detalle.propuesta.pago.cantidad_cuotas} cuota(s), última{" "}
-                {moneda(detalle.propuesta.pago.ultima_cuota)}. No acredita
-                cobro.
+                {detalle.propuesta.pago.cuota ===
+                detalle.propuesta.pago.ultima_cuota
+                  ? `${detalle.propuesta.pago.cantidad_cuotas} cuota(s) de ${moneda(detalle.propuesta.pago.cuota)}`
+                  : `${detalle.propuesta.pago.cantidad_cuotas} cuota(s), última ${moneda(detalle.propuesta.pago.ultima_cuota)}`}
+                . No acredita cobro.
               </p>
               {detalle.propuesta.conceptos.map((c, i) => (
                 <p key={i}>

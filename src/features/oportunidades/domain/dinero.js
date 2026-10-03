@@ -30,7 +30,5 @@ export function cuotasSinInteres(totalCentavos, cantidad) {
     throw new Error("Cuotas inválidas.");
   const n = BigInt(cantidad),
     base = totalCentavos / n;
-  return Array.from({ length: cantidad }, (_, i) =>
-    decimalCentavos(base + (i === cantidad - 1 ? totalCentavos % n : 0n)),
-  );
+  return Array.from({ length: cantidad }, () => decimalCentavos(base));
 }

@@ -173,3 +173,8 @@ La integración usa un trigger transaccional sobre eventos comerciales nuevos: c
 Recordatorios calculados para programaciones propias desde 30 minutos antes hasta 24 horas después; confirmación de lectura por actividad/versión. `app` agrega este puerto a la campana. Consultas cada 30 segundos y al recuperar foco, sin push externo, cron ni seguimiento en segundo plano. Una reprogramación produce una versión o actividad nueva; leer no finaliza. Errores de migración pendiente son explícitos.
 
 Días en Córdoba, rangos semanales de siete días, intervalos sin duplicación en medianoche. La franja 08:00–17:00 es referencial. Vista ordenada, no escala de duración; actividades entre días aparecen en cada día que abarcan y no se suman como actividades distintas en métricas comerciales. No se computan horas trabajadas a partir de duración declarada. La aplicación mantiene el formulario abierto sin sobrescribirlo durante el refresco; un cambio concurrente se rechaza por versión.
+
+
+## Cuotas iguales (027, 03-10-2026)
+
+Migración 027 conserva permisos, idempotencia y revisiones históricas. Nuevas propuestas truncan el saldo por cantidad de cuotas a centavos, bonifican el resto y guardan ajuste_redondeo y descuento_efectivo por separado; descuento_pago y componentes_netos incluyen ambos para conciliar ventas e informes. El navegador aplica la misma regla. Aplicar 027 antes del frontend. La presentación compara distribuciones de adicionales entre ofertas consecutivas, incluyendo límites de página.

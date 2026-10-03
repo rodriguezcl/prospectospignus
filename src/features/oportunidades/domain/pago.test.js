@@ -13,6 +13,7 @@ test("pago mixto descuenta solo deuda asignada a efectivo y conserva saldo", () 
       base: "500000.00",
       base_efectivo: "200000.00",
       descuento: "20000.00",
+      ajuste_redondeo: "0.00",
       efectivo_a_abonar: "180000.00",
       saldo: "300000.00",
       medio_saldo: "credito",
@@ -29,7 +30,7 @@ test("pago cero, cuotas y validación de importes sin aritmética flotante", () 
   );
   assert.deepEqual(
     calcularPago({ total: "100", medioSaldo: "credito", cuotas: 3 }).cuotas,
-    ["33.33", "33.33", "33.34"],
+    ["33.33", "33.33", "33.33"],
   );
   assert.throws(
     () => calcularPago({ total: "10", baseEfectivo: "11" }),

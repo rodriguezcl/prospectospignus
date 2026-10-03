@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { PGlite } from "@electric-sql/pglite";
 import { generarAlternativas } from "../../src/features/oportunidades/domain/alternativas.js";
 import { prepararCatalogo } from "../../src/features/productos/domain/catalogo.js";
+import { calcularPago } from "../../src/features/oportunidades/domain/pago.js";
 
 test("componentes compartidos: compatibilidad, precios y conservación histórica", async (t) => {
   const db = new PGlite();
@@ -460,6 +461,48 @@ test("componentes compartidos: compatibilidad, precios y conservación históric
   ).rows[0];
   assert.equal(historica.restringida, false);
   assert.equal(historica.detalle.total, "170.00");
+  // El servidor aplica el mismo ajuste que el cotizador, también en pago mixto.
+  let version = 2;
+  for (const cuotas of [1, 3, 6]) {
+    for (const baseEfectivo of ["0", "1.01", "170"]) {
+      const id = randomUUID();
+      const solicitud = {
+        ...datos,
+        pago: { base_efectivo: baseEfectivo, medio_saldo: "credito", cuotas },
+      };
+      const args = [id, oportunidad, version, solicitud];
+      await db.query("select public.guardar_propuesta($1,$2,$3,1,0,$4)", args);
+      await db.query("select public.guardar_propuesta($1,$2,$3,1,0,$4)", args);
+      version++;
+      const guardado = (
+        await db.query(
+          "select detalle from public.propuestas_comerciales where id=$1",
+          [id],
+        )
+      ).rows[0].detalle;
+      const local = calcularPago({
+        total: "170",
+        baseEfectivo,
+        medioSaldo: "credito",
+        cuotas,
+      });
+      assert.equal(guardado.total, local.total);
+      assert.equal(guardado.pago.saldo, local.saldo);
+      assert.equal(guardado.pago.cuota, local.cuotas[0]);
+      assert.equal(guardado.pago.ultima_cuota, local.cuotas[0]);
+      assert.equal(guardado.ajuste_redondeo, local.ajuste_redondeo);
+      assert.equal(guardado.descuento_efectivo, local.descuento);
+      const cents = (v) => BigInt(v.replace(".", ""));
+      assert.equal(
+        guardado.componentes_netos.reduce((s, x) => s + cents(x.neto), 0n),
+        cents(local.total),
+      );
+      assert.equal(
+        cents(guardado.descuento_pago),
+        cents(local.descuento) + cents(local.ajuste_redondeo),
+      );
+    }
+  }
   await como(admin);
   const actualizada = structuredClone(catalogo);
   actualizada.items[3].precios.telefonico = "175";
