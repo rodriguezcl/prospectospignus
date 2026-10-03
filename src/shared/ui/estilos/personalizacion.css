@@ -244,6 +244,11 @@ footer {
 #contenido[tabindex="-1"]:focus {
   outline: none;
 }
+/* El foco automático orienta la navegación sin dibujar un marco en el panel.
+   Los controles internos conservan sus indicadores de foco de teclado. */
+[data-foco-panel][tabindex="-1"]:focus {
+  outline: none;
+}
 a:focus-visible,
 button:focus-visible {
   outline: 3px solid #e2a132;

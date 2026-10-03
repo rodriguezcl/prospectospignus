@@ -1,3 +1,45 @@
+import { totalConceptos } from "../domain/propuesta.js";
+
+export function referenciaOfrecida(historial, ciclo, seleccion) {
+  const ultima = historial
+    .filter((p) => p.ciclo === ciclo)
+    .sort((a, b) =>
+      String(b.creado_en || "").localeCompare(String(a.creado_en || "")),
+    )[0];
+  if (!ultima) return { hayOfrecida: false, referencia: null };
+  const candidatos = ultima.detalle.conceptos.filter(
+    (c) =>
+      ["familia_id", "kit_id", "subcategoria"].every(
+        (k) => c.seleccion[k] === seleccion[k],
+      ) &&
+      c.seleccion.extras.length === seleccion.extras.length &&
+      c.seleccion.extras.every((e) =>
+        seleccion.extras.some(
+          (x) =>
+            x.item_id === e.item_id &&
+            Number(x.cantidad) === Number(e.cantidad),
+        ),
+      ),
+  );
+  if (candidatos.length !== 1) return { hayOfrecida: true, referencia: null };
+  const c = candidatos[0];
+  const valor = String(c.total_exacto);
+  if (!/^\d+(\.\d{1,9})?$/.test(valor))
+    return { hayOfrecida: true, referencia: null };
+  const [entero, decimales = ""] = valor.split(".");
+  return {
+    hayOfrecida: true,
+    referencia: {
+      seleccion: c.seleccion,
+      total: totalConceptos([
+        { importe_exacto: `${entero}.${decimales.padEnd(9, "0")}` },
+      ]),
+      ordinal: c.ordinal_declarado,
+      codigoOfrecida: ultima.detalle.codigo,
+    },
+  };
+}
+
 export function mismaSeleccion(a, b) {
   return (
     a &&

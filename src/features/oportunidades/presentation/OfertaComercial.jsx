@@ -26,6 +26,7 @@ export function OfertaComercial({
   agregar,
   referencia,
   ofrecida = false,
+  ofrecidaNoComparable = false,
 }) {
   const comparacion = compararOfertas(alternativa, anterior, catalogo.items);
   const venta = kit?.modalidad === "kit";
@@ -52,10 +53,16 @@ export function OfertaComercial({
       {comparacion ? (
         <aside
           className="alert alert-info"
-          aria-label="Cambios respecto de la oferta anterior"
+          aria-label={
+            anterior.codigoOfrecida
+              ? "Cambios respecto de la oferta efectivamente ofrecida"
+              : "Cambios respecto de la oferta anterior"
+          }
         >
           <h5 className="h6 fw-bold">
-            Qué cambia respecto de la oferta {anterior.ordinal}
+            {anterior.codigoOfrecida
+              ? `Qué cambia respecto de la última oferta efectivamente ofrecida · ${anterior.codigoOfrecida}`
+              : `Qué cambia respecto de la oferta ${anterior.ordinal}`}
           </h5>
           <ul className="mb-2">
             {comparacion.cambios.map((c) => (
@@ -64,18 +71,21 @@ export function OfertaComercial({
           </ul>
           <p className="mb-0 fw-bold">
             {comparacion.sentido === "igual"
-              ? "Mismo importe inicial; cambia la distribución de precios o bonificaciones."
+              ? comparacion.cambios.length
+                ? "Mismo importe inicial; cambia la distribución de precios o bonificaciones."
+                : "Mismo importe inicial y condiciones de los adicionales."
               : `${comparacion.sentido === "ahorro" ? "Ahorro" : "Aumento"} en el pago inicial: ${moneda(comparacion.importe)}.`}
           </p>
           <p className="small mb-0">
             Comparación antes de descuentos por forma de pago. Se mantiene la
-            cantidad de equipos y el abono mensual.
+            cantidad de equipos. El abono mensual se detalla por separado.
           </p>
         </aside>
       ) : (
         <p className="small">
-          Oferta inicial de referencia para comparar las siguientes
-          alternativas.
+          {ofrecidaNoComparable
+            ? "La última propuesta ofrecida tiene otra composición o no permite una comparación directa. Revisala arriba; no se utiliza una oferta no presentada como referencia."
+            : "Oferta inicial de referencia para comparar las siguientes alternativas."}
         </p>
       )}
       <div className="row g-3">

@@ -15,6 +15,10 @@ const resumen = (extra) =>
 export function compararOfertas(actual, anterior, items) {
   if (!anterior) return null;
   const cambios = [];
+  if (actual.seleccion.nivel !== anterior.seleccion.nivel)
+    cambios.push(
+      `Nivel del plan o kit: ${anterior.seleccion.nivel} → ${actual.seleccion.nivel}.`,
+    );
   const previos = new Map(anterior.seleccion.extras.map((e) => [e.item_id, e]));
   const nuevos = new Map(actual.seleccion.extras.map((e) => [e.item_id, e]));
   for (const id of new Set([...previos.keys(), ...nuevos.keys()])) {

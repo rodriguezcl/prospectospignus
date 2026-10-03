@@ -520,3 +520,13 @@ Agenda, notificaciones e historiales conservan su secuencia temporal. Los rankin
 Por instrucción del titular, las nuevas propuestas en crédito de 3 o 6 cuotas dividen el saldo a centavos truncando hacia abajo y repiten ese importe en todas las cuotas. Se bonifica el resto (de 0 a 2 centavos en 3 cuotas y de 0 a 5 en 6), sin incrementar la última cuota. El total final y el saldo guardados se reducen por ese ajuste; se registra separado del descuento del 10 % por efectivo. El reparto proporcional de descuentos entre componentes incluye ambos ajustes para conciliar los netos. No cambia el precio fuente, el abono, los mínimos anteriores al descuento ni los snapshots históricos. Esta regla sustituye el reparto del resto a la última cuota indicado anteriormente. En pago mixto se aplica únicamente al saldo en crédito.
 
 Cada alternativa se compara con la inmediatamente anterior, incluso entre páginas. Se explican todos los cambios de tarifa y bonificaciones por componente, sin presentar como mejora individual un cambio que aumenta su cargo; se muestra la diferencia neta del inicial antes de la forma de pago.
+
+
+### Presentación: sin marco negro por foco automático (03-10-2026)
+
+Al abrir o enfocar automáticamente una sección, formulario, cotizador, oferta o panel, no debe aparecer un encuadre negro alrededor del bloque completo. Se conserva el desplazamiento automático y el foco programático para orientar al usuario y mantener accesibilidad. La supresión del contorno se limita a los contenedores o títulos usados como destinos de navegación con tabindex="-1"; nunca se aplica globalmente. Botones, enlaces, desplegables, campos, resúmenes interactivos y demás controles conservan un indicador visible al navegar con teclado. Toda nueva acción que abra un panel debe respetar esta regla en los temas claro y oscuro.
+
+
+### Comparación desde la oferta efectivamente presentada (03-10-2026)
+
+Desde que se registra una propuesta como ofrecida, todas las alternativas comparables deben explicar sus cambios respecto de la última efectivamente ofrecida del ciclo actual, aunque el vendedor salte posiciones (por ejemplo, de la oferta 1 a la 4). Al registrar otra, esa nueva propuesta pasa a ser la referencia. Se utilizan los importes originales guardados antes del descuento por pago, sin recalcular el histórico. Antes del primer ofrecimiento se permite comparar opciones consecutivas. Si la última propuesta tiene otra composición o varios conceptos que impiden identificar una referencia única, debe indicarse que no hay comparación directa; no usar silenciosamente una oferta anterior no presentada. Esta regla sustituye la comparación consecutiva luego del ofrecimiento.

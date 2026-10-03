@@ -1,5 +1,5 @@
 import { OfertaComercial } from "./OfertaComercial.jsx";
-import { ofertaOfrecida } from "./ofertaOfrecida.js";
+import { ofertaOfrecida, referenciaOfrecida } from "./ofertaOfrecida.js";
 import { enfocarPanel } from "../../../shared/ui/enfocarPanel.js";
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
@@ -269,6 +269,13 @@ export function PropuestaComercial({
   const permiteCongelar =
     perfil.rol === "administrador" ||
     condiciones[`congelamiento_${perfil.rol}`];
+  const baseComparacion = alternativas.length
+    ? referenciaOfrecida(
+        historial,
+        oportunidad.ciclo || 1,
+        alternativas[0].seleccion,
+      )
+    : { hayOfrecida: false };
   let pago = null,
     errorPago = "";
   if (conceptos.length)
@@ -782,7 +789,15 @@ export function PropuestaComercial({
                           nivelAbono: conAbono ? nivelAbono : null,
                           meses: conAbono ? meses : 0,
                         })}
-                        anterior={alternativas[a.ordinal - 2]}
+                        anterior={
+                          baseComparacion.hayOfrecida
+                            ? baseComparacion.referencia
+                            : alternativas[a.ordinal - 2]
+                        }
+                        ofrecidaNoComparable={
+                          baseComparacion.hayOfrecida &&
+                          !baseComparacion.referencia
+                        }
                         catalogo={catalogo}
                         kit={kit}
                         revision={revision.current}
