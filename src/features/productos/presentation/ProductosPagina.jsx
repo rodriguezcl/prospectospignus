@@ -201,6 +201,7 @@ export function ProductosPagina({ gestion }) {
           </div>
           {edicion && (
             <EditorCatalogo
+              apertura={edicion}
               key={`${seccion}-${edicion.valor?.id || "nuevo"}`}
               datos={catalogo.datos}
               grupo={edicion.grupo}

@@ -1,3 +1,4 @@
+import { enfocarPanel } from "../../../shared/ui/enfocarPanel.js";
 import { IconoAccion } from "../../../shared/ui/IconoAccion.jsx";
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
@@ -50,7 +51,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
     intento = useRef(null),
     titulo = useRef(null);
   useEffect(() => {
-    titulo.current?.focus();
+    enfocarPanel(titulo.current);
   }, []);
   const general = ["crear", "editar"].includes(accion);
   const realizadas =
@@ -647,7 +648,7 @@ function HistorialActividad({ actividad, gestion, cerrar }) {
     [cargando, setCargando] = useState(true);
   const titulo = useRef(null);
   useEffect(() => {
-    titulo.current?.focus();
+    enfocarPanel(titulo.current);
   }, []);
   useEffect(() => {
     let vigente = true;

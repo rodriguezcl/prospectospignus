@@ -1,5 +1,6 @@
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { enfocarPanel } from "../../../shared/ui/enfocarPanel.js";
 import { CampoImporte } from "../../../shared/ui/CampoImporte.jsx";
 import {
   servicios,
@@ -22,7 +23,12 @@ export function EditorCatalogo({
   ocupado,
   guardar,
   cancelar,
+  apertura,
 }) {
+  const titulo = useRef(null);
+  useEffect(() => {
+    enfocarPanel(titulo.current);
+  }, [apertura]);
   const [item, editar] = useState(() =>
     structuredClone(
       valor ||
@@ -121,7 +127,12 @@ export function EditorCatalogo({
         });
       }}
     >
-      <h2 className="h4">
+      <h2
+        className="h4"
+        ref={titulo}
+        tabIndex={-1}
+        style={{ scrollMarginTop: "1rem" }}
+      >
         {valor ? "Editar" : "Crear"}{" "}
         {grupo === "marcas" ? "marca" : oferta ? "plan o kit" : "producto"}
       </h2>

@@ -1,3 +1,4 @@
+import { enfocarPanel } from "../../../shared/ui/enfocarPanel.js";
 import { useEffect, useRef } from "react";
 
 const titulos = {
@@ -17,7 +18,7 @@ export function FormularioGestionCuenta({
 }) {
   const titulo = useRef(null);
   useEffect(() => {
-    titulo.current?.focus();
+    enfocarPanel(titulo.current);
   }, []);
   return (
     <section
