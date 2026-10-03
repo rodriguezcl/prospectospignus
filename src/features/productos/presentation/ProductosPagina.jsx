@@ -21,6 +21,10 @@ export function ProductosPagina({ gestion }) {
     [aviso, setAviso] = useState(""),
     [ocupado, setOcupado] = useState(false);
   const envio = useRef(null);
+  const confirmacion = useRef(null);
+  useEffect(() => {
+    if (baja) confirmacion.current?.showModal();
+  }, [baja]);
   function recibir(v) {
     return {
       ...v,
@@ -199,15 +203,27 @@ export function ProductosPagina({ gestion }) {
             />
           )}
           {baja && (
-            <section className="card card-body" aria-label="Confirmar baja">
-              <h2 className="h5">
+            <dialog
+              ref={confirmacion}
+              className="border-0 rounded shadow p-4"
+              style={{ width: "min(36rem, calc(100% - 2rem))" }}
+              aria-labelledby="confirmacion-catalogo"
+              onCancel={(evento) => {
+                evento.preventDefault();
+                if (!ocupado) setBaja(null);
+              }}
+            >
+              <h2 id="confirmacion-catalogo" className="h5">
                 {baja.accion === "eliminar"
                   ? "Eliminar del catálogo vigente"
                   : baja.accion === "retirar_adicional"
                     ? "Retirar como adicional"
-                    : "Dar de baja"}
+                    : "Desactivar"}
                 : {baja.valor.nombre}
               </h2>
+              {baja.accion === "guardar" && (
+                <p>¿Querés desactivar {baja.valor.nombre}?</p>
+              )}
               <p>
                 {baja.accion === "eliminar"
                   ? "Solo se permite sin vínculos ni uso en propuestas. Las versiones históricas no se borran."
@@ -215,6 +231,11 @@ export function ProductosPagina({ gestion }) {
                     ? "Ya no podrá ofrecerse por separado. Se conserva el producto y su inclusión en planes y kits, sin alterar cotizaciones anteriores."
                     : "Dejará de estar disponible para nuevas cotizaciones. Primero deben deshabilitarse los elementos activos que dependan de este registro."}
               </p>
+              {error && (
+                <div role="alert" className="alert alert-danger">
+                  {error}
+                </div>
+              )}
               <div className="d-flex gap-2">
                 <button
                   className="btn btn-danger"
@@ -231,18 +252,22 @@ export function ProductosPagina({ gestion }) {
                     )
                   }
                 >
-                  Confirmar{" "}
-                  {baja.accion === "eliminar" ? "eliminación" : "baja"}
+                  {baja.accion === "guardar"
+                    ? "Desactivar"
+                    : baja.accion === "eliminar"
+                      ? "Confirmar eliminación"
+                      : "Confirmar baja"}
                 </button>
                 <button
                   className="btn btn-outline-secondary"
                   disabled={ocupado}
+                  autoFocus
                   onClick={() => setBaja(null)}
                 >
                   Cancelar
                 </button>
               </div>
-            </section>
+            </dialog>
           )}
           <section className="card card-body">
             <h2 className="h4">{secciones[seccion]}</h2>
@@ -266,6 +291,13 @@ export function ProductosPagina({ gestion }) {
               marcas={catalogo.datos.marcas}
               seccion={seccion}
               titulo={secciones[seccion]}
+              ocupado={ocupado}
+              desactivar={(i) => {
+                setError("");
+                setAviso("");
+                setEdicion(null);
+                setBaja({ grupo, valor: i, accion: "guardar" });
+              }}
               acciones={(i) => (
                 <div className="d-flex flex-wrap gap-2">
                   <button
@@ -290,18 +322,6 @@ export function ProductosPagina({ gestion }) {
                       }}
                     >
                       Retirar como adicional
-                    </button>
-                  )}
-                  {i.estado !== "inactivo" && (
-                    <button
-                      className="btn btn-sm btn-outline-secondary"
-                      disabled={ocupado}
-                      onClick={() => {
-                        setEdicion(null);
-                        setBaja({ grupo, valor: i, accion: "guardar" });
-                      }}
-                    >
-                      Dar de baja
                     </button>
                   )}
                   <button

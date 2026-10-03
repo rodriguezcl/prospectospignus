@@ -21,7 +21,15 @@ const modalidades = {
   pendiente: "Pendiente",
 };
 
-export function TablaCatalogo({ filas, marcas, seccion, titulo, acciones }) {
+export function TablaCatalogo({
+  filas,
+  marcas,
+  seccion,
+  titulo,
+  acciones,
+  desactivar,
+  ocupado,
+}) {
   const [busqueda, buscar] = useState("");
   const [segmento, filtrarSegmento] = useState("");
   const [orden, ordenar] = useState({ campo: "nombre", direccion: 1 });
@@ -206,7 +214,18 @@ export function TablaCatalogo({ filas, marcas, seccion, titulo, acciones }) {
                           c.campo === "codigo" ? "text-nowrap" : undefined
                         }
                       >
-                        {c.campo === "estado" ? (
+                        {c.campo === "estado" && i.estado !== "inactivo" ? (
+                          <button
+                            type="button"
+                            className={`badge border-0 ${i.estado === "activo" ? "bg-success" : "bg-warning text-dark"}`}
+                            disabled={ocupado}
+                            aria-label={`${c.valor(i)}: desactivar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""}`}
+                            aria-haspopup="dialog"
+                            onClick={() => desactivar(i)}
+                          >
+                            {c.valor(i)}
+                          </button>
+                        ) : c.campo === "estado" ? (
                           <span
                             className={`badge ${i.estado === "activo" ? "bg-success" : i.estado === "borrador" ? "bg-warning text-dark" : "bg-secondary"}`}
                           >
