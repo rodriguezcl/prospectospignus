@@ -1,4 +1,5 @@
 import { OfertaComercial } from "./OfertaComercial.jsx";
+import { enfocarPanel } from "../../../shared/ui/enfocarPanel.js";
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
 import { CampoImporte } from "../../../shared/ui/CampoImporte.jsx";
@@ -56,6 +57,10 @@ export function PropuestaComercial({
   const [extras, elegirExtras] = useState({});
   const [nivel, elegirNivel] = useState("catalogo");
   const [alternativas, generar] = useState([]);
+  const primeraOferta = useRef(null);
+  useEffect(() => {
+    if (alternativas.length) enfocarPanel(primeraOferta.current);
+  }, [alternativas]);
   const [pagina, paginar] = useState(0);
   const [conceptos, agregarConceptos] = useState([]);
   const [nivelAbono, elegirAbono] = useState("alto");
@@ -527,6 +532,7 @@ export function PropuestaComercial({
                     .slice(pagina * 10, pagina * 10 + 10)
                     .map((a) => (
                       <OfertaComercial
+                        referencia={a.ordinal === 1 ? primeraOferta : undefined}
                         key={a.ordinal}
                         alternativa={a}
                         catalogo={catalogo}

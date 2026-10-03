@@ -1,10 +1,16 @@
 import { monedaArgentina } from "../../../shared/ui/importe.js";
 
-const moneda = (valor) => monedaArgentina(valor, "Precio pendiente");
-const enumerar = (elementos) =>
-  new Intl.ListFormat("es-AR", { style: "long", type: "conjunction" }).format(
-    elementos,
+const moneda = (valor) => monedaArgentina(valor, "Precio pendiente de carga");
+function Cuotas({ importes }) {
+  const distintas = importes.at(-1) !== importes[0];
+  return (
+    <>
+      {distintas
+        ? `${importes.length - 1} cuotas de ${moneda(importes[0])} y una última de ${moneda(importes.at(-1))}`
+        : `${importes.length} cuotas de ${moneda(importes[0])}`}
+    </>
   );
+}
 
 export function OfertaComercial({
   alternativa,
@@ -15,83 +21,128 @@ export function OfertaComercial({
   nivelAbono,
   meses,
   agregar,
+  referencia,
 }) {
   const venta = kit?.modalidad === "kit";
   const nombre = (id) =>
     catalogo.items.find((i) => i.id === id)?.nombre || "Componente";
-  const incluidos = (kit?.incluidos || []).map(
-    (i) => `${i.cantidad} × ${nombre(i.item_id)}`,
-  );
   const extras = alternativa.seleccion.extras;
-  const bonificados = extras
-    .filter((e) => Number(e.bonificados) > 0)
-    .map((e) => `${e.bonificados} × ${nombre(e.item_id)}`);
   const abono = kit?.abonos?.[nivelAbono];
+  const expensas =
+    !venta && ["docta", "nobu"].includes(alternativa.seleccion.subcategoria);
   return (
     <article
       className="border rounded p-3 mb-3"
       aria-label={`Oferta ${alternativa.ordinal}`}
     >
-      <div className="d-flex flex-wrap justify-content-between gap-2 mb-2">
-        <div>
-          <h4 className="h5 mb-1">
-            Oferta {alternativa.ordinal} · {kit?.nombre}
-          </h4>
-          <span className="text-muted">
-            {venta ? "Compra de equipos" : "Plan con equipos en comodato"}
-          </span>
-        </div>
-        <div>
-          <strong className="fs-4">{moneda(alternativa.total)}</strong>
-          <div className="small">
-            Importe inicial · antes del descuento por pago
-          </div>
-        </div>
-      </div>
-      <p className="mb-2">
-        Te ofrecemos {kit?.nombre}
-        {incluidos.length ? `, que incluye ${enumerar(incluidos)}` : ""}.
-        {extras.length > 0 &&
-          ` Además, agregamos ${enumerar(extras.map((e) => `${e.cantidad} × ${nombre(e.item_id)}`))}.`}
-      </p>
-      {bonificados.length > 0 ? (
-        <p className="mb-2">
-          <strong>Sin cargo adicional:</strong> {enumerar(bonificados)}.{" "}
-          {venta ? "Son de tu propiedad." : "Se entregan en comodato."}
-        </p>
-      ) : (
-        extras.length > 0 && (
-          <p className="small mb-2">
-            Los adicionales están contemplados en el importe inicial; esta
-            opción no bonifica unidades.
+      <h4
+        className="h5 fw-bold mb-3"
+        ref={referencia}
+        tabIndex={-1}
+        style={{ scrollMarginTop: "1rem" }}
+      >
+        Oferta {alternativa.ordinal} · {kit?.nombre}
+      </h4>
+      <div className="row g-3">
+        <section className="col-12 col-lg-6">
+          <h5 className="h6 fw-bold">
+            Te ofrecemos {kit?.nombre}, que incluye:
+          </h5>
+          <ul>
+            {(kit?.incluidos || []).map((i) => (
+              <li key={i.item_id}>
+                {i.cantidad} × {nombre(i.item_id)}
+              </li>
+            ))}
+          </ul>
+          <h5 className="h6 fw-bold">Agregamos los siguientes adicionales:</h5>
+          {extras.length ? (
+            <ul>
+              {extras.map((e) => (
+                <li key={e.item_id}>
+                  {e.cantidad} × {nombre(e.item_id)}
+                  {Number(e.bonificados) > 0 && (
+                    <strong> · {e.bonificados} sin cargo adicional</strong>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Sin adicionales seleccionados.</p>
+          )}
+          <h5 className="h6 fw-bold">Condición de los equipos</h5>
+          <p>
+            {venta
+              ? "Los equipos son propiedad del cliente."
+              : "Los equipos del plan y los adicionales bonificados se entregan en comodato. Los adicionales pagados son propiedad del cliente."}
           </p>
-        )
-      )}
-      {!venta && (
-        <p className="small mb-2">
-          Los equipos del plan y los adicionales bonificados se entregan en
-          comodato. Los adicionales pagados son propiedad del cliente.
+        </section>
+        <section className="col-12 col-lg-6">
+          <h5 className="h6 fw-bold">
+            {venta
+              ? "Costo del kit y adicionales"
+              : "Costo de instalación y adicionales"}
+          </h5>
+          <p className="fs-4 fw-bold mb-1">{moneda(alternativa.total)}</p>
+          <p className="small">
+            Pago inicial, separado del abono mensual. Los adicionales
+            seleccionados ya están contemplados en este importe.
+          </p>
+          {expensas && (
+            <p>
+              El plan está incluido en expensas; el importe inicial corresponde
+              a los adicionales seleccionados.
+            </p>
+          )}
+          <h5 className="h6 fw-bold">Abono mensual</h5>
+          <p className="fw-bold">
+            {conAbono
+              ? abono == null
+                ? "Precio pendiente de carga"
+                : `${moneda(abono)} por mes`
+              : expensas
+                ? "Incluido en expensas"
+                : "No corresponde a esta oferta"}
+          </p>
+          {conAbono && (
+            <p className="small">
+              Se paga por separado. No se incluye en las cuotas ni recibe el
+              descuento por efectivo.
+              {abono != null && meses > 0
+                ? ` Precio congelado por ${meses} meses desde la activación; no son meses gratis.`
+                : ""}
+            </p>
+          )}
+        </section>
+      </div>
+      <section className="border-top pt-3 mb-3">
+        <h5 className="h6 fw-bold">
+          Formas de pago del{" "}
+          {venta ? "kit y adicionales" : "costo de instalación y adicionales"}
+        </h5>
+        <dl className="row mb-2">
+          <dt className="col-sm-6">
+            Débito, transferencia o crédito en 1 cuota
+          </dt>
+          <dd className="col-sm-6">{moneda(alternativa.total)}</dd>
+          <dt className="col-sm-6">Efectivo · 10 % de descuento</dt>
+          <dd className="col-sm-6">{moneda(alternativa.efectivo)}</dd>
+          <dt className="col-sm-6">Crédito en 3 cuotas sin interés</dt>
+          <dd className="col-sm-6">
+            <Cuotas importes={alternativa.cuotas3} /> · Total:{" "}
+            {moneda(alternativa.total)}
+          </dd>
+          <dt className="col-sm-6">Crédito en 6 cuotas sin interés</dt>
+          <dd className="col-sm-6">
+            <Cuotas importes={alternativa.cuotas6} /> · Total:{" "}
+            {moneda(alternativa.total)}
+          </dd>
+        </dl>
+        <p className="small">
+          Estos importes corresponden al pago completo de esta oferta. También
+          podés combinar medios de pago al armar la propuesta.
         </p>
-      )}
-      <p className="mb-2">
-        En efectivo, pagando todo el importe inicial:{" "}
-        <strong>{moneda(alternativa.efectivo)}</strong> (10 % de descuento).
-      </p>
-      <p className="mb-2">
-        Con tarjeta, 6 cuotas sin interés:{" "}
-        <strong>{moneda(alternativa.cuotas6[0])}</strong>
-        {alternativa.cuotas6.at(-1) !== alternativa.cuotas6[0] &&
-          `; última cuota de ${moneda(alternativa.cuotas6.at(-1))}`}
-        . También podés combinar medios de pago al armar la propuesta.
-      </p>
-      {conAbono && (
-        <p className="mb-3">
-          <strong>Abono mensual aparte: {moneda(abono)}.</strong>
-          {abono != null &&
-            meses > 0 &&
-            ` Congelado por ${meses} meses desde la activación; no son meses gratis.`}
-        </p>
-      )}
+      </section>
       <button
         type="button"
         className="btn btn-primary"
