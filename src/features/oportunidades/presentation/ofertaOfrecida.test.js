@@ -34,10 +34,11 @@ test("saltar de 1 a 4 compara con la ofrecida; al ofrecer 4 se reemplaza la refe
   assert.equal(base.referencia.total, "100.01");
   assert.equal(compararOfertas(cuarta, base.referencia, []).importe, "20.01");
   const siguiente = propuesta(4, "80", "2026-10-03T11:00:00Z");
+  siguiente.codigo_interno = "P-7K3M-9R2X";
   assert.equal(
     referenciaOfrecida([primera, siguiente], 1, seleccion).referencia
       .codigoOfrecida,
-    "PC-4",
+    "P-7K3M-9R2X",
   );
   assert.equal(referenciaOfrecida([primera], 2, seleccion).hayOfrecida, false);
   const distinta = { ...seleccion, extras: [] };

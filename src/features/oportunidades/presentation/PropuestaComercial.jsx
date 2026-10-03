@@ -399,6 +399,12 @@ export function PropuestaComercial({
               ? " · ciclo anterior"
               : ""}
           </h3>
+          <p className="small">
+            Referencia interna:{" "}
+            <strong>
+              {historial[0].codigo_interno || historial[0].detalle.codigo}
+            </strong>
+          </p>
           <p className="mb-1">
             <strong>Pago inicial: {moneda(historial[0].detalle.total)}</strong>{" "}
             · Abono mensual: {moneda(historial[0].detalle.abono)}
@@ -959,7 +965,7 @@ export function PropuestaComercial({
             <span className="badge bg-secondary me-2">
               Ofrecimiento registrado
             </span>
-            <strong>{p.detalle.codigo}</strong>
+            <strong>{p.codigo_interno || p.detalle.codigo}</strong>
             <p>
               Ciclo {p.ciclo} · catálogo {p.catalogo_version} · inicial{" "}
               {moneda(p.detalle.total)} · abono {moneda(p.detalle.abono)}

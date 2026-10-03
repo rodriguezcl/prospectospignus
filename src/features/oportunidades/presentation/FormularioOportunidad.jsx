@@ -172,7 +172,7 @@ export function FormularioOportunidad({
                 .filter((p) => p.ciclo === oportunidad.ciclo)
                 .map((p) => [
                   p.id,
-                  `${p.detalle.codigo} · Inicial ${monedaArgentina(p.detalle.total)} · Abono ${monedaArgentina(p.detalle.abono, "no corresponde")}`,
+                  `${p.codigo_interno || p.detalle.codigo} · Inicial ${monedaArgentina(p.detalle.total)} · Abono ${monedaArgentina(p.detalle.abono, "no corresponde")}`,
                 ])}
             />
           )}
@@ -424,7 +424,7 @@ export function FormularioOportunidad({
               tipo="textarea"
               valor={
                 accion === "derivar" && propuesta
-                  ? `Propuesta ofrecida ${propuesta.detalle.codigo}. Inicial: ${monedaArgentina(propuesta.detalle.total)}. Abono: ${monedaArgentina(propuesta.detalle.abono, "no corresponde")}. Pago: ${propuesta.detalle.pago?.medio_saldo || "ver propuesta"}.`
+                  ? `Propuesta ofrecida ${propuesta.codigo_interno || propuesta.detalle.codigo}. Inicial: ${monedaArgentina(propuesta.detalle.total)}. Abono: ${monedaArgentina(propuesta.detalle.abono, "no corresponde")}. Pago: ${propuesta.detalle.pago?.medio_saldo || "ver propuesta"}.`
                   : undefined
               }
               ayuda={

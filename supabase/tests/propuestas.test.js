@@ -19,7 +19,7 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
  create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;`);
   const carpeta = new URL("../migrations/", import.meta.url);
   for (const a of (await readdir(carpeta))
-    .filter((a) => a.endsWith(".sql"))
+    .filter((a) => a.endsWith(".sql") && !a.includes("028_codigos_internos"))
     .sort())
     await db.exec(await readFile(new URL(a, carpeta), "utf8"));
   const reparto = (
@@ -198,9 +198,90 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
   const id = randomUUID();
   await guardar(1, datos, id);
   await guardar(1, datos, id);
+  const original = (
+    await db.query("select * from public.propuestas_comerciales where id=$1", [
+      id,
+    ])
+  ).rows[0];
+  await db.exec("reset role");
+  await db.exec(
+    await readFile(
+      new URL("202610030028_codigos_internos.sql", carpeta),
+      "utf8",
+    ),
+  );
+  await como(vendedor);
+  await guardar(1, datos, id);
   const vista = (await db.query("select * from public.propuestas_comerciales"))
     .rows;
   assert.equal(vista.length, 1);
+  const patronCodigo =
+    /^P-[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{4}-[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{4}$/;
+  assert.match(vista[0].codigo_interno, patronCodigo);
+  const { codigo_interno: codigo, ...conservada } = vista[0];
+  assert.deepEqual(
+    conservada,
+    original,
+    "asignar código al histórico conserva todo el snapshot",
+  );
+  await assert.rejects(
+    db.exec("select privado.codigo_propuesta_aleatorio()"),
+    /permission denied/,
+  );
+  await db.exec("reset role");
+  await db.exec("begin");
+  await assert.rejects(
+    db.query(
+      "update public.propuestas_comerciales set codigo_interno='P-2222-2222' where id=$1",
+      [id],
+    ),
+    /PROPUESTA_CODIGO_INMUTABLE/,
+  );
+  await db.exec("rollback");
+  await db.exec("reset role");
+  await db.exec("begin");
+  // Fuerza una colisión para verificar que se genera otro código y no se duplica.
+  await db.exec(`create sequence privado.intentos_codigo;
+    create or replace function privado.codigo_propuesta_aleatorio() returns text
+    language plpgsql volatile set search_path='' as $$
+    begin
+      if nextval('privado.intentos_codigo')=1 then
+        return (select codigo_interno from public.propuestas_comerciales limit 1);
+      end if;
+      return 'P-2222-3333';
+    end $$;`);
+  const copia = {
+    ...vista[0],
+    id: randomUUID(),
+    codigo_interno: "P-4444-5555",
+  };
+  const asignada = (
+    await db.query(
+      "insert into public.propuestas_comerciales select * from jsonb_populate_record(null::public.propuestas_comerciales,$1) returning codigo_interno",
+      [copia],
+    )
+  ).rows[0];
+  assert.equal(
+    asignada.codigo_interno,
+    "P-2222-3333",
+    "ignora código externo y reintenta colisión",
+  );
+  assert.equal(
+    (await db.query("select last_value from privado.intentos_codigo")).rows[0]
+      .last_value,
+    2,
+  );
+  await db.exec("rollback");
+  await como(vendedor);
+  assert.equal(
+    (
+      await db.query(
+        "select codigo_interno from public.propuestas_comerciales where id=$1",
+        [id],
+      )
+    ).rows[0].codigo_interno,
+    codigo,
+  );
   assert.equal(vista[0].detalle.total, "339999.00");
   assert.equal(vista[0].detalle.abono, "70000.00");
   assert.equal(vista[0].detalle.pago.efectivo_a_abonar, "180000.00");
@@ -240,6 +321,11 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
   await como(vendedor);
   const dos = { ...datos, conceptos: [...datos.conceptos, ...datos.conceptos] };
   await guardar(2, dos);
+  const codigos = (
+    await db.query("select codigo_interno from public.propuestas_comerciales")
+  ).rows.map((p) => p.codigo_interno);
+  assert.equal(new Set(codigos).size, codigos.length);
+  for (const c of codigos) assert.match(c, patronCodigo);
   const conjunto = (
     await db.query(
       "select detalle from public.propuestas_comerciales order by creado_en desc",
@@ -505,6 +591,7 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
   assert.equal(venta.activacion.fecha, hoy);
   assert.equal(venta.historial.length, 2);
   assert.equal(venta.propuesta.codigo, `PC-${aceptada}`);
+  assert.match(venta.propuesta.codigo_interno, patronCodigo);
   assert.equal(venta.congelamientos[0].meses, "4");
   await como(agente);
   assert.equal(

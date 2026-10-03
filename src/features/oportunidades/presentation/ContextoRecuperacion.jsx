@@ -56,7 +56,7 @@ export function ContextoRecuperacion({ oportunidad }) {
           <dt>Propuesta ofrecida al derivar</dt>
           <dd>
             {propuesta
-              ? `${propuesta.detalle.codigo} · Inicial ${monedaArgentina(propuesta.detalle.total)} · Abono ${monedaArgentina(propuesta.detalle.abono, "no corresponde")}`
+              ? `${propuesta.codigo_interno || propuesta.detalle.codigo} · Inicial ${monedaArgentina(propuesta.detalle.total)} · Abono ${monedaArgentina(propuesta.detalle.abono, "no corresponde")}`
               : "Consultá la propuesta vinculada en el historial de la negociación."}
           </dd>
         </dl>

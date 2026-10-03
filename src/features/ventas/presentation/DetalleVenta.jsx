@@ -61,7 +61,9 @@ export function DetalleVenta({ id, gestion, perfil }) {
           {detalle.propuesta ? (
             <>
               <p>
-                <strong>{detalle.propuesta.codigo}</strong>
+                <strong>
+                  {detalle.propuesta.codigo_interno || detalle.propuesta.codigo}
+                </strong>
               </p>
               <p>
                 Inicial acordado: {moneda(detalle.propuesta.base)} · Descuento

@@ -96,7 +96,7 @@ export function crearRepositorioOportunidades(cliente) {
       const { data, error } = await cliente
         .from("propuestas_comerciales")
         .select(
-          "id,ciclo,catalogo_version,condiciones_version,detalle,creado_en",
+          "id,ciclo,codigo_interno,catalogo_version,condiciones_version,detalle,creado_en",
         )
         .eq("oportunidad_id", id)
         .order("creado_en", { ascending: false })
@@ -159,7 +159,9 @@ export function crearRepositorioOportunidades(cliente) {
           .limit(100),
         cliente
           .from("propuestas_comerciales")
-          .select("id,ciclo,detalle,catalogo_version,condiciones_version")
+          .select(
+            "id,ciclo,codigo_interno,detalle,catalogo_version,condiciones_version",
+          )
           .eq("oportunidad_id", id)
           .order("creado_en", { ascending: false })
           .limit(20),

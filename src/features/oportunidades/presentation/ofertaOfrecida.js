@@ -35,7 +35,7 @@ export function referenciaOfrecida(historial, ciclo, seleccion) {
         { importe_exacto: `${entero}.${decimales.padEnd(9, "0")}` },
       ]),
       ordinal: c.ordinal_declarado,
-      codigoOfrecida: ultima.detalle.codigo,
+      codigoOfrecida: ultima.codigo_interno || ultima.detalle.codigo,
     },
   };
 }

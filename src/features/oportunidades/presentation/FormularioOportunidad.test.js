@@ -123,6 +123,7 @@ test("derivación preselecciona solo ofertas del ciclo actual y adjunta sus impo
         {
           id: "ofrecida",
           ciclo: 2,
+          codigo_interno: "P-7K3M-9R2X",
           detalle: {
             codigo: "PC-OFRECIDA",
             total: "120",
@@ -136,7 +137,8 @@ test("derivación preselecciona solo ofertas del ciclo actual y adjunta sus impo
   });
   assert.doesNotMatch(html, /VIEJA/);
   assert.match(html, /value="ofrecida" selected/);
-  assert.match(html, /Propuesta ofrecida PC-OFRECIDA/);
+  assert.match(html, /Propuesta ofrecida P-7K3M-9R2X/);
+  assert.doesNotMatch(html, /PC-OFRECIDA/);
   assert.match(html, /Pago: credito/);
 });
 test("recuperación exige aceptación/rechazo explícito y no representa instalación", () => {
