@@ -28,6 +28,7 @@ export function TablaCatalogo({
   titulo,
   acciones,
   cambiarEstado,
+  cambiarAdicional,
   ocupado,
 }) {
   const [busqueda, buscar] = useState("");
@@ -225,7 +226,19 @@ export function TablaCatalogo({
                           c.campo === "codigo" ? "text-nowrap" : undefined
                         }
                       >
-                        {c.campo === "estado" ? (
+                        {c.campo === "adicional" ? (
+                          <button
+                            type="button"
+                            className={`badge border-0 ${i.adicional_habilitado ? "bg-success" : "bg-secondary"}`}
+                            disabled={ocupado}
+                            aria-haspopup="dialog"
+                            title={`${i.adicional_habilitado ? "Retirar" : "Habilitar"} como adicional: ${i.nombre}`}
+                            aria-label={`${c.valor(i)}: ${i.adicional_habilitado ? "retirar" : "habilitar"} como adicional ${i.nombre} · ${i.codigo}`}
+                            onClick={() => cambiarAdicional(i)}
+                          >
+                            {c.valor(i)}
+                          </button>
+                        ) : c.campo === "estado" ? (
                           <button
                             type="button"
                             className={`badge border-0 ${i.estado === "activo" ? "bg-success" : i.estado === "borrador" ? "bg-warning text-dark" : "bg-secondary"}`}

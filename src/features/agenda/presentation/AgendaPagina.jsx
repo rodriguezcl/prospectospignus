@@ -1,3 +1,4 @@
+import { IconoAccion } from "../../../shared/ui/IconoAccion.jsx";
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -584,9 +585,11 @@ export function TimelineDia({
                         {n.actividad.origen === "manual" && (
                           <button
                             className="btn btn-outline-primary btn-sm"
+                            title="Editar o reprogramar actividad"
+                            aria-label="Editar o reprogramar actividad"
                             onClick={() => seleccionar(n.actividad, "editar")}
                           >
-                            Editar / reprogramar
+                            <IconoAccion accion="editar" />
                           </button>
                         )}
                       </>

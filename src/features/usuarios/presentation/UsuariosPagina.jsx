@@ -1,3 +1,4 @@
+import { IconoAccion } from "../../../shared/ui/IconoAccion.jsx";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { EncabezadoPagina } from "../../../shared/ui/contenido/EncabezadoPagina.jsx";
 import { FormularioGestionCuenta } from "./FormularioGestionCuenta.jsx";
@@ -267,6 +268,7 @@ export function UsuariosPagina({ gestion }) {
                                 key={accion}
                                 className={`btn btn-sm ${accion === "eliminar" ? "btn-outline-danger" : "btn-outline-primary"}`}
                                 disabled={guardando || !!seleccion}
+                                title={`${etiqueta}: ${cuenta.nombre}`}
                                 aria-label={`${etiqueta}: ${cuenta.nombre}`}
                                 onClick={() => {
                                   cambiarError("");
@@ -274,7 +276,11 @@ export function UsuariosPagina({ gestion }) {
                                   cambiarSeleccion({ cuenta, accion });
                                 }}
                               >
-                                {etiqueta}
+                                {["editar", "eliminar"].includes(accion) ? (
+                                  <IconoAccion accion={accion} />
+                                ) : (
+                                  etiqueta
+                                )}
                               </button>
                             ))}
                           </div>

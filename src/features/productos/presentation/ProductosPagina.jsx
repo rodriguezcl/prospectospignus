@@ -1,3 +1,4 @@
+import { IconoAccion } from "../../../shared/ui/IconoAccion.jsx";
 import { useEffect, useRef, useState } from "react";
 import { EncabezadoPagina } from "../../../shared/ui/contenido/EncabezadoPagina.jsx";
 import {
@@ -101,6 +102,11 @@ export function ProductosPagina({ gestion }) {
   const grupo = seccion === "marcas" ? "marcas" : "items";
   const activando =
     baja?.accion === "guardar" && baja.valor.estado === "inactivo";
+  const habilitandoAdicional =
+    baja?.accion === "cambiar_adicional" && !baja.valor.adicional_habilitado;
+  const accionAdicional = habilitandoAdicional
+    ? "Habilitar como adicional"
+    : "Retirar como adicional";
   const accionEstado = activando ? "Activar" : "Desactivar";
   const filas = !catalogo
     ? []
@@ -219,8 +225,8 @@ export function ProductosPagina({ gestion }) {
               <h2 id="confirmacion-catalogo" className="h5">
                 {baja.accion === "eliminar"
                   ? "Eliminar del catálogo vigente"
-                  : baja.accion === "retirar_adicional"
-                    ? "Retirar como adicional"
+                  : baja.accion === "cambiar_adicional"
+                    ? accionAdicional
                     : accionEstado}
                 : {baja.valor.nombre}
               </h2>
@@ -232,8 +238,10 @@ export function ProductosPagina({ gestion }) {
               <p>
                 {baja.accion === "eliminar"
                   ? "Solo se permite sin vínculos ni uso en propuestas. Las versiones históricas no se borran."
-                  : baja.accion === "retirar_adicional"
-                    ? "Ya no podrá ofrecerse por separado. Se conserva el producto y su inclusión en planes y kits, sin alterar cotizaciones anteriores."
+                  : baja.accion === "cambiar_adicional"
+                    ? habilitandoAdicional
+                      ? "Podrá ofrecerse por separado cuando esté activo, con sus precios y compatibilidades vigentes. Sus unidades incluidas en planes y kits no cambian."
+                      : "Ya no podrá ofrecerse por separado. Se conserva el producto y su inclusión en planes y kits, sin alterar cotizaciones anteriores."
                     : activando
                       ? "Volverá a estar disponible en el catálogo. Se comprobarán los datos requeridos y sus dependencias antes de activarlo."
                       : "Dejará de estar disponible para nuevas cotizaciones. Primero deben deshabilitarse los elementos activos que dependan de este registro."}
@@ -245,18 +253,22 @@ export function ProductosPagina({ gestion }) {
               )}
               <div className="d-flex gap-2">
                 <button
-                  className={`btn ${activando ? "btn-primary" : "btn-danger"}`}
+                  className={`btn ${activando || habilitandoAdicional ? "btn-primary" : "btn-danger"}`}
                   disabled={ocupado}
                   onClick={() =>
                     guardar(
                       baja.grupo,
-                      baja.accion === "retirar_adicional"
-                        ? { ...baja.valor, adicional_habilitado: false }
+                      baja.accion === "cambiar_adicional"
+                        ? {
+                            ...baja.valor,
+                            adicional_habilitado:
+                              !baja.valor.adicional_habilitado,
+                          }
                         : {
                             ...baja.valor,
                             estado: activando ? "activo" : "inactivo",
                           },
-                      baja.accion === "retirar_adicional"
+                      baja.accion === "cambiar_adicional"
                         ? "guardar"
                         : baja.accion,
                     )
@@ -266,7 +278,7 @@ export function ProductosPagina({ gestion }) {
                     ? accionEstado
                     : baja.accion === "eliminar"
                       ? "Confirmar eliminación"
-                      : "Confirmar baja"}
+                      : accionAdicional}
                 </button>
                 <button
                   className="btn btn-outline-secondary"
@@ -291,8 +303,8 @@ export function ProductosPagina({ gestion }) {
             {seccion === "productos" && (
               <p>
                 Los productos pueden incluirse en planes o kits y ofrecerse por
-                separado. Habilitá «Ofrecer también como adicional» al
-                editarlos.
+                separado. Pulsá «Sí» o «No» en Adicional para cambiar esta
+                opción.
               </p>
             )}
             <TablaCatalogo
@@ -308,33 +320,26 @@ export function ProductosPagina({ gestion }) {
                 setEdicion(null);
                 setBaja({ grupo, valor: i, accion: "guardar" });
               }}
+              cambiarAdicional={(i) => {
+                setError("");
+                setAviso("");
+                setEdicion(null);
+                setBaja({ grupo, valor: i, accion: "cambiar_adicional" });
+              }}
               acciones={(i) => (
                 <div className="d-flex flex-wrap gap-2">
                   <button
                     className="btn btn-sm btn-outline-primary"
                     disabled={ocupado}
+                    title={`Editar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""}`}
                     aria-label={`Editar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""}`}
                     onClick={() => abrir(i)}
                   >
-                    Editar
+                    <IconoAccion accion="editar" />
                   </button>
-                  {seccion === "productos" && i.adicional_habilitado && (
-                    <button
-                      className="btn btn-sm btn-outline-secondary"
-                      disabled={ocupado}
-                      onClick={() => {
-                        setEdicion(null);
-                        setBaja({
-                          grupo,
-                          valor: i,
-                          accion: "retirar_adicional",
-                        });
-                      }}
-                    >
-                      Retirar como adicional
-                    </button>
-                  )}
                   <button
+                    title={`Eliminar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""} del catálogo`}
+                    aria-label={`Eliminar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""} del catálogo`}
                     className="btn btn-sm btn-outline-danger"
                     disabled={ocupado}
                     onClick={() => {
@@ -342,7 +347,7 @@ export function ProductosPagina({ gestion }) {
                       setBaja({ grupo, valor: i, accion: "eliminar" });
                     }}
                   >
-                    Eliminar
+                    <IconoAccion accion="eliminar" />
                   </button>
                 </div>
               )}
