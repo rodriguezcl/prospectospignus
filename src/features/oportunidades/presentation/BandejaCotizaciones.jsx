@@ -55,12 +55,12 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
         !error && (
           <>
             <div className="table-responsive">
-              <table className="table">
+              <table className="table align-middle bandeja-cotizaciones">
                 <thead>
                   <tr>
                     <th>Prospecto</th>
                     <th>Cotizaciones y seguimiento</th>
-                    <th>Acción</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -93,34 +93,32 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
                         )}
                       </td>
                       <td>
-                        {r.casos.map((c) => (
-                          <Link
-                            key={c.id}
-                            className="btn btn-primary btn-sm d-block mb-2"
-                            title={c.necesidad}
-                            aria-label={`Abrir negociación: ${c.necesidad} · ${estados[c.estado]}`}
-                            to={`/cotizaciones?id=${c.id}`}
-                          >
-                            {c.estado === "cotizacion"
-                              ? "Abrir negociación en preparación"
-                              : ["ganada", "perdida", "anulada"].includes(
-                                    c.estado,
-                                  )
-                                ? "Consultar negociación cerrada"
-                                : "Abrir negociación vigente"}
-                          </Link>
-                        ))}
-                        {(perfil.rol === "administrador" ||
-                          r.responsable_id === perfil.id) && (
-                          <Link
-                            className="btn btn-outline-primary btn-sm"
-                            to={`/cotizaciones?nueva=si&registro=${r.id}`}
-                          >
-                            {r.casos.length
-                              ? "Cotizar otra necesidad"
-                              : "Cotizar"}
-                          </Link>
-                        )}
+                        <div className="d-flex flex-column align-items-start gap-2">
+                          {r.casos.map((c) => (
+                            <Link
+                              key={c.id}
+                              className="btn btn-primary btn-sm text-nowrap"
+                              title={`${c.necesidad} · ${estados[c.estado]}`}
+                              aria-label={`Abrir negociación: ${c.necesidad} · ${estados[c.estado]}`}
+                              to={`/cotizaciones?id=${c.id}`}
+                            >
+                              {["ganada", "perdida", "anulada"].includes(
+                                c.estado,
+                              )
+                                ? "Ver negociación"
+                                : "Abrir negociación"}
+                            </Link>
+                          ))}
+                          {(perfil.rol === "administrador" ||
+                            r.responsable_id === perfil.id) && (
+                            <Link
+                              className="btn btn-outline-secondary btn-sm text-nowrap"
+                              to={`/cotizaciones?nueva=si&registro=${r.id}`}
+                            >
+                              {r.casos.length ? "Nueva cotización" : "Cotizar"}
+                            </Link>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -133,7 +131,7 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
                 aparecerán aquí automáticamente.
               </p>
             )}
-            <div className="d-flex gap-3 align-items-center">
+            <div className="d-flex flex-wrap gap-3 align-items-center">
               <button
                 className="btn btn-outline-secondary"
                 disabled={!pagina}

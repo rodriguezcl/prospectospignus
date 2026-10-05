@@ -369,3 +369,18 @@ button:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+/* Las acciones de la bandeja conservan su tamaño natural, sin ocupar media tabla. */
+.bandeja-cotizaciones th:last-child,
+.bandeja-cotizaciones td:last-child {
+  width: 1%;
+  white-space: nowrap;
+  padding-inline-start: 1.5rem;
+}
+
+.bandeja-cotizaciones td:last-child .btn {
+  min-height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
