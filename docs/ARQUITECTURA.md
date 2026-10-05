@@ -1,5 +1,9 @@
 # Constitución arquitectónica de Prospectos Pignus
 
+## Dólar informativo en cabecera (05-10-2026)
+
+La feature `dolar` consulta el endpoint público de DolarAPI `/v1/dolares/oficial`, sin credenciales ni datos comerciales. App conecta el adaptador HTTP con la presentación mediante el puerto `consultar`. Muestra venta en pesos y fecha/hora de la fuente en horario argentino. Consulta cada cinco minutos mientras la pestaña está visible, con tiempo límite de diez segundos y cancelación al desmontar. Si falla conserva el último dato identificado como no actualizado; sin datos muestra no disponible. El seguimiento guarda en localStorage la última cotización y los avisos sin leer, separados por usuario y navegador. La primera consulta establece referencia; solo una fecha posterior con venta mayor genera aviso. Bajas actualizan la referencia, respuestas repetidas o atrasadas no duplican avisos. Marcar leída elimina únicamente el aviso local. Con almacenamiento bloqueado se conserva en memoria durante la sesión. No monitorea con la plataforma cerrada ni sincroniza entre dispositivos. App agrega estos avisos a la campana existente, que pasa a rojo mientras haya pendientes. No modifica precios, propuestas o cálculos comerciales. No requiere migraciones ni claves de API.
+
 ## Actualización vigente: Prospectos / Cotizaciones (02-10-2026)
 
 Rector 25.2 prevalece sobre los nombres históricos usados más abajo. `registros-iniciales` presenta Prospectos y `oportunidades` presenta Cotizaciones; se conservan las features, IDs, tablas y contratos anteriores. No se migran ni duplican contactos por cambiar el menú. Rutas `/registros` y enlaces antiguos `/prospectos?id=…` mantienen compatibilidad.

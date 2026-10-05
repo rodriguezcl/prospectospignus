@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { menu } from "../navegacion/menu.js";
 import { MenuLateral } from "../../shared/ui/navegacion/MenuLateral.jsx";
@@ -7,6 +7,12 @@ import { PiePagina } from "../../shared/ui/layout/PiePagina.jsx";
 import { Link } from "react-router-dom";
 import { CampanaNotificaciones } from "../../shared/ui/notificaciones/CampanaNotificaciones.jsx";
 import { avisos } from "../configuracion/servicios.js";
+import { CotizacionDolar } from "../../features/dolar/index.js";
+import {
+  consultarDolar,
+  crearSeguimientoDolar,
+} from "../../features/dolar/composicion.js";
+import { agregarAvisosDolar } from "../configuracion/agregarAvisosDolar.js";
 import {
   esAdministrador,
   BotonTema,
@@ -15,6 +21,22 @@ import {
 
 export function LayoutComercial() {
   const { perfil, acceso } = useSesion();
+  const dolar = useMemo(
+    () =>
+      crearSeguimientoDolar({
+        usuario: perfil.id,
+        consultar: consultarDolar,
+        almacenamiento: {
+          getItem: (clave) => window.localStorage.getItem(clave),
+          setItem: (clave, valor) => window.localStorage.setItem(clave, valor),
+        },
+      }),
+    [perfil.id],
+  );
+  const avisosConDolar = useMemo(
+    () => agregarAvisosDolar(avisos, dolar),
+    [dolar],
+  );
   const [errorSalida, cambiarErrorSalida] = useState("");
   const [saliendo, cambiarSaliendo] = useState(false);
   const menuPermitido = menu
@@ -138,8 +160,12 @@ export function LayoutComercial() {
         <BarraSuperior
           cuenta={
             <div className="cuenta-barra">
+              <CotizacionDolar key={perfil.id} consultar={dolar.consultar} />
               <div className="acciones-personales">
-                <CampanaNotificaciones key={perfil.id} gestion={avisos} />
+                <CampanaNotificaciones
+                  key={perfil.id}
+                  gestion={avisosConDolar}
+                />
                 <BotonTema key={perfil.id} id={perfil.id} acceso={acceso} />
               </div>
               <Link to="/mi-cuenta">

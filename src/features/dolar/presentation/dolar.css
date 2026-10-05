@@ -1,0 +1,22 @@
+.cotizacion-dolar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  line-height: 1.35;
+  padding: 0.4rem 0.75rem;
+  border-inline-start: 2px solid var(--bs-border-color);
+  max-width: 20rem;
+  font-variant-numeric: tabular-nums;
+}
+.cotizacion-dolar strong {
+  color: var(--bs-body-color);
+  white-space: nowrap;
+}
+.cotizacion-dolar small,
+.cotizacion-dolar .dolar-fuente {
+  font-size: 0.7rem;
+}
+.cotizacion-dolar .dolar-error {
+  display: block;
+  color: var(--bs-danger);
+}

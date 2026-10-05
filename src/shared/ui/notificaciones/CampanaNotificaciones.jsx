@@ -44,7 +44,7 @@ export function CampanaNotificaciones({ gestion }) {
     <div className="notificaciones">
       <button
         type="button"
-        className="btn btn-outline-primary"
+        className={`btn btn-outline-primary${filas.length ? " notificaciones-pendientes" : ""}`}
         aria-expanded={abierta}
         aria-controls="panel-notificaciones"
         onClick={() => abrir(!abierta)}
@@ -68,9 +68,13 @@ export function CampanaNotificaciones({ gestion }) {
             {!error && !filas.length && <p>No tenés avisos sin leer.</p>}
             {filas.map((n) => (
               <div className="border-bottom py-2" key={n.id}>
-                <Link to={n.destino} onClick={() => abrir(false)}>
-                  {n.mensaje}
-                </Link>
+                {n.destino ? (
+                  <Link to={n.destino} onClick={() => abrir(false)}>
+                    {n.mensaje}
+                  </Link>
+                ) : (
+                  <p className="mb-1">{n.mensaje}</p>
+                )}
                 <small className="d-block">{mostrarFecha(n.creado_en)}</small>
                 <button
                   type="button"

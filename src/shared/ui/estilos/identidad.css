@@ -317,6 +317,17 @@ footer,
 .notificaciones {
   position: relative;
 }
+.notificaciones .btn.notificaciones-pendientes {
+  color: #fff;
+  background-color: #c62828;
+  border-color: #c62828;
+}
+.notificaciones .btn.notificaciones-pendientes:hover,
+.notificaciones .btn.notificaciones-pendientes:focus-visible {
+  color: #fff;
+  background-color: #a51f1f;
+  border-color: #a51f1f;
+}
 .notificaciones-panel {
   position: absolute;
   right: 0;
