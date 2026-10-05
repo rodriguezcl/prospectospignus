@@ -36,6 +36,9 @@
   flex-wrap: wrap;
   gap: 1rem;
 }
+.tablero-cabecera {
+  margin-bottom: 1.5rem;
+}
 .tablero-cabecera h1 {
   font-size: 2rem;
   margin-bottom: 0.25rem;
