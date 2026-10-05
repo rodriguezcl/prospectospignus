@@ -3,7 +3,7 @@ import { ofertaOfrecida, referenciaOfrecida } from "./ofertaOfrecida.js";
 import { enfocarPanel } from "../../../shared/ui/enfocarPanel.js";
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
-import { CampoImporte } from "../../../shared/ui/CampoImporte.jsx";
+import { PagoOferta } from "./PagoOferta.jsx";
 import { monedaArgentina } from "../../../shared/ui/importe.js";
 import {
   generarAlternativas,
@@ -33,9 +33,23 @@ export function PropuestaComercial({
   abierto = false,
   apertura = 0,
   derivar,
+  registrarVenta,
 }) {
   const panel = useRef(null);
   const panelPago = useRef(null);
+  const armado = useRef(null);
+  const [mostrarArmado, mostrarConfiguracion] = useState(true);
+  const [registrando, mostrarRegistro] = useState(false);
+  function cambiarOferta() {
+    mostrarRegistro(false);
+    confirmarOfrecida(false);
+    if (!alternativas.length) mostrarConfiguracion(true);
+    requestAnimationFrame(() =>
+      enfocarPanel(
+        alternativas.length ? primeraOferta.current : armado.current,
+      ),
+    );
+  }
   const [ofrecidaConfirmada, confirmarOfrecida] = useState(false);
   const [aperturaPago, abrirPago] = useState(0);
   useEffect(() => {
@@ -115,6 +129,8 @@ export function PropuestaComercial({
                 { catalogo, condiciones },
               );
               if (b) {
+                mostrarRegistro(b.vigente && b.conceptos.length > 0);
+                mostrarConfiguracion(!b.vigente || !b.calculado);
                 restaurarSeleccion(b.seleccion);
                 if (b.vigente) {
                   agregarConceptos(
@@ -212,6 +228,9 @@ export function PropuestaComercial({
   }, [borrador, borradorListo, puedeEditar, perfil.id, oportunidad.id]);
 
   function invalidar() {
+    mostrarRegistro(false);
+    agregarConceptos([]);
+    confirmarOfrecida(false);
     generar([]);
     paginar(0);
     revision.current = crypto.randomUUID();
@@ -307,6 +326,8 @@ export function PropuestaComercial({
         }),
       );
       paginar(0);
+      mostrarConfiguracion(false);
+      mostrarRegistro(false);
     } catch (e) {
       fallar(e.message);
     }
@@ -328,6 +349,8 @@ export function PropuestaComercial({
     ]);
     confirmarOfrecida(false);
     elegirEfectivo("0");
+    mostrarConfiguracion(false);
+    mostrarRegistro(true);
     abrirPago((n) => n + 1);
   }
   async function guardar() {
@@ -467,31 +490,48 @@ export function PropuestaComercial({
                     ultima.condiciones_version ===
                       referencias.condiciones.version
                   ) {
-                    agregarConceptos(
-                      reconstruirConceptos(
-                        ultima.detalle.conceptos,
+                    generar(
+                      generarAlternativas({
                         catalogo,
+                        familiaId: s.familia_id,
+                        kitId: s.kit_id,
+                        nivel: s.nivel,
+                        subcategoria: s.subcategoria,
                         telefonico,
-                      ),
+                        extras: s.extras.map(({ item_id, cantidad }) => ({
+                          item_id,
+                          cantidad,
+                        })),
+                      }),
                     );
-                    elegirEfectivo(ultima.detalle.pago.base_efectivo);
-                    elegirMedio(ultima.detalle.pago.medio_saldo);
-                    elegirCuotas(ultima.detalle.pago.cantidad_cuotas);
+                    mostrarConfiguracion(false);
                     avisarBorrador(
                       "Propuesta recuperada para preparar una nueva revisión. La propuesta original se conserva.",
                     );
-                  } else
+                  } else {
+                    mostrarConfiguracion(true);
                     avisarBorrador(
-                      "Recuperamos la selección del primer plan o kit. Los precios o condiciones cambiaron: calculá una nueva oferta y agregá los demás conceptos si corresponde. La propuesta original se conserva.",
+                      "Recuperamos la selección del primer plan o kit. Los precios o condiciones cambiaron: calculá una nueva oferta. La propuesta original se conserva.",
                     );
+                  }
                 } catch (e) {
                   fallar(e.message);
                 }
               }}
             >
-              Usar como base de una nueva cotización
+              Seguir negociando
             </button>
           )}
+          {registrarVenta &&
+            historial[0].ciclo === (oportunidad.ciclo || 1) && (
+              <button
+                type="button"
+                className="btn btn-primary ms-2"
+                onClick={registrarVenta}
+              >
+                Registrar venta
+              </button>
+            )}
           {derivar && (
             <button
               type="button"
@@ -505,28 +545,30 @@ export function PropuestaComercial({
       )}
       {puedeEditar && (
         <p className="small" role="status">
-          {avisoBorrador ||
-            "Borrador automático en este navegador. Podés salir y volver a esta negociación. Para registrar lo presentado al cliente, elegí una oferta y guardá la propuesta ofrecida."}
+          {avisoBorrador || "Borrador guardado en este navegador."}
         </p>
       )}
-      <p>
-        Guardar la cotización no confirma una venta. Si el cliente acepta, elegí
-        Registrar venta concretada en «Seguimiento, visitas y cierre de la
-        negociación».
-      </p>
-      {interes?.servicios?.length > 0 && (
-        <p className="small">
-          Servicios de interés:{" "}
-          {interes.servicios
-            .map(
-              (s) =>
-                serviciosInteres[s] ||
-                (s === "cerco" ? "Cerco eléctrico (histórico)" : s),
-            )
-            .join(" + ")}
-          . Podés ajustar la cotización según el relevamiento.
+      <details className="my-3">
+        <summary>Ayuda para cotizar</summary>
+        <p>
+          Guardar la cotización no confirma una venta. Si el cliente acepta,
+          elegí Registrar venta concretada en «Seguimiento, visitas y cierre de
+          la negociación».
         </p>
-      )}
+        {interes?.servicios?.length > 0 && (
+          <p className="small">
+            Servicios de interés:{" "}
+            {interes.servicios
+              .map(
+                (s) =>
+                  serviciosInteres[s] ||
+                  (s === "cerco" ? "Cerco eléctrico (histórico)" : s),
+              )
+              .join(" + ")}
+            . Podés ajustar la cotización según el relevamiento.
+          </p>
+        )}
+      </details>
       {error && (
         <p role="alert" className="alert alert-danger">
           {error}
@@ -534,7 +576,7 @@ export function PropuestaComercial({
       )}
       {puedeEditar && (
         <fieldset disabled={ocupado}>
-          <legend className="h5">Preparar lo que vas a ofrecer</legend>
+          <legend className="h5">Cotizador</legend>
           {![4, 5].includes(catalogo.esquema) || !catalogo.items.length ? (
             <p>
               Administración debe revisar y guardar el catálogo actualizado y
@@ -542,247 +584,276 @@ export function PropuestaComercial({
             </p>
           ) : (
             <>
-              <div className="row g-3">
-                <label className="col-md-6">
-                  Servicio
-                  <select
-                    className="form-select"
-                    value={servicio}
-                    onChange={(e) => {
-                      elegirServicio(e.target.value);
-                      cambiarFamilia("");
-                    }}
-                  >
-                    <option value="alarma">Instalación de Alarma</option>
-                    <option value="camaras">Instalación de Cámaras</option>
-                  </select>
-                </label>
-                {catalogo.esquema >= 2 && servicio === "alarma" && (
+              <details
+                ref={armado}
+                tabIndex={-1}
+                className="border rounded p-3 mb-3"
+                open={mostrarArmado}
+                onToggle={(e) => mostrarConfiguracion(e.currentTarget.open)}
+              >
+                <summary className="fw-bold">
+                  1. Armar oferta · {kit?.nombre || "Elegí un plan o kit"} ·
+                  Modificar
+                </summary>
+                <div className="row g-3 mt-1">
                   <label className="col-md-6">
-                    Modalidad de equipos
+                    Servicio
                     <select
                       className="form-select"
-                      value={modalidadEquipo}
+                      value={servicio}
                       onChange={(e) => {
-                        elegirModalidadEquipo(e.target.value);
+                        elegirServicio(e.target.value);
                         cambiarFamilia("");
                       }}
                     >
-                      <option value="plan">Plan · comodato</option>
-                      <option value="kit">Kit · venta directa</option>
+                      <option value="alarma">Instalación de Alarma</option>
+                      <option value="camaras">Instalación de Cámaras</option>
                     </select>
                   </label>
-                )}
-                <label className="col-md-6">
-                  Marca
-                  <select
-                    className="form-select"
-                    value={familiaId}
-                    onChange={(e) => cambiarFamilia(e.target.value)}
-                  >
-                    <option value="">Seleccioná…</option>
-                    {familias.map((f) => (
-                      <option key={f.id} value={f.id}>
-                        {f.marca}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                {
+                  {catalogo.esquema >= 2 && servicio === "alarma" && (
+                    <label className="col-md-6">
+                      Modalidad de equipos
+                      <select
+                        className="form-select"
+                        value={modalidadEquipo}
+                        onChange={(e) => {
+                          elegirModalidadEquipo(e.target.value);
+                          cambiarFamilia("");
+                        }}
+                      >
+                        <option value="plan">Plan · comodato</option>
+                        <option value="kit">Kit · venta directa</option>
+                      </select>
+                    </label>
+                  )}
                   <label className="col-md-6">
-                    Plan o kit
+                    Marca
                     <select
                       className="form-select"
-                      value={kitId}
-                      onChange={(e) => {
-                        elegirKit(e.target.value);
-                        elegirExtras({});
-                        invalidar();
-                      }}
+                      value={familiaId}
+                      onChange={(e) => cambiarFamilia(e.target.value)}
                     >
                       <option value="">Seleccioná…</option>
-                      {kits.map((k) => (
-                        <option key={k.id} value={k.id}>
-                          {k.nombre}
+                      {familias.map((f) => (
+                        <option key={f.id} value={f.id}>
+                          {f.marca}
                         </option>
                       ))}
                     </select>
                   </label>
-                }
-                {servicio === "alarma" && !venta && (
-                  <label className="col-md-6">
-                    Condición del servicio de alarma
-                    <select
-                      className="form-select"
-                      value={subcategoria}
-                      onChange={(e) => {
-                        elegirSubcategoria(e.target.value);
-                        elegirMeses(0);
-                        invalidar();
-                      }}
-                    >
-                      <option value="">
-                        Seleccioná la modalidad para cotizar…
-                      </option>
-                      {Object.entries(subcategorias).map(([id, nombre]) => (
-                        <option key={id} value={id}>
-                          {nombre}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                )}
-              </div>
-              {kit && (
-                <p className="small mt-2">
-                  Incluido en el kit:{" "}
-                  {kit.incluidos
-                    .map(
-                      (i) =>
-                        `${i.cantidad} × ${catalogo.items.find((x) => x.id === i.item_id)?.nombre || "Componente"}`,
-                    )
-                    .join(", ")}
-                  . Cargá abajo solo cantidades adicionales.
-                </p>
-              )}
-              <fieldset className="my-3">
-                <legend className="h6">Adicionales (opcional)</legend>
-                {adicionales.map((i) => (
-                  <div
-                    key={i.id}
-                    className="d-flex flex-wrap align-items-center gap-3 my-2"
-                  >
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={extras[i.id]?.activo || false}
+                  {
+                    <label className="col-md-6">
+                      Plan o kit
+                      <select
+                        className="form-select"
+                        value={kitId}
                         onChange={(e) => {
-                          elegirExtras({
-                            ...extras,
-                            [i.id]: {
-                              cantidad: extras[i.id]?.cantidad || "1",
-                              activo: e.target.checked,
-                            },
-                          });
+                          elegirKit(e.target.value);
+                          elegirExtras({});
                           invalidar();
                         }}
-                      />{" "}
-                      {i.nombre} · {i.unidad}
+                      >
+                        <option value="">Seleccioná…</option>
+                        {kits.map((k) => (
+                          <option key={k.id} value={k.id}>
+                            {k.nombre}
+                          </option>
+                        ))}
+                      </select>
                     </label>
-                    {extras[i.id]?.activo && (
+                  }
+                  {servicio === "alarma" && !venta && (
+                    <label className="col-md-6">
+                      Condición del servicio de alarma
+                      <select
+                        className="form-select"
+                        value={subcategoria}
+                        onChange={(e) => {
+                          elegirSubcategoria(e.target.value);
+                          elegirMeses(0);
+                          invalidar();
+                        }}
+                      >
+                        <option value="">
+                          Seleccioná la modalidad para cotizar…
+                        </option>
+                        {Object.entries(subcategorias).map(([id, nombre]) => (
+                          <option key={id} value={id}>
+                            {nombre}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                </div>
+                {kit && (
+                  <p className="small mt-2">
+                    Incluido en el kit:{" "}
+                    {kit.incluidos
+                      .map(
+                        (i) =>
+                          `${i.cantidad} × ${catalogo.items.find((x) => x.id === i.item_id)?.nombre || "Componente"}`,
+                      )
+                      .join(", ")}
+                    . Cargá abajo solo cantidades adicionales.
+                  </p>
+                )}
+                <fieldset className="my-3">
+                  <legend className="h6">Adicionales (opcional)</legend>
+                  {adicionales.map((i) => (
+                    <div
+                      key={i.id}
+                      className="d-flex flex-wrap align-items-center gap-3 my-2"
+                    >
                       <label>
-                        Cantidad de {i.nombre}
                         <input
-                          className="form-control"
-                          type="number"
-                          min={i.unidad === "metro" ? "0.001" : "1"}
-                          max="9999"
-                          step={i.unidad === "metro" ? "0.001" : "1"}
-                          value={extras[i.id].cantidad}
+                          type="checkbox"
+                          checked={extras[i.id]?.activo || false}
                           onChange={(e) => {
                             elegirExtras({
                               ...extras,
                               [i.id]: {
-                                ...extras[i.id],
-                                cantidad: e.target.value,
+                                cantidad: extras[i.id]?.cantidad || "1",
+                                activo: e.target.checked,
                               },
                             });
                             invalidar();
                           }}
-                        />
+                        />{" "}
+                        {i.nombre} · {i.unidad}
                       </label>
-                    )}
-                  </div>
-                ))}
-              </fieldset>
-              {servicio === "alarma" && !venta && (
-                <label className="d-block mb-3">
-                  Nivel del plan o kit
-                  <select
-                    className="form-select"
-                    value={nivel}
-                    onChange={(e) => {
-                      elegirNivel(e.target.value);
-                      invalidar();
-                    }}
-                  >
-                    {[...niveles, ...(telefonico ? ["telefonico"] : [])].map(
-                      (n) => (
-                        <option key={n} value={n}>
-                          {n === "catalogo"
-                            ? "Catálogo"
-                            : n === "telefonico"
-                              ? "Telefónico"
-                              : n[0].toUpperCase() + n.slice(1)}
-                        </option>
-                      ),
-                    )}
-                  </select>
-                </label>
-              )}
-              {venta && (
-                <p>
-                  Precio del kit: Telefónico. Los adicionales se suman también a
-                  precio Telefónico. Los componentes incluidos no se cobran
-                  nuevamente.
-                </p>
-              )}
-              {conAbono && (
-                <div className="row g-3 mb-3">
-                  <label className="col-md-6">
-                    Nivel del abono (independiente)
-                    <select
-                      className="form-select"
-                      value={nivelAbono}
-                      onChange={(e) => elegirAbono(e.target.value)}
-                    >
-                      {[
-                        "alto",
-                        "medio",
-                        "bajo",
-                        ...(telefonico ? ["telefonico"] : []),
-                      ].map((n) => (
-                        <option key={n} value={n}>
-                          {n} ·{" "}
-                          {kit?.abonos[n] == null
-                            ? "Precio sin cargar"
-                            : moneda(kit.abonos[n])}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="col-md-6">
-                    Abono congelado
-                    <select
-                      className="form-select"
-                      value={meses}
-                      onChange={(e) => elegirMeses(Number(e.target.value))}
-                    >
-                      <option value={0}>Sin congelamiento</option>
-                      {permiteCongelar &&
-                        condiciones.meses_congelamiento.map((n) => (
+                      {extras[i.id]?.activo && (
+                        <label>
+                          Cantidad de {i.nombre}
+                          <input
+                            className="form-control"
+                            type="number"
+                            min={i.unidad === "metro" ? "0.001" : "1"}
+                            max="9999"
+                            step={i.unidad === "metro" ? "0.001" : "1"}
+                            value={extras[i.id].cantidad}
+                            onChange={(e) => {
+                              elegirExtras({
+                                ...extras,
+                                [i.id]: {
+                                  ...extras[i.id],
+                                  cantidad: e.target.value,
+                                },
+                              });
+                              invalidar();
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  ))}
+                </fieldset>
+                {conAbono && (
+                  <p className="my-3">
+                    <strong>Abono mensual:</strong>{" "}
+                    {moneda(kit?.abonos[nivelAbono])}
+                  </p>
+                )}
+                <details className="my-3">
+                  <summary>
+                    Ajustar condiciones · precios y congelamiento
+                  </summary>
+                  {servicio === "alarma" && !venta && (
+                    <label className="d-block mb-3">
+                      Nivel del plan o kit
+                      <select
+                        className="form-select"
+                        value={nivel}
+                        onChange={(e) => {
+                          elegirNivel(e.target.value);
+                          invalidar();
+                        }}
+                      >
+                        {[
+                          ...niveles,
+                          ...(telefonico ? ["telefonico"] : []),
+                        ].map((n) => (
                           <option key={n} value={n}>
-                            {n} meses desde activación (no gratis)
+                            {n === "catalogo"
+                              ? "Catálogo"
+                              : n === "telefonico"
+                                ? "Telefónico"
+                                : n[0].toUpperCase() + n.slice(1)}
                           </option>
                         ))}
-                    </select>
-                  </label>
-                </div>
-              )}
-              <button
-                type="button"
-                className="btn btn-outline-primary"
-                onClick={confirmar}
-              >
-                Confirmar y calcular opciones
-              </button>
-              {!!alternativas.length && (
+                      </select>
+                    </label>
+                  )}
+                  {venta && (
+                    <p>
+                      Precio del kit: Telefónico. Los adicionales se suman
+                      también a precio Telefónico. Los componentes incluidos no
+                      se cobran nuevamente.
+                    </p>
+                  )}
+                  {conAbono && (
+                    <div className="row g-3 mb-3">
+                      <label className="col-md-6">
+                        Nivel del abono (independiente)
+                        <select
+                          className="form-select"
+                          value={nivelAbono}
+                          onChange={(e) => {
+                            elegirAbono(e.target.value);
+                            invalidar();
+                          }}
+                        >
+                          {[
+                            "alto",
+                            "medio",
+                            "bajo",
+                            ...(telefonico ? ["telefonico"] : []),
+                          ].map((n) => (
+                            <option key={n} value={n}>
+                              {n} ·{" "}
+                              {kit?.abonos[n] == null
+                                ? "Precio sin cargar"
+                                : moneda(kit.abonos[n])}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="col-md-6">
+                        Abono congelado
+                        <select
+                          className="form-select"
+                          value={meses}
+                          onChange={(e) => {
+                            elegirMeses(Number(e.target.value));
+                            invalidar();
+                          }}
+                        >
+                          <option value={0}>Sin congelamiento</option>
+                          {permiteCongelar &&
+                            condiciones.meses_congelamiento.map((n) => (
+                              <option key={n} value={n}>
+                                {n} meses desde activación (no gratis)
+                              </option>
+                            ))}
+                        </select>
+                      </label>
+                    </div>
+                  )}
+                </details>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={confirmar}
+                >
+                  Confirmar y calcular opciones
+                </button>
+              </details>
+              {!!alternativas.length && !registrando && (
                 <div className="my-3">
-                  <p>
-                    {alternativas.length} opciones · mayor a menor importe antes
-                    del descuento por pago. Elegí la oferta que vas a presentar
-                    al cliente; luego podrás combinar medios de pago y guardar
-                    la propuesta.
+                  <h3 className="h5">2. Presentar al cliente</h3>
+                  <p className="small">
+                    {alternativas.length} ofertas · elegí la que vas a
+                    presentar.
                   </p>
                   {alternativas
                     .slice(pagina * 10, pagina * 10 + 10)
@@ -837,100 +908,56 @@ export function PropuestaComercial({
               )}
             </>
           )}
-          {!!conceptos.length && (
+          {!!conceptos.length && registrando && (
             <div
               className="border rounded p-3 my-3"
               ref={panelPago}
               tabIndex={-1}
             >
-              <h3 className="h5">
-                Confirmar la propuesta ofrecida y su forma de pago
-              </h3>
-              <p>
-                Elegir una oferta prepara el borrador. Marcá «Ofrecido» cuando
-                efectivamente la hayas presentado al prospecto. Cada nueva
-                oferta reemplaza a la anterior: sus importes no se suman. La
-                última registrada será la referencia de comparación; las
-                anteriores se conservan en el historial.
-              </p>
-              {conceptos.map((c, i) => (
-                <div key={i} className="mb-3">
-                  <strong>{c.etiqueta}</strong> · {moneda(c.total)} · Abono:{" "}
-                  {moneda(c.abono)}
-                  {c.meses_congelamiento > 0 &&
-                    ` · congelado ${c.meses_congelamiento} meses`}{" "}
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-outline-danger"
-                    onClick={() =>
-                      agregarConceptos(conceptos.filter((_, j) => j !== i))
-                    }
-                  >
-                    Quitar concepto {i + 1}
-                  </button>
+              <h3 className="h5">3. Registrar lo ofrecido</h3>
+              <div className="d-flex flex-wrap justify-content-between gap-2 mb-3">
+                <div>
+                  {conceptos.map((c, i) => (
+                    <div key={i}>
+                      <strong>{c.etiqueta}</strong>
+                      <p className="mb-1">
+                        Abono mensual: <strong>{moneda(c.abono)}</strong>
+                        {c.meses_congelamiento > 0 &&
+                          " · congelado " + c.meses_congelamiento + " meses"}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-              <div className="row g-3">
-                <label className="col-md-4">
-                  Parte a cancelar en efectivo (antes del 10 %)
-                  <CampoImporte
-                    decimales={2}
-                    value={baseEfectivo}
-                    onChange={elegirEfectivo}
-                  />
-                </label>
-                <label className="col-md-4">
-                  Medio para el resto
-                  <select
-                    className="form-select"
-                    value={medioSaldo}
-                    onChange={(e) => {
-                      elegirMedio(e.target.value);
-                      elegirCuotas(1);
-                    }}
-                  >
-                    <option value="debito">Débito</option>
-                    <option value="transferencia">Transferencia</option>
-                    <option value="credito">Crédito</option>
-                  </select>
-                </label>
-                {medioSaldo === "credito" && (
-                  <label className="col-md-4">
-                    Cuotas sin interés
-                    <select
-                      className="form-select"
-                      value={cuotas}
-                      onChange={(e) => elegirCuotas(Number(e.target.value))}
-                    >
-                      {[1, 3, 6].map((n) => (
-                        <option key={n} value={n}>
-                          {n}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                )}
+                <button
+                  type="button"
+                  className="btn btn-outline-primary align-self-start"
+                  onClick={cambiarOferta}
+                >
+                  Cambiar oferta
+                </button>
               </div>
-              {errorPago && <p role="alert">{errorPago}</p>}
-              {pago && (
-                <p className="my-3">
-                  Acordado: {moneda(pago.base)} · Descuento:{" "}
-                  {moneda(pago.descuento)} · Redondeo a favor del cliente:{" "}
-                  {moneda(pago.ajuste_redondeo)} · Efectivo a entregar:{" "}
-                  {moneda(pago.efectivo_a_abonar)} · Saldo: {moneda(pago.saldo)}{" "}
-                  ({pago.cuotas.length} cuota(s) de {moneda(pago.cuotas[0])}) ·{" "}
-                  <strong>Total inicial: {moneda(pago.total)}</strong>. Abonos
-                  por separado.
-                </p>
-              )}
+              <PagoOferta
+                total={totalConceptos(conceptos)}
+                pago={pago}
+                error={errorPago}
+                baseEfectivo={baseEfectivo}
+                medioSaldo={medioSaldo}
+                cuotas={cuotas}
+                cambiar={({ base, medio, cantidad }) => {
+                  elegirEfectivo(base);
+                  elegirMedio(medio);
+                  elegirCuotas(cantidad);
+                  confirmarOfrecida(false);
+                }}
+              />
               <label className="d-block mb-3">
                 <input
                   type="checkbox"
                   checked={ofrecidaConfirmada}
                   onChange={(e) => confirmarOfrecida(e.target.checked)}
                 />{" "}
-                <strong>Ofrecido:</strong> presenté al prospecto esta propuesta
-                con estos importes y forma de pago.
+                <strong>Ya se la presenté al cliente</strong> con estos importes
+                y forma de pago.
               </label>
               <button
                 type="button"
@@ -938,19 +965,26 @@ export function PropuestaComercial({
                 disabled={!pago || !ofrecidaConfirmada}
                 onClick={guardar}
               >
-                {ocupado ? "Guardando…" : "Registrar como ofrecida"}
+                {ocupado ? "Guardando…" : "Registrar ofrecimiento"}
               </button>
-              <p className="small mt-2">
-                No registra una venta ni un cobro. El servidor valida precios y
-                permisos vigentes.
-              </p>
-              {derivar && (
+              <details className="small mt-3">
+                <summary>Qué se registra</summary>
                 <p>
-                  Si no avanza, registrá primero lo ofrecido. Después usá{" "}
-                  <strong>Derivar a Recuperación comercial</strong> para enviar
-                  el contexto al agente.
+                  Esta oferta reemplaza a la anterior como referencia; no suma
+                  sus importes. Las anteriores quedan en el historial.
                 </p>
-              )}
+                <p className="small mt-2">
+                  No registra una venta ni un cobro. El servidor valida precios
+                  y permisos vigentes.
+                </p>
+                {derivar && (
+                  <p>
+                    Si no avanza, registrá primero lo ofrecido. Después usá{" "}
+                    <strong>Derivar a Recuperación comercial</strong> para
+                    enviar el contexto al agente.
+                  </p>
+                )}
+              </details>
             </div>
           )}
         </fieldset>

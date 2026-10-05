@@ -40,6 +40,12 @@ export function OportunidadesPagina({
   const [apertura, abrirCotizador] = useState(0);
   const [derivando, abrirDerivacion] = useState(false);
   const panelDerivacion = useRef(null);
+  const panelCierre = useRef(null);
+  const [cerrando, abrirCierre] = useState(false);
+  useEffect(() => {
+    if (cerrando) enfocarPanel(panelCierre.current);
+  }, [cerrando]);
+  useEffect(() => abrirCierre(false), [id, revision]);
   useEffect(() => {
     abrirDerivacion(false);
   }, [id]);
@@ -311,6 +317,30 @@ export function OportunidadesPagina({
                 informados. El historial conserva el resultado original del mes.
               </p>
             )}
+            {cerrando && opciones.includes("ganar") && (
+              <section
+                ref={panelCierre}
+                tabIndex={-1}
+                className="card card-body mb-3"
+              >
+                <h3 className="h5">Registrar venta</h3>
+                <FormularioOportunidad
+                  oportunidad={detalle}
+                  perfil={perfil}
+                  equipo={equipo}
+                  opciones={["ganar"]}
+                  guardar={guardar}
+                  ocupado={ocupado}
+                />
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary align-self-start"
+                  onClick={() => abrirCierre(false)}
+                >
+                  Volver al cotizador
+                </button>
+              </section>
+            )}
             <PropuestaComercial
               key={`propuesta-${detalle.id}-${detalle.version}`}
               gestion={gestion}
@@ -321,6 +351,14 @@ export function OportunidadesPagina({
               derivar={
                 opciones.includes("derivar")
                   ? () => abrirDerivacion(true)
+                  : undefined
+              }
+              registrarVenta={
+                opciones.includes("ganar")
+                  ? () => {
+                      abrirDerivacion(false);
+                      abrirCierre(true);
+                    }
                   : undefined
               }
               actualizada={() => {

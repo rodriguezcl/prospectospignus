@@ -196,3 +196,7 @@ El cotizador sustituye la selección pendiente al elegir otra alternativa. Tras 
 ## Códigos internos breves (028)
 
 Migración 028 añade codigo_interno a propuestas_comerciales, con ocho caracteres aleatorios, formato P-XXXX-XXXX, índice único, asignación serializada y rechazo de cambios posteriores. Rellena únicamente la columna nueva del histórico; detalle.codigo y todos los snapshots siguen intactos. Las lecturas del repositorio incorporan la columna bajo la RLS existente. detalle_venta conserva sus permisos y añade el código del registro aceptado a su respuesta, sin reescribirlo. La UI prioriza codigo_interno y conserva fallback para registros de lectura anteriores. Aplicar 028 antes de desplegar el frontend; no se genera ni se trunca un UUID en el navegador para simular unicidad.
+
+## Cotizador por tareas (05-10-2026)
+
+La presentación separa armado, ofertas y registro. Al elegir una alternativa pliega el armado y oculta las otras opciones; Cambiar oferta las recupera sin registrar un ofrecimiento. Ajustar condiciones agrupa niveles y congelamiento, con abono visible. PagoOferta traduce medios simples o combinado al contrato existente de pago: efectivo completo usa la base completa, medios sin efectivo usan cero y el combinado permite parte en efectivo. El motor y servidor conservan descuentos, cuotas y validaciones. Cambiar la configuración invalida la selección pendiente y su confirmación. Registrar venta y Derivar abren formularios existentes según accionesPermitidas; nunca cierran ni derivan automáticamente.
