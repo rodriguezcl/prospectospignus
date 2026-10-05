@@ -1,3 +1,4 @@
+import { ordenarItemsCotizacion } from "./ordenarItemsCotizacion.js";
 import { OfertaComercial } from "./OfertaComercial.jsx";
 import { ofertaOfrecida, referenciaOfrecida } from "./ofertaOfrecida.js";
 import { enfocarPanel } from "../../../shared/ui/enfocarPanel.js";
@@ -275,7 +276,7 @@ export function PropuestaComercial({
   const venta =
     catalogo.esquema >= 4 &&
     (servicio === "camaras" || modalidadEquipo === "kit");
-  const adicionales = ordenarAlfabeticamente(catalogo.items).filter(
+  const adicionales = ordenarItemsCotizacion(catalogo.items, catalogo).filter(
     (i) =>
       activo(i) &&
       adicionalCompatible(catalogo, i, familiaId) &&
@@ -436,7 +437,7 @@ export function PropuestaComercial({
             {historial[0].detalle.conceptos.map((c, i) => (
               <li key={i}>
                 {c.kit?.nombre || c.familia} ·{" "}
-                {c.extras
+                {ordenarItemsCotizacion(c.extras, catalogo)
                   .map((e) => `${e.cantidad} × ${e.nombre}`)
                   .join(", ") || "Sin adicionales"}
               </li>
@@ -689,7 +690,7 @@ export function PropuestaComercial({
                 {kit && (
                   <p className="small mt-2">
                     Incluido en el kit:{" "}
-                    {kit.incluidos
+                    {ordenarItemsCotizacion(kit.incluidos, catalogo)
                       .map(
                         (i) =>
                           `${i.cantidad} × ${catalogo.items.find((x) => x.id === i.item_id)?.nombre || "Componente"}`,
@@ -1013,7 +1014,7 @@ export function PropuestaComercial({
                     ? "Kit (venta directa)"
                     : ""}{" "}
                 · {c.kit?.nombre || "Cerco"} · {c.seleccion.nivel} ·{" "}
-                {c.extras
+                {ordenarItemsCotizacion(c.extras, catalogo)
                   .map(
                     (e) =>
                       `${e.cantidad} × ${e.nombre} (${e.distribucion.bonificados || 0} bonificados)${e.propiedad ? ` · ${e.propiedad.comodato} en comodato / ${e.propiedad.cliente} del cliente (${e.propiedad.obsequio} de obsequio)` : ""}`,
@@ -1022,7 +1023,7 @@ export function PropuestaComercial({
                 {c.modalidad && (
                   <span className="d-block">
                     Incluidos:{" "}
-                    {c.kit?.incluidos
+                    {ordenarItemsCotizacion(c.kit?.incluidos || [], catalogo)
                       .map(
                         (i) =>
                           `${i.cantidad} × ${i.nombre || i.item_id} · ${i.propiedad === "comodato" ? "comodato" : "propiedad del cliente"}`,

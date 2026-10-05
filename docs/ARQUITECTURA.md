@@ -200,3 +200,7 @@ Migración 028 añade codigo_interno a propuestas_comerciales, con ocho caracter
 ## Cotizador por tareas (05-10-2026)
 
 La presentación separa armado, ofertas y registro. Al elegir una alternativa pliega el armado y oculta las otras opciones; Cambiar oferta las recupera sin registrar un ofrecimiento. Ajustar condiciones agrupa niveles y congelamiento, con abono visible. PagoOferta traduce medios simples o combinado al contrato existente de pago: efectivo completo usa la base completa, medios sin efectivo usan cero y el combinado permite parte en efectivo. El motor y servidor conservan descuentos, cuotas y validaciones. Cambiar la configuración invalida la selección pendiente y su confirmación. Registrar venta y Derivar abren formularios existentes según accionesPermitidas; nunca cierran ni derivan automáticamente.
+
+## Orden visual de ítems en cotizaciones (05-10-2026)
+
+Los listados de incluidos y adicionales muestran primero los productos de la marca y después los de COMPONENTES, con orden alfabético español dentro de cada grupo. Se ordenan copias en presentación, sin modificar composición, cantidades, precios ni snapshots guardados. Para referencias históricas sin producto disponible se conserva el nombre guardado y se ordena alfabéticamente sin inventar una marca.

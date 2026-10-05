@@ -1,3 +1,4 @@
+import { ordenarItemsCotizacion } from "./ordenarItemsCotizacion.js";
 import { monedaArgentina } from "../../../shared/ui/importe.js";
 import { compararOfertas } from "./compararOfertas.js";
 import { centavos, importeExacto, decimalCentavos } from "../domain/dinero.js";
@@ -32,7 +33,7 @@ export function OfertaComercial({
   const venta = kit?.modalidad === "kit";
   const nombre = (id) =>
     catalogo.items.find((i) => i.id === id)?.nombre || "Componente";
-  const extras = alternativa.seleccion.extras;
+  const extras = ordenarItemsCotizacion(alternativa.seleccion.extras, catalogo);
   const abono = kit?.abonos?.[nivelAbono];
   const expensas =
     !venta && ["docta", "nobu"].includes(alternativa.seleccion.subcategoria);
@@ -96,7 +97,7 @@ export function OfertaComercial({
             Te ofrecemos {kit?.nombre}, que incluye:
           </h5>
           <ul>
-            {(kit?.incluidos || []).map((i) => (
+            {ordenarItemsCotizacion(kit?.incluidos || [], catalogo).map((i) => (
               <li key={i.item_id}>
                 {i.cantidad} × {nombre(i.item_id)}
               </li>
