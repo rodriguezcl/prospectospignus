@@ -31,6 +31,9 @@ export function referenciaOfrecida(historial, ciclo, seleccion) {
     hayOfrecida: true,
     referencia: {
       seleccion: c.seleccion,
+      packs: (c.extras || []).flatMap((e) =>
+        (e.packs || []).map((p) => ({ ...p, item_id: e.item_id })),
+      ),
       total: totalConceptos([
         { importe_exacto: `${entero}.${decimales.padEnd(9, "0")}` },
       ]),

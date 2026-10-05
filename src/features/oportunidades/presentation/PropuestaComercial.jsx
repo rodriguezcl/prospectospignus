@@ -490,7 +490,10 @@ export function PropuestaComercial({
               <li key={i}>
                 {c.kit?.nombre || c.familia} ·{" "}
                 {ordenarItemsCotizacion(c.extras, catalogo)
-                  .map((e) => `${e.cantidad} × ${e.nombre}`)
+                  .map(
+                    (e) =>
+                      `${e.cantidad} × ${e.nombre}${e.packs?.length ? " · precio especial por cantidad" : ""}`,
+                  )
                   .join(", ") || "Sin adicionales"}
               </li>
             ))}
@@ -645,7 +648,8 @@ export function PropuestaComercial({
               (AR). Al calcular se verifica nuevamente la cotización.
             </p>
           )}
-          {![4, 5, 6].includes(catalogo.esquema) || !catalogo.items.length ? (
+          {![4, 5, 6, 7].includes(catalogo.esquema) ||
+          !catalogo.items.length ? (
             <p>
               Administración debe revisar y guardar el catálogo actualizado y
               habilitar sus productos y precios.
@@ -1109,6 +1113,15 @@ export function PropuestaComercial({
                       `${e.cantidad} × ${e.nombre} (${e.distribucion.bonificados || 0} bonificados)${e.propiedad ? ` · ${e.propiedad.comodato} en comodato / ${e.propiedad.cliente} del cliente (${e.propiedad.obsequio} de obsequio)` : ""}`,
                   )
                   .join(", ")}
+                {c.extras.flatMap((e) =>
+                  (e.packs || []).map((p) => (
+                    <span className="d-block" key={e.item_id + p.nivel}>
+                      {e.nombre}: {p.packs} pack(s) de 2 · {p.nivel}
+                      {p.individuales ? " + 1 individual" : ""} · Ahorro por
+                      cantidad: {moneda(p.ahorro)}
+                    </span>
+                  )),
+                )}
                 {c.modalidad && (
                   <span className="d-block">
                     Incluidos:{" "}

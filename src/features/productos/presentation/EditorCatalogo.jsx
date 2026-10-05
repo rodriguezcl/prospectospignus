@@ -100,7 +100,7 @@ export function EditorCatalogo({
             >
               <CampoImporte
                 value={item[grupoPrecios]?.[n] ?? ""}
-                simbolo={grupoPrecios === "precios_usd" ? "US$" : "$"}
+                simbolo={grupoPrecios.endsWith("_usd") ? "US$" : "$"}
                 onChange={(valor) => precio(grupoPrecios, n, valor)}
               />
             </Campo>
@@ -126,6 +126,18 @@ export function EditorCatalogo({
                 ),
                 ...(!oferta
                   ? {
+                      ...Object.fromEntries(
+                        ["precios_pack_2", "precios_pack_2_usd"].map(
+                          (campo) => [
+                            campo,
+                            Object.fromEntries(
+                              Object.entries(item[campo] || {}).filter(([n]) =>
+                                niveles.includes(n),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       precios_usd: Object.fromEntries(
                         Object.entries(item.precios_usd || {}).filter(([n]) =>
                           niveles.includes(n),
@@ -315,7 +327,15 @@ export function EditorCatalogo({
                   <select
                     className="form-select"
                     value={item.unidad}
-                    onChange={(e) => cambiar("unidad", e.target.value)}
+                    onChange={(e) =>
+                      editar((i) => ({
+                        ...i,
+                        unidad: e.target.value,
+                        ...(e.target.value !== "unidad"
+                          ? { precios_pack_2: {}, precios_pack_2_usd: {} }
+                          : {}),
+                      }))
+                    }
                   >
                     {["unidad", "pack"].map((u) => (
                       <option key={u} value={u}>
@@ -368,6 +388,21 @@ export function EditorCatalogo({
                 </p>
                 {precios("precios_usd", niveles)}
               </>
+            )}
+            {!oferta && item.unidad === "unidad" && (
+              <details className="mb-3">
+                <summary>Precio especial por cantidad · Pack de 2</summary>
+                <p className="small">
+                  Cargá el precio total de las dos unidades, sin superar el
+                  doble del precio individual. Vacío usa el precio individual.
+                  Se aplican packs completos y unidades restantes del mismo
+                  nivel; no cuentan incluidos ni bonificados.
+                </p>
+                <h4 className="h6">Total del pack en pesos (ARS)</h4>
+                {precios("precios_pack_2", niveles)}
+                <h4 className="h6">Total del pack en dólares (USD)</h4>
+                {precios("precios_pack_2_usd", niveles)}
+              </details>
             )}
             {oferta &&
               item.servicio === "alarma" &&

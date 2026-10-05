@@ -1,5 +1,7 @@
 import { importeExacto, decimalCentavos, cuotasSinInteres } from "./dinero.js";
 
+import { precioPorCantidad, detallePacks } from "./packs.js";
+
 export const subcategorias = {
   docta: "Docta Urbanización",
   nobu: "Nobu Town",
@@ -44,6 +46,8 @@ export function generarAlternativas({
     throw new Error(
       "Actualizá la cotización del dólar antes de calcular adicionales.",
     );
+  const porCantidad = (i, n, c) =>
+    precioPorCantidad(i, n, c, catalogo.esquema >= 7) * 1000n;
   const habilitado = (i) => !i.estado || i.estado === "activo";
   const familia = catalogo.familias.find(
     (f) => f.id === familiaId && habilitado(f),
@@ -118,7 +122,7 @@ export function generarAlternativas({
           altos: 0,
           bajos: 0,
           telefonicos: n,
-          importe: precio(item, "telefonico") * BigInt(n),
+          importe: porCantidad(item, "telefonico", n),
           consumo: 0n,
         },
       ];
@@ -167,9 +171,9 @@ export function generarAlternativas({
             bajos,
             telefonicos: telefono,
             importe:
-              BigInt(altos) * precio(item, "alto") +
-              BigInt(bajos) * precio(item, "bajo") +
-              (telefono ? BigInt(telefono) * precio(item, "telefonico") : 0n),
+              porCantidad(item, "alto", altos) +
+              porCantidad(item, "bajo", bajos) +
+              porCantidad(item, "telefonico", telefono),
             consumo: BigInt(gratis) * precio(item, "bajo"),
           });
         }
@@ -187,11 +191,11 @@ export function generarAlternativas({
         extras.reduce(
           (s, e) =>
             s +
-            BigInt(e.cantidad) *
-              precio(
-                catalogo.items.find((i) => i.id === e.item_id),
-                "bajo",
-              ),
+            porCantidad(
+              catalogo.items.find((i) => i.id === e.item_id),
+              "bajo",
+              e.cantidad,
+            ),
           0n,
         )
       : 0n;
@@ -235,6 +239,13 @@ export function generarAlternativas({
     )
     .map((c, indice) => ({
       ordinal: indice + 1,
+      packs: c.items.flatMap((e) =>
+        detallePacks(
+          catalogo.items.find((i) => i.id === e.item_id),
+          e,
+          catalogo.esquema >= 7,
+        ).map((p) => ({ ...p, item_id: e.item_id })),
+      ),
       total: decimalCentavos(redondear(c.importe)),
       importe_exacto: `${c.importe / 1000000000n}.${String(c.importe % 1000000000n).padStart(9, "0")}`,
       efectivo: decimalCentavos(

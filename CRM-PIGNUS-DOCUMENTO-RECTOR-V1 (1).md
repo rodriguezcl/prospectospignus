@@ -550,3 +550,12 @@ No se deducen precios USD ni se completa un vacío con cero: se cargan expresame
 Las propuestas registradas como ofrecidas tienen vigencia de cinco días corridos (120 horas), hasta la misma hora de registro. Dentro del plazo se conserva el importe ofrecido; pasado el plazo queda bloqueada la confirmación de venta y se requiere recalcular con listas y dólar vigentes y registrar una nueva propuesta. Las ventas ya confirmadas e historiales no se alteran.
 
 El vendedor dispone de Redondeo para descontar un importe explícito del total final, por ejemplo 642.208,42 menos 2.208,42 resulta en 640.000,00. Se registra como rebaja comercial separada, posterior al descuento por medio de pago, sin afectar abono. No puede ser negativo ni superar el 1 % del total después del descuento por pago y antes del ajuste automático de cuotas, sin abono. Administración puede modificar el porcentaje en Configuración entre 0 y 100 %, con hasta dos decimales; 0 deshabilita la rebaja manual. El máximo se trunca a centavos y se valida también en servidor. Cambiarlo no modifica propuestas ya ofrecidas. En pago combinado se aplica primero al efectivo neto y luego al saldo. Los importes finales y cuotas deben conciliar con el neto guardado, conservando el ajuste automático de centavos a favor del cliente.
+
+
+### Packs de dos adicionales (05-10-2026)
+
+Cada adicional vendido por unidad puede tener un precio total especial para dos unidades, por nivel Alto/Bajo/Telefónico y por moneda ARS/USD, sin duplicar productos. En kits de venta rige Telefónico. Sin precio de pack en el nivel y moneda elegidos, se usa el individual. No se inventan descuentos ni se cargan los valores de la imagen como promociones.
+
+Se aplican automáticamente packs completos y sobrantes: 3 = un pack + una unidad, 4 = dos packs, 5 = dos packs + una unidad. Se agrupan únicamente adicionales pagados del mismo producto y tarifa; incluidos y bonificados quedan excluidos. El piso Bajo incorpora el precio por cantidad y se conserva el consumo de bonificaciones a Bajo individual. Los precios especiales no pueden superar dos individuales y respetan la escala entre niveles.
+
+La oferta muestra el beneficio por cantidad y su ahorro. El servidor valida la composición y conserva los precios de pack aplicados; cotizaciones y ventas históricas no se recalculan al editar el catálogo. Vigencia, descuento por medio de pago y redondeo comercial mantienen sus reglas.

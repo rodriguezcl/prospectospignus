@@ -44,6 +44,26 @@ export function compararOfertas(actual, anterior, items) {
       cambios.push(`${nombre}: ${resumen(antes)} → ${resumen(ahora)}.`);
     }
   }
+  for (const id of new Set(
+    [...(actual.packs || []), ...(anterior.packs || [])].map((p) => p.item_id),
+  )) {
+    const resumenPack = (oferta) =>
+      (oferta.packs || [])
+        .filter((p) => p.item_id === id)
+        .map((p) => p.nivel + ": " + p.packs + " pack(s) de 2")
+        .join(" + ") || "sin pack";
+    const antes = resumenPack(anterior),
+      ahora = resumenPack(actual);
+    if (antes !== ahora)
+      cambios.push(
+        (items.find((i) => i.id === id)?.nombre || "Componente") +
+          " · Precio por cantidad: " +
+          antes +
+          " → " +
+          ahora +
+          ".",
+      );
+  }
   const diferencia =
     centavos(importeExacto(anterior.total)) -
     centavos(importeExacto(actual.total));

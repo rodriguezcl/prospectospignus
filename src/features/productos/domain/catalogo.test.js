@@ -44,7 +44,7 @@ test("adaptar conserva composición e identidades y deja pendientes los precios 
   };
   const original = structuredClone(previo);
   const actual = prepararCatalogo(previo);
-  assert.equal(actual.esquema, 6);
+  assert.equal(actual.esquema, 7);
   assert.equal("tipos" in actual, false);
   assert.equal("plantillas_version" in actual, false);
   assert.equal("tipo_comercial_id" in actual.items[1], false);

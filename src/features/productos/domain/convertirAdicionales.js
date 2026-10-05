@@ -25,26 +25,31 @@ export function convertirAdicionales(catalogo, cambio) {
         i.estado === "borrador"
       )
         return i;
-      const precios = Object.fromEntries(
-        Object.entries(i.precios_usd || {}).map(([nivel, valor]) => {
-          const convertido = (exacto(valor) * factor + 500000n) / 1000000n;
-          if (convertido >= 1000000000000000000n)
-            throw new Error(
-              "El importe convertido excede el máximo permitido.",
-            );
-          return [
-            nivel,
-            `${convertido / 1000000n}.${String(convertido % 1000000n).padStart(6, "0")}`,
-          ];
-        }),
-      );
+      const convertir = (lista, individuales) =>
+        Object.fromEntries(
+          Object.entries(lista || {}).map(([nivel, valor]) => {
+            let convertido = (exacto(valor) * factor + 500000n) / 1000000n;
+            if (convertido >= 1000000000000000000n)
+              throw new Error(
+                "El importe convertido excede el máximo permitido.",
+              );
+            if (individuales && convertido > 2n * exacto(individuales[nivel]))
+              convertido = 2n * exacto(individuales[nivel]);
+            return [
+              nivel,
+              `${convertido / 1000000n}.${String(convertido % 1000000n).padStart(6, "0")}`,
+            ];
+          }),
+        );
+      const precios = convertir(i.precios_usd);
+      const precios_pack_2 = convertir(i.precios_pack_2_usd, precios);
       const requeridos =
         i.servicio === "camaras"
           ? ["telefonico"]
           : ["alto", "bajo", "telefonico"];
       if (requeridos.some((n) => precios[n] === undefined))
         throw new Error(`Completá la lista USD de ${i.nombre}.`);
-      return { ...i, precios };
+      return { ...i, precios, precios_pack_2 };
     }),
   };
 }

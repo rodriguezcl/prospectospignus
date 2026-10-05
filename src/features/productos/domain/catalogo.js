@@ -29,7 +29,7 @@ export function normalizarNombresCatalogo(datos) {
 }
 function adaptarEstructura(datos) {
   datos = normalizarNombresCatalogo(datos);
-  if ([2, 3, 4, 5, 6].includes(datos.esquema)) {
+  if ([2, 3, 4, 5, 6, 7].includes(datos.esquema)) {
     const { tipos, plantillas_version, ...vigente } = datos;
     return {
       ...vigente,
@@ -78,7 +78,7 @@ export function nivelesPrecios(item) {
 }
 export function prepararCatalogo(datos) {
   const nuevo = adaptarEstructura(datos);
-  nuevo.esquema = 6;
+  nuevo.esquema = 7;
   nuevo.moneda_adicionales = datos.moneda_adicionales || "ARS";
   nuevo.familias = nuevo.familias.filter((f) => f.servicio !== "cerco");
   nuevo.items = nuevo.items.filter(

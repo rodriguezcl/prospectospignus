@@ -4,6 +4,8 @@ export function crearRepositorioCatalogo(cliente) {
     const { data, error } = await cliente.rpc(nombre, datos);
     if (error) {
       const mensajes = {
+        CATALOGO_PACK:
+          "Revisá los packs de 2: cada total debe ser no negativo y no superar el doble del individual, con escala Alto ≥ Bajo ≥ Telefónico y precio individual cargado en la misma moneda.",
         CATALOGO_USD:
           "Completá y revisá la escala de precios USD de todos los adicionales activos antes de usar Dólares.",
         CATALOGO_ACCESO: "No tenés permiso para administrar el catálogo.",
@@ -36,7 +38,7 @@ export function crearRepositorioCatalogo(cliente) {
       throw new Error(
         mensajes[error.message] ||
           (["PGRST202", "42P01"].includes(error.code)
-            ? "Falta aplicar la actualización del catálogo comercial (029)."
+            ? "Falta aplicar la actualización del catálogo comercial (031)."
             : "No se pudo guardar o consultar el catálogo. Revisá campos, precios y conexión."),
       );
     }
@@ -59,7 +61,7 @@ export function crearRepositorioCatalogo(cliente) {
     leer: (oportunidad = null) =>
       llamar("leer_catalogo", { p_oportunidad: oportunidad }),
     guardar: ({ version, operacion, datos }) =>
-      llamar("guardar_catalogo_029", {
+      llamar("guardar_catalogo_031", {
         p_version: version,
         p_operacion: operacion,
         p_datos: datos,

@@ -109,6 +109,16 @@ export function OfertaComercial({
               {extras.map((e) => (
                 <li key={e.item_id}>
                   {e.cantidad} × {nombre(e.item_id)}
+                  {(alternativa.packs || [])
+                    .filter((p) => p.item_id === e.item_id)
+                    .map((p) => (
+                      <small className="d-block" key={p.nivel}>
+                        Precio especial por cantidad: {p.packs}{" "}
+                        {p.packs === 1 ? "pack" : "packs"} de 2
+                        {p.individuales ? " + 1 individual" : ""} · Ahorro{" "}
+                        {moneda(p.ahorro)}
+                      </small>
+                    ))}
                   {Number(e.bonificados) > 0 && (
                     <strong> · {e.bonificados} sin cargo adicional</strong>
                   )}
