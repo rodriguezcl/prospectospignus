@@ -50,6 +50,7 @@ export function EditorCatalogo({
               incluidos: [],
               kits_compatibles: [],
               precios: {},
+              precios_usd: {},
               abonos: {},
             }),
     ),
@@ -98,7 +99,8 @@ export function EditorCatalogo({
               titulo={`${grupoPrecios === "abonos" ? "Abono " : "Precio "}${n}`}
             >
               <CampoImporte
-                value={item[grupoPrecios][n] ?? ""}
+                value={item[grupoPrecios]?.[n] ?? ""}
+                simbolo={grupoPrecios === "precios_usd" ? "US$" : "$"}
                 onChange={(valor) => precio(grupoPrecios, n, valor)}
               />
             </Campo>
@@ -122,6 +124,15 @@ export function EditorCatalogo({
                     niveles.includes(n),
                   ),
                 ),
+                ...(!oferta
+                  ? {
+                      precios_usd: Object.fromEntries(
+                        Object.entries(item.precios_usd || {}).filter(([n]) =>
+                          niveles.includes(n),
+                        ),
+                      ),
+                    }
+                  : {}),
               }
             : {}),
         });
@@ -345,7 +356,19 @@ export function EditorCatalogo({
                 precio Telefónico; no se asigna automáticamente.
               </p>
             )}
+            {!oferta && <h4 className="h6">Lista en pesos (ARS)</h4>}
             {precios("precios", niveles)}
+            {!oferta && (
+              <>
+                <h4 className="h6">Lista en dólares (USD)</h4>
+                <p className="small">
+                  Se utiliza cuando la referencia global de adicionales es
+                  Dólares. El importe final se convierte a pesos con dólar
+                  oficial venta.
+                </p>
+                {precios("precios_usd", niveles)}
+              </>
+            )}
             {oferta &&
               item.servicio === "alarma" &&
               item.modalidad === "plan" && (

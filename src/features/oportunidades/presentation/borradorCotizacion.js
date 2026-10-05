@@ -88,6 +88,8 @@ export function leerBorrador(storage, clave, referencias) {
   return {
     ...b,
     vigente:
+      (b.tipo_cambio_id || null) ===
+        (referencias.catalogo.datos?.tipo_cambio?.id || null) &&
       b.catalogo === referencias.catalogo.version &&
       b.condiciones === referencias.condiciones.version,
   };

@@ -1,8 +1,11 @@
+import { convertirAdicionales } from "../domain/convertirAdicionales.js";
 export function crearRepositorioCatalogo(cliente) {
   async function llamar(nombre, datos) {
     const { data, error } = await cliente.rpc(nombre, datos);
     if (error) {
       const mensajes = {
+        CATALOGO_USD:
+          "Completá y revisá la escala de precios USD de todos los adicionales activos antes de usar Dólares.",
         CATALOGO_ACCESO: "No tenés permiso para administrar el catálogo.",
         CATALOGO_CONFLICTO:
           "El catálogo cambió. Actualizá antes de volver a guardar.",
@@ -33,17 +36,30 @@ export function crearRepositorioCatalogo(cliente) {
       throw new Error(
         mensajes[error.message] ||
           (["PGRST202", "42P01"].includes(error.code)
-            ? "Falta aplicar la actualización del catálogo comercial (026)."
+            ? "Falta aplicar la actualización del catálogo comercial (029)."
             : "No se pudo guardar o consultar el catálogo. Revisá campos, precios y conexión."),
       );
     }
     return data;
   }
   return {
+    async leerParaCotizar(oportunidad) {
+      const catalogo = await llamar("leer_catalogo", {
+        p_oportunidad: oportunidad,
+      });
+      if (catalogo.datos.moneda_adicionales !== "USD") return catalogo;
+      const { data, error } =
+        await cliente.functions.invoke("cotizacion-dolar");
+      if (error || !data?.id)
+        throw new Error(
+          "No se pudo validar el dólar oficial. Volvé a actualizar; no se utilizarán precios en pesos como reemplazo.",
+        );
+      return { ...catalogo, datos: convertirAdicionales(catalogo.datos, data) };
+    },
     leer: (oportunidad = null) =>
       llamar("leer_catalogo", { p_oportunidad: oportunidad }),
     guardar: ({ version, operacion, datos }) =>
-      llamar("guardar_catalogo_026", {
+      llamar("guardar_catalogo_029", {
         p_version: version,
         p_operacion: operacion,
         p_datos: datos,

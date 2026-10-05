@@ -44,6 +44,7 @@ export function mismaSeleccion(a, b) {
   return (
     a &&
     b &&
+    (a.tipo_cambio_id || null) === (b.tipo_cambio_id || null) &&
     ["familia_id", "kit_id", "subcategoria", "nivel"].every(
       (k) => a[k] === b[k],
     ) &&

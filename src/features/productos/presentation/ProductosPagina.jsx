@@ -67,12 +67,10 @@ export function ProductosPagina({ gestion }) {
     setError("");
     setAviso("");
     try {
-      const datosBase = modificarCatalogo(
-        catalogo.datos,
-        seccionDatos,
-        valor,
-        accion,
-      );
+      const datosBase =
+        seccionDatos === "moneda_adicionales"
+          ? { ...catalogo.datos, moneda_adicionales: valor }
+          : modificarCatalogo(catalogo.datos, seccionDatos, valor, accion);
       const clave = JSON.stringify({ version: catalogo.version, datosBase });
       if (envio.current?.clave !== clave)
         envio.current = {
@@ -157,6 +155,44 @@ export function ProductosPagina({ gestion }) {
               historial se conserva.
             </div>
           )}
+          <form
+            key={catalogo.version}
+            className="card card-body mb-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              guardar(
+                "moneda_adicionales",
+                new FormData(e.currentTarget).get("moneda"),
+              );
+            }}
+          >
+            <label className="form-label" htmlFor="moneda-adicionales">
+              Lista de referencia para todos los adicionales
+            </label>
+            <div className="d-flex flex-wrap gap-2 align-items-center">
+              <select
+                id="moneda-adicionales"
+                name="moneda"
+                className="form-select w-auto"
+                defaultValue={catalogo.datos.moneda_adicionales}
+                disabled={ocupado || !!edicion}
+              >
+                <option value="ARS">Pesos (ARS)</option>
+                <option value="USD">Dólares (USD) × dólar oficial venta</option>
+              </select>
+              <button
+                className="btn btn-outline-primary"
+                disabled={ocupado || !!edicion}
+              >
+                Guardar referencia
+              </button>
+            </div>
+            <small className="mt-2">
+              Los importes finales siempre se muestran en pesos. Planes, kits y
+              abonos mantienen sus precios en pesos. Completá la lista USD de
+              los adicionales activos antes de seleccionarla.
+            </small>
+          </form>
           <nav
             aria-label="Secciones del catálogo"
             className="d-flex flex-wrap gap-2 mb-3"

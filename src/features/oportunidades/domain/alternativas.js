@@ -36,6 +36,14 @@ export function generarAlternativas({
   subcategoria = "sin_monitoreo",
   telefonico = false,
 }) {
+  if (
+    catalogo.moneda_adicionales === "USD" &&
+    extras.length &&
+    !catalogo.tipo_cambio?.id
+  )
+    throw new Error(
+      "Actualizá la cotización del dólar antes de calcular adicionales.",
+    );
   const habilitado = (i) => !i.estado || i.estado === "activo";
   const familia = catalogo.familias.find(
     (f) => f.id === familiaId && habilitado(f),
@@ -235,6 +243,9 @@ export function generarAlternativas({
       cuotas3: cuotasSinInteres(redondear(c.importe), 3),
       cuotas6: cuotasSinInteres(redondear(c.importe), 6),
       seleccion: {
+        ...(catalogo.moneda_adicionales === "USD" && extras.length
+          ? { tipo_cambio_id: catalogo.tipo_cambio?.id }
+          : {}),
         familia_id: familiaId,
         kit_id: kit?.id || null,
         subcategoria: alarma && !venta ? subcategoria : null,

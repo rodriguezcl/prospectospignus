@@ -1,6 +1,12 @@
 function comprobar(error) {
   if (!error) return;
   const mensajes = {
+    PROPUESTA_REDONDEO:
+      "Revisá el redondeo: debe tener hasta dos decimales y no superar el porcentaje autorizado en Configuración.",
+    PROPUESTA_VENCIDA:
+      "La cotización venció. Recalculá con los precios y dólar actuales y registrá una nueva oferta antes de confirmar la venta.",
+    PROPUESTA_DOLAR:
+      "El tipo de cambio requiere actualización. Actualizá los precios y volvé a calcular antes de registrar la oferta.",
     COMERCIAL_ANULADA:
       "La negociación está anulada y conserva su historial de solo lectura.",
     COMERCIAL_ANULACION: "Confirmá la anulación y explicá el error de carga.",
@@ -112,7 +118,7 @@ export function crearRepositorioOportunidades(cliente) {
       condiciones,
       datos,
     }) =>
-      rpc("guardar_propuesta", {
+      rpc("guardar_propuesta_030", {
         p_id: id,
         p_oportunidad: oportunidad,
         p_version: version,
@@ -160,7 +166,7 @@ export function crearRepositorioOportunidades(cliente) {
         cliente
           .from("propuestas_comerciales")
           .select(
-            "id,ciclo,codigo_interno,detalle,catalogo_version,condiciones_version",
+            "id,ciclo,codigo_interno,detalle,catalogo_version,condiciones_version,creado_en",
           )
           .eq("oportunidad_id", id)
           .order("creado_en", { ascending: false })

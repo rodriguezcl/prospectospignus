@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { leerImporteArgentino, numeroImporte } from "./importe.js";
 
-export function CampoImporte({ value, onChange, decimales = 6, ...props }) {
+export function CampoImporte({
+  value,
+  onChange,
+  decimales = 6,
+  simbolo = "$",
+  ...props
+}) {
   const [borrador, editar] = useState(null);
   return (
     <span className="input-group">
       <span className="input-group-text" aria-hidden="true">
-        $
+        {simbolo}
       </span>
       <input
         {...props}

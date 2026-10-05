@@ -1,4 +1,5 @@
 import { ordenarItemsCotizacion } from "./ordenarItemsCotizacion.js";
+import { propuestaVencida, vencimientoPropuesta } from "../domain/vigencia.js";
 import { OfertaComercial } from "./OfertaComercial.jsx";
 import { ofertaOfrecida, referenciaOfrecida } from "./ofertaOfrecida.js";
 import { enfocarPanel } from "../../../shared/ui/enfocarPanel.js";
@@ -60,6 +61,7 @@ export function PropuestaComercial({
   const [borradorListo, prepararBorrador] = useState(false);
   const guardada = useRef(false);
   const [referencias, cargarReferencias] = useState(null);
+  const [revisionReferencias, recargarReferencias] = useState(0);
   useEffect(() => {
     if (
       (apertura > 0 || (abierto && oportunidad.estado !== "recuperacion")) &&
@@ -102,6 +104,7 @@ export function PropuestaComercial({
   const [nivelAbono, elegirAbono] = useState("alto");
   const [meses, elegirMeses] = useState(0);
   const [baseEfectivo, elegirEfectivo] = useState("0");
+  const [redondeoManual, elegirRedondeo] = useState("0");
   const [medioSaldo, elegirMedio] = useState("debito");
   const [cuotas, elegirCuotas] = useState(1);
   const intento = useRef(null);
@@ -142,6 +145,7 @@ export function PropuestaComercial({
                     ),
                   );
                   elegirEfectivo(b.pago.baseEfectivo);
+                  elegirRedondeo(b.pago.redondeoManual || "0");
                   elegirMedio(b.pago.medioSaldo);
                   elegirCuotas(b.pago.cuotas);
                   if (b.calculado)
@@ -184,7 +188,7 @@ export function PropuestaComercial({
     return () => {
       vigente = false;
     };
-  }, [gestion, oportunidad.id]);
+  }, [gestion, oportunidad.id, revisionReferencias]);
 
   function restaurarSeleccion(s) {
     elegirServicio(s.servicio);
@@ -200,6 +204,7 @@ export function PropuestaComercial({
   const borrador = JSON.stringify({
     esquema: 1,
     catalogo: referencias?.catalogo.version,
+    tipo_cambio_id: referencias?.catalogo.datos.tipo_cambio?.id || null,
     condiciones: referencias?.condiciones.version,
     seleccion: {
       servicio,
@@ -214,7 +219,7 @@ export function PropuestaComercial({
     },
     calculado: alternativas.length > 0,
     conceptos: conceptos.map(seleccionBorrador),
-    pago: { baseEfectivo, medioSaldo, cuotas },
+    pago: { baseEfectivo, medioSaldo, cuotas, redondeoManual },
   });
   useEffect(() => confirmarOfrecida(false), [borrador]);
   useEffect(() => {
@@ -229,6 +234,7 @@ export function PropuestaComercial({
   }, [borrador, borradorListo, puedeEditar, perfil.id, oportunidad.id]);
 
   function invalidar() {
+    elegirRedondeo("0");
     mostrarRegistro(false);
     agregarConceptos([]);
     confirmarOfrecida(false);
@@ -250,7 +256,18 @@ export function PropuestaComercial({
     return (
       <div className="my-3">
         {error ? (
-          <p role="alert">{error}</p>
+          <>
+            <p role="alert">{error}</p>
+            <button
+              className="btn btn-outline-primary"
+              onClick={() => {
+                fallar("");
+                recargarReferencias((n) => n + 1);
+              }}
+            >
+              Reintentar carga
+            </button>
+          </>
         ) : (
           <p role="status">Cargando propuesta comercial…</p>
         )}
@@ -305,17 +322,29 @@ export function PropuestaComercial({
         baseEfectivo,
         medioSaldo,
         cuotas,
+        redondeoManual,
+        porcentajeRedondeo: condiciones.redondeo_maximo_porcentaje ?? "1",
       });
     } catch (e) {
       errorPago = e.message;
     }
 
-  function confirmar() {
+  async function confirmar() {
     fallar("");
+    ocupar(true);
+    invalidar();
     try {
+      const [actualizado, condicionesActuales] = await Promise.all([
+        gestion.catalogo(oportunidad.id),
+        gestion.condiciones(),
+      ]);
+      cargarReferencias({
+        catalogo: actualizado,
+        condiciones: condicionesActuales,
+      });
       generar(
         generarAlternativas({
-          catalogo,
+          catalogo: actualizado.datos,
           familiaId,
           kitId,
           subcategoria,
@@ -331,9 +360,12 @@ export function PropuestaComercial({
       mostrarRegistro(false);
     } catch (e) {
       fallar(e.message);
+    } finally {
+      ocupar(false);
     }
   }
   function agregar(opcion) {
+    elegirRedondeo("0");
     if (conAbono && kit?.abonos[nivelAbono] == null) {
       fallar("Falta el precio del abono. Administración debe completarlo.");
       return;
@@ -370,7 +402,12 @@ export function PropuestaComercial({
             meses_congelamiento,
           }),
         ),
-        pago: { base_efectivo: baseEfectivo, medio_saldo: medioSaldo, cuotas },
+        pago: {
+          base_efectivo: baseEfectivo,
+          medio_saldo: medioSaldo,
+          cuotas,
+          redondeo_manual: redondeoManual,
+        },
       },
     };
     const clave = JSON.stringify(entrada);
@@ -433,6 +470,21 @@ export function PropuestaComercial({
             <strong>Pago inicial: {moneda(historial[0].detalle.total)}</strong>{" "}
             · Abono mensual: {moneda(historial[0].detalle.abono)}
           </p>
+          <p
+            className={
+              propuestaVencida(historial[0]) ? "text-danger fw-bold" : "small"
+            }
+          >
+            {propuestaVencida(historial[0])
+              ? "Cotización vencida · recalculá y registrá una nueva oferta para confirmar la venta."
+              : `Válida hasta ${new Date(vencimientoPropuesta(historial[0])).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" })} (AR).`}
+          </p>
+          {Number(historial[0].detalle.redondeo_manual) > 0 && (
+            <p className="small">
+              Redondeo comercial aplicado:{" "}
+              {moneda(historial[0].detalle.redondeo_manual)}.
+            </p>
+          )}
           <ul>
             {historial[0].detalle.conceptos.map((c, i) => (
               <li key={i}>
@@ -487,6 +539,7 @@ export function PropuestaComercial({
                   elegirMedio("debito");
                   elegirCuotas(1);
                   if (
+                    !propuestaVencida(ultima) &&
                     ultima.catalogo_version === referencias.catalogo.version &&
                     ultima.condiciones_version ===
                       referencias.condiciones.version
@@ -520,7 +573,9 @@ export function PropuestaComercial({
                 }
               }}
             >
-              Seguir negociando
+              {propuestaVencida(historial[0])
+                ? "Recalcular cotización vencida"
+                : "Seguir negociando"}
             </button>
           )}
           {registrarVenta &&
@@ -578,7 +633,19 @@ export function PropuestaComercial({
       {puedeEditar && (
         <fieldset disabled={ocupado}>
           <legend className="h5">Cotizador</legend>
-          {![4, 5].includes(catalogo.esquema) || !catalogo.items.length ? (
+          {catalogo.tipo_cambio && (
+            <p className="small">
+              Adicionales calculados en pesos con dólar oficial venta:{" "}
+              <strong>{moneda(catalogo.tipo_cambio.venta)}</strong>. Fuente:
+              DolarAPI ·{" "}
+              {new Date(catalogo.tipo_cambio.fechaActualizacion).toLocaleString(
+                "es-AR",
+                { timeZone: "America/Argentina/Buenos_Aires" },
+              )}{" "}
+              (AR). Al calcular se verifica nuevamente la cotización.
+            </p>
+          )}
+          {![4, 5, 6].includes(catalogo.esquema) || !catalogo.items.length ? (
             <p>
               Administración debe revisar y guardar el catálogo actualizado y
               habilitar sus productos y precios.
@@ -944,6 +1011,14 @@ export function PropuestaComercial({
                 baseEfectivo={baseEfectivo}
                 medioSaldo={medioSaldo}
                 cuotas={cuotas}
+                redondeoManual={redondeoManual}
+                porcentajeRedondeo={
+                  condiciones.redondeo_maximo_porcentaje ?? "1"
+                }
+                cambiarRedondeo={(valor) => {
+                  elegirRedondeo(valor);
+                  confirmarOfrecida(false);
+                }}
                 cambiar={({ base, medio, cantidad }) => {
                   elegirEfectivo(base);
                   elegirMedio(medio);
@@ -1005,8 +1080,22 @@ export function PropuestaComercial({
               Ciclo {p.ciclo} · catálogo {p.catalogo_version} · inicial{" "}
               {moneda(p.detalle.total)} · abono {moneda(p.detalle.abono)}
             </p>
+            {Number(p.detalle.redondeo_manual) > 0 && (
+              <p>Redondeo comercial: {moneda(p.detalle.redondeo_manual)}.</p>
+            )}
             {p.detalle.conceptos.map((c, i) => (
               <p key={i}>
+                {c.tipo_cambio && (
+                  <span className="d-block">
+                    Adicionales: lista USD · dólar oficial venta{" "}
+                    {moneda(c.tipo_cambio.venta)} ·{" "}
+                    {new Date(c.tipo_cambio.fechaActualizacion).toLocaleString(
+                      "es-AR",
+                      { timeZone: "America/Argentina/Buenos_Aires" },
+                    )}{" "}
+                    (AR).
+                  </span>
+                )}
                 {c.marca || c.familia} ·{" "}
                 {c.modalidad === "plan"
                   ? "Plan (comodato)"

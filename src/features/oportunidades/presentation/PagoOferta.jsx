@@ -10,7 +10,11 @@ export function PagoOferta({
   medioSaldo,
   cuotas,
   cambiar,
+  redondeoManual = "0",
+  porcentajeRedondeo = "1",
+  cambiarRedondeo,
 }) {
+  const [mostrarRedondeo, abrirRedondeo] = useState(false);
   const [combinado, combinar] = useState(
     Number(baseEfectivo) > 0 && Number(baseEfectivo) !== Number(total),
   );
@@ -116,6 +120,41 @@ export function PagoOferta({
           {error}
         </p>
       )}
+      {cambiarRedondeo && (
+        <div className="my-3">
+          <button
+            type="button"
+            className="btn btn-outline-primary btn-sm"
+            aria-expanded={mostrarRedondeo}
+            onClick={() => abrirRedondeo(!mostrarRedondeo)}
+          >
+            Redondeo
+          </button>
+          {mostrarRedondeo && (
+            <label className="d-block mt-2">
+              Importe a descontar del total final
+              <CampoImporte
+                value={redondeoManual}
+                onChange={cambiarRedondeo}
+                decimales={2}
+              />
+              <small>
+                Máximo {porcentajeRedondeo} % del total después del descuento
+                por pago. No modifica el abono mensual.
+              </small>
+            </label>
+          )}
+          {redondeoManual !== "0" && (
+            <button
+              type="button"
+              className="btn btn-link btn-sm"
+              onClick={() => cambiarRedondeo("0")}
+            >
+              Quitar redondeo
+            </button>
+          )}
+        </div>
+      )}
       {pago && (
         <>
           <div className="bg-body-tertiary border rounded p-3 my-3">
@@ -142,6 +181,12 @@ export function PagoOferta({
             <dl className="mt-2">
               <dt>Importe antes de descuentos</dt>
               <dd>{moneda(pago.base)}</dd>
+              {Number(pago.redondeo_manual) > 0 && (
+                <>
+                  <dt>Redondeo comercial</dt>
+                  <dd>{moneda(pago.redondeo_manual)}</dd>
+                </>
+              )}
               {Number(pago.descuento) > 0 && (
                 <>
                   <dt>Descuento por efectivo</dt>

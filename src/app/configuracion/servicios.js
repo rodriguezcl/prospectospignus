@@ -23,7 +23,7 @@ export const productos = componerProductos(clienteSupabase);
 export const condiciones = componerCondiciones(clienteSupabase);
 export const informes = componerInformes(clienteSupabase);
 export const oportunidades = componerOportunidades(clienteSupabase, {
-  catalogo: productos.leer,
+  catalogo: productos.leerParaCotizar,
   condiciones: condiciones.leer,
 });
 export const avisos = combinarAvisos(oportunidades, promociones, agenda);

@@ -57,9 +57,23 @@ export function ConfiguracionPagina({ gestion }) {
       setError("Los plazos deben ser únicos, entre 1 y 99 meses.");
       return;
     }
+    const porcentaje = String(valor.datos.redondeo_maximo_porcentaje ?? "1");
+    if (
+      !/^(0|[1-9]\d{0,2})(\.\d{1,2})?$/.test(porcentaje) ||
+      Number(porcentaje) > 100
+    ) {
+      setError(
+        "El límite de redondeo debe estar entre 0 y 100 %, con hasta dos decimales.",
+      );
+      return;
+    }
     setOcupado(true);
     operacion.current ||= crypto.randomUUID();
-    const datos = { ...valor.datos, meses_congelamiento: plazos };
+    const datos = {
+      ...valor.datos,
+      meses_congelamiento: plazos,
+      redondeo_maximo_porcentaje: porcentaje,
+    };
     try {
       const version = await gestion.guardar({
         version: valor.version,
@@ -106,6 +120,34 @@ export function ConfiguracionPagina({ gestion }) {
               Débito y transferencia: mismo total. Efectivo: 10 % acumulable con
               bonificaciones. Crédito: 1, 3 o 6 cuotas sin interés. El descuento
               no afecta el abono.
+            </p>
+            <h2 className="h4">Redondeo comercial</h2>
+            <label className="d-block mb-3">
+              Porcentaje máximo de redondeo
+              <input
+                className="form-control"
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                required
+                value={valor.datos.redondeo_maximo_porcentaje ?? "1"}
+                onChange={(e) => {
+                  setValor({
+                    ...valor,
+                    datos: {
+                      ...valor.datos,
+                      redondeo_maximo_porcentaje: e.target.value,
+                    },
+                  });
+                  operacion.current = null;
+                }}
+              />
+            </label>
+            <p>
+              Por defecto: 1 %. Se aplica al total inicial después del descuento
+              por pago, sin abono. Con 0 % se deshabilita la rebaja manual. No
+              modifica propuestas ya ofrecidas.
             </p>
             <h2 className="h4">Congelamiento del abono</h2>
             <label className="d-block mb-3">

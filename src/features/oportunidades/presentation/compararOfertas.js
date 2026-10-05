@@ -15,6 +15,13 @@ const resumen = (extra) =>
 export function compararOfertas(actual, anterior, items) {
   if (!anterior) return null;
   const cambios = [];
+  if (
+    (actual.seleccion.tipo_cambio_id || null) !==
+    (anterior.seleccion.tipo_cambio_id || null)
+  )
+    cambios.push(
+      "Cambió la referencia de conversión de los adicionales a pesos. La oferta anterior conserva su importe original.",
+    );
   if (actual.seleccion.nivel !== anterior.seleccion.nivel)
     cambios.push(
       `Nivel del plan o kit: ${anterior.seleccion.nivel} → ${actual.seleccion.nivel}.`,

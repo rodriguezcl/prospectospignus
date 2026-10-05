@@ -1,5 +1,6 @@
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { propuestaVencida, vencimientoPropuesta } from "../domain/vigencia.js";
 import { monedaArgentina } from "../../../shared/ui/importe.js";
 import { acciones, fechaCordoba } from "../domain/circuito.js";
 import { serviciosInteres } from "../domain/interesComercial.js";
@@ -25,8 +26,8 @@ function Campo({
           required={requerido}
         >
           <option value="">Seleccionar…</option>
-          {opciones.map(([id, texto]) => (
-            <option key={id} value={id}>
+          {opciones.map(([id, texto, deshabilitada]) => (
+            <option key={id} value={id} disabled={deshabilitada}>
               {texto}
             </option>
           ))}
@@ -80,6 +81,12 @@ export function FormularioOportunidad({
   );
   const [propuestaId, elegirPropuesta] = useState(propuestas[0]?.id || "");
   const propuesta = propuestas.find((p) => p.id === propuestaId);
+  const [ahora, cambiarAhora] = useState(Date.now);
+  useEffect(() => {
+    const reloj = setInterval(() => cambiarAhora(Date.now()), 30000);
+    return () => clearInterval(reloj);
+  }, []);
+  const vencida = propuesta && propuestaVencida(propuesta, ahora);
   const [contactoSugerido] = useState(() =>
     new Date(Date.now() + 24 * 3600000 - 3 * 3600000)
       .toISOString()
@@ -172,7 +179,8 @@ export function FormularioOportunidad({
                 .filter((p) => p.ciclo === oportunidad.ciclo)
                 .map((p) => [
                   p.id,
-                  `${p.codigo_interno || p.detalle.codigo} · Inicial ${monedaArgentina(p.detalle.total)} · Abono ${monedaArgentina(p.detalle.abono, "no corresponde")}`,
+                  `${p.codigo_interno || p.detalle.codigo} · Inicial ${monedaArgentina(p.detalle.total)} · ${propuestaVencida(p, ahora) ? "Vencida: recalcular" : `Válida hasta ${new Date(vencimientoPropuesta(p)).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" })}`}`,
+                  accion === "ganar" && propuestaVencida(p, ahora),
                 ])}
             />
           )}
@@ -526,7 +534,17 @@ export function FormularioOportunidad({
               )}
             </>
           )}
-          <button className="btn btn-primary" type="submit">
+          {accion === "ganar" && vencida && (
+            <p role="alert" className="alert alert-warning">
+              Cotización vencida. Recalculá los precios y registrá una nueva
+              propuesta ofrecida para confirmar la venta.
+            </p>
+          )}
+          <button
+            className="btn btn-primary"
+            type="submit"
+            disabled={accion === "ganar" && !!vencida}
+          >
             {ocupado
               ? "Guardando…"
               : accion === "crear"

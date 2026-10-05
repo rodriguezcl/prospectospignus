@@ -1,5 +1,9 @@
 project_id = "prospectospignus"
 
+[functions.cotizacion-dolar]
+# El manejador verifica getUser y perfil activo antes de acceder a la cotización.
+verify_jwt = false
+
 [auth]
 enable_signup = false
 minimum_password_length = 10

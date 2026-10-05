@@ -29,7 +29,7 @@ export function normalizarNombresCatalogo(datos) {
 }
 function adaptarEstructura(datos) {
   datos = normalizarNombresCatalogo(datos);
-  if ([2, 3, 4, 5].includes(datos.esquema)) {
+  if ([2, 3, 4, 5, 6].includes(datos.esquema)) {
     const { tipos, plantillas_version, ...vigente } = datos;
     return {
       ...vigente,
@@ -78,12 +78,14 @@ export function nivelesPrecios(item) {
 }
 export function prepararCatalogo(datos) {
   const nuevo = adaptarEstructura(datos);
-  nuevo.esquema = 5;
+  nuevo.esquema = 6;
+  nuevo.moneda_adicionales = datos.moneda_adicionales || "ARS";
   nuevo.familias = nuevo.familias.filter((f) => f.servicio !== "cerco");
   nuevo.items = nuevo.items.filter(
     (i) => i.servicio !== "cerco" && i.tipo !== "mano_obra",
   );
   for (const i of nuevo.items) {
+    if (i.tipo === "adicional") i.precios_usd ??= {};
     if (i.precios?.unico !== undefined) {
       i.precio_unico_anterior = i.precios.unico;
       delete i.precios.unico;
