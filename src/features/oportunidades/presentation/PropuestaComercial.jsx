@@ -792,13 +792,15 @@ export function PropuestaComercial({
                             invalidar();
                           }}
                         />{" "}
-                        {i.nombre} · {i.unidad}
+                        {i.nombre}
                       </label>
                       {extras[i.id]?.activo && (
-                        <label>
-                          Cantidad de {i.nombre}
+                        <label className="d-inline-flex align-items-center gap-2 mb-0">
+                          {i.unidad === "metro" ? "Cantidad (metros)" : "Cantidad"}
                           <input
                             className="form-control"
+                            style={{ width: "6rem" }}
+                            aria-label={`Cantidad de ${i.nombre}`}
                             type="number"
                             min={i.unidad === "metro" ? "0.001" : "1"}
                             max="9999"
