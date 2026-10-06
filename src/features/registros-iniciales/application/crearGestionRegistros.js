@@ -6,6 +6,8 @@ export function crearGestionRegistros(repositorio) {
     catalogos: () => repositorio.catalogos(),
     obtener: (id) => repositorio.obtener(id),
     historial: (id) => repositorio.historial(id),
+    eliminar: (id, version, motivo) =>
+      repositorio.eliminar(id, version, motivo),
     guardar: (id, version, entrada) =>
       repositorio.guardar(id, version, validarRegistro(entrada)),
   };

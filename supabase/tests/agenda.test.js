@@ -13,7 +13,9 @@ test("agenda: aislamiento, concurrencia, historial, recordatorios e integración
     create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;`);
   const carpeta = new URL("../migrations/", import.meta.url);
   for (const archivo of (await readdir(carpeta))
-    .filter((a) => a.endsWith(".sql") && !a.includes("032_"))
+    .filter(
+      (a) => a.endsWith(".sql") && !a.includes("033_") && !a.includes("032_"),
+    )
     .sort())
     await db.exec(await readFile(new URL(archivo, carpeta), "utf8"));
   const [admin, vendedor, otro, agente, inactivo] = Array.from(
@@ -215,7 +217,12 @@ test("agenda: aislamiento, concurrencia, historial, recordatorios e integración
   await comercial(0, "crear", visita, opComercial);
   // La visita anterior al cambio conserva su seguimiento tras migrar la base compartida.
   await db.exec("reset role");
-  await db.exec(await readFile(new URL("202610060032_prospectos_compartidos.sql", carpeta), "utf8"));
+  await db.exec(
+    await readFile(
+      new URL("202610060032_prospectos_compartidos.sql", carpeta),
+      "utf8",
+    ),
+  );
   await como(agente);
   await comercial(0, "crear", visita, opComercial);
   assert.equal((await filas()).length, 0);

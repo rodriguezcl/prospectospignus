@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { EncabezadoPagina } from "../../../shared/ui/contenido/EncabezadoPagina.jsx";
 import { camposRegistro } from "../domain/registro.js";
+import { IconoAccion } from "../../../shared/ui/IconoAccion.jsx";
 
 const fecha = (valor) =>
   new Intl.DateTimeFormat("es-AR", {
@@ -36,6 +37,39 @@ export function RegistrosInicialesPagina({
   const [guardando, cambiarGuardando] = useState(false);
   const [error, cambiarError] = useState("");
   const [aviso, cambiarAviso] = useState("");
+  const [baja, cambiarBaja] = useState(null);
+  const [errorBaja, cambiarErrorBaja] = useState("");
+  const modalBaja = useRef(null);
+  useEffect(() => {
+    if (baja) modalBaja.current?.showModal();
+  }, [baja]);
+  function solicitarBaja(registro) {
+    cambiarErrorBaja("");
+    cambiarBaja(registro);
+  }
+  async function eliminar(evento) {
+    evento.preventDefault();
+    if (guardia.current) return;
+    guardia.current = true;
+    cambiarGuardando(true);
+    cambiarErrorBaja("");
+    const motivo = new FormData(evento.currentTarget).get("motivo").trim();
+    try {
+      await gestion.eliminar(baja.id, baja.version, motivo);
+      cambiarBaja(null);
+      cambiarAviso(
+        "Prospecto eliminado del listado. Se conservó el historial de la operación.",
+      );
+      cambiarParametros({});
+      cambiarFiltros((f) => ({ ...f, pagina: 0 }));
+      actualizar((v) => v + 1);
+    } catch (fallo) {
+      cambiarErrorBaja(fallo.message);
+    } finally {
+      guardia.current = false;
+      cambiarGuardando(false);
+    }
+  }
   const [modificado, marcarModificado] = useState(false);
   const guardia = useRef(false);
   const turno = useRef(0);
@@ -151,6 +185,64 @@ export function RegistrosInicialesPagina({
         titulo="Prospectos"
         descripcion="Base compartida: todos pueden consultar y editar. La autoría de cada carga se conserva."
       />
+      {baja && (
+        <dialog
+          ref={modalBaja}
+          className="border-0 rounded shadow p-4"
+          style={{ width: "min(36rem, calc(100% - 2rem))" }}
+          aria-labelledby="eliminar-prospecto-titulo"
+          onCancel={(e) => {
+            e.preventDefault();
+            if (!guardando) cambiarBaja(null);
+          }}
+        >
+          <h2 id="eliminar-prospecto-titulo" className="h5">
+            Eliminar prospecto: {baja.nombre}
+          </h2>
+          <p>
+            Se retirará de Prospectos y Cotizaciones. Se conserva la autoría y
+            el historial. Solo se permite si no tiene cotizaciones ni
+            seguimiento vinculados.
+          </p>
+          <form onSubmit={eliminar}>
+            <label htmlFor="motivo-baja-prospecto" className="form-label">
+              Motivo de eliminación
+            </label>
+            <textarea
+              id="motivo-baja-prospecto"
+              name="motivo"
+              className="form-control mb-3"
+              required
+              minLength={5}
+              maxLength={500}
+              disabled={guardando}
+            />
+            {errorBaja && (
+              <p role="alert" className="alert alert-danger">
+                {errorBaja}
+              </p>
+            )}
+            <div className="d-flex gap-2">
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                autoFocus
+                disabled={guardando}
+                onClick={() => cambiarBaja(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="btn btn-danger"
+                disabled={guardando}
+              >
+                {guardando ? "Eliminando…" : "Confirmar eliminación"}
+              </button>
+            </div>
+          </form>
+        </dialog>
+      )}
       {(nuevo || seleccionado) && (
         <p className="text-muted small">
           Guardá los datos del contacto. Aparecerá automáticamente en
@@ -219,6 +311,20 @@ export function RegistrosInicialesPagina({
                 <h2 className="h5">
                   {detalle.version ? "Detalle y edición" : "Cargar prospecto"}
                 </h2>
+                {administrador &&
+                  !!detalle.version &&
+                  !detalle.lote_demostracion && (
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-danger mb-3"
+                      disabled={guardando || modificado}
+                      title={`Eliminar ${detalle.nombre}`}
+                      aria-label={`Eliminar ${detalle.nombre}`}
+                      onClick={() => solicitarBaja(detalle)}
+                    >
+                      <IconoAccion accion="eliminar" />
+                    </button>
+                  )}
                 {detalle.lote_demostracion && (
                   <p className="alert alert-warning">
                     DEMO · Persona y teléfono ficticios. No contactar. La
@@ -460,7 +566,7 @@ export function RegistrosInicialesPagina({
                         <th scope="col">Origen</th>
                         <th scope="col">Cargado por</th>
                         <th scope="col">Creación</th>
-                        <th scope="col">Detalle</th>
+                        <th scope="col">Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -489,6 +595,18 @@ export function RegistrosInicialesPagina({
                             >
                               Ver contacto y siguiente paso
                             </button>
+                            {administrador && !r.lote_demostracion && (
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger ms-2"
+                                disabled={guardando}
+                                title={`Eliminar ${r.nombre}`}
+                                aria-label={`Eliminar ${r.nombre}`}
+                                onClick={() => solicitarBaja(r)}
+                              >
+                                <IconoAccion accion="eliminar" />
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}

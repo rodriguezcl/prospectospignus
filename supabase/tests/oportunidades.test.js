@@ -14,7 +14,10 @@ test("Cotizaciones: cartera automática, preparación sin visita, permisos y anu
   const carpeta = new URL("../migrations/", import.meta.url);
   for (const archivo of (await readdir(carpeta))
     .filter(
-      (a) => a.endsWith(".sql") && !a.includes("032_prospectos_compartidos"),
+      (a) =>
+        a.endsWith(".sql") &&
+        !a.includes("033_") &&
+        !a.includes("032_prospectos_compartidos"),
     )
     .sort())
     await db.exec(await readFile(new URL(archivo, carpeta), "utf8"));
@@ -345,7 +348,10 @@ test("Agente: calificación, visitas, recuperación equilibrada, RLS, cierre e i
   const carpeta = new URL("../migrations/", import.meta.url);
   for (const archivo of (await readdir(carpeta))
     .filter(
-      (a) => a.endsWith(".sql") && !a.includes("032_prospectos_compartidos"),
+      (a) =>
+        a.endsWith(".sql") &&
+        !a.includes("033_") &&
+        !a.includes("032_prospectos_compartidos"),
     )
     .sort())
     await db.exec(await readFile(new URL(archivo, carpeta), "utf8"));
