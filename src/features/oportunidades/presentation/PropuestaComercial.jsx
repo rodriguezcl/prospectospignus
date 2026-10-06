@@ -826,7 +826,7 @@ export function PropuestaComercial({
                     {moneda(kit?.abonos[nivelAbono])}
                   </p>
                 )}
-                <details className="my-3">
+                <details className="my-3" open>
                   <summary>
                     Ajustar condiciones · precios y congelamiento
                   </summary>
