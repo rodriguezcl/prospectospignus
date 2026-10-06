@@ -55,7 +55,11 @@ export function construirTablero(
     })
     .filter((r) => !titular || r.atribuido_id === titular);
   const registros = datos.registros.filter(
-    (r) => !titular || r.responsable_id === titular,
+    (r) =>
+      !titular ||
+      (r.tipo_carga === "historica_confirmada"
+        ? r.responsable_id
+        : r.creado_por) === titular,
   );
   const pendientes = datos.oportunidades.filter(
     (r) => abierta(r) && (!titular || r.responsable_id === titular),

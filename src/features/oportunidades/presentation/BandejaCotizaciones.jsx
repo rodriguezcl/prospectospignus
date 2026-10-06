@@ -81,7 +81,11 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
                               <li className="mb-2" key={c.id}>
                                 <strong>{c.necesidad}</strong>
                                 <small className="d-block">
-                                  {estados[c.estado]}
+                                  {estados[c.estado]} ·{" "}
+                                  {c.preparacion_compartida
+                                    ? "Compartida · sin responsable"
+                                    : c.responsable_nombre ||
+                                      "Seguimiento asignado"}
                                 </small>
                               </li>
                             ))}
@@ -94,30 +98,29 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
                       </td>
                       <td>
                         <div className="d-flex flex-column align-items-start gap-2">
-                          {r.casos.map((c) => (
-                            <Link
-                              key={c.id}
-                              className="btn btn-primary btn-sm text-nowrap"
-                              title={`${c.necesidad} · ${estados[c.estado]}`}
-                              aria-label={`Abrir negociación: ${c.necesidad} · ${estados[c.estado]}`}
-                              to={`/cotizaciones?id=${c.id}`}
-                            >
-                              {["ganada", "perdida", "anulada"].includes(
-                                c.estado,
-                              )
-                                ? "Ver negociación"
-                                : "Abrir negociación"}
-                            </Link>
-                          ))}
-                          {(perfil.rol === "administrador" ||
-                            r.responsable_id === perfil.id) && (
-                            <Link
-                              className="btn btn-outline-secondary btn-sm text-nowrap"
-                              to={`/cotizaciones?nueva=si&registro=${r.id}`}
-                            >
-                              {r.casos.length ? "Nueva cotización" : "Cotizar"}
-                            </Link>
-                          )}
+                          {r.casos
+                            .filter((c) => c.accesible !== false)
+                            .map((c) => (
+                              <Link
+                                key={c.id}
+                                className="btn btn-primary btn-sm text-nowrap"
+                                title={`${c.necesidad} · ${estados[c.estado]}`}
+                                aria-label={`Abrir negociación: ${c.necesidad} · ${estados[c.estado]}`}
+                                to={`/cotizaciones?id=${c.id}`}
+                              >
+                                {["ganada", "perdida", "anulada"].includes(
+                                  c.estado,
+                                )
+                                  ? "Ver negociación"
+                                  : "Abrir negociación"}
+                              </Link>
+                            ))}
+                          <Link
+                            className="btn btn-outline-secondary btn-sm text-nowrap"
+                            to={`/cotizaciones?nueva=si&registro=${r.id}`}
+                          >
+                            {r.casos.length ? "Nueva cotización" : "Cotizar"}
+                          </Link>
                         </div>
                       </td>
                     </tr>

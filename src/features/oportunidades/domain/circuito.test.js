@@ -106,3 +106,30 @@ test("solo responsable o administración pueden reactivar perdidas, nunca ganada
     }),
   );
 });
+
+import { puedeCotizar } from "./circuito.js";
+test("preparación compartida: cotizar no habilita seguimiento antes de ofrecer", () => {
+  const compartida = {
+    estado: "cotizacion",
+    preparacion_compartida: true,
+    responsable_id: null,
+  };
+  for (const rol of ["vendedor", "administrador"]) {
+    assert.equal(puedeCotizar(compartida, { id: "nuevo", rol }), true);
+    assert.deepEqual(accionesPermitidas(compartida, { id: "nuevo", rol }), []);
+  }
+  assert.equal(
+    puedeCotizar(compartida, { id: "agente", rol: "agente" }),
+    false,
+  );
+  const asignada = {
+    ...compartida,
+    preparacion_compartida: false,
+    responsable_id: "vendedor",
+  };
+  assert.equal(puedeCotizar(asignada, { id: "otro", rol: "vendedor" }), false);
+  assert.equal(
+    puedeCotizar(asignada, { id: "vendedor", rol: "vendedor" }),
+    true,
+  );
+});

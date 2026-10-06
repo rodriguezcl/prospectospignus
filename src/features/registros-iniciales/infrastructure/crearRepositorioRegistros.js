@@ -4,7 +4,7 @@ function comprobar(error) {
   if (!error) return;
   if (["42P01", "PGRST205", "PGRST202"].includes(error.code))
     throw new Error(
-      "Falta activar la base de prospectos en Supabase. Aplicá la migración 202609290003.",
+      "Falta activar la base de prospectos en Supabase. Aplicá la migración 202610060032.",
     );
   if (error.code === "42501")
     throw new Error(
@@ -16,7 +16,7 @@ function comprobar(error) {
     );
   if (["22023", "23514", "23502", "22P02", "23503"].includes(error.code))
     throw new Error(
-      "Revisá los datos, el origen, el responsable activo y el motivo de reasignación.",
+      "Revisá los datos y el origen del prospecto.",
     );
   throw new Error(
     "No pudimos confirmar la operación. Revisá tu conexión y reintentá sin cambiar los datos para evitar duplicados.",
@@ -30,7 +30,7 @@ export function crearRepositorioRegistros(cliente) {
           .from("origenes_registros")
           .select("codigo,nombre,activo")
           .order("nombre"),
-        cliente.from("perfiles").select("id,nombre,activo").order("nombre"),
+        cliente.rpc("autores_prospectos_032"),
       ]);
       comprobar(origenes.error);
       comprobar(perfiles.error);
@@ -40,7 +40,7 @@ export function crearRepositorioRegistros(cliente) {
       pagina = 0,
       busqueda = "",
       origen = "",
-      responsable = "",
+      autor = "",
     } = {}) {
       let consulta = cliente
         .from("registros_iniciales")
@@ -51,10 +51,7 @@ export function crearRepositorioRegistros(cliente) {
           `%${busqueda.trim().replace(/[\\%_]/g, "\\$&")}%`,
         );
       if (origen) consulta = consulta.eq("origen", origen);
-      if (responsable === "sin-asignar")
-        consulta = consulta.is("responsable_id", null);
-      else if (responsable)
-        consulta = consulta.eq("responsable_id", responsable);
+      if (autor) consulta = consulta.eq("creado_por", autor);
       const { data, count, error } = await consulta
         .order("nombre")
         .order("id")
@@ -84,7 +81,7 @@ export function crearRepositorioRegistros(cliente) {
       return data;
     },
     async guardar(id, version, datos) {
-      const { data, error } = await cliente.rpc("guardar_registro_inicial", {
+      const { data, error } = await cliente.rpc("guardar_registro_inicial_032", {
         p_id: id,
         p_version: version,
         p_datos: datos,

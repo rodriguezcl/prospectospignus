@@ -348,22 +348,24 @@ export function FormularioOportunidad({
                   ["otro", "Otro"],
                 ]}
               />
-              <Campo
-                nombre="vendedor_id"
-                titulo={
-                  iniciarSinVisita
-                    ? "Vendedor responsable"
-                    : "Vendedor que realizará la visita"
-                }
-                valor={perfil.rol === "vendedor" ? perfil.id : ""}
-                opciones={ordenarAlfabeticamente(equipo)
-                  .filter(
-                    (p) =>
-                      p.rol === "vendedor" &&
-                      (perfil.rol !== "vendedor" || p.id === perfil.id),
-                  )
-                  .map((p) => [p.id, p.nombre])}
-              />
+              {!iniciarSinVisita && (
+                <Campo
+                  nombre="vendedor_id"
+                  titulo={
+                    iniciarSinVisita
+                      ? "Vendedor responsable"
+                      : "Vendedor que realizará la visita"
+                  }
+                  valor={perfil.rol === "vendedor" ? perfil.id : ""}
+                  opciones={ordenarAlfabeticamente(equipo)
+                    .filter(
+                      (p) =>
+                        p.rol === "vendedor" &&
+                        (perfil.rol !== "vendedor" || p.id === perfil.id),
+                    )
+                    .map((p) => [p.id, p.nombre])}
+                />
+              )}
             </>
           )}
           {accion === "derivar" && (

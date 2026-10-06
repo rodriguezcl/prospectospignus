@@ -43,7 +43,7 @@ test("cotización: comienza desde el contacto sin exigir ni simular una visita",
   });
   assert.match(html, /Preparar cotización/);
   assert.match(html, /Servicio de interés/);
-  assert.match(html, /name="vendedor_id"/);
+  assert.doesNotMatch(html, /name="vendedor_id"/);
   assert.doesNotMatch(
     html,
     /name="plazo"|name="contacto_confirmado"|name="telefono"/,

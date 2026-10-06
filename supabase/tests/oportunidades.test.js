@@ -13,7 +13,9 @@ test("Cotizaciones: cartera automática, preparación sin visita, permisos y anu
     create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;`);
   const carpeta = new URL("../migrations/", import.meta.url);
   for (const archivo of (await readdir(carpeta))
-    .filter((a) => a.endsWith(".sql"))
+    .filter(
+      (a) => a.endsWith(".sql") && !a.includes("032_prospectos_compartidos"),
+    )
     .sort())
     await db.exec(await readFile(new URL(archivo, carpeta), "utf8"));
   const [admin, vendedor, otro, agente] = Array.from({ length: 4 }, randomUUID);
@@ -282,6 +284,55 @@ test("Cotizaciones: cartera automática, preparación sin visita, permisos y anu
   assert.equal((await cartera()).total, 0);
   await db.exec("reset role; set role anon");
   await assert.rejects(cartera(), /permission denied/);
+  // Migrar datos reales del circuito anterior sin borrar responsables ni eventos.
+  await db.exec("reset role");
+  const antes = (
+    await db.query(
+      "select id,estado,responsable_id,version from public.oportunidades order by id",
+    )
+  ).rows;
+  const eventosAntes = (
+    await db.query("select * from public.eventos_oportunidades order by id")
+  ).rows;
+  await db.exec(
+    await readFile(
+      new URL("202610060032_prospectos_compartidos.sql", carpeta),
+      "utf8",
+    ),
+  );
+  assert.deepEqual(
+    (
+      await db.query(
+        "select id,estado,responsable_id,version from public.oportunidades order by id",
+      )
+    ).rows,
+    antes,
+  );
+  assert.deepEqual(
+    (await db.query("select * from public.eventos_oportunidades order by id"))
+      .rows,
+    eventosAntes,
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select preparacion_compartida from public.oportunidades where id=$1",
+        [casoAgente],
+      )
+    ).rows[0].preparacion_compartida,
+    true,
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select preparacion_compartida from public.oportunidades where id=$1",
+        [id],
+      )
+    ).rows[0].preparacion_compartida,
+    false,
+  );
+  await como(otro);
+  assert.equal((await cartera()).total, 2);
 });
 
 test("Agente: calificación, visitas, recuperación equilibrada, RLS, cierre e idempotencia", async (t) => {
@@ -293,7 +344,9 @@ test("Agente: calificación, visitas, recuperación equilibrada, RLS, cierre e i
     create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;`);
   const carpeta = new URL("../migrations/", import.meta.url);
   for (const archivo of (await readdir(carpeta))
-    .filter((a) => a.endsWith(".sql"))
+    .filter(
+      (a) => a.endsWith(".sql") && !a.includes("032_prospectos_compartidos"),
+    )
     .sort())
     await db.exec(await readFile(new URL(archivo, carpeta), "utf8"));
   const [admin, vendedor, otro, agente, agente2] = Array.from(

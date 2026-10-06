@@ -12,7 +12,9 @@ const base = () => ({
       resultado: "perdida",
     },
   ],
-  registros: [{ id: "r", dia: "2026-09-30", responsable_id: "v1" }],
+  registros: [
+    { id: "r", dia: "2026-09-30", creado_por: "v1", responsable_id: null },
+  ],
   perfiles: [
     { id: "v1", nombre: "Uno" },
     { id: "v2", nombre: "Dos" },
@@ -144,4 +146,26 @@ test("Inicio: corte Córdoba, histórico incompleto y errores no se convierten e
   });
   await assert.rejects(servicio.cargarTablero("2026-09"), /sin conexión/);
   await assert.rejects(servicio.cargarTablero("2026-13"), /mes válido/);
+});
+
+test("captación: atribuye la carga al autor, no al responsable histórico del contacto", () => {
+  const datos = base();
+  datos.registros = [
+    {
+      id: "compartido",
+      dia: "2026-09-30",
+      creado_por: "v1",
+      responsable_id: null,
+    },
+  ];
+  assert.equal(
+    construirTablero(datos, "2026-09", { id: "v1", rol: "vendedor" }, "", ahora)
+      .registros.length,
+    1,
+  );
+  assert.equal(
+    construirTablero(datos, "2026-09", { id: "v2", rol: "vendedor" }, "", ahora)
+      .registros.length,
+    0,
+  );
 });

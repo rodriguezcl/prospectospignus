@@ -18,7 +18,7 @@ export function crearRepositorioResumen(cliente) {
         const { data, error } = await cliente
           .from("oportunidades")
           .select(
-            "id,estado,responsable_id,periodo_historico,creado_en,visita_en,proxima_accion_en,prospectos(nombre)",
+            "id,estado,responsable_id,preparacion_compartida,periodo_historico,creado_en,visita_en,proxima_accion_en,prospectos(nombre)",
           )
           .neq("estado", "anulada")
           .order("id")
@@ -30,7 +30,12 @@ export function crearRepositorioResumen(cliente) {
               "La cartera cambió durante la lectura. Actualizá el resumen.",
             );
           vistos.add(fila.id);
-          filas.push(fila);
+          filas.push({
+            ...fila,
+            responsable_id: fila.preparacion_compartida
+              ? null
+              : fila.responsable_id,
+          });
         }
         if (filas.length > 10000)
           throw new Error(

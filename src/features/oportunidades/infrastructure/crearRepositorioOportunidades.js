@@ -7,6 +7,7 @@ function comprobar(error) {
       "La cotización venció. Recalculá con los precios y dólar actuales y registrá una nueva oferta antes de confirmar la venta.",
     PROPUESTA_DOLAR:
       "El tipo de cambio requiere actualización. Actualizá los precios y volvé a calcular antes de registrar la oferta.",
+    COMERCIAL_PRIMERA_OFERTA: "Registrá primero la oferta ofrecida para asignar el seguimiento.",
     COMERCIAL_ANULADA:
       "La negociación está anulada y conserva su historial de solo lectura.",
     COMERCIAL_ANULACION: "Confirmá la anulación y explicá el error de carga.",
@@ -62,7 +63,7 @@ function comprobar(error) {
   };
   if (["42P01", "PGRST202", "PGRST205"].includes(error.code))
     throw new Error(
-      "Falta activar una migración del circuito comercial en Supabase. Para Prospectos/Cotizaciones se requiere la 019.",
+      "Falta activar una migración del circuito comercial en Supabase. Para Prospectos/Cotizaciones se requiere la 032.",
     );
   throw new Error(
     mensajes[error.message] ||
@@ -88,15 +89,8 @@ export function crearRepositorioOportunidades(cliente) {
         .eq("id", id)
         .single();
       comprobar(registro.error);
-      const casos = await cliente
-        .from("oportunidades")
-        .select("id,necesidad,estado,prospectos!inner(registro_id)")
-        .eq("prospectos.registro_id", id)
-        .neq("estado", "anulada")
-        .order("necesidad")
-        .order("id");
-      comprobar(casos.error);
-      return { registro: registro.data, casos: casos.data };
+      const casos = await rpc("negociaciones_contacto_032", { p_registro: id });
+      return { registro: registro.data, casos };
     },
     async propuestas(id) {
       const { data, error } = await cliente
@@ -206,7 +200,7 @@ export function crearRepositorioOportunidades(cliente) {
     guardar: ({ id, version, operacion, accion, datos }) =>
       rpc(
         accion === "iniciar_cotizacion"
-          ? "iniciar_cotizacion"
+          ? "iniciar_cotizacion_032"
           : accion === "anular"
             ? "anular_cotizacion"
             : accion === "corregir_perdida"

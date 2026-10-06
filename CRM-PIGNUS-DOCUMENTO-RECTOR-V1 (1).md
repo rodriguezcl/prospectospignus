@@ -559,3 +559,18 @@ Cada adicional vendido por unidad puede tener un precio total especial para dos 
 Se aplican automáticamente packs completos y sobrantes: 3 = un pack + una unidad, 4 = dos packs, 5 = dos packs + una unidad. Se agrupan únicamente adicionales pagados del mismo producto y tarifa; incluidos y bonificados quedan excluidos. El piso Bajo incorpora el precio por cantidad y se conserva el consumo de bonificaciones a Bajo individual. Los precios especiales no pueden superar dos individuales y respetan la escala entre niveles.
 
 La oferta muestra el beneficio por cantidad y su ahorro. El servidor valida la composición y conserva los precios de pack aplicados; cotizaciones y ventas históricas no se recalculan al editar el catálogo. Vigencia, descuento por medio de pago y redondeo comercial mantienen sus reglas.
+
+
+## 29. Prospectos compartidos y asignación al primer ofrecimiento (06-10-2026)
+
+Este acuerdo prevalece sobre las referencias anteriores a cartera o dueño del contacto y sobre la asignación al abrir una cotización de 25.2.
+
+Prospectos es una base común para todos los usuarios activos: pueden consultar y editar sus datos, sin asignación de dueño. El servidor conserva creado_por y creado_en y registra actor, fecha, valores anteriores y nuevos de cada edición; la concurrencia se controla por versión. La columna responsable_id del contacto queda solo por compatibilidad histórica, no autoriza ni asigna seguimiento. Los nuevos contactos se crean sin responsable. La presentación muestra Cargado por y permite filtrar por autor; el directorio mínimo no expone correos ni modifica la RLS de perfiles.
+
+La cotización en preparación nace compartida, sin vendedor ni responsable. Calcular o seleccionar alternativas no la asigna. Registrar la primera oferta como ofrecida asigna automáticamente el seguimiento al vendedor actor, dentro de la misma transacción que valida y guarda la propuesta. Administración puede registrar en nombre de un vendedor activo elegido expresamente; el agente conserva el ofrecimiento de Recuperación, no se autoasigna preparaciones. Un error de precios/pago revierte la asignación; el bloqueo, versión e idempotencia impiden apropiaciones simultáneas. Las siguientes ofertas conservan el responsable salvo reasignación administrativa del circuito vigente.
+
+032 marca como compartidas las preparaciones anteriores sin propuestas, eventos posteriores al inicio, agenda ni procedencia histórica. Conserva las columnas previas como evidencia de compatibilidad y los eventos originales, sin atribuirles seguimiento mientras estén compartidas. Negociaciones con actividad u ofertas previas, recuperaciones y cierres conservan sus responsables y permisos. La primera oferta deja un evento primera_oferta_asignada con referencia a la propuesta. La coordinación posterior de visita utiliza al vendedor del ofrecimiento sin dar por realizada ninguna visita.
+
+La bandeja comparte solo el contexto básico de otras negociaciones (necesidad, estado y responsable) para evitar duplicados; el acceso a propuestas, precios e historial comercial mantiene su RLS. Una negociación distinta sigue requiriendo confirmar otra necesidad. Todos conservan la edición del contacto aun después del ofrecimiento. Se bloquean gestiones y la creación directa antigua de visitas antes de la primera oferta, manteniendo reintentos históricos. La anulación de una preparación propia sin actividad sigue permitida. Captación se atribuye al autor de carga; las importaciones históricas conservan su atribución original.
+
+Aplicar 032 antes del frontend. RPC de entrada versionadas evitan usar el nuevo flujo contra el servidor anterior. No modifica cotizaciones ofrecidas, importes, autoría ni cierres históricos.

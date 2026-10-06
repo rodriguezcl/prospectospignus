@@ -17,9 +17,15 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
  create schema auth; grant usage on schema auth to authenticated;
  create table auth.users(id uuid primary key,email text,raw_app_meta_data jsonb default '{}');
  create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;`);
+  // Fixture del circuito histórico previo a la base compartida; 032 se verifica en prospectos-compartidos.test.js.
   const carpeta = new URL("../migrations/", import.meta.url);
   for (const a of (await readdir(carpeta))
-    .filter((a) => a.endsWith(".sql") && !a.includes("028_codigos_internos"))
+    .filter(
+      (a) =>
+        a.endsWith(".sql") &&
+        !a.includes("028_codigos_internos") &&
+        !a.includes("032_prospectos_compartidos"),
+    )
     .sort())
     await db.exec(await readFile(new URL(a, carpeta), "utf8"));
   const reparto = (
@@ -736,7 +742,13 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
     db.query("select public.guardar_catalogo($1,$2,$3)", [
       ultima,
       randomUUID(),
-      { esquema: 7, moneda_adicionales: "ARS", marcas: [], familias: [], items: [] },
+      {
+        esquema: 7,
+        moneda_adicionales: "ARS",
+        marcas: [],
+        familias: [],
+        items: [],
+      },
     ]),
     /CATALOGO_USADO/,
   );
@@ -749,7 +761,13 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
     db.query("select public.guardar_catalogo($1,$2,$3)", [
       ultima + 1,
       randomUUID(),
-      { esquema: 7, moneda_adicionales: "ARS", marcas: [], familias: [], items: [] },
+      {
+        esquema: 7,
+        moneda_adicionales: "ARS",
+        marcas: [],
+        familias: [],
+        items: [],
+      },
     ]),
     /CATALOGO_USADO/,
   );

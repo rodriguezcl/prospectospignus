@@ -29,14 +29,7 @@ export function CrearProspecto({
         gestion
           .registros(busqueda)
           .then((r) => {
-            if (vigente)
-              listar(
-                r.filter(
-                  (p) =>
-                    perfil.rol === "administrador" ||
-                    p.responsable_id === perfil.id,
-                ),
-              );
+            if (vigente) listar(r);
           })
           .catch((e) => {
             if (vigente) fallar(e.message);
@@ -74,10 +67,7 @@ export function CrearProspecto({
     };
   }, [gestion, seleccion]);
   const r = contexto?.registro;
-  const autorizado =
-    r &&
-    !r.lote_demostracion &&
-    (perfil.rol === "administrador" || r.responsable_id === perfil.id);
+  const autorizado = r && !r.lote_demostracion;
   return (
     <>
       <h2 className="h4">Preparar cotización</h2>

@@ -31,12 +31,14 @@ export function PropuestaComercial({
   gestion,
   oportunidad,
   perfil,
+  equipo = [],
   actualizada,
   abierto = false,
   apertura = 0,
   derivar,
   registrarVenta,
 }) {
+  const [responsableSeguimiento, elegirResponsableSeguimiento] = useState("");
   const panel = useRef(null);
   const panelPago = useRef(null);
   const armado = useRef(null);
@@ -394,6 +396,9 @@ export function PropuestaComercial({
       catalogo: referencias.catalogo.version,
       condiciones: referencias.condiciones.version,
       datos: {
+        ...(oportunidad.preparacion_compartida && perfil.rol === "administrador"
+          ? { responsable_seguimiento_id: responsableSeguimiento }
+          : {}),
         conceptos: conceptos.map(
           ({ seleccion, ordinal, nivel_abono, meses_congelamiento }) => ({
             seleccion,
@@ -818,8 +823,12 @@ export function PropuestaComercial({
                           />
                           <span>
                             {i.unidad === "metro"
-                              ? Number(extras[i.id].cantidad) === 1 ? "Metro" : "Metros"
-                              : Number(extras[i.id].cantidad) === 1 ? "Unidad" : "Unidades"}
+                              ? Number(extras[i.id].cantidad) === 1
+                                ? "Metro"
+                                : "Metros"
+                              : Number(extras[i.id].cantidad) === 1
+                                ? "Unidad"
+                                : "Unidades"}
                           </span>
                         </label>
                       )}
@@ -1036,6 +1045,34 @@ export function PropuestaComercial({
                   confirmarOfrecida(false);
                 }}
               />
+              {oportunidad.preparacion_compartida &&
+                (perfil.rol === "vendedor" ? (
+                  <p>
+                    Al registrar esta primera oferta quedarás como responsable
+                    del seguimiento.
+                  </p>
+                ) : (
+                  <label className="d-block mb-3">
+                    Vendedor responsable del seguimiento
+                    <select
+                      className="form-select"
+                      value={responsableSeguimiento}
+                      onChange={(e) => {
+                        elegirResponsableSeguimiento(e.target.value);
+                        confirmarOfrecida(false);
+                      }}
+                    >
+                      <option value="">Seleccioná un vendedor…</option>
+                      {equipo
+                        .filter((p) => p.rol === "vendedor")
+                        .map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.nombre}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                ))}
               <label className="d-block mb-3">
                 <input
                   type="checkbox"
@@ -1048,7 +1085,13 @@ export function PropuestaComercial({
               <button
                 type="button"
                 className="btn btn-primary"
-                disabled={!pago || !ofrecidaConfirmada}
+                disabled={
+                  !pago ||
+                  !ofrecidaConfirmada ||
+                  (oportunidad.preparacion_compartida &&
+                    perfil.rol === "administrador" &&
+                    !responsableSeguimiento)
+                }
                 onClick={guardar}
               >
                 {ocupado ? "Guardando…" : "Registrar ofrecimiento"}

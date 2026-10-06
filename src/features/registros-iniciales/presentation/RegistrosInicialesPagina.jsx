@@ -27,7 +27,7 @@ export function RegistrosInicialesPagina({
     pagina: 0,
     busqueda: "",
     origen: "",
-    responsable: "",
+    autor: "",
   });
   const [detalle, cambiarDetalle] = useState(null);
   const [eventos, cambiarEventos] = useState([]);
@@ -85,7 +85,6 @@ export function RegistrosInicialesPagina({
             ubicacion: "",
             observaciones: "",
             origen: "",
-            responsable_id: administrador ? "" : perfil.id,
           });
         else cambiarLista(resultado);
       } catch (fallo) {
@@ -118,7 +117,6 @@ export function RegistrosInicialesPagina({
     const actual = turno.current;
     const entrada = Object.fromEntries(new FormData(evento.currentTarget));
     entrada.origen = detalle.origen || entrada.origen;
-    if (!administrador) entrada.responsable_id = perfil.id;
     try {
       const resultado = await gestion.guardar(
         detalle.id,
@@ -151,7 +149,7 @@ export function RegistrosInicialesPagina({
     <>
       <EncabezadoPagina
         titulo="Prospectos"
-        descripcion="Captá contactos y organizá el primer paso de la relación comercial."
+        descripcion="Base compartida: todos pueden consultar y editar. La autoría de cada carga se conserva."
       />
       {(nuevo || seleccionado) && (
         <p className="text-muted small">
@@ -230,7 +228,7 @@ export function RegistrosInicialesPagina({
                 )}
                 {!!detalle.version && (
                   <p>
-                    Creado por {nombrePerfil(detalle.creado_por)} ·{" "}
+                    Cargado por {nombrePerfil(detalle.creado_por)} ·{" "}
                     {fecha(detalle.creado_en)} · Versión {detalle.version}
                   </p>
                 )}
@@ -240,15 +238,7 @@ export function RegistrosInicialesPagina({
                   onChange={() => marcarModificado(true)}
                   aria-busy={guardando}
                 >
-                  <fieldset
-                    disabled={
-                      guardando ||
-                      !!detalle.lote_demostracion ||
-                      (!!detalle.version &&
-                        !administrador &&
-                        detalle.responsable_id !== perfil.id)
-                    }
-                  >
+                  <fieldset disabled={guardando || !!detalle.lote_demostracion}>
                     <div className="row g-3">
                       {camposRegistro.map((campo) => (
                         <div
@@ -323,66 +313,6 @@ export function RegistrosInicialesPagina({
                         </select>
                         <small>El origen se conserva después del alta.</small>
                       </div>
-                      {administrador ? (
-                        <>
-                          <div className="col-md-6">
-                            <label
-                              className="form-label"
-                              htmlFor="registro-responsable"
-                            >
-                              Responsable
-                            </label>
-                            <select
-                              id="registro-responsable"
-                              name="responsable_id"
-                              className="form-select"
-                              defaultValue={detalle.responsable_id || ""}
-                            >
-                              <option value="">Sin asignar</option>
-                              {catalogos.perfiles
-                                .filter(
-                                  (p) =>
-                                    p.activo || p.id === detalle.responsable_id,
-                                )
-                                .map((p) => (
-                                  <option
-                                    key={p.id}
-                                    value={p.id}
-                                    disabled={!p.activo}
-                                  >
-                                    {p.nombre}
-                                    {p.activo ? "" : " (inactivo)"}
-                                  </option>
-                                ))}
-                            </select>
-                            <small>
-                              Asignación manual; no se distribuye
-                              automáticamente.
-                            </small>
-                          </div>
-                          {!!detalle.version && (
-                            <div className="col-12">
-                              <label
-                                className="form-label"
-                                htmlFor="registro-motivo"
-                              >
-                                Motivo si cambiás el responsable
-                              </label>
-                              <input
-                                id="registro-motivo"
-                                name="motivo"
-                                className="form-control"
-                                maxLength={500}
-                                placeholder="Mínimo 5 caracteres al reasignar"
-                              />
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <p className="col-md-6 mb-0 align-self-center">
-                          Responsable: {perfil.nombre}
-                        </p>
-                      )}
                     </div>
                     <button className="btn btn-primary mt-3" type="submit">
                       {guardando ? "Guardando…" : "Guardar prospecto"}
@@ -487,27 +417,24 @@ export function RegistrosInicialesPagina({
                     ))}
                   </select>
                 </div>
-                {administrador && (
-                  <div className="col-md-3">
-                    <label htmlFor="filtrar-responsable" className="form-label">
-                      Responsable
-                    </label>
-                    <select
-                      id="filtrar-responsable"
-                      name="responsable"
-                      className="form-select"
-                      defaultValue={filtros.responsable}
-                    >
-                      <option value="">Todos</option>
-                      <option value="sin-asignar">Sin asignar</option>
-                      {catalogos.perfiles.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.nombre}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                <div className="col-md-3">
+                  <label htmlFor="filtrar-autor" className="form-label">
+                    Cargado por
+                  </label>
+                  <select
+                    id="filtrar-autor"
+                    name="autor"
+                    className="form-select"
+                    defaultValue={filtros.autor}
+                  >
+                    <option value="">Todos</option>
+                    {catalogos.perfiles.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div className="col-md-2 align-self-end">
                   <button className="btn btn-outline-primary" type="submit">
                     Filtrar
@@ -531,7 +458,7 @@ export function RegistrosInicialesPagina({
                         <th scope="col">Nombre</th>
                         <th scope="col">Teléfono</th>
                         <th scope="col">Origen</th>
-                        <th scope="col">Responsable</th>
+                        <th scope="col">Cargado por</th>
                         <th scope="col">Creación</th>
                         <th scope="col">Detalle</th>
                       </tr>
@@ -549,7 +476,7 @@ export function RegistrosInicialesPagina({
                           </td>
                           <td>{r.telefono || "—"}</td>
                           <td>{nombreOrigen(r.origen)}</td>
-                          <td>{nombrePerfil(r.responsable_id)}</td>
+                          <td>{nombrePerfil(r.creado_por)}</td>
                           <td>{fecha(r.creado_en)}</td>
                           <td>
                             <button

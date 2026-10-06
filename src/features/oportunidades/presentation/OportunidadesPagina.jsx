@@ -346,6 +346,7 @@ export function OportunidadesPagina({
               gestion={gestion}
               oportunidad={detalle}
               perfil={perfil}
+              equipo={equipo}
               abierto={true}
               apertura={apertura}
               derivar={
@@ -378,7 +379,11 @@ export function OportunidadesPagina({
                   </>
                 )}
                 <dt>Responsable actual</dt>
-                <dd>{nombre(detalle.responsable_id)}</dd>
+                <dd>
+                  {detalle.preparacion_compartida
+                    ? "Sin asignar · primera oferta pendiente"
+                    : nombre(detalle.responsable_id)}
+                </dd>
                 <dt>Captador / vendedor de visita / responsable al cierre</dt>
                 <dd>
                   {detalle.prospectos.captado_por
@@ -441,8 +446,9 @@ export function OportunidadesPagina({
                 />
               ) : (
                 <p>
-                  Consulta de solo lectura: el caso está cerrado o pertenece a
-                  otro responsable.
+                  {detalle.preparacion_compartida
+                    ? "Registrá la primera oferta como ofrecida para asignar el seguimiento. Hasta entonces la preparación está compartida."
+                    : "Consulta de solo lectura: el caso está cerrado o pertenece a otro responsable."}
                 </p>
               )}
             </details>
@@ -564,7 +570,11 @@ export function OportunidadesPagina({
                         <small className="d-block">{o.necesidad}</small>
                       </td>
                       <td>{estados[o.estado]}</td>
-                      <td>{nombre(o.responsable_id)}</td>
+                      <td>
+                        {o.preparacion_compartida
+                          ? "Sin asignar · compartida"
+                          : nombre(o.responsable_id)}
+                      </td>
                       <td>
                         {mostrarFecha(o.proxima_accion_en)}
                         {o.proxima_accion_en &&

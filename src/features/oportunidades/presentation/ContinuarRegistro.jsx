@@ -7,10 +7,17 @@ export function CasosDelRegistro({ casos }) {
     <ul>
       {casos.map((c) => (
         <li key={c.id}>
-          <Link to={`/cotizaciones?id=${c.id}`}>
-            Abrir negociación: {c.necesidad}
-          </Link>{" "}
-          · {estados[c.estado]}
+          {c.accesible !== false ? (
+            <Link to={`/cotizaciones?id=${c.id}`}>
+              Abrir negociación: {c.necesidad}
+            </Link>
+          ) : (
+            <span>{c.necesidad}</span>
+          )}{" "}
+          · {estados[c.estado]} ·{" "}
+          {c.preparacion_compartida
+            ? "Compartida · sin responsable"
+            : c.responsable_nombre || "Seguimiento asignado"}
         </li>
       ))}
     </ul>
@@ -37,12 +44,11 @@ export function ContinuarRegistro({ registro, gestion, perfil }) {
   }, [gestion, registro.id, registro.version]);
   if (error)
     return (
-      <p role="alert">No pudimos consultar las negociaciones asociadas. {error}</p>
+      <p role="alert">
+        No pudimos consultar las negociaciones asociadas. {error}
+      </p>
     );
   if (!contexto) return <p role="status">Buscando negociaciones asociadas…</p>;
-  const autorizado =
-    perfil.rol === "administrador" ||
-    contexto.registro.responsable_id === perfil.id;
   return (
     <section
       className="card card-body"
@@ -60,19 +66,13 @@ export function ContinuarRegistro({ registro, gestion, perfil }) {
           propuesta sin volver a cargar sus datos.
         </p>
       )}
-      {autorizado && !registro.lote_demostracion && (
+      {!registro.lote_demostracion && (
         <Link
           className="btn btn-primary align-self-start"
           to={`/cotizaciones?nueva=si&registro=${registro.id}`}
         >
           {contexto.casos.length ? "Cotizar otra necesidad" : "Cotizar"}
         </Link>
-      )}
-      {!autorizado && (
-        <p>
-          Solo el responsable del prospecto o administración puede crear una
-          nueva necesidad.
-        </p>
       )}
     </section>
   );

@@ -37,12 +37,6 @@ export function validarRegistro(entrada) {
   if (typeof entrada.origen !== "string" || !entrada.origen.trim())
     throw new Error("Seleccioná el origen.");
   datos.origen = entrada.origen;
-  datos.responsable_id = entrada.responsable_id || null;
-  if (
-    datos.responsable_id &&
-    !/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(datos.responsable_id)
-  )
-    throw new Error("Responsable inválido.");
   datos.motivo =
     typeof entrada.motivo === "string" ? entrada.motivo.trim() : "";
   if (datos.motivo.length > 500)

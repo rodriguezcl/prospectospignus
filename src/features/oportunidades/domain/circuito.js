@@ -24,9 +24,17 @@ export const acciones = {
   corregir_perdida: "Corregir pérdida cargada por error (mismo ciclo)",
 };
 export function puedeCotizar(oportunidad, perfil) {
+  if (
+    !oportunidad ||
+    ["ganada", "perdida", "anulada"].includes(oportunidad.estado)
+  )
+    return false;
+  if (oportunidad.preparacion_compartida)
+    return (
+      oportunidad.estado === "cotizacion" &&
+      ["vendedor", "administrador"].includes(perfil.rol)
+    );
   return Boolean(
-    oportunidad &&
-    !["ganada", "perdida", "anulada"].includes(oportunidad.estado) &&
     oportunidad.responsable_id &&
     (perfil.rol === "administrador" ||
       (oportunidad.responsable_id === perfil.id &&
@@ -38,6 +46,7 @@ export function puedeCotizar(oportunidad, perfil) {
 export function accionesPermitidas(oportunidad, perfil) {
   if (!oportunidad || ["ganada", "anulada"].includes(oportunidad.estado))
     return [];
+  if (oportunidad.preparacion_compartida) return [];
   const admin = perfil.rol === "administrador";
   if (oportunidad.estado === "perdida")
     return admin || oportunidad.responsable_id === perfil.id
