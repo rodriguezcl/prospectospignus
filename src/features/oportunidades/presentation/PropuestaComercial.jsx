@@ -796,7 +796,6 @@ export function PropuestaComercial({
                       </label>
                       {extras[i.id]?.activo && (
                         <label className="d-inline-flex align-items-center gap-2 mb-0">
-                          {i.unidad === "metro" ? "Cantidad (metros)" : "Cantidad"}
                           <input
                             className="form-control"
                             style={{ width: "6rem" }}
@@ -817,6 +816,11 @@ export function PropuestaComercial({
                               invalidar();
                             }}
                           />
+                          <span>
+                            {i.unidad === "metro"
+                              ? Number(extras[i.id].cantidad) === 1 ? "Metro" : "Metros"
+                              : Number(extras[i.id].cantidad) === 1 ? "Unidad" : "Unidades"}
+                          </span>
                         </label>
                       )}
                     </div>
