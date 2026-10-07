@@ -200,9 +200,10 @@ export function RegistrosInicialesPagina({
             Eliminar prospecto: {baja.nombre}
           </h2>
           <p>
-            Se retirará de Prospectos y Cotizaciones. Se conserva la autoría y
-            el historial. Solo se permite si no tiene cotizaciones ni
-            seguimiento vinculados.
+            Se retirará de Prospectos y de la bandeja de Cotizaciones. Se
+            anularán sus negociaciones abiertas y se cancelarán sus visitas y
+            tareas pendientes. Las ventas y los casos ya cerrados conservarán su
+            resultado. Se mantienen la autoría, las propuestas y el historial.
           </p>
           <form onSubmit={eliminar}>
             <label htmlFor="motivo-baja-prospecto" className="form-label">

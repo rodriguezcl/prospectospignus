@@ -410,4 +410,120 @@ test("base compartida: edición auditada y primera oferta asignada atómicamente
     randomUUID(),
     { resumen: "Error de carga confirmado", confirmar_anulacion: "si" },
   ]);
+
+  // 034: anulación atómica con propuestas y agenda; los cierres no se reescriben.
+  const eliminarVinculado = () =>
+    db.query("select public.eliminar_prospecto_034($1,3,$2)", [
+      registro,
+      "Contacto de prueba duplicado",
+    ]);
+  await assert.rejects(eliminarVinculado(), /PROSPECTO_ADMIN/);
+  await db.exec("reset role");
+  await db.query(
+    "update public.oportunidades set estado='ganada',cerrado_por=$2,cerrado_en=now(),preparacion_compartida=false where id=$1",
+    [segundo, a],
+  );
+  const tarea = randomUUID();
+  await db.query(
+    "insert into public.actividades_agenda(id,vendedor_id,oportunidad_id,origen,tipo,titulo,estado,inicio_previsto,creado_por) values($1,$2,$3,'manual','llamada','Llamar al contacto','programada',now(),$2)",
+    [tarea, b, caso],
+  );
+  const propuestasAntes = (
+    await db.query("select * from public.propuestas_comerciales order by id")
+  ).rows;
+  const cerradaAntes = (
+    await db.query("select * from public.oportunidades where id=$1", [segundo])
+  ).rows[0];
+  const anuladaAntes = (
+    await db.query("select * from public.oportunidades where id=$1", [anulable])
+  ).rows[0];
+  // Provocar un error al final prueba que tampoco se anulan parcialmente casos o agenda.
+  await db.exec(`create function public.fallar_baja_prueba() returns trigger language plpgsql as $$begin if new.eliminado_en is not null then raise exception 'FALLO_PRUEBA'; end if; return new; end$$;
+   create trigger falla_baja_prueba before update on public.registros_iniciales for each row execute function public.fallar_baja_prueba();`);
+  await como(admin);
+  await assert.rejects(eliminarVinculado(), /FALLO_PRUEBA/);
+  assert.equal((await ficha()).estado, "visita");
+  assert.equal(
+    (
+      await db.query(
+        "select estado from public.actividades_agenda where id=$1",
+        [tarea],
+      )
+    ).rows[0].estado,
+    "programada",
+  );
+  await db.exec(
+    "reset role; drop trigger falla_baja_prueba on public.registros_iniciales; drop function public.fallar_baja_prueba()",
+  );
+  await como(admin);
+  await eliminarVinculado();
+  await eliminarVinculado();
+  assert.equal((await ficha()).estado, "anulada");
+  assert.equal(
+    (
+      await db.query(
+        "select estado from public.actividades_agenda where id=$1",
+        [tarea],
+      )
+    ).rows[0].estado,
+    "cancelada",
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select count(*)::int n from public.actividades_agenda where oportunidad_id=$1 and estado in ('programada','en_curso')",
+        [caso],
+      )
+    ).rows[0].n,
+    0,
+  );
+  assert.deepEqual(
+    (await db.query("select * from public.propuestas_comerciales order by id"))
+      .rows,
+    propuestasAntes,
+  );
+  assert.deepEqual(
+    (
+      await db.query("select * from public.oportunidades where id=$1", [
+        segundo,
+      ])
+    ).rows[0],
+    cerradaAntes,
+  );
+  assert.deepEqual(
+    (
+      await db.query("select * from public.oportunidades where id=$1", [
+        anulable,
+      ])
+    ).rows[0],
+    anuladaAntes,
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select count(*)::int n from public.eventos_registros where registro_id=$1 and tipo='registro_eliminado'",
+        [registro],
+      )
+    ).rows[0].n,
+    1,
+  );
+  assert.equal(
+    (await db.query("select public.listar_ventas_concretadas() r")).rows[0].r
+      .total,
+    1,
+  );
+  assert.equal(
+    (
+      await db.query("select public.listar_contactos_cotizaciones() r")
+    ).rows[0].r.filas.some((x) => x.id === registro),
+    false,
+  );
+  await assert.rejects(
+    db.query("select public.iniciar_cotizacion_032($1,0,$2,$3)", [
+      randomUUID(),
+      randomUUID(),
+      { ...iniciar, otra_necesidad: "si" },
+    ]),
+    /COMERCIAL_ACCESO/,
+  );
 });

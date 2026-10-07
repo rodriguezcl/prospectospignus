@@ -246,3 +246,11 @@ Aplicar 032 antes del frontend. RPC de entrada versionadas evitan usar el nuevo 
 ## Eliminación de prospectos (033)
 
 registros-iniciales incorpora eliminar como puerto de aplicación/repositorio. La RPC eliminar_prospecto_033 exige administrador activo, versión y motivo, y realiza baja lógica auditada sin cascadas. Bloquea contactos con identidad comercial o procedencia histórica/demo; usa el mismo bloqueo comercial y bloqueo de fila que iniciar_cotizacion. Una política restrictiva excluye bajas de todas las lecturas de contactos y se conservan eventos consultables por administración. Trigger impide editar bajas; iniciar_cotizacion rechaza contactos eliminados incluso mediante RPC anteriores. Crear y editar conservan permisos compartidos. UI utiliza diálogo nativo, motivo, error visible y papelera accesible con tooltip en listado y detalle. Aplicar migración antes de publicar.
+
+## Eliminación con antecedentes (034)
+
+eliminar_prospecto_034 amplía el contrato de 033, manteniendo su autorización, versión, bloqueo e idempotencia. Permite vínculos comerciales e importaciones; llama anular_cotizacion para casos abiertos y cancela sus actividades manuales pendientes auditándolas. Reutiliza cancelación de visitas, eventos, notificaciones y guardas existentes. Todo ocurre en la transacción de baja del contacto; ventas/pérdidas/anulaciones anteriores y propuestas permanecen intactas. La UI explicita los efectos y usa exclusivamente 034. 033 conserva la restricción anterior para clientes que no muestran esa confirmación. Prueba integrada verifica rollback total, reintentos, agenda, conservación de propuestas/cierres y visibilidad de ventas. Aplicar 034 antes del frontend.
+
+## Oferta inicial única, temporal (07-10-2026)
+
+PropuestaComercial presenta solo alternativas.slice(0,1), sin paginación, también al recuperar borradores. El motor y contrato de guardado siguen intactos; conserva las propuestas ya elegidas o registradas y su historial. El botón indica Calcular oferta. No requiere migración de base de datos.

@@ -14,7 +14,11 @@ test("agenda: aislamiento, concurrencia, historial, recordatorios e integración
   const carpeta = new URL("../migrations/", import.meta.url);
   for (const archivo of (await readdir(carpeta))
     .filter(
-      (a) => a.endsWith(".sql") && !a.includes("033_") && !a.includes("032_"),
+      (a) =>
+        a.endsWith(".sql") &&
+        !a.includes("034_") &&
+        !a.includes("033_") &&
+        !a.includes("032_"),
     )
     .sort())
     await db.exec(await readFile(new URL(archivo, carpeta), "utf8"));

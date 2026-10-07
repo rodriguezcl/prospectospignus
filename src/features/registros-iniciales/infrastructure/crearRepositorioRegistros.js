@@ -7,6 +7,8 @@ function comprobar(error) {
     PROSPECTO_MOTIVO: "Indicá un motivo de entre 5 y 500 caracteres.",
     PROSPECTO_VINCULADO:
       "No se puede eliminar: tiene cotizaciones o antecedentes vinculados, o pertenece a una carga histórica o de demostración. Se conserva su historial.",
+    PROSPECTO_DEMO:
+      "Los registros de demostración se gestionan desde su proceso de limpieza.",
     PROSPECTO_NO_DISPONIBLE:
       "El prospecto ya no está disponible. Recargá el listado.",
   };
@@ -32,14 +34,14 @@ function comprobar(error) {
 export function crearRepositorioRegistros(cliente) {
   return {
     async eliminar(id, version, motivo) {
-      const { data, error } = await cliente.rpc("eliminar_prospecto_033", {
+      const { data, error } = await cliente.rpc("eliminar_prospecto_034", {
         p_id: id,
         p_version: version,
         p_motivo: motivo,
       });
       if (error?.code === "PGRST202")
         throw new Error(
-          "Falta activar la eliminación de prospectos: migración 202610060033.",
+          "Falta activar la eliminación con antecedentes: migración 202610060034.",
         );
       comprobar(error);
       if (data !== id)

@@ -101,7 +101,6 @@ export function PropuestaComercial({
   useEffect(() => {
     if (alternativas.length) enfocarPanel(primeraOferta.current);
   }, [alternativas]);
-  const [pagina, paginar] = useState(0);
   const [conceptos, agregarConceptos] = useState([]);
   const [nivelAbono, elegirAbono] = useState("alto");
   const [meses, elegirMeses] = useState(0);
@@ -241,7 +240,7 @@ export function PropuestaComercial({
     agregarConceptos([]);
     confirmarOfrecida(false);
     generar([]);
-    paginar(0);
+
     revision.current = crypto.randomUUID();
     fallar("");
   }
@@ -357,7 +356,7 @@ export function PropuestaComercial({
             .map(([item_id, v]) => ({ item_id, cantidad: v.cantidad })),
         }),
       );
-      paginar(0);
+
       mostrarConfiguracion(false);
       mostrarRegistro(false);
     } catch (e) {
@@ -932,65 +931,45 @@ export function PropuestaComercial({
                   className="btn btn-primary"
                   onClick={confirmar}
                 >
-                  Confirmar y calcular opciones
+                  Confirmar y calcular oferta
                 </button>
               </details>
               {!!alternativas.length && !registrando && (
                 <div className="my-3">
                   <h3 className="h5">2. Presentar al cliente</h3>
                   <p className="small">
-                    {alternativas.length} ofertas · elegí la que vas a
-                    presentar.
+                    Oferta inicial según las condiciones seleccionadas.
                   </p>
-                  {alternativas
-                    .slice(pagina * 10, pagina * 10 + 10)
-                    .map((a) => (
-                      <OfertaComercial
-                        referencia={a.ordinal === 1 ? primeraOferta : undefined}
-                        key={a.ordinal}
-                        alternativa={a}
-                        ofrecida={ofertaOfrecida(a, historial, {
-                          ciclo: oportunidad.ciclo || 1,
-                          catalogo: referencias.catalogo.version,
-                          condiciones: referencias.condiciones.version,
-                          nivelAbono: conAbono ? nivelAbono : null,
-                          meses: conAbono ? meses : 0,
-                        })}
-                        anterior={
-                          baseComparacion.hayOfrecida
-                            ? baseComparacion.referencia
-                            : alternativas[a.ordinal - 2]
-                        }
-                        ofrecidaNoComparable={
-                          baseComparacion.hayOfrecida &&
-                          !baseComparacion.referencia
-                        }
-                        catalogo={catalogo}
-                        kit={kit}
-                        revision={revision.current}
-                        conAbono={conAbono}
-                        nivelAbono={nivelAbono}
-                        meses={meses}
-                        agregar={agregar}
-                      />
-                    ))}
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    disabled={!pagina}
-                    onClick={() => paginar(pagina - 1)}
-                  >
-                    Anterior
-                  </button>{" "}
-                  Página {pagina + 1}{" "}
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    disabled={(pagina + 1) * 10 >= alternativas.length}
-                    onClick={() => paginar(pagina + 1)}
-                  >
-                    Siguiente
-                  </button>
+                  {alternativas.slice(0, 1).map((a) => (
+                    <OfertaComercial
+                      referencia={a.ordinal === 1 ? primeraOferta : undefined}
+                      key={a.ordinal}
+                      alternativa={a}
+                      ofrecida={ofertaOfrecida(a, historial, {
+                        ciclo: oportunidad.ciclo || 1,
+                        catalogo: referencias.catalogo.version,
+                        condiciones: referencias.condiciones.version,
+                        nivelAbono: conAbono ? nivelAbono : null,
+                        meses: conAbono ? meses : 0,
+                      })}
+                      anterior={
+                        baseComparacion.hayOfrecida
+                          ? baseComparacion.referencia
+                          : alternativas[a.ordinal - 2]
+                      }
+                      ofrecidaNoComparable={
+                        baseComparacion.hayOfrecida &&
+                        !baseComparacion.referencia
+                      }
+                      catalogo={catalogo}
+                      kit={kit}
+                      revision={revision.current}
+                      conAbono={conAbono}
+                      nivelAbono={nivelAbono}
+                      meses={meses}
+                      agregar={agregar}
+                    />
+                  ))}
                 </div>
               )}
             </>
