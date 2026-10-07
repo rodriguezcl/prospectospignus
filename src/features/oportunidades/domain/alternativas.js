@@ -37,6 +37,7 @@ export function generarAlternativas({
   nivel = "catalogo",
   subcategoria = "sin_monitoreo",
   telefonico = false,
+  distribucionManual = false,
 }) {
   if (
     catalogo.moneda_adicionales === "USD" &&
@@ -113,6 +114,48 @@ export function generarAlternativas({
       throw new Error("Cantidad inválida.");
     const n = Number(cantidad),
       opciones = [];
+    if (distribucionManual && (alarma || venta)) {
+      const contar = (valor) => {
+        if (!/^[0-9]{1,4}$/.test(String(valor)))
+          throw new Error(
+            `Revisá la composición y las cantidades de ${item.nombre || item.id}.`,
+          );
+        return Number(valor);
+      };
+      const bonificados = contar(e.bonificados ?? 0);
+      const bajos = contar(e.bajos ?? 0);
+      const telefonicos = contar(e.telefonicos ?? (venta ? n : 0));
+      const altos = contar(e.altos ?? n - bonificados - bajos - telefonicos);
+      if (bonificados + bajos + telefonicos + altos !== n)
+        throw new Error(
+          `La distribución de ${item.nombre || item.id} debe sumar ${n} unidades.`,
+        );
+      if (
+        (venta && (bonificados || bajos || altos)) ||
+        (!venta &&
+          telefonicos > 0 &&
+          (!telefonico || nivel !== "telefonico")) ||
+        (bonificados > 0 && (incluido || nivel === "telefonico"))
+      )
+        throw new Error(
+          `Las condiciones de ${item.nombre || item.id} no están habilitadas para este plan o kit.`,
+        );
+      return [
+        {
+          item_id: item.id,
+          cantidad,
+          bonificados,
+          altos,
+          bajos,
+          telefonicos,
+          importe:
+            porCantidad(item, "alto", altos) +
+            porCantidad(item, "bajo", bajos) +
+            porCantidad(item, "telefonico", telefonicos),
+          consumo: bonificados ? BigInt(bonificados) * precio(item, "bajo") : 0n,
+        },
+      ];
+    }
     if (venta)
       return [
         {
@@ -224,6 +267,10 @@ export function generarAlternativas({
       ))
   )
     throw new Error("Agregá metros/componentes y mano de obra separada.");
+  if (distribucionManual && !combinaciones.some((c) => c.importe >= piso))
+    throw new Error(
+      "La bonificación o los descuentos superan el margen permitido del plan. Revisá las unidades bonificadas o el nivel del plan.",
+    );
   return combinaciones
     .filter((c) => c.importe >= piso)
     .sort((a, b) =>

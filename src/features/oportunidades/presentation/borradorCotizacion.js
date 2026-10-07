@@ -13,6 +13,7 @@ export function reconstruirConceptos(conceptos, catalogo, telefonico) {
   return conceptos.map((c) => {
     const s = c.seleccion;
     const opciones = generarAlternativas({
+      distribucionManual: true,
       catalogo,
       familiaId: s.familia_id,
       kitId: s.kit_id,

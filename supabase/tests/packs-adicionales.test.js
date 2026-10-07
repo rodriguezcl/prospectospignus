@@ -190,6 +190,13 @@ test("packs de adicionales: cantidades, moneda, validación, persistencia y perm
           });
           assert.ok(opciones.length);
           for (const opcion of opciones) {
+            const [manual] = generarAlternativas({
+              catalogo: vista, familiaId, kitId, nivel, telefonico: true,
+              distribucionManual: true, extras: opcion.seleccion.extras,
+            });
+            assert.equal(manual.total, opcion.total);
+            assert.deepEqual(manual.seleccion, opcion.seleccion);
+            assert.deepEqual(manual.packs, opcion.packs);
             const calculado = (
               await db.query(
                 "select privado.calcular_propuesta($1,$2,true) r",

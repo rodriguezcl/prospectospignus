@@ -254,3 +254,10 @@ eliminar_prospecto_034 amplía el contrato de 033, manteniendo su autorización,
 ## Oferta inicial única, temporal (07-10-2026)
 
 PropuestaComercial presenta solo alternativas.slice(0,1), sin paginación, también al recuperar borradores. El motor y contrato de guardado siguen intactos; conserva las propuestas ya elegidas o registradas y su historial. El botón indica Calcular oferta. No requiere migración de base de datos.
+
+Textos de propuesta única (07-10-2026): se retira el resumen redundante de abono del armado, se usa Calcular y el título del plan/kit sin ordinal visible. La acción Revisar pago y registrar ofrecimiento conserva el flujo existente de pago y confirmación humana. No modifica cálculo, IDs, ofrecimientos ni cierre de venta.
+
+
+## Distribución manual de adicionales (07-10-2026)
+
+El armado permite cantidades a Bajo, bonificadas y, con permiso y nivel correspondiente, Telefónico. Alto es el remanente del total. generarAlternativas recibe distribucionManual y calcula una sola composición sin enumerar combinaciones. Valida cantidades, suma, permisos, bolsa y piso; no reemplaza silenciosamente una selección inválida. Conserva el motor enumerador para consumidores anteriores. Borradores y reutilización conservan distribución; kits de venta mantienen Telefónico. El servidor ya recalcula estas cantidades y valida restricciones con el contrato vigente; no requiere migración. Packs se aplican solo a unidades pagadas del mismo nivel.

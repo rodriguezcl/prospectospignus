@@ -590,3 +590,12 @@ Toda la operación es transaccional: si alguna anulación o baja falla, no queda
 ## Presentación temporal de una sola oferta (07-10-2026)
 
 El cotizador muestra únicamente la Oferta 1 resultante de las condiciones elegidas por el vendedor. Se ocultan las demás alternativas y la paginación. Se conserva el motor de cálculo, el armado y ajuste de condiciones, el pago y registro del ofrecimiento, las comparaciones con la última ofrecida y el historial. Esta limitación es de presentación y no reescribe propuestas anteriores ni precios. No requiere migración propia.
+
+### Textos del cotizador con propuesta única (07-10-2026)
+
+El armado muestra el abono en el selector de nivel, sin repetirlo en un resumen previo. El botón se llama Calcular. La propuesta calculada se titula con el nombre del plan/kit, sin numeración Oferta 1; mantiene el abono mensual en el detalle comercial. Revisar pago y registrar ofrecimiento abre la revisión existente y no confirma una venta: el cierre sigue exigiendo aceptación del cliente y su acción correspondiente.
+
+
+### Condiciones de adicionales desde el armado (07-10-2026)
+
+Antes de Calcular, el vendedor distribuye la cantidad de cada adicional entre bonificados y precio Bajo; las unidades restantes se cobran a Alto. Por ejemplo, 2 PIR pueden ser 1 bonificado y 1 Bajo, y 2 magnéticos ambos Bajo. Telefónico sigue restringido al circuito y nivel habilitados; kits de venta conservan únicamente Telefónico. Se mantienen bolsa de bonificación, piso comercial, exclusiones de expensas y packs por tarifa. Si la distribución excede cantidades o márgenes, se exige corregirla; no se calcula otra propuesta automáticamente. La propuesta única refleja exactamente las condiciones elegidas y se conservan al recuperar el borrador o reutilizar un ofrecimiento.

@@ -40,7 +40,7 @@ export function OfertaComercial({
   return (
     <article
       className="border rounded p-3 mb-3"
-      aria-label={`Oferta ${alternativa.ordinal}`}
+      aria-label="Propuesta comercial"
     >
       <h4
         className="h5 fw-bold mb-3"
@@ -48,7 +48,7 @@ export function OfertaComercial({
         tabIndex={-1}
         style={{ scrollMarginTop: "1rem" }}
       >
-        Oferta {alternativa.ordinal} · {kit?.nombre}
+        {kit?.nombre}
         {ofrecida && (
           <span className="badge bg-success ms-2">Última ofrecida</span>
         )}
@@ -88,7 +88,7 @@ export function OfertaComercial({
         <p className="small">
           {ofrecidaNoComparable
             ? "La última propuesta ofrecida tiene otra composición o no permite una comparación directa. Revisala arriba; no se utiliza una oferta no presentada como referencia."
-            : "Oferta inicial de referencia para comparar las siguientes alternativas."}
+            : "Propuesta según las condiciones seleccionadas."}
         </p>
       )}
       <div className="row g-3">
@@ -207,7 +207,7 @@ export function OfertaComercial({
       >
         {ofrecida
           ? "Volver a usar esta oferta"
-          : "Elegir y registrar como ofrecida"}
+          : "Revisar pago y registrar ofrecimiento"}
       </button>
       <details className="mt-3 small">
         <summary>Detalle de negociación y referencia interna</summary>

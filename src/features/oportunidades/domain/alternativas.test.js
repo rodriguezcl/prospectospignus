@@ -94,3 +94,88 @@ test("Docta no cobra kit, no libera bolsa; cantidades incompatibles se rechazan"
     /parcial/,
   );
 });
+
+test("distribución manual: PIR bonificado y Bajo, magnéticos Bajo, sin alternativas automáticas", () => {
+  const c = structuredClone(catalogo);
+  c.items.push({ ...structuredClone(c.items[1]), id: "m" });
+  const extras = [
+    { item_id: "p", cantidad: 2, bonificados: 1, bajos: 1 },
+    { item_id: "m", cantidad: 2, bajos: 2 },
+  ];
+  const manual = opciones("catalogo", {
+    catalogo: c,
+    extras,
+    distribucionManual: true,
+  });
+  assert.equal(manual.length, 1);
+  assert.equal(manual[0].total, "728743.80");
+  assert.deepEqual(
+    manual[0].seleccion.extras.map(({ altos, bajos, bonificados }) => ({
+      altos,
+      bajos,
+      bonificados,
+    })),
+    [
+      { altos: 0, bajos: 1, bonificados: 1 },
+      { altos: 0, bajos: 2, bonificados: 0 },
+    ],
+  );
+  assert.throws(
+    () => opciones("bajo", { extras, catalogo: c, distribucionManual: true }),
+    /margen/,
+  );
+  for (const e of [
+    { cantidad: 2, bajos: 3 },
+    { cantidad: 2, bajos: -1 },
+    { cantidad: 2, bajos: "" },
+    { cantidad: 2, bonificados: 0.5 },
+    { cantidad: 2, altos: 0, bajos: 1 },
+    { cantidad: 2, telefonicos: 1 },
+  ])
+    assert.throws(() =>
+      opciones("catalogo", {
+        distribucionManual: true,
+        extras: [{ item_id: "p", ...e }],
+      }),
+    );
+  assert.throws(
+    () =>
+      opciones("catalogo", {
+        distribucionManual: true,
+        subcategoria: "docta",
+        extras: [extras[0]],
+      }),
+    /habilitadas/,
+  );
+});
+
+test("distribución manual conserva packs por tarifa, permisos y valores predeterminados", () => {
+  const c = structuredClone(catalogo);
+  c.esquema = 7;
+  c.items[0].modalidad = "plan";
+  c.items[1].adicional_habilitado = true;
+  c.items[1].precios_pack_2 = { bajo: "170000" };
+  const calcular = (extra, mas = {}) =>
+    opciones("catalogo", {
+      catalogo: c,
+      distribucionManual: true,
+      extras: [{ item_id: "p", ...extra }],
+      ...mas,
+    })[0];
+  assert.equal(calcular({ cantidad: 3, bajos: 2 }).total, "732227.71");
+  assert.equal(calcular({ cantidad: 3, bajos: 2 }).packs[0].packs, 1);
+  assert.equal(calcular({ cantidad: 2 }).seleccion.extras[0].altos, 2);
+  assert.equal(
+    calcular(
+      { cantidad: 2, telefonicos: 2 },
+      { nivel: "telefonico", telefonico: true },
+    ).total,
+    "226998.00",
+  );
+  c.items[0].modalidad = "kit";
+  assert.equal(calcular({ cantidad: 2 }).seleccion.extras[0].telefonicos, 2);
+  assert.throws(
+    () => calcular({ cantidad: 2, bajos: 1 }),
+    /composición|habilitadas/,
+  );
+});

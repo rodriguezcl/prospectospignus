@@ -152,6 +152,7 @@ export function PropuestaComercial({
                   if (b.calculado)
                     generar(
                       generarAlternativas({
+                        distribucionManual: true,
                         catalogo: catalogo.datos,
                         familiaId: b.seleccion.familiaId,
                         kitId: b.seleccion.kitId,
@@ -163,6 +164,9 @@ export function PropuestaComercial({
                           .map(([item_id, v]) => ({
                             item_id,
                             cantidad: v.cantidad,
+                            bajos: v.bajos,
+                            bonificados: v.bonificados,
+                            telefonicos: v.telefonicos,
                           })),
                       }),
                     );
@@ -345,6 +349,7 @@ export function PropuestaComercial({
       });
       generar(
         generarAlternativas({
+          distribucionManual: true,
           catalogo: actualizado.datos,
           familiaId,
           kitId,
@@ -353,7 +358,13 @@ export function PropuestaComercial({
           telefonico,
           extras: Object.entries(extras)
             .filter(([, v]) => v.activo)
-            .map(([item_id, v]) => ({ item_id, cantidad: v.cantidad })),
+            .map(([item_id, v]) => ({
+              item_id,
+              cantidad: v.cantidad,
+              bajos: v.bajos,
+              bonificados: v.bonificados,
+              telefonicos: v.telefonicos,
+            })),
         }),
       );
 
@@ -533,7 +544,13 @@ export function PropuestaComercial({
                     extras: Object.fromEntries(
                       s.extras.map((e) => [
                         e.item_id,
-                        { activo: true, cantidad: e.cantidad },
+                        {
+                          activo: true,
+                          cantidad: e.cantidad,
+                          bajos: e.bajos,
+                          bonificados: e.bonificados,
+                          telefonicos: e.telefonicos,
+                        },
                       ]),
                     ),
                     nivel: s.nivel,
@@ -553,16 +570,14 @@ export function PropuestaComercial({
                   ) {
                     generar(
                       generarAlternativas({
+                        distribucionManual: true,
                         catalogo,
                         familiaId: s.familia_id,
                         kitId: s.kit_id,
                         nivel: s.nivel,
                         subcategoria: s.subcategoria,
                         telefonico,
-                        extras: s.extras.map(({ item_id, cantidad }) => ({
-                          item_id,
-                          cantidad,
-                        })),
+                        extras: s.extras,
                       }),
                     );
                     mostrarConfiguracion(false);
@@ -789,6 +804,7 @@ export function PropuestaComercial({
                             elegirExtras({
                               ...extras,
                               [i.id]: {
+                                ...extras[i.id],
                                 cantidad: extras[i.id]?.cantidad || "1",
                                 activo: e.target.checked,
                               },
@@ -815,6 +831,7 @@ export function PropuestaComercial({
                                 [i.id]: {
                                   ...extras[i.id],
                                   cantidad: e.target.value,
+                                  ...(venta ? { telefonicos: undefined } : {}),
                                 },
                               });
                               invalidar();
@@ -831,15 +848,70 @@ export function PropuestaComercial({
                           </span>
                         </label>
                       )}
+                      {extras[i.id]?.activo &&
+                        !venta &&
+                        servicio === "alarma" && (
+                          <div className="d-flex flex-wrap align-items-center gap-3 w-100 ps-3">
+                            {[
+                              ["bajos", "A precio Bajo", true],
+                              [
+                                "bonificados",
+                                "Bonificados",
+                                !["docta", "nobu"].includes(subcategoria) &&
+                                  nivel !== "telefonico",
+                              ],
+                              [
+                                "telefonicos",
+                                "A precio Telefónico",
+                                telefonico && nivel === "telefonico",
+                              ],
+                            ]
+                              .filter(
+                                ([campo, , habilitado]) =>
+                                  habilitado || Number(extras[i.id][campo]) > 0,
+                              )
+                              .map(([campo, texto, habilitado]) => (
+                                <label
+                                  key={campo}
+                                  className="d-inline-flex align-items-center gap-2 mb-0"
+                                >
+                                  {texto}
+                                  {!habilitado && " (no disponible; quitar)"}
+                                  <input
+                                    className="form-control"
+                                    style={{ width: "6rem" }}
+                                    aria-label={texto + " de " + i.nombre}
+                                    type="number"
+                                    min="0"
+                                    max={extras[i.id].cantidad}
+                                    step="1"
+                                    value={extras[i.id][campo] ?? 0}
+                                    onChange={(e) => {
+                                      elegirExtras({
+                                        ...extras,
+                                        [i.id]: {
+                                          ...extras[i.id],
+                                          [campo]: e.target.value,
+                                        },
+                                      });
+                                      invalidar();
+                                    }}
+                                  />
+                                </label>
+                              ))}
+                            <span className="text-muted">
+                              A precio Alto:{" "}
+                              {Number(extras[i.id].cantidad) -
+                                Number(extras[i.id].bajos || 0) -
+                                Number(extras[i.id].bonificados || 0) -
+                                Number(extras[i.id].telefonicos || 0)}{" "}
+                              unidades (restantes)
+                            </span>
+                          </div>
+                        )}
                     </div>
                   ))}
                 </fieldset>
-                {conAbono && (
-                  <p className="my-3">
-                    <strong>Abono mensual:</strong>{" "}
-                    {moneda(kit?.abonos[nivelAbono])}
-                  </p>
-                )}
                 <details className="my-3" open>
                   <summary>
                     Ajustar condiciones · precios y congelamiento
@@ -931,7 +1003,7 @@ export function PropuestaComercial({
                   className="btn btn-primary"
                   onClick={confirmar}
                 >
-                  Confirmar y calcular oferta
+                  Calcular
                 </button>
               </details>
               {!!alternativas.length && !registrando && (
