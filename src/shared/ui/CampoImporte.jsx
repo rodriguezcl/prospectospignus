@@ -21,6 +21,11 @@ export function CampoImporte({
         inputMode="decimal"
         placeholder="0,00"
         value={borrador ?? numeroImporte(value)}
+        onFocus={(e) => {
+          if (/^0+(?:\.0+)?$/.test(String(value)) && e.target.validity.valid)
+            editar("");
+          props.onFocus?.(e);
+        }}
         onChange={(e) => {
           editar(e.target.value);
           try {
@@ -36,6 +41,7 @@ export function CampoImporte({
         onBlur={(e) => {
           if (e.target.validity.valid) editar(null);
           else e.target.reportValidity();
+          props.onBlur?.(e);
         }}
       />
     </span>

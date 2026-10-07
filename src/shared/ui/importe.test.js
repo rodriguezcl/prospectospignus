@@ -14,6 +14,12 @@ test("importes argentinos: carga, pegado y precisión sin alterar valores", () =
     ["$ 1.092.412,55", "1092412.55"],
     ["90.000", "90000"],
     ["0,10", "0.10"],
+    ["127.80", "127.80"],
+    ["127,80", "127.80"],
+    ["12.34", "12.34"],
+    ["0.10", "0.10"],
+    ["12.", "12"],
+    ["1234.123456", "1234.123456"],
     ["", ""],
     ["92.914,932", "92914.932"],
   ]) {
@@ -29,7 +35,8 @@ test("importes argentinos: carga, pegado y precisión sin alterar valores", () =
   }
   assert.equal(numeroImporte("449999"), "449.999,00");
   assert.equal(numeroImporte("92914.932"), "92.914,932");
-  for (const invalido of ["12.34", "1,234.56", "-1", "abc", "1e3"])
+  for (const invalido of ["00,00127,80", "1,234.56", "1.2.3", "-1", "abc", "1e3"])
     assert.throws(() => leerImporteArgentino(invalido));
   assert.throws(() => leerImporteArgentino("10,123", 2));
+  assert.throws(() => leerImporteArgentino("10.1234", 2));
 });

@@ -12,9 +12,15 @@ export function monedaArgentina(valor, sinDato = "—") {
 export function leerImporteArgentino(texto, decimales = 6) {
   const valor = texto.trim().replace(/^\$\s*/, "");
   if (!valor) return "";
-  if (!/^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d*)?$/.test(valor))
-    throw new Error("Usá puntos para miles y coma para decimales.");
-  const [entero, fraccion = ""] = valor.replaceAll(".", "").split(",");
+  // Conserva el pegado argentino con miles. Un punto aislado que no forma
+  // grupos de miles también puede separar decimales (por ejemplo, 127.80).
+  const argentino = /^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d*)?$/.test(valor);
+  const decimalConPunto = /^\d+\.\d*$/.test(valor);
+  if (!argentino && !decimalConPunto)
+    throw new Error("Usá coma o punto para decimales; por ejemplo, 127,80 o 127.80.");
+  const [entero, fraccion = ""] = argentino
+    ? valor.replaceAll(".", "").split(",")
+    : valor.split(".");
   if (fraccion.length > decimales)
     throw new Error(`Se admiten hasta ${decimales} decimales.`);
   return entero.replace(/^0+(?=\d)/, "") + (fraccion ? `.${fraccion}` : "");
