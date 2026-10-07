@@ -76,7 +76,7 @@ export function unificarComponentes(datos, crearId = randomUUID) {
       cantidad,
     }));
   }
-  return { datos: completarGrupos(nuevo, crearId), resumen };
+  return { datos: completarGrupos(prepararCatalogo(nuevo), crearId), resumen };
 }
 
 if (

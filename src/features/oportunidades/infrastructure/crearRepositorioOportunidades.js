@@ -1,13 +1,16 @@
 function comprobar(error) {
   if (!error) return;
   const mensajes = {
+    PROPUESTA_UBICACION:
+      "La marca o el plan/kit no está habilitado para esa ubicación. Revisá la selección y calculá nuevamente.",
     PROPUESTA_REDONDEO:
       "Revisá el redondeo: debe tener hasta dos decimales y no superar el porcentaje autorizado en Configuración.",
     PROPUESTA_VENCIDA:
       "La cotización venció. Recalculá con los precios y dólar actuales y registrá una nueva oferta antes de confirmar la venta.",
     PROPUESTA_DOLAR:
       "El tipo de cambio requiere actualización. Actualizá los precios y volvé a calcular antes de registrar la oferta.",
-    COMERCIAL_PRIMERA_OFERTA: "Registrá primero la oferta ofrecida para asignar el seguimiento.",
+    COMERCIAL_PRIMERA_OFERTA:
+      "Registrá primero la oferta ofrecida para asignar el seguimiento.",
     COMERCIAL_ANULADA:
       "La negociación está anulada y conserva su historial de solo lectura.",
     COMERCIAL_ANULACION: "Confirmá la anulación y explicá el error de carga.",

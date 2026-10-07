@@ -1,3 +1,4 @@
+import { ofertaEnUbicacion } from "../../productos/reglas.js";
 import { importeExacto, decimalCentavos, cuotasSinInteres } from "./dinero.js";
 
 import { precioPorCantidad, detallePacks } from "./packs.js";
@@ -62,6 +63,14 @@ export function generarAlternativas({
       i.tipo === "kit" &&
       habilitado(i),
   );
+  if (
+    catalogo.esquema >= 7 &&
+    kit &&
+    !ofertaEnUbicacion(catalogo, kit, subcategoria)
+  )
+    throw new Error(
+      "La marca o el plan/kit no está habilitado para esta ubicación de la alarma.",
+    );
   const venta = catalogo.esquema >= 4 && kit?.modalidad === "kit";
   if (
     catalogo.esquema >= 4 &&
@@ -152,7 +161,9 @@ export function generarAlternativas({
             porCantidad(item, "alto", altos) +
             porCantidad(item, "bajo", bajos) +
             porCantidad(item, "telefonico", telefonicos),
-          consumo: bonificados ? BigInt(bonificados) * precio(item, "bajo") : 0n,
+          consumo: bonificados
+            ? BigInt(bonificados) * precio(item, "bajo")
+            : 0n,
         },
       ];
     }
@@ -307,6 +318,9 @@ export function generarAlternativas({
         familia_id: familiaId,
         kit_id: kit?.id || null,
         subcategoria: alarma && !venta ? subcategoria : null,
+        ...(alarma && venta && catalogo.ubicaciones_version === 1
+          ? { ubicacion_alarma: subcategoria }
+          : {}),
         nivel,
         extras: c.items.map(({ importe, consumo, ...x }) => x),
       },

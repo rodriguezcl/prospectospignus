@@ -612,3 +612,8 @@ Cada opción de cada adicional se evalúa con toda la selección mediante el mis
 
 
 Las unidades nuevas y las agregadas al aumentar cantidad comienzan sin condición seleccionada. Se exige completar todas antes de calcular. Para evaluar disponibilidad durante el armado, las pendientes se consideran provisionalmente a Alto, sin guardar ni mostrar esa tarifa como elegida; se revalida toda la composición en cada selección. Las elecciones anteriores válidas se conservan al recuperar borradores. Esta regla sustituye el valor inicial Alto de la sección anterior.
+
+
+## Disponibilidad por ubicación de la alarma (07-10-2026)
+
+Se reemplaza Tipo de alarma por Ubicación de la alarma. Administración configura por separado en marcas y planes/kits las cuatro opciones: Docta Urbanización, Nobu Town, Residencial con monitoreo y Residencial sin monitoreo. Solo se puede cotizar cuando ambos permiten la ubicación; habilitar una marca no anula las restricciones particulares del plan/kit. Garnet inicia habilitada en las cuatro e Hikvision únicamente en las dos residenciales. Las ofertas existentes heredan inicialmente esas ubicaciones y luego pueden restringirse individualmente. La selección se filtra desde la preparación y se valida nuevamente al guardar. Las cámaras no se restringen por esta regla.

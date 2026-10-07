@@ -1,3 +1,8 @@
+import {
+  ubicacionesAlarma,
+  ubicacionesMarca,
+  ubicacionesOferta,
+} from "../domain/ubicaciones.js";
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
 import { enfocarPanel } from "../../../shared/ui/enfocarPanel.js";
@@ -116,6 +121,14 @@ export function EditorCatalogo({
         e.preventDefault();
         guardar({
           ...item,
+          ...(grupo === "marcas" || (oferta && item.servicio === "alarma")
+            ? {
+                ubicaciones_alarma:
+                  grupo === "marcas"
+                    ? ubicacionesMarca(item)
+                    : ubicacionesOferta(datos, item),
+              }
+            : {}),
           ...(grupo === "items"
             ? {
                 tipo: oferta ? "kit" : "adicional",
@@ -176,6 +189,44 @@ export function EditorCatalogo({
             . Se conservan para revisión; reemplazalos o reactivá sus registros
             antes de ofrecerlos.
           </p>
+        )}
+        {(grupo === "marcas" || (oferta && item.servicio === "alarma")) && (
+          <fieldset className="mb-3">
+            <legend className="h6">Ubicaciones habilitadas para alarmas</legend>
+            <p className="small text-muted">
+              Para cotizar, la ubicación debe estar habilitada tanto en la marca
+              como en el plan o kit.
+            </p>
+            {Object.entries(ubicacionesAlarma).map(([id, nombre]) => {
+              const seleccionadas =
+                grupo === "marcas"
+                  ? ubicacionesMarca(item)
+                  : ubicacionesOferta(datos, item);
+              const disponibleEnMarca =
+                grupo === "marcas" ||
+                ubicacionesMarca(
+                  datos.marcas.find((m) => m.id === item.marca_id),
+                ).includes(id);
+              return (
+                <label className="d-block mb-2" key={id}>
+                  <input
+                    type="checkbox"
+                    checked={seleccionadas.includes(id)}
+                    onChange={(e) =>
+                      cambiar(
+                        "ubicaciones_alarma",
+                        e.target.checked
+                          ? [...seleccionadas, id]
+                          : seleccionadas.filter((u) => u !== id),
+                      )
+                    }
+                  />{" "}
+                  {nombre}
+                  {!disponibleEnMarca && " · No habilitada en la marca"}
+                </label>
+              );
+            })}
+          </fieldset>
         )}
         <Campo titulo="Nombre">
           <input

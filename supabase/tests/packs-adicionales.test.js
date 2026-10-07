@@ -337,4 +337,32 @@ test("packs de adicionales: cantidades, moneda, validación, persistencia y perm
     ).rows[0].detalle,
     historica,
   );
+  // Ubicaciones 035: restricciones en ambas entidades y guardado versionado.
+  await como(admin);
+  const configurado = prepararCatalogo(catalogo);
+  configurado.marcas[0].ubicaciones_alarma = ["docta", "con_monitoreo", "sin_monitoreo"];
+  configurado.items.find(i => i.id === plan).ubicaciones_alarma = ["docta"];
+  const opUbicacion = randomUUID();
+  assert.equal((await db.query("select public.guardar_catalogo_035(2,$1,$2) v", [opUbicacion,configurado])).rows[0].v,3);
+  assert.equal((await db.query("select public.guardar_catalogo_035(2,$1,$2) v", [opUbicacion,configurado])).rows[0].v,3);
+  await assert.rejects(db.query("select public.guardar_catalogo_031(3,$1,$2)",[randomUUID(),catalogo]),/CATALOGO_ESQUEMA/);
+  const invalido=structuredClone(configurado);invalido.marcas[0].ubicaciones_alarma=["docta","docta"];
+  await assert.rejects(db.query("select public.guardar_catalogo_035(3,$1,$2)",[randomUUID(),invalido]),/CATALOGO_UBICACION/);
+  await como(vendedor);
+  const limitado=(await db.query("select public.leer_catalogo() r")).rows[0].r.datos;
+  assert.deepEqual(limitado.items.find(i=>i.id===plan).ubicaciones_alarma,["docta"]);
+  assert.equal(limitado.items.find(i=>i.id===plan).precios.telefonico,undefined);
+  await assert.rejects(db.query("select public.guardar_catalogo_035(3,$1,$2)",[randomUUID(),configurado]),/CATALOGO_ACCESO/);
+  await db.exec("reset role");
+  const seleccion={familia_id:fa,kit_id:plan,nivel:"catalogo",subcategoria:"docta",extras:[]};
+  await db.query("select privado.calcular_propuesta($1,$2,false)",[configurado,seleccion]);
+  for(const lugar of ["nobu","con_monitoreo","sin_monitoreo"])
+    await assert.rejects(db.query("select privado.calcular_propuesta($1,$2,false)",[configurado,{...seleccion,subcategoria:lugar}]),/PROPUESTA_UBICACION/);
+  const directa={...seleccion,kit_id:kit,nivel:"telefonico",subcategoria:null,ubicacion_alarma:"docta"};
+  await db.query("select privado.calcular_propuesta($1,$2,false)",[configurado,directa]);
+  await assert.rejects(db.query("select privado.calcular_propuesta($1,$2,false)",[configurado,{...directa,ubicacion_alarma:null}]),/PROPUESTA_UBICACION/);
+  const hik=structuredClone(catalogo);hik.marcas[0].nombre="HIKVISION";
+  await assert.rejects(db.query("select privado.calcular_propuesta($1,$2,false)",[hik,seleccion]),/PROPUESTA_UBICACION/);
+  await db.query("select privado.calcular_propuesta($1,$2,false)",[hik,{...seleccion,subcategoria:"sin_monitoreo"}]);
+
 });

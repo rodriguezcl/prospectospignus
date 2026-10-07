@@ -10,6 +10,7 @@ export function CrearProspecto({
   registroId,
   guardar,
   ocupado,
+  cancelar,
 }) {
   const [busqueda, buscar] = useState(""),
     [registros, listar] = useState([]);
@@ -128,7 +129,10 @@ export function CrearProspecto({
             <strong>{r.nombre}</strong> · {r.telefono || "Falta teléfono"} ·{" "}
             {r.ubicacion || "Falta dirección"}
           </p>
-          <Link to={`/prospectos?registro=${r.id}`}>
+          <Link
+            className="d-inline-block mb-3"
+            to={`/prospectos?registro=${r.id}`}
+          >
             Revisar o completar datos del contacto
           </Link>
           {!!contexto.casos.length && (
@@ -162,6 +166,7 @@ export function CrearProspecto({
               <FormularioOportunidad
                 key={r.id}
                 registroSeleccionado={r}
+                accionSecundaria={cancelar}
                 iniciarSinVisita
                 perfil={perfil}
                 equipo={equipo}
@@ -178,6 +183,8 @@ export function CrearProspecto({
           )}
         </>
       )}
+      {(cargando || !autorizado || (contexto?.casos.length > 0 && !otra)) &&
+        cancelar}
     </>
   );
 }

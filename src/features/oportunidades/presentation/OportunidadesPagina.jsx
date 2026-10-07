@@ -221,12 +221,16 @@ export function OportunidadesPagina({
               key={parametros.get("registro") || "buscar"}
               gestion={gestion}
               registroId={parametros.get("registro")}
+              cancelar={
+                <Link className="btn btn-outline-secondary" to={rutaBandeja}>
+                  Cancelar
+                </Link>
+              }
               perfil={perfil}
               equipo={equipo}
               guardar={guardar}
               ocupado={ocupado}
             />
-            <Link to={rutaBandeja}>Cancelar</Link>
           </div>
         </div>
       )}

@@ -1,3 +1,4 @@
+import { prepararUbicaciones } from "./ubicaciones.js";
 export const servicios = {
   alarma: "Alarma",
   camaras: "Cámaras",
@@ -77,7 +78,7 @@ export function nivelesPrecios(item) {
     : ["alto", "bajo", "telefonico"];
 }
 export function prepararCatalogo(datos) {
-  const nuevo = adaptarEstructura(datos);
+  const nuevo = prepararUbicaciones(adaptarEstructura(datos));
   nuevo.esquema = 7;
   nuevo.moneda_adicionales = datos.moneda_adicionales || "ARS";
   nuevo.familias = nuevo.familias.filter((f) => f.servicio !== "cerco");

@@ -66,6 +66,7 @@ export function FormularioOportunidad({
   buscar,
   registroSeleccionado,
   iniciarSinVisita = false,
+  accionSecundaria,
 }) {
   const [accion, cambiar] = useState(
     oportunidad
@@ -328,7 +329,7 @@ export function FormularioOportunidad({
               {servicios.includes("alarma") && (
                 <Campo
                   nombre="tipo_alarma"
-                  titulo="Tipo de alarma"
+                  titulo="Ubicación de la alarma"
                   valor="a_definir"
                   opciones={[
                     ["a_definir", "A definir en la visita"],
@@ -542,17 +543,20 @@ export function FormularioOportunidad({
               propuesta ofrecida para confirmar la venta.
             </p>
           )}
-          <button
-            className="btn btn-primary"
-            type="submit"
-            disabled={accion === "ganar" && !!vencida}
-          >
-            {ocupado
-              ? "Guardando…"
-              : accion === "crear"
-                ? "Crear prospecto y coordinar visita"
-                : acciones[accion]}
-          </button>
+          <div className="d-flex flex-wrap align-items-center gap-2">
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={accion === "ganar" && !!vencida}
+            >
+              {ocupado
+                ? "Guardando…"
+                : accion === "crear"
+                  ? "Crear prospecto y coordinar visita"
+                  : acciones[accion]}
+            </button>
+            {accionSecundaria}
+          </div>
         </fieldset>
       </form>
     </>

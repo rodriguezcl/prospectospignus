@@ -18,7 +18,7 @@ export function reconstruirConceptos(conceptos, catalogo, telefonico) {
       familiaId: s.familia_id,
       kitId: s.kit_id,
       nivel: s.nivel,
-      subcategoria: s.subcategoria,
+      subcategoria: s.ubicacion_alarma || s.subcategoria,
       extras: s.extras,
       telefonico,
     });

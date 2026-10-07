@@ -9,7 +9,7 @@ export function referenciaOfrecida(historial, ciclo, seleccion) {
   if (!ultima) return { hayOfrecida: false, referencia: null };
   const candidatos = ultima.detalle.conceptos.filter(
     (c) =>
-      ["familia_id", "kit_id", "subcategoria"].every(
+      ["familia_id", "kit_id", "subcategoria", "ubicacion_alarma"].every(
         (k) => c.seleccion[k] === seleccion[k],
       ) &&
       c.seleccion.extras.length === seleccion.extras.length &&
@@ -48,7 +48,7 @@ export function mismaSeleccion(a, b) {
     a &&
     b &&
     (a.tipo_cambio_id || null) === (b.tipo_cambio_id || null) &&
-    ["familia_id", "kit_id", "subcategoria", "nivel"].every(
+    ["familia_id", "kit_id", "subcategoria", "ubicacion_alarma", "nivel"].every(
       (k) => a[k] === b[k],
     ) &&
     a.extras.length === b.extras.length &&

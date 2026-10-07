@@ -746,6 +746,7 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
       randomUUID(),
       {
         esquema: 7,
+        ubicaciones_version: 1,
         moneda_adicionales: "ARS",
         marcas: [],
         familias: [],
@@ -765,6 +766,7 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
       randomUUID(),
       {
         esquema: 7,
+        ubicaciones_version: 1,
         moneda_adicionales: "ARS",
         marcas: [],
         familias: [],

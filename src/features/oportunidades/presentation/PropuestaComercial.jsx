@@ -1,3 +1,4 @@
+import { ubicacionesMarca, ofertaEnUbicacion } from "../../productos/reglas.js";
 import { disponibilidadAdicional } from "./disponibilidadAdicional.js";
 import { unidadesAdicional, condicionesExtra } from "./unidadesAdicional.js";
 import { ordenarItemsCotizacion } from "./ordenarItemsCotizacion.js";
@@ -284,13 +285,21 @@ export function PropuestaComercial({
     catalogo.familias,
     (f) => f.marca || f.nombre,
   ).filter(
-    (f) => activo(f) && f.servicio === servicio && f.marca !== "COMPONENTES",
+    (f) =>
+      activo(f) &&
+      f.servicio === servicio &&
+      f.marca !== "COMPONENTES" &&
+      (servicio !== "alarma" ||
+        ubicacionesMarca(
+          catalogo.marcas?.find((m) => m.id === f.marca_id),
+        ).includes(subcategoria)),
   );
   const kits = ordenarAlfabeticamente(catalogo.items).filter(
     (i) =>
       activo(i) &&
       i.familia_id === familiaId &&
       i.tipo === "kit" &&
+      ofertaEnUbicacion(catalogo, i, subcategoria) &&
       (!(catalogo.esquema >= 2) ||
         i.modalidad === (servicio === "alarma" ? modalidadEquipo : "kit")),
   );
@@ -545,7 +554,8 @@ export function PropuestaComercial({
                     familiaId: s.familia_id,
                     modalidadEquipo: item.modalidad,
                     kitId: s.kit_id,
-                    subcategoria: s.subcategoria || "sin_monitoreo",
+                    subcategoria:
+                      s.ubicacion_alarma || s.subcategoria || "sin_monitoreo",
                     extras: Object.fromEntries(
                       s.extras.map((e) => [
                         e.item_id,
@@ -580,7 +590,7 @@ export function PropuestaComercial({
                         familiaId: s.familia_id,
                         kitId: s.kit_id,
                         nivel: s.nivel,
-                        subcategoria: s.subcategoria,
+                        subcategoria: s.ubicacion_alarma || s.subcategoria,
                         telefonico,
                         extras: s.extras,
                       }),
@@ -688,8 +698,10 @@ export function PropuestaComercial({
                 onToggle={(e) => mostrarConfiguracion(e.currentTarget.open)}
               >
                 <summary className="fw-bold">
-                  1. Armar oferta · {kit?.nombre || "Elegí un plan o kit"} ·
-                  Modificar
+                  1. Armar oferta · {kit?.nombre || "Elegí un plan o kit"}
+                  <span className="btn btn-primary btn-sm ms-3 my-1">
+                    Modificar
+                  </span>
                 </summary>
                 <div className="row g-3 mt-1">
                   <label className="col-md-6">
@@ -719,6 +731,30 @@ export function PropuestaComercial({
                       >
                         <option value="plan">Plan · comodato</option>
                         <option value="kit">Kit · venta directa</option>
+                      </select>
+                    </label>
+                  )}
+                  {servicio === "alarma" && (
+                    <label className="col-md-6">
+                      Ubicación de la alarma
+                      <select
+                        className="form-select"
+                        value={subcategoria}
+                        onChange={(e) => {
+                          elegirSubcategoria(e.target.value);
+                          cambiarFamilia("");
+                          elegirMeses(0);
+                          invalidar();
+                        }}
+                      >
+                        <option value="">
+                          Seleccioná la ubicación para cotizar…
+                        </option>
+                        {Object.entries(subcategorias).map(([id, nombre]) => (
+                          <option key={id} value={id}>
+                            {nombre}
+                          </option>
+                        ))}
                       </select>
                     </label>
                   )}
@@ -758,29 +794,6 @@ export function PropuestaComercial({
                       </select>
                     </label>
                   }
-                  {servicio === "alarma" && !venta && (
-                    <label className="col-md-6">
-                      Condición del servicio de alarma
-                      <select
-                        className="form-select"
-                        value={subcategoria}
-                        onChange={(e) => {
-                          elegirSubcategoria(e.target.value);
-                          elegirMeses(0);
-                          invalidar();
-                        }}
-                      >
-                        <option value="">
-                          Seleccioná la modalidad para cotizar…
-                        </option>
-                        {Object.entries(subcategorias).map(([id, nombre]) => (
-                          <option key={id} value={id}>
-                            {nombre}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  )}
                 </div>
                 {kit && (
                   <p className="small mt-2">
