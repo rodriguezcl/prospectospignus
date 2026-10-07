@@ -266,3 +266,11 @@ El armado permite cantidades a Bajo, bonificadas y, con permiso y nivel correspo
 ### Selección por unidad de adicional (07-10-2026)
 
 Sustituye la distribución por contadores: cada unidad seleccionada tiene una fila numerada y un desplegable con Bonificado, Alto y Bajo con importes unitarios en pesos; Telefónico conserva sus permisos. Al aumentar cantidad se agregan unidades a Alto; al reducir se retiran las últimas. Los borradores conservan el orden de selecciones y se agregan cantidades por tarifa para el contrato de cálculo y guardado existente. Las distribuciones antiguas inconsistentes exigen revisar cada unidad, sin mostrar remanentes negativos. Los packs se aplican al calcular por unidades de la misma tarifa; bolsa, piso y servidor mantienen sus validaciones.
+
+
+### Disponibilidad dinámica por unidad (07-10-2026)
+
+Cada opción de cada adicional se evalúa con toda la selección mediante el mismo motor de cálculo manual, incluyendo bolsa, piso, packs y permisos. Se deshabilitan las opciones incompatibles con la composición actual; liberar margen las habilita nuevamente. La posición de la unidad no determina prioridad. Cambios de cantidad, plan, nivel, condición o catálogo recalculan disponibilidad. Un borrador inválido muestra aviso y permite pasar unidades a Alto para repararlo progresivamente, sin modificar otras selecciones ni omitir la validación final del motor y del servidor. Se reutilizan resultados para unidades equivalentes del mismo producto y condición durante cada render. No requiere migración.
+
+
+Las unidades nuevas y las agregadas al aumentar cantidad comienzan sin condición seleccionada. Se exige completar todas antes de calcular. Para evaluar disponibilidad durante el armado, las pendientes se consideran provisionalmente a Alto, sin guardar ni mostrar esa tarifa como elegida; se revalida toda la composición en cada selección. Las elecciones anteriores válidas se conservan al recuperar borradores. Esta regla sustituye el valor inicial Alto de la sección anterior.

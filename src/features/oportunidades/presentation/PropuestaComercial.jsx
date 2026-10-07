@@ -1,3 +1,4 @@
+import { disponibilidadAdicional } from "./disponibilidadAdicional.js";
 import { unidadesAdicional, condicionesExtra } from "./unidadesAdicional.js";
 import { ordenarItemsCotizacion } from "./ordenarItemsCotizacion.js";
 import { propuestaVencida, vencimientoPropuesta } from "../domain/vigencia.js";
@@ -297,6 +298,13 @@ export function PropuestaComercial({
   const venta =
     catalogo.esquema >= 4 &&
     (servicio === "camaras" || modalidadEquipo === "kit");
+  const disponibilidad =
+    !venta && servicio === "alarma" && kit
+      ? disponibilidadAdicional(
+          { catalogo, familiaId, kitId, subcategoria, nivel, telefonico },
+          extras,
+        )
+      : null;
   const adicionales = ordenarItemsCotizacion(catalogo.items, catalogo).filter(
     (i) =>
       activo(i) &&
@@ -788,6 +796,18 @@ export function PropuestaComercial({
                 )}
                 <fieldset className="my-3">
                   <legend className="h6">Adicionales (opcional)</legend>
+                  {disponibilidad && (
+                    <p className="small text-muted">
+                      Las opciones se actualizan según el margen disponible y
+                      las condiciones de todos los adicionales.
+                    </p>
+                  )}
+                  {disponibilidad?.errorActual && (
+                    <p role="alert" className="text-danger">
+                      {disponibilidad.errorActual} Podés pasar unidades a precio
+                      Alto o quitar adicionales para revisar la selección.
+                    </p>
+                  )}
                   {adicionales.map((i) => (
                     <div
                       key={i.id}
@@ -803,6 +823,13 @@ export function PropuestaComercial({
                               [i.id]: {
                                 ...extras[i.id],
                                 cantidad: extras[i.id]?.cantidad || "1",
+                                ...(!venta
+                                  ? {
+                                      unidades: unidadesAdicional(
+                                        extras[i.id] || { cantidad: 1 },
+                                      ),
+                                    }
+                                  : {}),
                                 activo: e.target.checked,
                               },
                             });
@@ -916,7 +943,7 @@ export function PropuestaComercial({
                                           invalidar();
                                         }}
                                       >
-                                        <option value="" disabled>
+                                        <option value="">
                                           Seleccioná una condición
                                         </option>
                                         {opciones
@@ -928,12 +955,25 @@ export function PropuestaComercial({
                                             <option
                                               key={valor}
                                               value={valor}
-                                              disabled={!habilitado}
+                                              disabled={
+                                                !habilitado ||
+                                                !!disponibilidad?.motivo(
+                                                  i.id,
+                                                  indice,
+                                                  valor,
+                                                )
+                                              }
                                             >
                                               {texto}
                                               {!habilitado
                                                 ? " · No disponible: cambiar"
-                                                : ""}
+                                                : disponibilidad?.motivo(
+                                                      i.id,
+                                                      indice,
+                                                      valor,
+                                                    )
+                                                  ? " · No disponible con la selección actual"
+                                                  : ""}
                                             </option>
                                           ))}
                                       </select>

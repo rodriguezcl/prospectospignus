@@ -9,11 +9,16 @@ export function unidadesAdicional(extra, cantidad = extra.cantidad) {
     const valido =
       contadores.every((v) => Number.isInteger(v) && v >= 0) &&
       total <= Number(extra.cantidad);
-    anteriores = valido
-      ? campos.flatMap((campo, j) => Array(contadores[j]).fill(campo))
-      : Array(n).fill("");
+    const historico = campos.some((campo) => extra[campo] !== undefined);
+    anteriores =
+      valido && historico
+        ? [
+            ...campos.flatMap((campo, j) => Array(contadores[j]).fill(campo)),
+            ...Array(Number(extra.cantidad) - total).fill("altos"),
+          ]
+        : Array(n).fill("");
   }
-  return Array.from({ length: n }, (_, j) => anteriores[j] ?? "altos");
+  return Array.from({ length: n }, (_, j) => anteriores[j] ?? "");
 }
 export function condicionesExtra(extra) {
   if (!Array.isArray(extra.unidades))
