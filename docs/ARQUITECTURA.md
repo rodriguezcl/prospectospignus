@@ -295,3 +295,10 @@ Criterio vigente autorizado: MonedAPI /api/v2/usd/bna (Banco Nación venta) es p
 Aplicar migración 037, desplegar cotizacion-dolar con su adaptador compartido y publicar frontend. La función anterior de registro se conserva durante la transición. Proveedor queda como metadato interno de auditoría.
 
 Cambio de referencia BNA: desplegar nuevamente cotizacion-dolar y frontend; no requiere migración adicional. Se inicia una nueva referencia local de avisos para no comparar cotizaciones de distinto criterio. Los registros y propuestas históricos se conservan; la caché del servidor anterior caduca en cinco minutos.
+
+
+## Referencia por producto (038)
+
+Catálogo esquema 7 añade moneda_productos_version=1 y moneda_referencia ARS/USD por componente. prepararCatalogo adapta la antigua selección global sin cambiar importes. La API pública productos/reglas expone monedaReferencia al motor comercial. El adaptador convierte solo adicionales USD; los ARS conservan sus listas y packs. El servidor calcula con el catálogo persistido, convierte únicamente los USD seleccionados y conserva moneda y tipo de cambio en el snapshot. No requiere dólar si solo se cotizan ARS o incluidos.
+
+Aplicar 038 antes del frontend que usa guardar_catalogo_038. Valida precios por producto, conserva permisos y lectura filtrada, impide sobrescrituras desde clientes anteriores tras publicar el formato nuevo y mantiene reintentos exactos. La migración no modifica versiones históricas ni cambia la referencia de productos por sí sola.

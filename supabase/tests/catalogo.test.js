@@ -206,6 +206,7 @@ test("catálogo: versiones, activación, RLS y precios restringidos", async (t) 
   const nuevo = completarGrupos(prepararCatalogo(datos), randomUUID);
   // Este escenario conserva los contratos históricos anteriores a 035.
   delete nuevo.ubicaciones_version;
+  delete nuevo.moneda_productos_version;
   // Conserva la regresión del contrato 020/023 antes de probar su adaptación.
   nuevo.esquema = 2;
   nuevo.plantillas_version = 1;
@@ -384,6 +385,7 @@ test("catálogo: versiones, activación, RLS y precios restringidos", async (t) 
   const sinPlantillas = completarGrupos(prepararCatalogo(guardado.datos), randomUUID);
   // Ejercita explícitamente el contrato histórico 024 antes de publicar esquema 4.
   sinPlantillas.esquema = 3;
+  delete sinPlantillas.moneda_productos_version;
   delete sinPlantillas.ubicaciones_version;
   const opSinPlantillas = randomUUID();
   await db.query("select public.guardar_catalogo_024(4,$1,$2)", [opSinPlantillas, sinPlantillas]);

@@ -56,6 +56,7 @@ export function EditorCatalogo({
               kits_compatibles: [],
               precios: {},
               precios_usd: {},
+              moneda_referencia: "ARS",
               abonos: {},
             }),
     ),
@@ -428,15 +429,28 @@ export function EditorCatalogo({
                 precio Telefónico; no se asigna automáticamente.
               </p>
             )}
+            {!oferta && (
+              <Campo titulo="Lista de referencia del producto">
+                <select
+                  className="form-select"
+                  value={item.moneda_referencia || "ARS"}
+                  onChange={(e) => cambiar("moneda_referencia", e.target.value)}
+                >
+                  <option value="ARS">Pesos (ARS)</option>
+                  <option value="USD">
+                    Dólares (USD) × dólar oficial venta
+                  </option>
+                </select>
+              </Campo>
+            )}
             {!oferta && <h4 className="h6">Lista en pesos (ARS)</h4>}
             {precios("precios", niveles)}
             {!oferta && (
               <>
                 <h4 className="h6">Lista en dólares (USD)</h4>
                 <p className="small">
-                  Se utiliza cuando la referencia global de adicionales es
-                  Dólares. El importe final se convierte a pesos con dólar
-                  oficial venta.
+                  Se utiliza cuando la referencia de este producto es Dólares.
+                  El importe final se convierte a pesos con dólar oficial venta.
                 </p>
                 {precios("precios_usd", niveles)}
               </>

@@ -81,6 +81,12 @@ export function TablaCatalogo({
                 : nombresMarcas.get(i.marca_id) || "—",
           },
           {
+            campo: "moneda_referencia",
+            titulo: "Referencia",
+            valor: (i) =>
+              i.moneda_referencia === "USD" ? "Dólares (USD)" : "Pesos (ARS)",
+          },
+          {
             campo: "adicional",
             titulo: "Adicional",
             valor: (i) => (i.adicional_habilitado ? "Sí" : "No"),

@@ -1,3 +1,4 @@
+import { monedaReferencia } from "../../productos/reglas.js";
 import { ofertaEnUbicacion } from "../../productos/reglas.js";
 import { importeExacto, decimalCentavos, cuotasSinInteres } from "./dinero.js";
 
@@ -41,8 +42,13 @@ export function generarAlternativas({
   distribucionManual = false,
 }) {
   if (
-    catalogo.moneda_adicionales === "USD" &&
-    extras.length &&
+    extras.some(
+      (e) =>
+        monedaReferencia(
+          catalogo,
+          catalogo.items.find((i) => i.id === e.item_id),
+        ) === "USD",
+    ) &&
     !catalogo.tipo_cambio?.id
   )
     throw new Error(
@@ -312,7 +318,13 @@ export function generarAlternativas({
       cuotas3: cuotasSinInteres(redondear(c.importe), 3),
       cuotas6: cuotasSinInteres(redondear(c.importe), 6),
       seleccion: {
-        ...(catalogo.moneda_adicionales === "USD" && extras.length
+        ...(extras.some(
+          (e) =>
+            monedaReferencia(
+              catalogo,
+              catalogo.items.find((i) => i.id === e.item_id),
+            ) === "USD",
+        )
           ? { tipo_cambio_id: catalogo.tipo_cambio?.id }
           : {}),
         familia_id: familiaId,

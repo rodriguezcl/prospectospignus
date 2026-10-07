@@ -1,3 +1,4 @@
+import { monedaReferencia, tieneAdicionalesUSD } from "./monedaReferencia.js";
 function exacto(valor) {
   if (
     typeof valor !== "string" ||
@@ -8,7 +9,7 @@ function exacto(valor) {
   return BigInt(entero) * 1000000n + BigInt(decimal.padEnd(6, "0"));
 }
 export function convertirAdicionales(catalogo, cambio) {
-  if (catalogo.moneda_adicionales !== "USD") return catalogo;
+  if (!tieneAdicionalesUSD(catalogo)) return catalogo;
   if (!cambio?.id || exacto(cambio.venta) <= 0n)
     throw new Error(
       "No hay cotización del dólar validada. Volvé a actualizar.",
@@ -19,6 +20,7 @@ export function convertirAdicionales(catalogo, cambio) {
     tipo_cambio: cambio,
     items: catalogo.items.map((i) => {
       if (
+        monedaReferencia(catalogo, i) !== "USD" ||
         i.tipo !== "adicional" ||
         !i.adicional_habilitado ||
         i.estado === "inactivo" ||

@@ -80,13 +80,17 @@ export function nivelesPrecios(item) {
 export function prepararCatalogo(datos) {
   const nuevo = prepararUbicaciones(adaptarEstructura(datos));
   nuevo.esquema = 7;
-  nuevo.moneda_adicionales = datos.moneda_adicionales || "ARS";
+  nuevo.moneda_productos_version = 1;
+  nuevo.moneda_adicionales = "ARS";
   nuevo.familias = nuevo.familias.filter((f) => f.servicio !== "cerco");
   nuevo.items = nuevo.items.filter(
     (i) => i.servicio !== "cerco" && i.tipo !== "mano_obra",
   );
   for (const i of nuevo.items) {
-    if (i.tipo === "adicional") i.precios_usd ??= {};
+    if (i.tipo === "adicional") {
+      i.precios_usd ??= {};
+      i.moneda_referencia ??= datos.moneda_adicionales || "ARS";
+    }
     if (i.precios?.unico !== undefined) {
       i.precio_unico_anterior = i.precios.unico;
       delete i.precios.unico;

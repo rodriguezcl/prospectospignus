@@ -517,4 +517,144 @@ test("listas ARS/USD: validación, conversión autoritativa y permisos", async (
   );
   await como(vendedor);
   await cerrar(operacionCierre); // Reintento de un cierre ya confirmado no se invalida.
+
+  await t.test(
+    "referencia por producto: mezcla ARS/USD, packs, permisos y conservación",
+    async () => {
+      const mixto = prepararCatalogo(catalogo);
+      mixto.items[0].moneda_referencia = "USD";
+      mixto.items[0].precios_pack_2_usd = { telefonico: "2" };
+      mixto.items[1].moneda_referencia = "ARS";
+      mixto.items[1].precios_usd = {};
+      const sensorARS = randomUUID();
+      mixto.items.push({
+        ...structuredClone(mixto.items[0]),
+        id: sensorARS,
+        codigo: "ARS",
+        nombre: "SENSOR ARS",
+        moneda_referencia: "ARS",
+        precios_usd: {},
+        precios_pack_2_usd: {},
+        precios_pack_2: { telefonico: "18" },
+      });
+      await db.exec("reset role");
+      await db.query("select privado.validar_moneda_productos_038($1)", [
+        mixto,
+      ]);
+      const incompleto = structuredClone(mixto);
+      incompleto.items[1].moneda_referencia = "USD";
+      await assert.rejects(
+        db.query("select privado.validar_moneda_productos_038($1)", [
+          incompleto,
+        ]),
+        /CATALOGO_USD/,
+      );
+      const monedaInvalida = structuredClone(mixto);
+      monedaInvalida.items[0].moneda_referencia = "EUR";
+      await assert.rejects(
+        db.query("select privado.validar_moneda_productos_038($1)", [
+          monedaInvalida,
+        ]),
+        /CATALOGO_USD/,
+      );
+      const actualCambio = (
+        await db.query(
+          "select public.registrar_cotizacion_dolar('1500.123456',now()) r",
+        )
+      ).rows[0].r;
+      const convertidoMixto = convertirAdicionales(mixto, actualCambio);
+      assert.deepEqual(
+        convertidoMixto.items[1].precios,
+        mixto.items[1].precios,
+      );
+      for (const extras of [
+        [
+          { item_id: sensor, cantidad: 3 },
+          { item_id: sensorARS, cantidad: 3 },
+        ],
+        [{ item_id: sensorARS, cantidad: 2 }],
+        [],
+      ]) {
+        const oferta = generarAlternativas({
+          catalogo: convertidoMixto,
+          familiaId: fa,
+          kitId: kit,
+          subcategoria: "sin_monitoreo",
+          extras,
+        })[0];
+        const r = (
+          await db.query("select privado.calcular_propuesta($1,$2,false) r", [
+            mixto,
+            oferta.seleccion,
+          ])
+        ).rows[0].r;
+        assert.equal(
+          Number(Number(r.total_exacto).toFixed(2)),
+          Number(oferta.total),
+        );
+        assert.equal(
+          Boolean(r.tipo_cambio),
+          extras.some((e) => e.item_id === sensor),
+        );
+        if (extras.some((e) => e.item_id === sensor)) {
+          assert.equal(
+            r.extras.find((e) => e.item_id === sensor).moneda_referencia,
+            "USD",
+          );
+          assert.equal(
+            r.extras.find((e) => e.item_id === sensorARS).moneda_referencia,
+            "ARS",
+          );
+          assert.ok(r.extras.find((e) => e.item_id === sensor).packs.length);
+          await assert.rejects(
+            db.query("select privado.calcular_propuesta($1,$2,false)", [
+              mixto,
+              { ...oferta.seleccion, tipo_cambio_id: null },
+            ]),
+            /PROPUESTA_DOLAR/,
+          );
+        }
+      }
+      await como(vendedor);
+      await assert.rejects(
+        db.query("select public.guardar_catalogo_038(2,$1,$2)", [
+          randomUUID(),
+          mixto,
+        ]),
+        /CATALOGO_ACCESO/,
+      );
+      await como(admin);
+      const operacion = randomUUID();
+      await db.query("select public.guardar_catalogo_038(2,$1,$2)", [
+        operacion,
+        mixto,
+      ]);
+      await db.query("select public.guardar_catalogo_038(2,$1,$2)", [
+        operacion,
+        mixto,
+      ]);
+      await assert.rejects(
+        db.query("select public.guardar_catalogo_029(3,$1,$2)", [
+          randomUUID(),
+          catalogo,
+        ]),
+        /CATALOGO_ESQUEMA/,
+      );
+      await como(vendedor);
+      const leido = (await db.query("select public.leer_catalogo(null) r"))
+        .rows[0].r;
+      assert.equal(
+        leido.datos.items.find((i) => i.id === sensor).moneda_referencia,
+        "USD",
+      );
+      assert.equal(
+        leido.datos.items.find((i) => i.id === sensorARS).moneda_referencia,
+        "ARS",
+      );
+      assert.equal(
+        leido.datos.items.find((i) => i.id === plan).precios.telefonico,
+        undefined,
+      );
+    },
+  );
 });

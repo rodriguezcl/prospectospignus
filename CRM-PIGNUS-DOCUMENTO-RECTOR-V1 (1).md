@@ -634,3 +634,10 @@ Cambio de referencia BNA: desplegar nuevamente cotizacion-dolar y frontend; no r
 
 ### Precio unitario visible de adicionales
 La oferta al cliente muestra por producto el importe promedio por unidad: total del adicional dividido entre sus unidades cobradas; las bonificadas se informan separadamente como unidades sin cargo adicional y no se muestra $0,00 cuando todas son bonificadas, respetando packs y conversión a pesos. No expone listas Alto/Bajo/Telefónico. Se redondea solo la visualización a dos decimales; no cambia totales ni descuentos por pago. Se conserva la indicación de unidades sin cargo.
+
+
+### Referencia de precios por producto (038, 07-10-2026)
+
+Sustituye la selección global ARS/USD: administración elige la lista de referencia de cada producto. Un mismo presupuesto puede combinar adicionales en pesos y en dólares. USD convierte individuales y packs con el dólar validado; ARS conserva su lista y no requiere completar USD. Solo los adicionales activos habilitados con referencia USD requieren esa lista completa. Se siguen validando las escalas y packs cargados. Planes, kits, abonos e incluidos mantienen su tratamiento actual. Los importes finales se presentan y guardan en pesos.
+
+Al adaptar el catálogo, cada producto conserva la referencia global que estaba vigente; los nuevos comienzan en pesos. No se cambian automáticamente productos a USD por tener precios cargados. Las propuestas nuevas conservan la referencia de cada adicional y el cambio aplicado. Historiales, ofrecimientos y ventas anteriores permanecen inmutables.

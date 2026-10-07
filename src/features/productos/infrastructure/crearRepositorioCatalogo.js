@@ -1,3 +1,4 @@
+import { tieneAdicionalesUSD } from "../domain/monedaReferencia.js";
 import { convertirAdicionales } from "../domain/convertirAdicionales.js";
 export function crearRepositorioCatalogo(cliente) {
   async function llamar(nombre, datos) {
@@ -9,7 +10,7 @@ export function crearRepositorioCatalogo(cliente) {
         CATALOGO_PACK:
           "Revisá los packs de 2: cada total debe ser no negativo y no superar el doble del individual, con escala Alto ≥ Bajo ≥ Telefónico y precio individual cargado en la misma moneda.",
         CATALOGO_USD:
-          "Completá y revisá la escala de precios USD de todos los adicionales activos antes de usar Dólares.",
+          "Completá y revisá la lista USD de los productos que tienen Dólares como referencia. Los productos en pesos no requieren precios USD.",
         CATALOGO_ACCESO: "No tenés permiso para administrar el catálogo.",
         CATALOGO_CONFLICTO:
           "El catálogo cambió. Actualizá antes de volver a guardar.",
@@ -40,7 +41,7 @@ export function crearRepositorioCatalogo(cliente) {
       throw new Error(
         mensajes[error.message] ||
           (["PGRST202", "42P01"].includes(error.code)
-            ? "Falta aplicar la actualización del catálogo comercial (035)."
+            ? "Falta aplicar la actualización del catálogo comercial (038)."
             : "No se pudo guardar o consultar el catálogo. Revisá campos, precios y conexión."),
       );
     }
@@ -51,7 +52,7 @@ export function crearRepositorioCatalogo(cliente) {
       const catalogo = await llamar("leer_catalogo", {
         p_oportunidad: oportunidad,
       });
-      if (catalogo.datos.moneda_adicionales !== "USD") return catalogo;
+      if (!tieneAdicionalesUSD(catalogo.datos)) return catalogo;
       const { data, error } =
         await cliente.functions.invoke("cotizacion-dolar");
       if (error || !data?.id)
@@ -63,7 +64,7 @@ export function crearRepositorioCatalogo(cliente) {
     leer: (oportunidad = null) =>
       llamar("leer_catalogo", { p_oportunidad: oportunidad }),
     guardar: ({ version, operacion, datos }) =>
-      llamar("guardar_catalogo_035", {
+      llamar("guardar_catalogo_038", {
         p_version: version,
         p_operacion: operacion,
         p_datos: datos,
