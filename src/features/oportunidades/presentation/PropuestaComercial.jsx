@@ -802,6 +802,13 @@ export function PropuestaComercial({
                         value={nivel}
                         onChange={(e) => {
                           elegirNivel(e.target.value);
+                          elegirExtras((actuales) => Object.fromEntries(
+                            Object.entries(actuales).map(([id, extra]) => [id, {
+                              activo: extra.activo,
+                              cantidad: extra.cantidad,
+                              unidades: unidadesAdicional(extra).map(() => ""),
+                            }]),
+                          ));
                           invalidar();
                         }}
                       >
