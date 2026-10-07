@@ -1,3 +1,4 @@
+import { unidadesAdicional, condicionesExtra } from "./unidadesAdicional.js";
 import { ordenarItemsCotizacion } from "./ordenarItemsCotizacion.js";
 import { propuestaVencida, vencimientoPropuesta } from "../domain/vigencia.js";
 import { OfertaComercial } from "./OfertaComercial.jsx";
@@ -164,9 +165,7 @@ export function PropuestaComercial({
                           .map(([item_id, v]) => ({
                             item_id,
                             cantidad: v.cantidad,
-                            bajos: v.bajos,
-                            bonificados: v.bonificados,
-                            telefonicos: v.telefonicos,
+                            ...condicionesExtra(v),
                           })),
                       }),
                     );
@@ -361,9 +360,7 @@ export function PropuestaComercial({
             .map(([item_id, v]) => ({
               item_id,
               cantidad: v.cantidad,
-              bajos: v.bajos,
-              bonificados: v.bonificados,
-              telefonicos: v.telefonicos,
+              ...condicionesExtra(v),
             })),
         }),
       );
@@ -831,6 +828,14 @@ export function PropuestaComercial({
                                 [i.id]: {
                                   ...extras[i.id],
                                   cantidad: e.target.value,
+                                  ...(!venta
+                                    ? {
+                                        unidades: unidadesAdicional(
+                                          extras[i.id],
+                                          e.target.value,
+                                        ),
+                                      }
+                                    : {}),
                                   ...(venta ? { telefonicos: undefined } : {}),
                                 },
                               });
@@ -851,62 +856,100 @@ export function PropuestaComercial({
                       {extras[i.id]?.activo &&
                         !venta &&
                         servicio === "alarma" && (
-                          <div className="d-flex flex-wrap align-items-center gap-3 w-100 ps-3">
-                            {[
-                              ["bajos", "A precio Bajo", true],
-                              [
-                                "bonificados",
-                                "Bonificados",
-                                !["docta", "nobu"].includes(subcategoria) &&
-                                  nivel !== "telefonico",
-                              ],
-                              [
-                                "telefonicos",
-                                "A precio Telefónico",
-                                telefonico && nivel === "telefonico",
-                              ],
-                            ]
-                              .filter(
-                                ([campo, , habilitado]) =>
-                                  habilitado || Number(extras[i.id][campo]) > 0,
-                              )
-                              .map(([campo, texto, habilitado]) => (
-                                <label
-                                  key={campo}
-                                  className="d-inline-flex align-items-center gap-2 mb-0"
-                                >
-                                  {texto}
-                                  {!habilitado && " (no disponible; quitar)"}
-                                  <input
-                                    className="form-control"
-                                    style={{ width: "6rem" }}
-                                    aria-label={texto + " de " + i.nombre}
-                                    type="number"
-                                    min="0"
-                                    max={extras[i.id].cantidad}
-                                    step="1"
-                                    value={extras[i.id][campo] ?? 0}
-                                    onChange={(e) => {
-                                      elegirExtras({
-                                        ...extras,
-                                        [i.id]: {
-                                          ...extras[i.id],
-                                          [campo]: e.target.value,
-                                        },
-                                      });
-                                      invalidar();
-                                    }}
-                                  />
-                                </label>
-                              ))}
-                            <span className="text-muted">
-                              A precio Alto:{" "}
-                              {Number(extras[i.id].cantidad) -
-                                Number(extras[i.id].bajos || 0) -
-                                Number(extras[i.id].bonificados || 0) -
-                                Number(extras[i.id].telefonicos || 0)}{" "}
-                              unidades (restantes)
-                            </span>
+                          <div className="w-100 ps-3">
+                            {unidadesAdicional(extras[i.id]).map(
+                              (condicion, indice) => {
+                                const opciones = [
+                                  [
+                                    "bonificados",
+                                    "Bonificado · $ 0,00",
+                                    !["docta", "nobu"].includes(subcategoria) &&
+                                      nivel !== "telefonico",
+                                  ],
+                                  [
+                                    "altos",
+                                    "Precio Alto · " + moneda(i.precios.alto),
+                                    true,
+                                  ],
+                                  [
+                                    "bajos",
+                                    "Precio Bajo · " + moneda(i.precios.bajo),
+                                    true,
+                                  ],
+                                  [
+                                    "telefonicos",
+                                    "Precio Telefónico · " +
+                                      moneda(i.precios.telefonico),
+                                    telefonico && nivel === "telefonico",
+                                  ],
+                                ];
+                                return (
+                                  <label
+                                    key={indice}
+                                    className="row align-items-center g-2 mb-2"
+                                  >
+                                    <span className="col-md-5">
+                                      {i.nombre} {indice + 1}
+                                    </span>
+                                    <span className="col-md-7">
+                                      <select
+                                        className="form-select"
+                                        aria-label={
+                                          "Condición de " +
+                                          i.nombre +
+                                          " " +
+                                          (indice + 1)
+                                        }
+                                        value={condicion}
+                                        onChange={(e) => {
+                                          const unidades = unidadesAdicional(
+                                            extras[i.id],
+                                          );
+                                          unidades[indice] = e.target.value;
+                                          elegirExtras({
+                                            ...extras,
+                                            [i.id]: {
+                                              ...extras[i.id],
+                                              unidades,
+                                            },
+                                          });
+                                          invalidar();
+                                        }}
+                                      >
+                                        <option value="" disabled>
+                                          Seleccioná una condición
+                                        </option>
+                                        {opciones
+                                          .filter(
+                                            ([valor, , habilitado]) =>
+                                              habilitado || valor === condicion,
+                                          )
+                                          .map(([valor, texto, habilitado]) => (
+                                            <option
+                                              key={valor}
+                                              value={valor}
+                                              disabled={!habilitado}
+                                            >
+                                              {texto}
+                                              {!habilitado
+                                                ? " · No disponible: cambiar"
+                                                : ""}
+                                            </option>
+                                          ))}
+                                      </select>
+                                    </span>
+                                  </label>
+                                );
+                              },
+                            )}
+                            {i.precios_pack_2 &&
+                              Object.keys(i.precios_pack_2).length > 0 && (
+                                <p className="small text-muted mb-1">
+                                  Precios por unidad. Al calcular se aplican los
+                                  packs disponibles a las unidades de la misma
+                                  tarifa.
+                                </p>
+                              )}
                           </div>
                         )}
                     </div>

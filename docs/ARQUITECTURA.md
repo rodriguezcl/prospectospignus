@@ -261,3 +261,8 @@ Textos de propuesta única (07-10-2026): se retira el resumen redundante de abon
 ## Distribución manual de adicionales (07-10-2026)
 
 El armado permite cantidades a Bajo, bonificadas y, con permiso y nivel correspondiente, Telefónico. Alto es el remanente del total. generarAlternativas recibe distribucionManual y calcula una sola composición sin enumerar combinaciones. Valida cantidades, suma, permisos, bolsa y piso; no reemplaza silenciosamente una selección inválida. Conserva el motor enumerador para consumidores anteriores. Borradores y reutilización conservan distribución; kits de venta mantienen Telefónico. El servidor ya recalcula estas cantidades y valida restricciones con el contrato vigente; no requiere migración. Packs se aplican solo a unidades pagadas del mismo nivel.
+
+
+### Selección por unidad de adicional (07-10-2026)
+
+Sustituye la distribución por contadores: cada unidad seleccionada tiene una fila numerada y un desplegable con Bonificado, Alto y Bajo con importes unitarios en pesos; Telefónico conserva sus permisos. Al aumentar cantidad se agregan unidades a Alto; al reducir se retiran las últimas. Los borradores conservan el orden de selecciones y se agregan cantidades por tarifa para el contrato de cálculo y guardado existente. Las distribuciones antiguas inconsistentes exigen revisar cada unidad, sin mostrar remanentes negativos. Los packs se aplican al calcular por unidades de la misma tarifa; bolsa, piso y servidor mantienen sus validaciones.

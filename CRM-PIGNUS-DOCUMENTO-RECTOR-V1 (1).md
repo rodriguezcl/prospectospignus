@@ -599,3 +599,8 @@ El armado muestra el abono en el selector de nivel, sin repetirlo en un resumen 
 ### Condiciones de adicionales desde el armado (07-10-2026)
 
 Antes de Calcular, el vendedor distribuye la cantidad de cada adicional entre bonificados y precio Bajo; las unidades restantes se cobran a Alto. Por ejemplo, 2 PIR pueden ser 1 bonificado y 1 Bajo, y 2 magnéticos ambos Bajo. Telefónico sigue restringido al circuito y nivel habilitados; kits de venta conservan únicamente Telefónico. Se mantienen bolsa de bonificación, piso comercial, exclusiones de expensas y packs por tarifa. Si la distribución excede cantidades o márgenes, se exige corregirla; no se calcula otra propuesta automáticamente. La propuesta única refleja exactamente las condiciones elegidas y se conservan al recuperar el borrador o reutilizar un ofrecimiento.
+
+
+### Selección por unidad de adicional (07-10-2026)
+
+Sustituye la distribución por contadores: cada unidad seleccionada tiene una fila numerada y un desplegable con Bonificado, Alto y Bajo con importes unitarios en pesos; Telefónico conserva sus permisos. Al aumentar cantidad se agregan unidades a Alto; al reducir se retiran las últimas. Los borradores conservan el orden de selecciones y se agregan cantidades por tarifa para el contrato de cálculo y guardado existente. Las distribuciones antiguas inconsistentes exigen revisar cada unidad, sin mostrar remanentes negativos. Los packs se aplican al calcular por unidades de la misma tarifa; bolsa, piso y servidor mantienen sus validaciones.
