@@ -184,17 +184,19 @@ export function ProductosPagina({ gestion }) {
             ))}
           </nav>
           <div className="d-flex flex-wrap gap-2 mb-3">
-            <button
-              className="btn btn-primary"
-              disabled={ocupado}
-              onClick={() => abrir(null)}
-            >
-              {seccion === "marcas"
-                ? "Nueva marca"
-                : seccion === "ofertas"
-                  ? "Nuevo plan o kit"
-                  : "Nuevo producto"}
-            </button>
+            {!edicion && !baja && (
+              <button
+                className="btn btn-primary"
+                disabled={ocupado}
+                onClick={() => abrir(null)}
+              >
+                {seccion === "marcas"
+                  ? "Nueva marca"
+                  : seccion === "ofertas"
+                    ? "Nuevo plan o kit"
+                    : "Nuevo producto"}
+              </button>
+            )}
             <button
               className="btn btn-outline-primary"
               disabled={ocupado}

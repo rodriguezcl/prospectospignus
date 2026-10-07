@@ -174,12 +174,19 @@ export function OportunidadesPagina({
         </label>
       )}
       <div className="d-flex flex-wrap gap-2 mb-3">
-        <Link to="/cotizaciones?nueva=si" className="btn btn-primary">
-          Cotizar
-        </Link>
-        <Link to="/prospectos?nuevo=1" className="btn btn-outline-secondary">
-          Cargar prospecto
-        </Link>
+        {!id && !nueva && (
+          <>
+            <Link to="/cotizaciones?nueva=si" className="btn btn-primary">
+              Cotizar
+            </Link>
+            <Link
+              to="/prospectos?nuevo=1"
+              className="btn btn-outline-secondary"
+            >
+              Cargar prospecto
+            </Link>
+          </>
+        )}
         <button
           className="btn btn-outline-primary"
           disabled={ocupado}
@@ -279,13 +286,13 @@ export function OportunidadesPagina({
               </section>
             )}
             <ContextoRecuperacion oportunidad={detalle} />
-            {puedeCotizar(detalle, perfil) && (
+            {soloRecuperacion && puedeCotizar(detalle, perfil) && (
               <Link
                 className="btn btn-primary mb-3"
                 onClick={() => abrirCotizador((n) => n + 1)}
                 to={`${rutaBandeja}?id=${detalle.id}&cotizar=si`}
               >
-                Cotizar
+                Preparar propuesta
               </Link>
             )}
             {detalle.estado === "anulada" && (

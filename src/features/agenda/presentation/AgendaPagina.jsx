@@ -979,7 +979,7 @@ function AgendaAutorizada({ gestion, perfil }) {
             >
               Actualizar
             </button>
-            {esVendedor && (
+            {esVendedor && !seleccion && (
               <button
                 className="btn btn-primary"
                 onClick={() => seleccionar(null, "crear")}
