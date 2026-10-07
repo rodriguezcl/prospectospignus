@@ -312,20 +312,6 @@ export function RegistrosInicialesPagina({
                 <h2 className="h5">
                   {detalle.version ? "Detalle y edición" : "Cargar prospecto"}
                 </h2>
-                {administrador &&
-                  !!detalle.version &&
-                  !detalle.lote_demostracion && (
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-danger mb-3"
-                      disabled={guardando || modificado}
-                      title={`Eliminar ${detalle.nombre}`}
-                      aria-label={`Eliminar ${detalle.nombre}`}
-                      onClick={() => solicitarBaja(detalle)}
-                    >
-                      <IconoAccion accion="eliminar" />
-                    </button>
-                  )}
                 {detalle.lote_demostracion && (
                   <p className="alert alert-warning">
                     DEMO · Persona y teléfono ficticios. No contactar. La
@@ -421,9 +407,32 @@ export function RegistrosInicialesPagina({
                         <small>El origen se conserva después del alta.</small>
                       </div>
                     </div>
-                    <button className="btn btn-primary mt-3" type="submit">
-                      {guardando ? "Guardando…" : "Guardar prospecto"}
-                    </button>
+                    <div className="d-flex flex-wrap align-items-center gap-3 mt-3">
+                      <button className="btn btn-primary" type="submit">
+                        {guardando
+                          ? "Guardando…"
+                          : detalle.version
+                            ? "Actualizar prospecto"
+                            : "Guardar prospecto"}
+                      </button>
+                      {administrador &&
+                        !!detalle.version &&
+                        !detalle.lote_demostracion && (
+                          <button
+                            type="button"
+                            className="btn btn-danger"
+                            disabled={guardando || modificado}
+                            title={
+                              modificado
+                                ? "Guardá los cambios antes de eliminar"
+                                : "Eliminar " + detalle.nombre
+                            }
+                            onClick={() => solicitarBaja(detalle)}
+                          >
+                            <IconoAccion accion="eliminar" /> Eliminar prospecto
+                          </button>
+                        )}
+                    </div>
                   </fieldset>
                 </form>
               </div>

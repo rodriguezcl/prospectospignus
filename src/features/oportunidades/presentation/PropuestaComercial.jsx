@@ -47,10 +47,16 @@ export function PropuestaComercial({
   const armado = useRef(null);
   const [mostrarArmado, mostrarConfiguracion] = useState(true);
   const [registrando, mostrarRegistro] = useState(false);
+  function volverAlArmado() {
+    mostrarRegistro(false);
+    mostrarConfiguracion(true);
+    confirmarOfrecida(false);
+    requestAnimationFrame(() => enfocarPanel(armado.current));
+  }
   function cambiarOferta() {
     mostrarRegistro(false);
     confirmarOfrecida(false);
-    if (!alternativas.length) mostrarConfiguracion(true);
+    mostrarConfiguracion(!alternativas.length);
     requestAnimationFrame(() =>
       enfocarPanel(
         alternativas.length ? primeraOferta.current : armado.current,
@@ -695,13 +701,29 @@ export function PropuestaComercial({
                 tabIndex={-1}
                 className="border rounded p-3 mb-3"
                 open={mostrarArmado}
-                onToggle={(e) => mostrarConfiguracion(e.currentTarget.open)}
               >
-                <summary className="fw-bold">
-                  1. Armar oferta · {kit?.nombre || "Elegí un plan o kit"}
-                  <span className="btn btn-primary btn-sm ms-3 my-1">
-                    Modificar
-                  </span>
+                <summary
+                  className="fw-bold"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    volverAlArmado();
+                  }}
+                >
+                  1. Preparar cotización ·{" "}
+                  {kit?.nombre || "Elegí un plan o kit"}
+                  {!mostrarArmado && (
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm ms-3 my-1"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        volverAlArmado();
+                      }}
+                    >
+                      Modificar cotización
+                    </button>
+                  )}
                 </summary>
                 <div className="row g-3 mt-1">
                   <label className="col-md-6">
@@ -802,13 +824,20 @@ export function PropuestaComercial({
                         value={nivel}
                         onChange={(e) => {
                           elegirNivel(e.target.value);
-                          elegirExtras((actuales) => Object.fromEntries(
-                            Object.entries(actuales).map(([id, extra]) => [id, {
-                              activo: extra.activo,
-                              cantidad: extra.cantidad,
-                              unidades: unidadesAdicional(extra).map(() => ""),
-                            }]),
-                          ));
+                          elegirExtras((actuales) =>
+                            Object.fromEntries(
+                              Object.entries(actuales).map(([id, extra]) => [
+                                id,
+                                {
+                                  activo: extra.activo,
+                                  cantidad: extra.cantidad,
+                                  unidades: unidadesAdicional(extra).map(
+                                    () => "",
+                                  ),
+                                },
+                              ]),
+                            ),
+                          );
                           invalidar();
                         }}
                       >
@@ -1106,170 +1135,223 @@ export function PropuestaComercial({
                   className="btn btn-primary"
                   onClick={confirmar}
                 >
-                  Calcular
+                  Calcular y continuar al paso 2
                 </button>
               </details>
-              {!!alternativas.length && !registrando && (
-                <div className="my-3">
-                  <h3 className="h5">2. Presentar al cliente</h3>
-                  <p className="small">
-                    Oferta inicial según las condiciones seleccionadas.
-                  </p>
-                  {alternativas.slice(0, 1).map((a) => (
-                    <OfertaComercial
-                      referencia={a.ordinal === 1 ? primeraOferta : undefined}
-                      key={a.ordinal}
-                      alternativa={a}
-                      ofrecida={ofertaOfrecida(a, historial, {
-                        ciclo: oportunidad.ciclo || 1,
-                        catalogo: referencias.catalogo.version,
-                        condiciones: referencias.condiciones.version,
-                        nivelAbono: conAbono ? nivelAbono : null,
-                        meses: conAbono ? meses : 0,
-                      })}
-                      anterior={
-                        baseComparacion.hayOfrecida
-                          ? baseComparacion.referencia
-                          : alternativas[a.ordinal - 2]
-                      }
-                      ofrecidaNoComparable={
-                        baseComparacion.hayOfrecida &&
-                        !baseComparacion.referencia
-                      }
-                      catalogo={catalogo}
-                      kit={kit}
-                      revision={revision.current}
-                      conAbono={conAbono}
-                      nivelAbono={nivelAbono}
-                      meses={meses}
-                      agregar={agregar}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-          {!!conceptos.length && registrando && (
-            <div
-              className="border rounded p-3 my-3"
-              ref={panelPago}
-              tabIndex={-1}
-            >
-              <h3 className="h5">3. Registrar lo ofrecido</h3>
-              <div className="d-flex flex-wrap justify-content-between gap-2 mb-3">
-                <div>
-                  {conceptos.map((c, i) => (
-                    <div key={i}>
-                      <strong>{c.etiqueta}</strong>
-                      <p className="mb-1">
-                        Abono mensual: <strong>{moneda(c.abono)}</strong>
-                        {c.meses_congelamiento > 0 &&
-                          " · congelado " + c.meses_congelamiento + " meses"}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-outline-primary align-self-start"
-                  onClick={cambiarOferta}
+              <details
+                className="border rounded p-3 my-3"
+                open={!mostrarArmado && !registrando && !!alternativas.length}
+              >
+                <summary
+                  className="fw-bold"
+                  aria-disabled={!alternativas.length}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (!alternativas.length) return;
+                    cambiarOferta();
+                  }}
                 >
-                  Cambiar oferta
-                </button>
-              </div>
-              <PagoOferta
-                total={totalConceptos(conceptos)}
-                pago={pago}
-                error={errorPago}
-                baseEfectivo={baseEfectivo}
-                medioSaldo={medioSaldo}
-                cuotas={cuotas}
-                redondeoManual={redondeoManual}
-                porcentajeRedondeo={
-                  condiciones.redondeo_maximo_porcentaje ?? "1"
-                }
-                cambiarRedondeo={(valor) => {
-                  elegirRedondeo(valor);
-                  confirmarOfrecida(false);
-                }}
-                cambiar={({ base, medio, cantidad }) => {
-                  elegirEfectivo(base);
-                  elegirMedio(medio);
-                  elegirCuotas(cantidad);
-                  confirmarOfrecida(false);
-                }}
-              />
-              {oportunidad.preparacion_compartida &&
-                (perfil.rol === "vendedor" ? (
-                  <p>
-                    Al registrar esta primera oferta quedarás como responsable
-                    del seguimiento.
-                  </p>
-                ) : (
-                  <label className="d-block mb-3">
-                    Vendedor responsable del seguimiento
-                    <select
-                      className="form-select"
-                      value={responsableSeguimiento}
-                      onChange={(e) => {
-                        elegirResponsableSeguimiento(e.target.value);
-                        confirmarOfrecida(false);
+                  2. Revisar propuesta
+                  {!!alternativas.length && (mostrarArmado || registrando) && (
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm ms-3 my-1"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        cambiarOferta();
                       }}
                     >
-                      <option value="">Seleccioná un vendedor…</option>
-                      {equipo
-                        .filter((p) => p.rol === "vendedor")
-                        .map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.nombre}
-                          </option>
-                        ))}
-                    </select>
-                  </label>
-                ))}
-              <label className="d-block mb-3">
-                <input
-                  type="checkbox"
-                  checked={ofrecidaConfirmada}
-                  onChange={(e) => confirmarOfrecida(e.target.checked)}
-                />{" "}
-                <strong>Ya se la presenté al cliente</strong> con estos importes
-                y forma de pago.
-              </label>
-              <button
-                type="button"
-                className="btn btn-primary"
-                disabled={
-                  !pago ||
-                  !ofrecidaConfirmada ||
-                  (oportunidad.preparacion_compartida &&
-                    perfil.rol === "administrador" &&
-                    !responsableSeguimiento)
-                }
-                onClick={guardar}
-              >
-                {ocupado ? "Guardando…" : "Registrar ofrecimiento"}
-              </button>
-              <details className="small mt-3">
-                <summary>Qué se registra</summary>
-                <p>
-                  Esta oferta reemplaza a la anterior como referencia; no suma
-                  sus importes. Las anteriores quedan en el historial.
-                </p>
-                <p className="small mt-2">
-                  No registra una venta ni un cobro. El servidor valida precios
-                  y permisos vigentes.
-                </p>
-                {derivar && (
-                  <p>
-                    Si no avanza, registrá primero lo ofrecido. Después usá{" "}
-                    <strong>Derivar a Recuperación comercial</strong> para
-                    enviar el contexto al agente.
-                  </p>
+                      Revisar propuesta
+                    </button>
+                  )}
+                  {!alternativas.length && (
+                    <span className="small fw-normal ms-2">
+                      Calculá la oferta en el paso 1
+                    </span>
+                  )}
+                </summary>
+                {!!alternativas.length && (
+                  <div className="mt-3">
+                    {alternativas.slice(0, 1).map((a) => (
+                      <OfertaComercial
+                        referencia={a.ordinal === 1 ? primeraOferta : undefined}
+                        key={a.ordinal}
+                        alternativa={a}
+                        ofrecida={ofertaOfrecida(a, historial, {
+                          ciclo: oportunidad.ciclo || 1,
+                          catalogo: referencias.catalogo.version,
+                          condiciones: referencias.condiciones.version,
+                          nivelAbono: conAbono ? nivelAbono : null,
+                          meses: conAbono ? meses : 0,
+                        })}
+                        anterior={
+                          baseComparacion.hayOfrecida
+                            ? baseComparacion.referencia
+                            : alternativas[a.ordinal - 2]
+                        }
+                        ofrecidaNoComparable={
+                          baseComparacion.hayOfrecida &&
+                          !baseComparacion.referencia
+                        }
+                        catalogo={catalogo}
+                        kit={kit}
+                        revision={revision.current}
+                        conAbono={conAbono}
+                        nivelAbono={nivelAbono}
+                        meses={meses}
+                        volver={volverAlArmado}
+                        textoAccion="Continuar al paso 3: pago y registro"
+                        agregar={agregar}
+                      />
+                    ))}
+                  </div>
                 )}
               </details>
-            </div>
+            </>
           )}
+          <details
+            open={registrando && !mostrarArmado && !!conceptos.length}
+            className="border rounded p-3 my-3"
+            ref={panelPago}
+            tabIndex={-1}
+          >
+            <summary
+              className="fw-bold"
+              aria-disabled={!conceptos.length}
+              onClick={(e) => {
+                e.preventDefault();
+                if (!conceptos.length) return;
+                mostrarConfiguracion(false);
+                mostrarRegistro(true);
+              }}
+            >
+              3. Pago y registro
+              {!conceptos.length && (
+                <span className="small fw-normal ms-2">
+                  Revisá la oferta en el paso 2
+                </span>
+              )}
+            </summary>
+            {!!conceptos.length && (
+              <div className="mt-3">
+                <div className="d-flex flex-wrap justify-content-between gap-2 mb-3">
+                  <div>
+                    {conceptos.map((c, i) => (
+                      <div key={i}>
+                        <strong>{c.etiqueta}</strong>
+                        <p className="mb-1">
+                          Abono mensual: <strong>{moneda(c.abono)}</strong>
+                          {c.meses_congelamiento > 0 &&
+                            " · congelado " + c.meses_congelamiento + " meses"}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <PagoOferta
+                  total={totalConceptos(conceptos)}
+                  pago={pago}
+                  error={errorPago}
+                  baseEfectivo={baseEfectivo}
+                  medioSaldo={medioSaldo}
+                  cuotas={cuotas}
+                  redondeoManual={redondeoManual}
+                  porcentajeRedondeo={
+                    condiciones.redondeo_maximo_porcentaje ?? "1"
+                  }
+                  cambiarRedondeo={(valor) => {
+                    elegirRedondeo(valor);
+                    confirmarOfrecida(false);
+                  }}
+                  cambiar={({ base, medio, cantidad }) => {
+                    elegirEfectivo(base);
+                    elegirMedio(medio);
+                    elegirCuotas(cantidad);
+                    confirmarOfrecida(false);
+                  }}
+                />
+                {oportunidad.preparacion_compartida &&
+                  (perfil.rol === "vendedor" ? (
+                    <p>
+                      Al registrar esta primera oferta quedarás como responsable
+                      del seguimiento.
+                    </p>
+                  ) : (
+                    <label className="d-block mb-3">
+                      Vendedor responsable del seguimiento
+                      <select
+                        className="form-select"
+                        value={responsableSeguimiento}
+                        onChange={(e) => {
+                          elegirResponsableSeguimiento(e.target.value);
+                          confirmarOfrecida(false);
+                        }}
+                      >
+                        <option value="">Seleccioná un vendedor…</option>
+                        {equipo
+                          .filter((p) => p.rol === "vendedor")
+                          .map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.nombre}
+                            </option>
+                          ))}
+                      </select>
+                    </label>
+                  ))}
+                <label className="d-block mb-3">
+                  <input
+                    type="checkbox"
+                    checked={ofrecidaConfirmada}
+                    onChange={(e) => confirmarOfrecida(e.target.checked)}
+                  />{" "}
+                  <strong>Ya se la presenté al cliente</strong> con estos
+                  importes y forma de pago.
+                </label>
+                <div className="d-flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    onClick={cambiarOferta}
+                  >
+                    Volver al paso 2: revisar propuesta
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={
+                      !pago ||
+                      !ofrecidaConfirmada ||
+                      (oportunidad.preparacion_compartida &&
+                        perfil.rol === "administrador" &&
+                        !responsableSeguimiento)
+                    }
+                    onClick={guardar}
+                  >
+                    {ocupado ? "Guardando…" : "Registrar ofrecimiento"}
+                  </button>
+                </div>
+                <details className="small mt-3">
+                  <summary>Qué se registra</summary>
+                  <p>
+                    Esta oferta reemplaza a la anterior como referencia; no suma
+                    sus importes. Las anteriores quedan en el historial.
+                  </p>
+                  <p className="small mt-2">
+                    No registra una venta ni un cobro. El servidor valida
+                    precios y permisos vigentes.
+                  </p>
+                  {derivar && (
+                    <p>
+                      Si no avanza, registrá primero lo ofrecido. Después usá{" "}
+                      <strong>Derivar a Recuperación comercial</strong> para
+                      enviar el contexto al agente.
+                    </p>
+                  )}
+                </details>
+              </div>
+            )}
+          </details>
         </fieldset>
       )}
       <details className="mt-3">

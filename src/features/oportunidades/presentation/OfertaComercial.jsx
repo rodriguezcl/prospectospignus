@@ -24,6 +24,8 @@ export function OfertaComercial({
   nivelAbono,
   meses,
   agregar,
+  volver,
+  textoAccion,
   referencia,
   ofrecida = false,
 }) {
@@ -69,13 +71,29 @@ export function OfertaComercial({
                 <li key={e.item_id}>
                   {e.cantidad} × {nombre(e.item_id)}
                   {Number(e.bonificados) > 0 && (
-                    <strong> · {e.bonificados} {Number(e.bonificados) === 1 ? "unidad" : "unidades"} sin cargo adicional</strong>
+                    <strong>
+                      {" "}
+                      · {e.bonificados}{" "}
+                      {Number(e.bonificados) === 1 ? "unidad" : "unidades"} sin
+                      cargo adicional
+                    </strong>
                   )}
                   {Number(e.cantidad) > Number(e.bonificados || 0) && (
                     <strong>
                       {" · "}
-                      {Number(e.bonificados) > 0 && <>{Number(e.cantidad) - Number(e.bonificados)} {Number(e.cantidad) - Number(e.bonificados) === 1 ? "unidad" : "unidades"} a </>}
-                      {moneda(precioUnitarioAdicional(e, catalogo))}{Number(e.cantidad) - Number(e.bonificados || 0) > 1 ? " por unidad" : ""}
+                      {Number(e.bonificados) > 0 && (
+                        <>
+                          {Number(e.cantidad) - Number(e.bonificados)}{" "}
+                          {Number(e.cantidad) - Number(e.bonificados) === 1
+                            ? "unidad"
+                            : "unidades"}{" "}
+                          a{" "}
+                        </>
+                      )}
+                      {moneda(precioUnitarioAdicional(e, catalogo))}
+                      {Number(e.cantidad) - Number(e.bonificados || 0) > 1
+                        ? " por unidad"
+                        : ""}
                     </strong>
                   )}
                   {(alternativa.packs || [])
@@ -88,7 +106,6 @@ export function OfertaComercial({
                         {moneda(p.ahorro)}
                       </small>
                     ))}
-
                 </li>
               ))}
             </ul>
@@ -167,15 +184,27 @@ export function OfertaComercial({
           combinar medios de pago al armar la propuesta.
         </p>
       </section>
-      <button
-        type="button"
-        className="btn btn-primary"
-        onClick={() => agregar(alternativa)}
-      >
-        {ofrecida
-          ? "Volver a usar esta oferta"
-          : "Revisar pago y registrar ofrecimiento"}
-      </button>
+      <div className="d-flex flex-wrap gap-2">
+        {volver && (
+          <button
+            type="button"
+            className="btn btn-outline-primary"
+            onClick={volver}
+          >
+            Volver al paso 1: preparar cotización
+          </button>
+        )}
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => agregar(alternativa)}
+        >
+          {textoAccion ||
+            (ofrecida
+              ? "Volver a usar esta oferta"
+              : "Revisar pago y registrar ofrecimiento")}
+        </button>
+      </div>
       <details className="mt-3 small">
         <summary>Detalle de negociación y referencia interna</summary>
         <p className="mt-2">
