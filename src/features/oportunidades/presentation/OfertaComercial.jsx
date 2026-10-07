@@ -1,7 +1,6 @@
 import { precioUnitarioAdicional } from "./precioUnitarioAdicional.js";
 import { ordenarItemsCotizacion } from "./ordenarItemsCotizacion.js";
 import { monedaArgentina } from "../../../shared/ui/importe.js";
-import { compararOfertas } from "./compararOfertas.js";
 import { centavos, importeExacto, decimalCentavos } from "../domain/dinero.js";
 
 const moneda = (valor) => monedaArgentina(valor, "Precio pendiente de carga");
@@ -18,7 +17,6 @@ function Cuotas({ importes }) {
 
 export function OfertaComercial({
   alternativa,
-  anterior,
   catalogo,
   kit,
   revision,
@@ -28,9 +26,7 @@ export function OfertaComercial({
   agregar,
   referencia,
   ofrecida = false,
-  ofrecidaNoComparable = false,
 }) {
-  const comparacion = compararOfertas(alternativa, anterior, catalogo.items);
   const venta = kit?.modalidad === "kit";
   const nombre = (id) =>
     catalogo.items.find((i) => i.id === id)?.nombre || "Componente";
@@ -54,44 +50,6 @@ export function OfertaComercial({
           <span className="badge bg-success ms-2">Última ofrecida</span>
         )}
       </h4>
-      {comparacion ? (
-        <aside
-          className="alert alert-info"
-          aria-label={
-            anterior.codigoOfrecida
-              ? "Cambios respecto de la oferta efectivamente ofrecida"
-              : "Cambios respecto de la oferta anterior"
-          }
-        >
-          <h5 className="h6 fw-bold">
-            {anterior.codigoOfrecida
-              ? `Qué cambia respecto de la última oferta efectivamente ofrecida · ${anterior.codigoOfrecida}`
-              : `Qué cambia respecto de la oferta ${anterior.ordinal}`}
-          </h5>
-          <ul className="mb-2">
-            {comparacion.cambios.map((c) => (
-              <li key={c}>{c}</li>
-            ))}
-          </ul>
-          <p className="mb-0 fw-bold">
-            {comparacion.sentido === "igual"
-              ? comparacion.cambios.length
-                ? "Mismo importe inicial; cambia la distribución de precios o bonificaciones."
-                : "Mismo importe inicial y condiciones de los adicionales."
-              : `${comparacion.sentido === "ahorro" ? "Ahorro" : "Aumento"} en el pago inicial: ${moneda(comparacion.importe)}.`}
-          </p>
-          <p className="small mb-0">
-            Comparación antes de descuentos por forma de pago. Se mantiene la
-            cantidad de equipos. El abono mensual se detalla por separado.
-          </p>
-        </aside>
-      ) : (
-        <p className="small">
-          {ofrecidaNoComparable
-            ? "La última propuesta ofrecida tiene otra composición o no permite una comparación directa. Revisala arriba; no se utiliza una oferta no presentada como referencia."
-            : "Propuesta según las condiciones seleccionadas."}
-        </p>
-      )}
       <div className="row g-3">
         <section className="col-12 col-lg-6">
           <h5 className="h6 fw-bold">
