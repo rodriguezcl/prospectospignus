@@ -1,3 +1,4 @@
+import { precioUnitarioAdicional } from "./precioUnitarioAdicional.js";
 import { ordenarItemsCotizacion } from "./ordenarItemsCotizacion.js";
 import { monedaArgentina } from "../../../shared/ui/importe.js";
 import { compararOfertas } from "./compararOfertas.js";
@@ -109,6 +110,7 @@ export function OfertaComercial({
               {extras.map((e) => (
                 <li key={e.item_id}>
                   {e.cantidad} × {nombre(e.item_id)}
+                  <strong> · {moneda(precioUnitarioAdicional(e, catalogo))} por unidad</strong>
                   {(alternativa.packs || [])
                     .filter((p) => p.item_id === e.item_id)
                     .map((p) => (

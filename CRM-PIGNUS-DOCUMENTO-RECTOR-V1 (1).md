@@ -631,3 +631,6 @@ Criterio vigente autorizado: MonedAPI /api/v2/usd/bna (Banco Nación venta) es p
 Aplicar migración 037, desplegar cotizacion-dolar con su adaptador compartido y publicar frontend. La función anterior de registro se conserva durante la transición. Proveedor queda como metadato interno de auditoría.
 
 Cambio de referencia BNA: desplegar nuevamente cotizacion-dolar y frontend; no requiere migración adicional. Se inicia una nueva referencia local de avisos para no comparar cotizaciones de distinto criterio. Los registros y propuestas históricos se conservan; la caché del servidor anterior caduca en cinco minutos.
+
+### Precio unitario visible de adicionales
+La oferta al cliente muestra por producto el importe promedio por unidad: total del adicional dividido entre todas sus unidades, incluidas las bonificadas a cero, respetando packs y conversión a pesos. No expone listas Alto/Bajo/Telefónico. Se redondea solo la visualización a dos decimales; no cambia totales ni descuentos por pago. Se conserva la indicación de unidades sin cargo.
