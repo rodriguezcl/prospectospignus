@@ -244,15 +244,6 @@ export function OportunidadesPagina({
               {detalle.prospectos.telefono} · {detalle.prospectos.direccion}
             </p>
             <p>{detalle.necesidad}</p>
-            {opciones.includes("derivar") && (
-              <button
-                type="button"
-                className="btn btn-outline-primary mb-3 ms-2"
-                onClick={() => abrirDerivacion(true)}
-              >
-                No avanzamos · Derivar a Recuperación comercial
-              </button>
-            )}
             {derivando && opciones.includes("derivar") && (
               <section
                 className="border rounded p-3 my-3"
