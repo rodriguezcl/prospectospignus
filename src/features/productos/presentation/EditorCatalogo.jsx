@@ -194,8 +194,8 @@ export function EditorCatalogo({
           <fieldset className="mb-3">
             <legend className="h6">Ubicaciones habilitadas para alarmas</legend>
             <p className="small text-muted">
-              Para cotizar, la ubicación debe estar habilitada tanto en la marca
-              como en el plan o kit.
+              La marca define las ubicaciones disponibles. Al retirar una
+              ubicación de la marca, se retira también de sus planes y kits.
             </p>
             {Object.entries(ubicacionesAlarma).map(([id, nombre]) => {
               const seleccionadas =
@@ -211,7 +211,8 @@ export function EditorCatalogo({
                 <label className="d-block mb-2" key={id}>
                   <input
                     type="checkbox"
-                    checked={seleccionadas.includes(id)}
+                    disabled={!disponibleEnMarca}
+                    checked={disponibleEnMarca && seleccionadas.includes(id)}
                     onChange={(e) =>
                       cambiar(
                         "ubicaciones_alarma",

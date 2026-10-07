@@ -352,6 +352,7 @@ test("packs de adicionales: cantidades, moneda, validación, persistencia y perm
   const limitado=(await db.query("select public.leer_catalogo() r")).rows[0].r.datos;
   assert.deepEqual(limitado.items.find(i=>i.id===plan).ubicaciones_alarma,["docta"]);
   assert.equal(limitado.items.find(i=>i.id===plan).precios.telefonico,undefined);
+  assert.equal(limitado.items.find(i=>i.id===kit).ubicaciones_alarma.includes("nobu"),false);
   await assert.rejects(db.query("select public.guardar_catalogo_035(3,$1,$2)",[randomUUID(),configurado]),/CATALOGO_ACCESO/);
   await db.exec("reset role");
   const seleccion={familia_id:fa,kit_id:plan,nivel:"catalogo",subcategoria:"docta",extras:[]};

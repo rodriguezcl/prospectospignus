@@ -14,7 +14,10 @@ export function ubicacionesMarca(marca) {
 }
 export function ubicacionesOferta(catalogo, oferta) {
   const marca = catalogo.marcas?.find((m) => m.id === oferta?.marca_id);
-  return oferta?.ubicaciones_alarma ?? ubicacionesMarca(marca);
+  const permitidas = marca ? ubicacionesMarca(marca) : [];
+  return (oferta?.ubicaciones_alarma ?? permitidas).filter((u) =>
+    permitidas.includes(u),
+  );
 }
 export function ofertaEnUbicacion(catalogo, oferta, ubicacion) {
   if (oferta?.servicio !== "alarma") return true;

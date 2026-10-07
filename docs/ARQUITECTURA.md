@@ -281,3 +281,8 @@ Las unidades nuevas y las agregadas al aumentar cantidad comienzan sin condició
 El catálogo conserva esquema 7 y agrega ubicaciones_version: 1. Marcas y ofertas de alarma tienen ubicaciones_alarma; su intersección determina disponibilidad en presentación, dominio y cálculo del servidor. Un arreglo vacío deshabilita todas las ubicaciones. leer_catalogo proyecta estos campos conservando filtros de precios y permisos. guardar_catalogo_035 exige administrador y valida listas; impide que clientes anteriores borren restricciones ya configuradas. Los kits de venta usan ubicacion_alarma separada de subcategoria, sin generar abono.
 
 Aplicar 035 antes del frontend. La lectura inicial asigna Garnet a las cuatro ubicaciones e Hikvision a las residenciales; las ofertas existentes heredan la marca salvo configuración explícita. La migración no reescribe propuestas históricas ni agrega una versión de catálogo; la siguiente edición administrativa persiste la configuración.
+
+
+### Jerarquía de ubicaciones (036)
+
+La marca es la autoridad sobre las ubicaciones. El editor deshabilita casillas no permitidas; al guardar una marca se retiran de todos sus planes/kits las ubicaciones excluidas, incluso ofertas inactivas. Volver a habilitar la ubicación en la marca no la reactiva automáticamente en ofertas que ya la habían retirado. El servidor normaliza la intersección al guardar el catálogo, también para clientes anteriores, sin modificar propuestas históricas. Aplicar 036 antes de publicar el frontend.

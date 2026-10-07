@@ -56,3 +56,28 @@ test("ubicaciones: herencia inicial, intersección y arrays vacíos conservados"
   );
   assert.equal(datos.marcas[0].ubicaciones_alarma, undefined);
 });
+
+test("retirar una ubicación de marca se propaga y no reaparece al rehabilitarla", async () => {
+  const { modificarCatalogo } = await import("./catalogo.js");
+  const d = prepararUbicaciones({
+    marcas: [{ id: "g", nombre: "GARNET", estado: "activo" }],
+    items: [
+      {
+        id: "k",
+        tipo: "kit",
+        servicio: "alarma",
+        marca_id: "g",
+        ubicaciones_alarma: ["docta", "nobu"],
+      },
+    ],
+    familias: [],
+  });
+  const reducido = modificarCatalogo(d, "marcas", {
+    ...d.marcas[0],
+    ubicaciones_alarma: ["docta"],
+  });
+  assert.deepEqual(reducido.items[0].ubicaciones_alarma, ["docta"]);
+  const ampliado = modificarCatalogo(reducido, "marcas", d.marcas[0]);
+  assert.deepEqual(ampliado.items[0].ubicaciones_alarma, ["docta"]);
+  assert.deepEqual(d.items[0].ubicaciones_alarma, ["docta", "nobu"]);
+});

@@ -178,5 +178,5 @@ export function modificarCatalogo(datos, seccion, valor, accion = "guardar") {
     if (indice < 0) nuevo[seccion].push(valor);
     else nuevo[seccion][indice] = valor;
   }
-  return nuevo;
+  return prepararUbicaciones(nuevo);
 }

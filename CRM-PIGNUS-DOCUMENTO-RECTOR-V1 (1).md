@@ -617,3 +617,8 @@ Las unidades nuevas y las agregadas al aumentar cantidad comienzan sin condició
 ## Disponibilidad por ubicación de la alarma (07-10-2026)
 
 Se reemplaza Tipo de alarma por Ubicación de la alarma. Administración configura por separado en marcas y planes/kits las cuatro opciones: Docta Urbanización, Nobu Town, Residencial con monitoreo y Residencial sin monitoreo. Solo se puede cotizar cuando ambos permiten la ubicación; habilitar una marca no anula las restricciones particulares del plan/kit. Garnet inicia habilitada en las cuatro e Hikvision únicamente en las dos residenciales. Las ofertas existentes heredan inicialmente esas ubicaciones y luego pueden restringirse individualmente. La selección se filtra desde la preparación y se valida nuevamente al guardar. Las cámaras no se restringen por esta regla.
+
+
+### Jerarquía de ubicaciones (036)
+
+La marca es la autoridad sobre las ubicaciones. El editor deshabilita casillas no permitidas; al guardar una marca se retiran de todos sus planes/kits las ubicaciones excluidas, incluso ofertas inactivas. Volver a habilitar la ubicación en la marca no la reactiva automáticamente en ofertas que ya la habían retirado. El servidor normaliza la intersección al guardar el catálogo, también para clientes anteriores, sin modificar propuestas históricas. Aplicar 036 antes de publicar el frontend.
