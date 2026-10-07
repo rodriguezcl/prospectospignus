@@ -541,7 +541,7 @@ Las propuestas guardadas usan una referencia interna permanente con formato P-7K
 
 ### Listas de adicionales en pesos y dólares (05-10-2026)
 
-Por decisión del titular, cada componente admite una lista ARS y una USD con los mismos niveles habilitados por modalidad. Catálogo comercial selecciona una única moneda de referencia para todos los adicionales. ARS usa el importe cargado; USD multiplica el importe por el dólar oficial venta de DolarAPI. El resultado comercial siempre se presenta y guarda en pesos. Planes, kits y abonos conservan sus precios propios en pesos; incluidos no se cobran nuevamente.
+Por decisión del titular, cada componente admite una lista ARS y una USD con los mismos niveles habilitados por modalidad. Catálogo comercial selecciona una única moneda de referencia para todos los adicionales. ARS usa el importe cargado; USD multiplica el importe por el dólar oficial venta (MonedAPI principal y DolarAPI de respaldo). El resultado comercial siempre se presenta y guarda en pesos. Planes, kits y abonos conservan sus precios propios en pesos; incluidos no se cobran nuevamente.
 
 No se deducen precios USD ni se completa un vacío con cero: se cargan expresamente. Para activar USD deben estar completas las tarifas de los adicionales activos. La cotización se verifica en servidor y su referencia se conserva en la propuesta. Una falla de verificación impide calcular en USD, sin sustitución silenciosa por ARS. Los ofrecimientos y ventas previos mantienen sus importes y tipo de cambio originales. Las reglas de negociación, compatibilidad, bonificaciones, cuotas y permisos anteriores permanecen vigentes.
 
@@ -622,3 +622,10 @@ Se reemplaza Tipo de alarma por Ubicación de la alarma. Administración configu
 ### Jerarquía de ubicaciones (036)
 
 La marca es la autoridad sobre las ubicaciones. El editor deshabilita casillas no permitidas; al guardar una marca se retiran de todos sus planes/kits las ubicaciones excluidas, incluso ofertas inactivas. Volver a habilitar la ubicación en la marca no la reactiva automáticamente en ofertas que ya la habían retirado. El servidor normaliza la intersección al guardar el catálogo, también para clientes anteriores, sin modificar propuestas históricas. Aplicar 036 antes de publicar el frontend.
+
+
+## Dólar oficial con respaldo automático (07-10-2026)
+
+MonedAPI /api/v2/usd/oficial es principal y DolarAPI /v1/dolares/oficial es respaldo; ambas aportan USD oficial venta. Nunca se usa BNA ni carga manual. El adaptador HTTP compartido por cabecera y Edge Function limita cada intento a cuatro segundos; pasa al respaldo ante error, datos inválidos o confirmación de MonedAPI con más de veinte minutos. lastScrapedAt representa la última confirmación del valor por MonedAPI; updatedAt solo su último cambio. DolarAPI aporta fechaActualizacion. La pantalla muestra precio y fecha de fuente, sin proveedor ni hora de consulta. Si ambas fallan, muestra no disponible y no mantiene un precio anterior como actualizado. Consulta cada cinco minutos con plataforma visible. El servidor conserva caché de cinco minutos y referencias inmutables para propuestas; la validación de fechas atrasadas se aplica por proveedor para permitir el respaldo. No cambia importes históricos ni reglas ARS/USD.
+
+Aplicar migración 037, desplegar cotizacion-dolar con su adaptador compartido y publicar frontend. La función anterior de registro se conserva durante la transición. Proveedor queda como metadato interno de auditoría.

@@ -39,6 +39,7 @@ export function crearSeguimientoDolar({ usuario, consultar, almacenamiento }) {
       // Respuestas atrasadas o repetidas no retroceden la referencia ni duplican avisos.
       if (
         anterior &&
+        anterior.proveedor === nuevo.proveedor &&
         Date.parse(nuevo.fechaActualizacion) <=
           Date.parse(anterior.fechaActualizacion)
       )

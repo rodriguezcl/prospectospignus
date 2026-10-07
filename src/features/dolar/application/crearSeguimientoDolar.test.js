@@ -105,3 +105,17 @@ test("mezcla avisos del dólar con los existentes y dirige correctamente la lect
   gestion.leer("caso:1");
   assert.deepEqual(leidos, ["dolar:123", "caso:1"]);
 });
+
+test('cambio de proveedor acepta su fecha propia y no avisa si el precio no sube', async () => {
+  let dato = {venta:1500,fechaActualizacion:'2026-10-07T15:00:00Z',proveedor:'monedapi'};
+  const datos = new Map();
+  const seguimiento = crearSeguimientoDolar({usuario:'respaldo',consultar:async()=>dato,almacenamiento:{getItem:k=>datos.get(k),setItem:(k,v)=>datos.set(k,v)}});
+  await seguimiento.consultar('oficial');
+  dato={venta:1500,fechaActualizacion:'2026-10-07T14:00:00Z',proveedor:'dolarapi'};
+  assert.equal((await seguimiento.consultar('oficial')).proveedor,'dolarapi');
+  assert.equal((await seguimiento.notificaciones()).length,0);
+  dato={venta:1510,fechaActualizacion:'2026-10-07T15:05:00Z',proveedor:'monedapi'};
+  await seguimiento.consultar('oficial');
+  await seguimiento.consultar('oficial');
+  assert.equal((await seguimiento.notificaciones()).length,1);
+});

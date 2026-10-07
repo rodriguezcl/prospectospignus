@@ -45,7 +45,10 @@ export function CotizacionDolar({ consultar, tipo = "oficial" }) {
           cambiarError(false);
         }
       } catch {
-        if (vigente) cambiarError(true);
+        if (vigente) {
+          cambiarDato(null);
+          cambiarError(true);
+        }
       } finally {
         clearTimeout(limite);
         pendiente = false;
@@ -72,31 +75,17 @@ export function CotizacionDolar({ consultar, tipo = "oficial" }) {
       </span>
       {dato ? (
         <small>
-          Actualizado{" "}
+          Cotización actualizada{" "}
           <time dateTime={dato.fechaActualizacion}>
             {fecha.format(new Date(dato.fechaActualizacion))}
           </time>{" "}
           (AR)
-          {error && (
-            <span className="dolar-error">
-              {" "}
-              · Sin conexión; último dato disponible
-            </span>
-          )}
         </small>
       ) : (
         <small>
           {error ? "Cotización no disponible" : "Consultando cotización…"}
         </small>
       )}
-      <a
-        href="https://dolarapi.com/docs/argentina/"
-        target="_blank"
-        rel="noreferrer"
-        className="dolar-fuente"
-      >
-        DolarAPI
-      </a>
     </div>
   );
 }

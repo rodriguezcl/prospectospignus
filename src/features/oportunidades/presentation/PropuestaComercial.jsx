@@ -674,7 +674,7 @@ export function PropuestaComercial({
             <p className="small">
               Adicionales calculados en pesos con dólar oficial venta:{" "}
               <strong>{moneda(catalogo.tipo_cambio.venta)}</strong>. Fuente:
-              DolarAPI ·{" "}
+              Cotización actualizada ·{" "}
               {new Date(catalogo.tipo_cambio.fechaActualizacion).toLocaleString(
                 "es-AR",
                 { timeZone: "America/Argentina/Buenos_Aires" },

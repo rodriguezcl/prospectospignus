@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { crearManejadorDolar } from "./manejador.js";
+import { consultarDolar } from "../../../src/features/dolar/infrastructure/consultarDolar.js";
 const cliente = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -27,12 +28,12 @@ Deno.serve(
     async consultarCache() {
       const { data, error } = await cliente
         .from("cotizaciones_dolar")
-        .select("id,venta,fecha_fuente,consultado_en")
+        .select("id,venta,fecha_fuente,consultado_en,proveedor")
         .gte(
           "consultado_en",
           new Date(Date.now() - 5 * 60 * 1000).toISOString(),
         )
-        .order("fecha_fuente", { ascending: false })
+
         .order("consultado_en", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -40,6 +41,7 @@ Deno.serve(
       return data
         ? {
             id: data.id,
+            proveedor: data.proveedor,
             venta: String(data.venta),
             fechaActualizacion: data.fecha_fuente,
             consultado_en: data.consultado_en,
@@ -47,17 +49,18 @@ Deno.serve(
         : null;
     },
     async consultarFuente() {
-      const respuesta = await fetch("https://dolarapi.com/v1/dolares/oficial", {
-        signal: AbortSignal.timeout(10000),
-      });
-      if (!respuesta.ok) throw new Error("DolarAPI no disponible");
-      return respuesta.json();
+      const d = await consultarDolar("oficial");
+      return { ...d, moneda: "USD", casa: "oficial" };
     },
-    async registrar(venta: string, fecha: string) {
-      const { data, error } = await cliente.rpc("registrar_cotizacion_dolar", {
-        p_venta: venta,
-        p_fecha: fecha,
-      });
+    async registrar(venta: string, fecha: string, proveedor: string) {
+      const { data, error } = await cliente.rpc(
+        "registrar_cotizacion_dolar_037",
+        {
+          p_venta: venta,
+          p_fecha: fecha,
+          p_proveedor: proveedor,
+        },
+      );
       if (error) throw error;
       return data;
     },

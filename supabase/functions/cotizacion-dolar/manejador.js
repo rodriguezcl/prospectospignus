@@ -42,7 +42,11 @@ export function crearManejadorDolar({
       )
         throw new Error("Datos inválidos");
       return responder(
-        await registrar(String(dato.venta), dato.fechaActualizacion),
+        await registrar(
+          String(dato.venta),
+          dato.fechaActualizacion,
+          dato.proveedor || "dolarapi",
+        ),
       );
     } catch {
       return responder(

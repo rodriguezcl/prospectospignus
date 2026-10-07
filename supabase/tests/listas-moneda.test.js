@@ -169,6 +169,41 @@ test("listas ARS/USD: validación, conversión autoritativa y permisos", async (
       "select public.registrar_cotizacion_dolar('1500.123456',now()) r",
     )
   ).rows[0].r;
+  const primaria = (
+    await db.query(
+      "select public.registrar_cotizacion_dolar_037('1501',now()-interval '1 minute','monedapi') r",
+    )
+  ).rows[0].r;
+  assert.equal(primaria.proveedor, "monedapi");
+  await assert.rejects(
+    db.query(
+      "select public.registrar_cotizacion_dolar_037('1501',now()-interval '2 minutes','monedapi')",
+    ),
+    /DOLAR_ATRASADO/,
+  );
+  await assert.rejects(
+    db.query(
+      "select public.registrar_cotizacion_dolar_037('1501',now(),'bna')",
+    ),
+    /DOLAR_DATOS/,
+  );
+  await como(admin);
+  await assert.rejects(
+    db.query(
+      "select public.registrar_cotizacion_dolar_037('1501',now(),'monedapi')",
+    ),
+    /permission denied/,
+  );
+  await db.exec("reset role");
+  assert.equal(
+    (
+      await db.query(
+        "select venta::text from public.cotizaciones_dolar where id=$1",
+        [cambio.id],
+      )
+    ).rows[0].venta,
+    "1500.123456",
+  );
   const convertido = convertirAdicionales(catalogo, cambio);
   const calcular = async (seleccion) =>
     (
