@@ -794,6 +794,32 @@ export function PropuestaComercial({
                       </select>
                     </label>
                   }
+                  {servicio === "alarma" && !venta && (
+                    <label className="col-md-6">
+                      Nivel del plan o kit
+                      <select
+                        className="form-select"
+                        value={nivel}
+                        onChange={(e) => {
+                          elegirNivel(e.target.value);
+                          invalidar();
+                        }}
+                      >
+                        {[
+                          ...niveles,
+                          ...(telefonico ? ["telefonico"] : []),
+                        ].map((n) => (
+                          <option key={n} value={n}>
+                            {n === "catalogo"
+                              ? "Catálogo"
+                              : n === "telefonico"
+                                ? "Telefónico"
+                                : n[0].toUpperCase() + n.slice(1)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
                 </div>
                 {kit && (
                   <p className="small mt-2">
@@ -1012,32 +1038,6 @@ export function PropuestaComercial({
                   <summary>
                     Ajustar condiciones · precios y congelamiento
                   </summary>
-                  {servicio === "alarma" && !venta && (
-                    <label className="d-block mb-3">
-                      Nivel del plan o kit
-                      <select
-                        className="form-select"
-                        value={nivel}
-                        onChange={(e) => {
-                          elegirNivel(e.target.value);
-                          invalidar();
-                        }}
-                      >
-                        {[
-                          ...niveles,
-                          ...(telefonico ? ["telefonico"] : []),
-                        ].map((n) => (
-                          <option key={n} value={n}>
-                            {n === "catalogo"
-                              ? "Catálogo"
-                              : n === "telefonico"
-                                ? "Telefónico"
-                                : n[0].toUpperCase() + n.slice(1)}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  )}
                   {venta && (
                     <p>
                       Precio del kit: Telefónico. Los adicionales se suman
