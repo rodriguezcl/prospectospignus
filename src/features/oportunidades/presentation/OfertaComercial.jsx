@@ -110,7 +110,16 @@ export function OfertaComercial({
               {extras.map((e) => (
                 <li key={e.item_id}>
                   {e.cantidad} × {nombre(e.item_id)}
-                  <strong> · {moneda(precioUnitarioAdicional(e, catalogo))} por unidad</strong>
+                  {Number(e.bonificados) > 0 && (
+                    <strong> · {e.bonificados} {Number(e.bonificados) === 1 ? "unidad" : "unidades"} sin cargo adicional</strong>
+                  )}
+                  {Number(e.cantidad) > Number(e.bonificados || 0) && (
+                    <strong>
+                      {" · "}
+                      {Number(e.bonificados) > 0 && <>{Number(e.cantidad) - Number(e.bonificados)} {Number(e.cantidad) - Number(e.bonificados) === 1 ? "unidad" : "unidades"} a </>}
+                      {moneda(precioUnitarioAdicional(e, catalogo))}{Number(e.cantidad) - Number(e.bonificados || 0) > 1 ? " por unidad" : ""}
+                    </strong>
+                  )}
                   {(alternativa.packs || [])
                     .filter((p) => p.item_id === e.item_id)
                     .map((p) => (
@@ -121,9 +130,7 @@ export function OfertaComercial({
                         {moneda(p.ahorro)}
                       </small>
                     ))}
-                  {Number(e.bonificados) > 0 && (
-                    <strong> · {e.bonificados} sin cargo adicional</strong>
-                  )}
+
                 </li>
               ))}
             </ul>

@@ -1,10 +1,10 @@
 import { precioPorCantidad } from '../domain/packs.js';
 import { importeExacto, decimalCentavos } from '../domain/dinero.js';
 
-// Promedio informativo: incluye unidades bonificadas y respeta packs ya aplicados.
+// Promedio informativo: excluye unidades bonificadas y respeta packs ya aplicados.
 export function precioUnitarioAdicional(extra, catalogo) {
   const item = catalogo.items.find(i => i.id === extra.item_id);
-  const cantidad = Number(extra.cantidad);
+  const cantidad = Number(extra.cantidad) - Number(extra.bonificados || 0);
   if (!item || !Number.isFinite(cantidad) || cantidad <= 0) return undefined;
   const milesimas = BigInt(Math.round(cantidad * 1000));
   let total;
