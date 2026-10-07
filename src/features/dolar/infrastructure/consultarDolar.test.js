@@ -5,7 +5,7 @@ const fecha = "2026-10-07T15:00:00Z";
 const ahora = () => Date.parse(fecha);
 const principal = {
   currency: "USD",
-  origin: "OFICIAL",
+  origin: "BNA",
   sell: 1540,
   valueType: "money",
   lastScrapedAt: fecha,
@@ -18,14 +18,14 @@ const respaldo = {
   fechaActualizacion: fecha,
 };
 const respuesta = (d) => ({ ok: true, json: async () => d });
-test("MonedAPI oficial venta: fecha confirmada, consulta sin credenciales", async () => {
+test("MonedAPI Banco Nación venta: fecha confirmada, consulta sin credenciales", async () => {
   let consultas = 0;
   const r = await consultarDolar(
     "oficial",
     undefined,
     async (url, opciones) => {
       consultas++;
-      assert.equal(url, "https://monedapi.ar/api/v2/usd/oficial");
+      assert.equal(url, "https://monedapi.ar/api/v2/usd/bna");
       assert.equal(opciones.credentials, "omit");
       assert.equal(opciones.referrerPolicy, "no-referrer");
       return respuesta(principal);
@@ -39,10 +39,10 @@ test("MonedAPI oficial venta: fecha confirmada, consulta sin credenciales", asyn
     proveedor: "monedapi",
   });
 });
-test("respaldo oficial ante fallo, BNA, dato inválido o confirmación vencida", async () => {
+test("respaldo oficial ante fallo, origen incorrecto, dato inválido o confirmación vencida", async () => {
   for (const dato of [
     null,
-    { ...principal, origin: "BNA" },
+    { ...principal, origin: "OFICIAL" },
     { ...principal, sell: 0 },
     { ...principal, sell: "1540" },
     { ...principal, lastScrapedAt: "inválida" },
@@ -65,7 +65,7 @@ test("respaldo oficial ante fallo, BNA, dato inválido o confirmación vencida",
     );
     assert.equal(r.proveedor, "dolarapi");
     assert.deepEqual(urls, [
-      "https://monedapi.ar/api/v2/usd/oficial",
+      "https://monedapi.ar/api/v2/usd/bna",
       "https://dolarapi.com/v1/dolares/oficial",
     ]);
   }

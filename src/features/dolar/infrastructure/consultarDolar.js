@@ -7,6 +7,7 @@ export async function consultarDolar(
 ) {
   if (!["oficial", "blue"].includes(tipo))
     throw new Error("Tipo de dólar inválido");
+  const origenPrincipal = tipo === "oficial" ? "bna" : tipo;
   let ultimoError;
   for (const proveedor of ["monedapi", "dolarapi"]) {
     signal?.throwIfAborted();
@@ -15,7 +16,7 @@ export async function consultarDolar(
     try {
       const url =
         proveedor === "monedapi"
-          ? "https://monedapi.ar/api/v2/usd/" + tipo
+          ? "https://monedapi.ar/api/v2/usd/" + origenPrincipal
           : "https://dolarapi.com/v1/dolares/" + tipo;
       const respuesta = await solicitar(url, {
         signal: combinado,
@@ -34,7 +35,7 @@ export async function consultarDolar(
       if (
         (principal
           ? d.currency !== "USD" ||
-            d.origin !== tipo.toUpperCase() ||
+            d.origin !== origenPrincipal.toUpperCase() ||
             d.valueType !== "money"
           : d.moneda !== "USD" || d.casa !== tipo) ||
         typeof venta !== "number" ||

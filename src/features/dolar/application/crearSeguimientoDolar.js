@@ -4,7 +4,7 @@ const pesos = new Intl.NumberFormat("es-AR", {
 });
 
 export function crearSeguimientoDolar({ usuario, consultar, almacenamiento }) {
-  const clave = `pignus:dolar:oficial:${usuario}`;
+  const clave = `pignus:dolar:bna-respaldo-oficial:${usuario}`;
   let estado = { ultimo: null, avisos: [] };
   function recuperar() {
     try {
