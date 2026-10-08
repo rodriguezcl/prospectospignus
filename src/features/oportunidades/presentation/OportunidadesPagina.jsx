@@ -1,3 +1,4 @@
+import { AtencionProspecto } from "./AtencionProspecto.jsx";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -150,7 +151,7 @@ export function OportunidadesPagina({
       <p className="text-muted">
         {soloRecuperacion
           ? "Retomá los casos derivados y registrá la propuesta final."
-          : "Tus prospectos aparecen aquí automáticamente. Cotizá y seguí cada negociación."}
+          : "Consultá los prospectos disponibles, tomá uno para contactarlo y seguí cada negociación."}
       </p>
       <details className="detalle-secundario mb-3">
         <summary>Cómo funciona esta bandeja</summary>
@@ -343,6 +344,12 @@ export function OportunidadesPagina({
                 </button>
               </section>
             )}
+            <AtencionProspecto
+              atencion={detalle.atencion}
+              perfil={perfil}
+              gestion={gestion}
+              actualizada={() => revisar((n) => n + 1)}
+            />
             <PropuestaComercial
               key={`propuesta-${detalle.id}-${detalle.version}`}
               gestion={gestion}
@@ -449,7 +456,7 @@ export function OportunidadesPagina({
               ) : (
                 <p>
                   {detalle.preparacion_compartida
-                    ? "Registrá la primera oferta como ofrecida para asignar el seguimiento. Hasta entonces la preparación está compartida."
+                    ? "La primera oferta registrada confirma el seguimiento comercial. Respetá la reserva de atención del prospecto."
                     : "Consulta de solo lectura: el caso está cerrado o pertenece a otro responsable."}
                 </p>
               )}

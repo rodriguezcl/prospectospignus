@@ -1,3 +1,4 @@
+import { AtencionProspecto, puedeAtender } from "./AtencionProspecto.jsx";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FormularioOportunidad } from "./FormularioOportunidad.jsx";
@@ -12,6 +13,7 @@ export function CrearProspecto({
   ocupado,
   cancelar,
 }) {
+  const [revisionAtencion, revisarAtencion] = useState(0);
   const [busqueda, buscar] = useState(""),
     [registros, listar] = useState([]);
   const [seleccion, seleccionar] = useState(registroId || ""),
@@ -66,9 +68,10 @@ export function CrearProspecto({
     return () => {
       vigente = false;
     };
-  }, [gestion, seleccion]);
+  }, [gestion, seleccion, revisionAtencion]);
   const r = contexto?.registro;
-  const autorizado = r && !r.lote_demostracion;
+  const autorizado =
+    r && !r.lote_demostracion && puedeAtender(contexto.atencion, perfil);
   return (
     <>
       <h2 className="h4">Preparar cotización</h2>
@@ -135,6 +138,12 @@ export function CrearProspecto({
           >
             Revisar o completar datos del contacto
           </Link>
+          <AtencionProspecto
+            atencion={contexto.atencion}
+            perfil={perfil}
+            gestion={gestion}
+            actualizada={() => revisarAtencion((n) => n + 1)}
+          />
           {!!contexto.casos.length && (
             <div className="alert alert-info mt-3">
               <p>

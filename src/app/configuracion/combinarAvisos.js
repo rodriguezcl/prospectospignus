@@ -15,7 +15,7 @@ export function combinarAvisos(oportunidades, promociones, agenda) {
         ...comerciales.map((n) => ({
           ...n,
           id: `caso:${n.id}`,
-          destino: `/cotizaciones?id=${n.oportunidad_id}`,
+          destino: n.destino || `/cotizaciones?id=${n.oportunidad_id}`,
         })),
         ...ofertas.map((n) => ({
           ...n,

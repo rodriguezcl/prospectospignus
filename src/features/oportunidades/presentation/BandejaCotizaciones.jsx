@@ -1,8 +1,23 @@
+import { AtencionProspecto, puedeAtender } from "./AtencionProspecto.jsx";
+import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { estados } from "../domain/circuito.js";
 
 export function BandejaCotizaciones({ gestion, perfil, revision }) {
+  const [parametros] = useSearchParams();
+  const [atencion, filtrarAtencion] = useState(
+    parametros.get("atencion") || "",
+  );
+  useEffect(() => {
+    filtrarAtencion(parametros.get("atencion") || "");
+    paginar(0);
+  }, [parametros]);
+  const [actualizacion, actualizar] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => actualizar((n) => n + 1), 30000);
+    return () => clearInterval(t);
+  }, []);
   const [busqueda, buscar] = useState("");
   const [pagina, paginar] = useState(0);
   const [lista, listar] = useState({ filas: [], total: 0 });
@@ -13,7 +28,7 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
     cargar(true);
     fallar("");
     gestion
-      .contactos({ pagina, busqueda })
+      .contactos({ pagina, busqueda, atencion })
       .then((r) => {
         if (vigente) listar(r);
       })
@@ -26,9 +41,30 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
     return () => {
       vigente = false;
     };
-  }, [gestion, pagina, busqueda, revision]);
+  }, [gestion, pagina, busqueda, revision, atencion, actualizacion]);
   return (
     <div className="card card-body">
+      <h2 className="h5">Prospectos para contactar</h2>
+      <p className="small">
+        Tomá el prospecto antes de contactarlo. La reserva es exclusiva y se
+        mantiene hasta liberarla. El listado se actualiza cada 30 segundos.
+      </p>
+      <label className="mb-3">
+        Atención
+        <select
+          className="form-select"
+          value={atencion}
+          onChange={(e) => {
+            filtrarAtencion(e.target.value);
+            paginar(0);
+          }}
+        >
+          <option value="">Todos los prospectos</option>
+          <option value="disponibles">Disponibles para contactar</option>
+          <option value="mios">Tomados por mí</option>
+          <option value="tomados">Todos los tomados</option>
+        </select>
+      </label>
       <form
         className="d-flex flex-wrap gap-2 align-items-end mb-3"
         onSubmit={(e) => {
@@ -75,6 +111,12 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
                         </small>
                       </td>
                       <td>
+                        <AtencionProspecto
+                          atencion={r.atencion}
+                          perfil={perfil}
+                          gestion={gestion}
+                          actualizada={() => actualizar((n) => n + 1)}
+                        />
                         {r.casos.length ? (
                           <ul className="list-unstyled mb-0">
                             {r.casos.map((c) => (
@@ -83,7 +125,7 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
                                 <small className="d-block">
                                   {estados[c.estado]} ·{" "}
                                   {c.preparacion_compartida
-                                    ? "Compartida · sin responsable"
+                                    ? "Primera oferta pendiente"
                                     : c.responsable_nombre ||
                                       "Seguimiento asignado"}
                                 </small>
@@ -115,12 +157,14 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
                                   : "Abrir negociación"}
                               </Link>
                             ))}
-                          <Link
-                            className="btn btn-outline-secondary btn-sm text-nowrap"
-                            to={`/cotizaciones?nueva=si&registro=${r.id}`}
-                          >
-                            {r.casos.length ? "Nueva cotización" : "Cotizar"}
-                          </Link>
+                          {puedeAtender(r.atencion, perfil) && (
+                            <Link
+                              className="btn btn-outline-secondary btn-sm text-nowrap"
+                              to={`/cotizaciones?nueva=si&registro=${r.id}`}
+                            >
+                              {r.casos.length ? "Nueva cotización" : "Cotizar"}
+                            </Link>
+                          )}
                         </div>
                       </td>
                     </tr>

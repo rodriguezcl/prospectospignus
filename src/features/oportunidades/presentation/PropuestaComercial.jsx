@@ -42,6 +42,10 @@ export function PropuestaComercial({
   registrarVenta,
 }) {
   const [responsableSeguimiento, elegirResponsableSeguimiento] = useState("");
+  useEffect(() => {
+    if (oportunidad.atencion?.vendedor_id)
+      elegirResponsableSeguimiento(oportunidad.atencion.vendedor_id);
+  }, [oportunidad.atencion?.vendedor_id]);
   const [descargandoPdf, descargarPdf] = useState(false);
   const [errorPdf, mostrarErrorPdf] = useState("");
   const panel = useRef(null);
@@ -1359,7 +1363,12 @@ export function PropuestaComercial({
                       >
                         <option value="">Seleccioná un vendedor…</option>
                         {equipo
-                          .filter((p) => p.rol === "vendedor")
+                          .filter(
+                            (p) =>
+                              p.rol === "vendedor" &&
+                              (!oportunidad.atencion?.vendedor_id ||
+                                p.id === oportunidad.atencion.vendedor_id),
+                          )
                           .map((p) => (
                             <option key={p.id} value={p.id}>
                               {p.nombre}

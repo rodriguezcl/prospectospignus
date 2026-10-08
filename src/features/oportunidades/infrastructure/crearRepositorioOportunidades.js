@@ -1,6 +1,14 @@
 function comprobar(error) {
   if (!error) return;
   const mensajes = {
+    PROSPECTO_OCUPADO:
+      "Otro vendedor está atendiendo este prospecto. Actualizá para ver al responsable.",
+    PROSPECTO_TOMAR:
+      "Un vendedor debe tomar el prospecto antes de iniciar el contacto o preparar la cotización.",
+    PROSPECTO_SEGUIMIENTO:
+      "Ya tiene un seguimiento comercial activo. Administración debe gestionar su reasignación antes de liberar el contacto.",
+    PROSPECTO_NO_DISPONIBLE:
+      "El prospecto ya no está disponible. Actualizá el listado.",
     PROPUESTA_UBICACION:
       "La marca o el plan/kit no está habilitado para esa ubicación. Revisá la selección y calculá nuevamente.",
     PROPUESTA_REDONDEO:
@@ -66,7 +74,7 @@ function comprobar(error) {
   };
   if (["42P01", "PGRST202", "PGRST205"].includes(error.code))
     throw new Error(
-      "Falta activar una migración del circuito comercial en Supabase. Para Prospectos/Cotizaciones se requiere la 032.",
+      "Falta activar una migración del circuito comercial en Supabase. Para Prospectos/Cotizaciones se requiere la 039.",
     );
   throw new Error(
     mensajes[error.message] ||
@@ -80,8 +88,16 @@ export function crearRepositorioOportunidades(cliente) {
     return data;
   }
   return {
-    contactos: ({ pagina = 0, busqueda = "" } = {}) =>
-      rpc("listar_contactos_cotizaciones", {
+    atencion: (id) => rpc("atencion_prospecto_039", { p_registro: id }),
+    tomarProspecto: ({ registro, version, liberar = false }) =>
+      rpc("tomar_prospecto_039", {
+        p_registro: registro,
+        p_version: version,
+        p_liberar: liberar,
+      }),
+    contactos: ({ pagina = 0, busqueda = "", atencion = "" } = {}) =>
+      rpc("listar_contactos_039", {
+        p_atencion: atencion,
         p_pagina: pagina,
         p_busqueda: busqueda,
       }),
@@ -93,7 +109,11 @@ export function crearRepositorioOportunidades(cliente) {
         .single();
       comprobar(registro.error);
       const casos = await rpc("negociaciones_contacto_032", { p_registro: id });
-      return { registro: registro.data, casos };
+      return {
+        registro: registro.data,
+        casos,
+        atencion: await rpc("atencion_prospecto_039", { p_registro: id }),
+      };
     },
     async propuestas(id) {
       const { data, error } = await cliente
@@ -175,6 +195,11 @@ export function crearRepositorioOportunidades(cliente) {
       comprobar(propuestas.error);
       return {
         ...ficha.data,
+        atencion: ficha.data.prospectos.registro_id
+          ? await rpc("atencion_prospecto_039", {
+              p_registro: ficha.data.prospectos.registro_id,
+            })
+          : null,
         eventos: eventos.data,
         propuestas: propuestas.data,
         puede_anular: puedeAnular,
@@ -234,8 +259,25 @@ export function crearRepositorioOportunidades(cliente) {
         .order("creado_en", { ascending: false })
         .limit(50);
       comprobar(error);
-      return data;
+      const avisos = await cliente
+        .from("avisos_prospectos")
+        .select("*")
+        .is("leida_en", null)
+        .order("creado_en", { ascending: false })
+        .limit(50);
+      comprobar(avisos.error);
+      return [
+        ...data,
+        ...avisos.data.map((n) => ({
+          ...n,
+          id: "prospecto-" + n.id,
+          destino: "/cotizaciones?atencion=disponibles",
+        })),
+      ];
     },
-    leer: (id) => rpc("leer_notificacion", { p_id: id }),
+    leer: (id) =>
+      String(id).startsWith("prospecto-")
+        ? rpc("leer_aviso_prospecto_039", { p_id: String(id).slice(10) })
+        : rpc("leer_notificacion", { p_id: id }),
   };
 }

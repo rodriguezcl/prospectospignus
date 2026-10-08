@@ -16,6 +16,7 @@ test("agenda: aislamiento, concurrencia, historial, recordatorios e integración
     .filter(
       (a) =>
         a.endsWith(".sql") &&
+        !a.includes("039_") &&
         !a.includes("034_") &&
         !a.includes("033_") &&
         !a.includes("032_"),

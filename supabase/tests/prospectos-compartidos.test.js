@@ -4,7 +4,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { PGlite } from "@electric-sql/pglite";
 
-test("base compartida: edición auditada y primera oferta asignada atómicamente", async (t) => {
+test("contrato histórico 032–038: edición auditada, primera oferta y conservación al migrar 039", async (t) => {
   const db = new PGlite();
   t.after(() => db.close());
   await db.exec(`create role anon; create role authenticated; create role service_role bypassrls;
@@ -13,7 +13,7 @@ test("base compartida: edición auditada y primera oferta asignada atómicamente
  create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;`);
   const carpeta = new URL("../migrations/", import.meta.url);
   for (const f of (await readdir(carpeta))
-    .filter((f) => f.endsWith(".sql"))
+    .filter((f) => f.endsWith(".sql") && f < "202610080039")
     .sort())
     await db.exec(await readFile(new URL(f, carpeta), "utf8"));
   const [
@@ -525,5 +525,21 @@ test("base compartida: edición auditada y primera oferta asignada atómicamente
       { ...iniciar, otra_necesidad: "si" },
     ]),
     /COMERCIAL_ACCESO/,
+  );
+  // Verificar también la actualización de una base con propuestas y cierres anteriores.
+  await db.exec("reset role");
+  const antes039 = (
+    await db.query("select * from public.propuestas_comerciales order by id")
+  ).rows;
+  await db.exec(
+    await readFile(
+      new URL("202610080039_atencion_prospectos.sql", carpeta),
+      "utf8",
+    ),
+  );
+  assert.deepEqual(
+    (await db.query("select * from public.propuestas_comerciales order by id"))
+      .rows,
+    antes039,
   );
 });

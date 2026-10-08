@@ -29,6 +29,14 @@ export function puedeCotizar(oportunidad, perfil) {
     ["ganada", "perdida", "anulada"].includes(oportunidad.estado)
   )
     return false;
+  if (
+    oportunidad.preparacion_compartida &&
+    oportunidad.atencion &&
+    (!oportunidad.atencion.vendedor_id ||
+      (perfil.rol !== "administrador" &&
+        oportunidad.atencion.vendedor_id !== perfil.id))
+  )
+    return false;
   if (oportunidad.preparacion_compartida)
     return (
       oportunidad.estado === "cotizacion" &&

@@ -1,3 +1,4 @@
+import { AtencionProspecto, puedeAtender } from "./AtencionProspecto.jsx";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { estados } from "../domain/circuito.js";
@@ -16,7 +17,7 @@ export function CasosDelRegistro({ casos }) {
           )}{" "}
           · {estados[c.estado]} ·{" "}
           {c.preparacion_compartida
-            ? "Compartida · sin responsable"
+            ? "Primera oferta pendiente"
             : c.responsable_nombre || "Seguimiento asignado"}
         </li>
       ))}
@@ -24,6 +25,7 @@ export function CasosDelRegistro({ casos }) {
   );
 }
 export function ContinuarRegistro({ registro, gestion, perfil }) {
+  const [revisionAtencion, revisarAtencion] = useState(0);
   const selector = useRef(null);
   const [contexto, setContexto] = useState(null),
     [error, setError] = useState("");
@@ -42,7 +44,7 @@ export function ContinuarRegistro({ registro, gestion, perfil }) {
     return () => {
       vigente = false;
     };
-  }, [gestion, registro.id, registro.version]);
+  }, [gestion, registro.id, registro.version, revisionAtencion]);
   if (error)
     return (
       <p role="alert">
@@ -52,6 +54,12 @@ export function ContinuarRegistro({ registro, gestion, perfil }) {
   if (!contexto) return <p role="status">Buscando negociaciones asociadas…</p>;
   return (
     <>
+      <AtencionProspecto
+        atencion={contexto.atencion}
+        perfil={perfil}
+        gestion={gestion}
+        actualizada={() => revisarAtencion((n) => n + 1)}
+      />
       {contexto.casos.filter((c) => c.accesible !== false).length === 1 && (
         <Link
           className="btn btn-sm btn-outline-primary"
@@ -90,14 +98,15 @@ export function ContinuarRegistro({ registro, gestion, perfil }) {
           </dialog>
         </>
       )}
-      {!registro.lote_demostracion && (
-        <Link
-          className="btn btn-sm btn-outline-primary"
-          to={`/cotizaciones?nueva=si&registro=${registro.id}`}
-        >
-          {contexto.casos.length ? "Cotizar otra necesidad" : "Cotizar"}
-        </Link>
-      )}
+      {!registro.lote_demostracion &&
+        puedeAtender(contexto.atencion, perfil) && (
+          <Link
+            className="btn btn-sm btn-outline-primary"
+            to={`/cotizaciones?nueva=si&registro=${registro.id}`}
+          >
+            {contexto.casos.length ? "Cotizar otra necesidad" : "Cotizar"}
+          </Link>
+        )}
     </>
   );
 }
