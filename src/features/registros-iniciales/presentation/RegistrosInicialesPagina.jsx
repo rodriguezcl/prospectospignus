@@ -587,6 +587,7 @@ export function RegistrosInicialesPagina({
                           <td>{fecha(r.creado_en)}</td>
                           <td>
                             <div className="d-flex flex-wrap align-items-center gap-2">
+                              {renderContinuacion?.(r)}
                               <button
                                 className="btn btn-sm btn-outline-primary"
                                 onClick={() => {
@@ -597,7 +598,6 @@ export function RegistrosInicialesPagina({
                               >
                                 Editar
                               </button>
-                              {renderContinuacion?.(r)}
                               {administrador && !r.lote_demostracion && (
                                 <button
                                   type="button"

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { estados } from "../domain/circuito.js";
 
@@ -24,6 +24,7 @@ export function CasosDelRegistro({ casos }) {
   );
 }
 export function ContinuarRegistro({ registro, gestion, perfil }) {
+  const selector = useRef(null);
   const [contexto, setContexto] = useState(null),
     [error, setError] = useState("");
   useEffect(() => {
@@ -51,20 +52,44 @@ export function ContinuarRegistro({ registro, gestion, perfil }) {
   if (!contexto) return <p role="status">Buscando negociaciones asociadas…</p>;
   return (
     <>
-      {contexto.casos
-        .filter((c) => c.accesible !== false)
-        .map((c) => (
-          <Link
-            key={c.id}
+      {contexto.casos.filter((c) => c.accesible !== false).length === 1 && (
+        <Link
+          className="btn btn-sm btn-outline-primary"
+          to={`/cotizaciones?id=${contexto.casos.find((c) => c.accesible !== false).id}`}
+        >
+          Abrir negociación
+        </Link>
+      )}
+      {contexto.casos.filter((c) => c.accesible !== false).length > 1 && (
+        <>
+          <button
+            type="button"
             className="btn btn-sm btn-outline-primary"
-            to={`/cotizaciones?id=${c.id}`}
-            title={`${c.necesidad} · ${estados[c.estado]} · ${c.responsable_nombre || "Sin responsable"}`}
+            onClick={() => selector.current.showModal()}
           >
-            {contexto.casos.length === 1
-              ? "Abrir negociación"
-              : `Abrir negociación: ${c.necesidad} · ${estados[c.estado]}`}
-          </Link>
-        ))}
+            Ver negociaciones (
+            {contexto.casos.filter((c) => c.accesible !== false).length})
+          </button>
+          <dialog
+            ref={selector}
+            aria-label={`Negociaciones de ${registro.nombre}`}
+            className="border rounded p-4"
+            style={{ maxWidth: "min(720px, 95vw)", maxHeight: "80vh" }}
+          >
+            <h2 className="h5">Negociaciones de {registro.nombre}</h2>
+            <CasosDelRegistro
+              casos={contexto.casos.filter((c) => c.accesible !== false)}
+            />
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => selector.current.close()}
+            >
+              Cerrar
+            </button>
+          </dialog>
+        </>
+      )}
       {!registro.lote_demostracion && (
         <Link
           className="btn btn-sm btn-outline-primary"
