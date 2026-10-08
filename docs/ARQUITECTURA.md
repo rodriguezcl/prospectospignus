@@ -309,3 +309,7 @@ El botón de descarga proyecta datos del cliente, conceptos calculados y pago vi
 
 ### Presupuesto antes de elegir el pago (08-10-2026)
 El paso 2 presenta la composición calculada y todas las alternativas de pago, con descarga PDF independiente de la selección de pago y de sus errores de edición. Usa el total calculado sin redondeo manual para presentar las alternativas. El paso 3 conserva la descarga con las condiciones finales y redondeo comercial acordado. Descargar no registra ofrecimientos ni ventas.
+
+
+### Reducción de adicionales a favor del cliente (08-10-2026)
+Al reducir cantidad se conservan primero bonificados, luego Telefónico, Bajo y Alto; pendientes se retiran antes que condiciones elegidas. Se mantiene el orden relativo de las filas conservadas. Crecer agrega unidades sin selección. No se asignan nuevas bonificaciones y se revalidan margen, piso y packs con la composición resultante. Sustituye la eliminación de las últimas filas descrita anteriormente.

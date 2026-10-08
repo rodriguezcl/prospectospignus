@@ -38,3 +38,28 @@ test("borradores anteriores válidos conservan condiciones y los inconsistentes 
   );
   assert.deepEqual(unidadesAdicional({ cantidad: 10000 }), []);
 });
+
+test("reducir conserva bonificados y tarifas más favorables sin depender de su posición", () => {
+  assert.deepEqual(
+    unidadesAdicional(
+      { cantidad: 3, unidades: ["bonificados", "altos", "bonificados"] },
+      2,
+    ),
+    ["bonificados", "bonificados"],
+  );
+  const extra = {
+    cantidad: 5,
+    unidades: ["altos", "bajos", "bonificados", "telefonicos", ""],
+  };
+  assert.deepEqual(unidadesAdicional(extra, 3), [
+    "bajos",
+    "bonificados",
+    "telefonicos",
+  ]);
+  assert.deepEqual(unidadesAdicional(extra, 2), ["bonificados", "telefonicos"]);
+  assert.deepEqual(unidadesAdicional(extra), extra.unidades);
+  assert.deepEqual(
+    unidadesAdicional({ cantidad: 3, altos: 1, bonificados: 2 }, 2),
+    ["bonificados", "bonificados"],
+  );
+});

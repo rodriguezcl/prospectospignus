@@ -18,6 +18,23 @@ export function unidadesAdicional(extra, cantidad = extra.cantidad) {
           ]
         : Array(n).fill("");
   }
+  if (n < Number(extra.cantidad) && n < anteriores.length) {
+    // Conservar las condiciones más favorables sin reordenar las filas restantes.
+    const prioridad = ["bonificados", "telefonicos", "bajos", "altos", ""];
+    const conservar = new Set(
+      anteriores
+        .map((condicion, indice) => ({
+          indice,
+          prioridad: prioridad.includes(condicion)
+            ? prioridad.indexOf(condicion)
+            : prioridad.length,
+        }))
+        .sort((a, b) => a.prioridad - b.prioridad || a.indice - b.indice)
+        .slice(0, n)
+        .map(({ indice }) => indice),
+    );
+    return anteriores.filter((_, indice) => conservar.has(indice));
+  }
   return Array.from({ length: n }, (_, j) => anteriores[j] ?? "");
 }
 export function condicionesExtra(extra) {
