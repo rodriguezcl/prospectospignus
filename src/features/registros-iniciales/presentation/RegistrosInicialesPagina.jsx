@@ -298,15 +298,6 @@ export function RegistrosInicialesPagina({
       ) : seleccionado || nuevo ? (
         detalle && (
           <>
-            {!!detalle.version &&
-              (modificado ? (
-                <p className="alert alert-warning">
-                  Guardá los cambios del contacto antes de continuar a
-                  Cotizaciones.
-                </p>
-              ) : (
-                renderContinuacion?.(detalle)
-              ))}
             <section className="card">
               <div className="card-body">
                 <h2 className="h5">
@@ -432,7 +423,16 @@ export function RegistrosInicialesPagina({
                             <IconoAccion accion="eliminar" /> Eliminar prospecto
                           </button>
                         )}
+                      {!!detalle.version &&
+                        !modificado &&
+                        renderContinuacion?.(detalle)}
                     </div>
+                    {!!detalle.version && modificado && (
+                      <p className="small mt-2 mb-0">
+                        Guardá los cambios del contacto antes de continuar a
+                        Cotizaciones.
+                      </p>
+                    )}
                   </fieldset>
                 </form>
               </div>

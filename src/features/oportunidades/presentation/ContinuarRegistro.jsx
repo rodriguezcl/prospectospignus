@@ -50,30 +50,29 @@ export function ContinuarRegistro({ registro, gestion, perfil }) {
     );
   if (!contexto) return <p role="status">Buscando negociaciones asociadas…</p>;
   return (
-    <section
-      className="card card-body"
-      aria-label="Continuar con este contacto"
-    >
-      <h2 className="h5">Siguiente paso</h2>
-      {contexto.casos.length ? (
-        <>
-          <CasosDelRegistro casos={contexto.casos} />
-          <p>Abrí la negociación para cotizar o continuar el seguimiento.</p>
-        </>
-      ) : (
-        <p>
-          Este prospecto ya está disponible en Cotizaciones. Podés preparar su
-          propuesta sin volver a cargar sus datos.
-        </p>
-      )}
+    <>
+      {contexto.casos
+        .filter((c) => c.accesible !== false)
+        .map((c) => (
+          <Link
+            key={c.id}
+            className="btn btn-outline-primary"
+            to={`/cotizaciones?id=${c.id}`}
+            title={`${c.necesidad} · ${estados[c.estado]} · ${c.responsable_nombre || "Sin responsable"}`}
+          >
+            {contexto.casos.length === 1
+              ? "Abrir negociación"
+              : `Abrir negociación: ${c.necesidad} · ${estados[c.estado]}`}
+          </Link>
+        ))}
       {!registro.lote_demostracion && (
         <Link
-          className="btn btn-primary align-self-start"
+          className="btn btn-outline-primary"
           to={`/cotizaciones?nueva=si&registro=${registro.id}`}
         >
           {contexto.casos.length ? "Cotizar otra necesidad" : "Cotizar"}
         </Link>
       )}
-    </section>
+    </>
   );
 }
