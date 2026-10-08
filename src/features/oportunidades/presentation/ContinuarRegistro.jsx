@@ -56,7 +56,7 @@ export function ContinuarRegistro({ registro, gestion, perfil }) {
         .map((c) => (
           <Link
             key={c.id}
-            className="btn btn-outline-primary"
+            className="btn btn-sm btn-outline-primary"
             to={`/cotizaciones?id=${c.id}`}
             title={`${c.necesidad} · ${estados[c.estado]} · ${c.responsable_nombre || "Sin responsable"}`}
           >
@@ -67,7 +67,7 @@ export function ContinuarRegistro({ registro, gestion, perfil }) {
         ))}
       {!registro.lote_demostracion && (
         <Link
-          className="btn btn-outline-primary"
+          className="btn btn-sm btn-outline-primary"
           to={`/cotizaciones?nueva=si&registro=${registro.id}`}
         >
           {contexto.casos.length ? "Cotizar otra necesidad" : "Cotizar"}

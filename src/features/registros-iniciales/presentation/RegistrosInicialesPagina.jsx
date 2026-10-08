@@ -423,16 +423,7 @@ export function RegistrosInicialesPagina({
                             <IconoAccion accion="eliminar" /> Eliminar prospecto
                           </button>
                         )}
-                      {!!detalle.version &&
-                        !modificado &&
-                        renderContinuacion?.(detalle)}
                     </div>
-                    {!!detalle.version && modificado && (
-                      <p className="small mt-2 mb-0">
-                        Guardá los cambios del contacto antes de continuar a
-                        Cotizaciones.
-                      </p>
-                    )}
                   </fieldset>
                 </form>
               </div>
@@ -595,28 +586,31 @@ export function RegistrosInicialesPagina({
                           <td>{nombrePerfil(r.creado_por)}</td>
                           <td>{fecha(r.creado_en)}</td>
                           <td>
-                            <button
-                              className="btn btn-sm btn-outline-primary"
-                              onClick={() => {
-                                cambiarAviso("");
-                                cambiarParametros({ registro: r.id });
-                              }}
-                              aria-label={`Abrir ${r.nombre}`}
-                            >
-                              Ver contacto y siguiente paso
-                            </button>
-                            {administrador && !r.lote_demostracion && (
+                            <div className="d-flex flex-wrap align-items-center gap-2">
                               <button
-                                type="button"
-                                className="btn btn-sm btn-outline-danger ms-2"
-                                disabled={guardando}
-                                title={`Eliminar ${r.nombre}`}
-                                aria-label={`Eliminar ${r.nombre}`}
-                                onClick={() => solicitarBaja(r)}
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={() => {
+                                  cambiarAviso("");
+                                  cambiarParametros({ registro: r.id });
+                                }}
+                                aria-label={`Editar ${r.nombre}`}
                               >
-                                <IconoAccion accion="eliminar" />
+                                Editar
                               </button>
-                            )}
+                              {renderContinuacion?.(r)}
+                              {administrador && !r.lote_demostracion && (
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-outline-danger"
+                                  disabled={guardando}
+                                  title={`Eliminar ${r.nombre}`}
+                                  aria-label={`Eliminar ${r.nombre}`}
+                                  onClick={() => solicitarBaja(r)}
+                                >
+                                  <IconoAccion accion="eliminar" />
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
