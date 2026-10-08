@@ -305,3 +305,7 @@ Aplicar 038 antes del frontend que usa guardar_catalogo_038. Valida precios por 
 
 ## Presupuesto PDF desde el paso 3 (08-10-2026)
 El botón de descarga proyecta datos del cliente, conceptos calculados y pago vigente mediante presupuestoPdf.js; no registra ofrecimientos ni ventas. jsPDF se carga a demanda, genera el archivo localmente sin transmitir datos a terceros e incluye identidad Pignus, ubicación, incluidos, adicionales separados por bonificación, promedio de unidades pagadas, abono y condiciones de equipos. Emisión en horario argentino y vigencia de 120 horas desde emisión; no modifica la vigencia de propuestas registradas. Paginación A4 con pie comercial literal y encabezados repetidos. No requiere migración.
+
+
+### Presupuesto antes de elegir el pago (08-10-2026)
+El paso 2 presenta la composición calculada y todas las alternativas de pago, con descarga PDF independiente de la selección de pago y de sus errores de edición. Usa el total calculado sin redondeo manual para presentar las alternativas. El paso 3 conserva la descarga con las condiciones finales y redondeo comercial acordado. Descargar no registra ofrecimientos ni ventas.

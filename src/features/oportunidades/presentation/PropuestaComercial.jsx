@@ -420,7 +420,7 @@ export function PropuestaComercial({
     mostrarRegistro(false);
     abrirPago((n) => n + 1);
   }
-  async function exportarPdf() {
+  async function exportarPdf(incluirPagoElegido = true) {
     descargarPdf(true);
     mostrarErrorPdf("");
     try {
@@ -428,7 +428,12 @@ export function PropuestaComercial({
         oportunidad,
         conceptos,
         catalogo,
-        pago,
+        pago: incluirPagoElegido
+          ? pago
+          : calcularPago({
+              total: totalConceptos(conceptos),
+              medioSaldo: "debito",
+            }),
         referencia: revision.current.slice(0, 8).toUpperCase(),
       });
       const { descargarPresupuesto } =
@@ -1174,7 +1179,7 @@ export function PropuestaComercial({
                     if (conceptos.length) cambiarOferta();
                   }}
                 >
-                  2. Elegir forma de pago
+                  2. Presentar propuesta y elegir pago
                   {!!conceptos.length && (mostrarArmado || registrando) && (
                     <button
                       type="button"
@@ -1196,22 +1201,38 @@ export function PropuestaComercial({
                 </summary>
                 {!!conceptos.length && (
                   <div className="mt-3">
-                    <div className="d-flex flex-wrap justify-content-between gap-2 mb-3">
-                      <div>
-                        {conceptos.map((c, i) => (
-                          <div key={i}>
-                            <strong>{c.etiqueta}</strong>
-                            <p className="mb-1">
-                              Abono mensual: <strong>{moneda(c.abono)}</strong>
-                              {c.meses_congelamiento > 0 &&
-                                " · congelado " +
-                                  c.meses_congelamiento +
-                                  " meses"}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
+                    {conceptos.map((c, i) => (
+                      <OfertaComercial
+                        key={i}
+                        alternativa={c}
+                        catalogo={catalogo}
+                        kit={catalogo.items.find(
+                          (item) => item.id === c.seleccion.kit_id,
+                        )}
+                        revision={revision.current}
+                        conAbono={c.nivel_abono != null}
+                        nivelAbono={c.nivel_abono}
+                        meses={c.meses_congelamiento}
+                      />
+                    ))}
+                    <div className="my-3">
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary"
+                        disabled={descargandoPdf}
+                        onClick={() => exportarPdf(false)}
+                      >
+                        {descargandoPdf
+                          ? "Generando PDF…"
+                          : "Descargar presupuesto PDF"}
+                      </button>
+                      {errorPdf && (
+                        <p role="alert" className="text-danger mt-2">
+                          {errorPdf}
+                        </p>
+                      )}
                     </div>
+                    <h3 className="h5 mt-4">Elegir forma de pago</h3>
                     <PagoOferta
                       total={totalConceptos(conceptos)}
                       pago={pago}
@@ -1307,7 +1328,7 @@ export function PropuestaComercial({
                     type="button"
                     className="btn btn-outline-primary"
                     disabled={!pago || descargandoPdf}
-                    onClick={exportarPdf}
+                    onClick={() => exportarPdf(true)}
                   >
                     {descargandoPdf
                       ? "Generando PDF…"
