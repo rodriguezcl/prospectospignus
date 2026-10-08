@@ -4,7 +4,6 @@ import { unidadesAdicional, condicionesExtra } from "./unidadesAdicional.js";
 import { ordenarItemsCotizacion } from "./ordenarItemsCotizacion.js";
 import { propuestaVencida, vencimientoPropuesta } from "../domain/vigencia.js";
 import { OfertaComercial } from "./OfertaComercial.jsx";
-import { ofertaOfrecida, referenciaOfrecida } from "./ofertaOfrecida.js";
 import { enfocarPanel } from "../../../shared/ui/enfocarPanel.js";
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useRef, useState } from "react";
@@ -44,6 +43,7 @@ export function PropuestaComercial({
   const [responsableSeguimiento, elegirResponsableSeguimiento] = useState("");
   const panel = useRef(null);
   const panelPago = useRef(null);
+  const panelResumen = useRef(null);
   const armado = useRef(null);
   const [mostrarArmado, mostrarConfiguracion] = useState(true);
   const [registrando, mostrarRegistro] = useState(false);
@@ -58,9 +58,7 @@ export function PropuestaComercial({
     confirmarOfrecida(false);
     mostrarConfiguracion(!alternativas.length);
     requestAnimationFrame(() =>
-      enfocarPanel(
-        alternativas.length ? primeraOferta.current : armado.current,
-      ),
+      enfocarPanel(conceptos.length ? panelPago.current : armado.current),
     );
   }
   const [ofrecidaConfirmada, confirmarOfrecida] = useState(false);
@@ -106,10 +104,7 @@ export function PropuestaComercial({
   const [extras, elegirExtras] = useState({});
   const [nivel, elegirNivel] = useState("catalogo");
   const [alternativas, generar] = useState([]);
-  const primeraOferta = useRef(null);
-  useEffect(() => {
-    if (alternativas.length) enfocarPanel(primeraOferta.current);
-  }, [alternativas]);
+
   const [conceptos, agregarConceptos] = useState([]);
   const [nivelAbono, elegirAbono] = useState("alto");
   const [meses, elegirMeses] = useState(0);
@@ -143,7 +138,7 @@ export function PropuestaComercial({
                 { catalogo, condiciones },
               );
               if (b) {
-                mostrarRegistro(b.vigente && b.conceptos.length > 0);
+                mostrarRegistro(false);
                 mostrarConfiguracion(!b.vigente || !b.calculado);
                 restaurarSeleccion(b.seleccion);
                 if (b.vigente) {
@@ -245,6 +240,17 @@ export function PropuestaComercial({
     }
   }, [borrador, borradorListo, puedeEditar, perfil.id, oportunidad.id]);
 
+  useEffect(() => {
+    if (
+      referencias &&
+      alternativas.length &&
+      !conceptos.length &&
+      !mostrarArmado
+    ) {
+      agregar(alternativas[0]);
+    }
+  }, [referencias, alternativas, conceptos.length, mostrarArmado]);
+
   function invalidar() {
     elegirRedondeo("0");
     mostrarRegistro(false);
@@ -333,13 +339,6 @@ export function PropuestaComercial({
   const permiteCongelar =
     perfil.rol === "administrador" ||
     condiciones[`congelamiento_${perfil.rol}`];
-  const baseComparacion = alternativas.length
-    ? referenciaOfrecida(
-        historial,
-        oportunidad.ciclo || 1,
-        alternativas[0].seleccion,
-      )
-    : { hayOfrecida: false };
   let pago = null,
     errorPago = "";
   if (conceptos.length)
@@ -415,7 +414,7 @@ export function PropuestaComercial({
     confirmarOfrecida(false);
     elegirEfectivo("0");
     mostrarConfiguracion(false);
-    mostrarRegistro(true);
+    mostrarRegistro(false);
     abrirPago((n) => n + 1);
   }
   async function guardar() {
@@ -1140,19 +1139,20 @@ export function PropuestaComercial({
               </details>
               <details
                 className="border rounded p-3 my-3"
-                open={!mostrarArmado && !registrando && !!alternativas.length}
+                ref={panelPago}
+                tabIndex={-1}
+                open={!mostrarArmado && !registrando && !!conceptos.length}
               >
                 <summary
                   className="fw-bold"
-                  aria-disabled={!alternativas.length}
+                  aria-disabled={!conceptos.length}
                   onClick={(e) => {
                     e.preventDefault();
-                    if (!alternativas.length) return;
-                    cambiarOferta();
+                    if (conceptos.length) cambiarOferta();
                   }}
                 >
-                  2. Revisar propuesta
-                  {!!alternativas.length && (mostrarArmado || registrando) && (
+                  2. Elegir forma de pago
+                  {!!conceptos.length && (mostrarArmado || registrando) && (
                     <button
                       type="button"
                       className="btn btn-primary btn-sm ms-3 my-1"
@@ -1162,49 +1162,77 @@ export function PropuestaComercial({
                         cambiarOferta();
                       }}
                     >
-                      Revisar propuesta
+                      Modificar pago
                     </button>
                   )}
-                  {!alternativas.length && (
+                  {!conceptos.length && (
                     <span className="small fw-normal ms-2">
-                      Calculá la oferta en el paso 1
+                      Calculá la cotización en el paso 1
                     </span>
                   )}
                 </summary>
-                {!!alternativas.length && (
+                {!!conceptos.length && (
                   <div className="mt-3">
-                    {alternativas.slice(0, 1).map((a) => (
-                      <OfertaComercial
-                        referencia={a.ordinal === 1 ? primeraOferta : undefined}
-                        key={a.ordinal}
-                        alternativa={a}
-                        ofrecida={ofertaOfrecida(a, historial, {
-                          ciclo: oportunidad.ciclo || 1,
-                          catalogo: referencias.catalogo.version,
-                          condiciones: referencias.condiciones.version,
-                          nivelAbono: conAbono ? nivelAbono : null,
-                          meses: conAbono ? meses : 0,
-                        })}
-                        anterior={
-                          baseComparacion.hayOfrecida
-                            ? baseComparacion.referencia
-                            : alternativas[a.ordinal - 2]
-                        }
-                        ofrecidaNoComparable={
-                          baseComparacion.hayOfrecida &&
-                          !baseComparacion.referencia
-                        }
-                        catalogo={catalogo}
-                        kit={kit}
-                        revision={revision.current}
-                        conAbono={conAbono}
-                        nivelAbono={nivelAbono}
-                        meses={meses}
-                        volver={volverAlArmado}
-                        textoAccion="Continuar al paso 3: pago y registro"
-                        agregar={agregar}
-                      />
-                    ))}
+                    <div className="d-flex flex-wrap justify-content-between gap-2 mb-3">
+                      <div>
+                        {conceptos.map((c, i) => (
+                          <div key={i}>
+                            <strong>{c.etiqueta}</strong>
+                            <p className="mb-1">
+                              Abono mensual: <strong>{moneda(c.abono)}</strong>
+                              {c.meses_congelamiento > 0 &&
+                                " · congelado " +
+                                  c.meses_congelamiento +
+                                  " meses"}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <PagoOferta
+                      total={totalConceptos(conceptos)}
+                      pago={pago}
+                      error={errorPago}
+                      baseEfectivo={baseEfectivo}
+                      medioSaldo={medioSaldo}
+                      cuotas={cuotas}
+                      redondeoManual={redondeoManual}
+                      porcentajeRedondeo={
+                        condiciones.redondeo_maximo_porcentaje ?? "1"
+                      }
+                      cambiarRedondeo={(valor) => {
+                        elegirRedondeo(valor);
+                        confirmarOfrecida(false);
+                      }}
+                      cambiar={({ base, medio, cantidad }) => {
+                        elegirEfectivo(base);
+                        elegirMedio(medio);
+                        elegirCuotas(cantidad);
+                        confirmarOfrecida(false);
+                      }}
+                    />
+                    <div className="d-flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary"
+                        onClick={volverAlArmado}
+                      >
+                        Volver al paso 1: preparar cotización
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        disabled={!pago}
+                        onClick={() => {
+                          mostrarRegistro(true);
+                          requestAnimationFrame(() =>
+                            enfocarPanel(panelResumen.current),
+                          );
+                        }}
+                      >
+                        Continuar al paso 3: revisar y registrar
+                      </button>
+                    </div>
                   </div>
                 )}
               </details>
@@ -1213,64 +1241,44 @@ export function PropuestaComercial({
           <details
             open={registrando && !mostrarArmado && !!conceptos.length}
             className="border rounded p-3 my-3"
-            ref={panelPago}
+            ref={panelResumen}
             tabIndex={-1}
           >
             <summary
               className="fw-bold"
-              aria-disabled={!conceptos.length}
+              aria-disabled={!conceptos.length || !pago}
               onClick={(e) => {
                 e.preventDefault();
-                if (!conceptos.length) return;
+                if (!conceptos.length || !pago) return;
                 mostrarConfiguracion(false);
                 mostrarRegistro(true);
               }}
             >
-              3. Pago y registro
+              3. Revisar y registrar
               {!conceptos.length && (
                 <span className="small fw-normal ms-2">
-                  Revisá la oferta en el paso 2
+                  Elegí la forma de pago en el paso 2
                 </span>
               )}
             </summary>
             {!!conceptos.length && (
               <div className="mt-3">
-                <div className="d-flex flex-wrap justify-content-between gap-2 mb-3">
-                  <div>
-                    {conceptos.map((c, i) => (
-                      <div key={i}>
-                        <strong>{c.etiqueta}</strong>
-                        <p className="mb-1">
-                          Abono mensual: <strong>{moneda(c.abono)}</strong>
-                          {c.meses_congelamiento > 0 &&
-                            " · congelado " + c.meses_congelamiento + " meses"}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <PagoOferta
-                  total={totalConceptos(conceptos)}
-                  pago={pago}
-                  error={errorPago}
-                  baseEfectivo={baseEfectivo}
-                  medioSaldo={medioSaldo}
-                  cuotas={cuotas}
-                  redondeoManual={redondeoManual}
-                  porcentajeRedondeo={
-                    condiciones.redondeo_maximo_porcentaje ?? "1"
-                  }
-                  cambiarRedondeo={(valor) => {
-                    elegirRedondeo(valor);
-                    confirmarOfrecida(false);
-                  }}
-                  cambiar={({ base, medio, cantidad }) => {
-                    elegirEfectivo(base);
-                    elegirMedio(medio);
-                    elegirCuotas(cantidad);
-                    confirmarOfrecida(false);
-                  }}
-                />
+                {conceptos.map((c, i) => (
+                  <OfertaComercial
+                    key={i}
+                    alternativa={c}
+                    catalogo={catalogo}
+                    kit={catalogo.items.find(
+                      (item) => item.id === c.seleccion.kit_id,
+                    )}
+                    revision={revision.current}
+                    conAbono={c.nivel_abono != null}
+                    nivelAbono={c.nivel_abono}
+                    meses={c.meses_congelamiento}
+                    pagoFinal={pago}
+                    medioSaldo={medioSaldo}
+                  />
+                ))}
                 {oportunidad.preparacion_compartida &&
                   (perfil.rol === "vendedor" ? (
                     <p>
@@ -1314,7 +1322,7 @@ export function PropuestaComercial({
                     className="btn btn-outline-primary"
                     onClick={cambiarOferta}
                   >
-                    Volver al paso 2: revisar propuesta
+                    Volver al paso 2: modificar pago
                   </button>
                   <button
                     type="button"

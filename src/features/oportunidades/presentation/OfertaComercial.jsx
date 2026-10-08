@@ -28,6 +28,8 @@ export function OfertaComercial({
   textoAccion,
   referencia,
   ofrecida = false,
+  pagoFinal,
+  medioSaldo,
 }) {
   const venta = kit?.modalidad === "kit";
   const nombre = (id) =>
@@ -125,7 +127,9 @@ export function OfertaComercial({
               ? "Costo del kit y adicionales"
               : "Costo de instalación y adicionales"}
           </h5>
-          <p className="fs-4 fw-bold mb-1">{moneda(alternativa.total)}</p>
+          <p className="fs-4 fw-bold mb-1">
+            {moneda(pagoFinal ? pagoFinal.total : alternativa.total)}
+          </p>
           <p className="small">
             Pago inicial, separado del abono mensual. Los adicionales
             seleccionados ya están contemplados en este importe.
@@ -157,54 +161,82 @@ export function OfertaComercial({
           )}
         </section>
       </div>
-      <section className="border-top pt-3 mb-3">
-        <h5 className="h6 fw-bold">
-          Formas de pago del{" "}
-          {venta ? "kit y adicionales" : "costo de instalación y adicionales"}
-        </h5>
-        <dl className="row mb-2">
-          <dt className="col-sm-6">
-            Débito, transferencia o crédito en 1 cuota
-          </dt>
-          <dd className="col-sm-6">{moneda(alternativa.total)}</dd>
-          <dt className="col-sm-6">Efectivo · 10 % de descuento</dt>
-          <dd className="col-sm-6">{moneda(alternativa.efectivo)}</dd>
-          <dt className="col-sm-6">Crédito en 3 cuotas sin interés</dt>
-          <dd className="col-sm-6">
-            <Cuotas importes={alternativa.cuotas3} />
-          </dd>
-          <dt className="col-sm-6">Crédito en 6 cuotas sin interés</dt>
-          <dd className="col-sm-6">
-            <Cuotas importes={alternativa.cuotas6} />
-          </dd>
-        </dl>
-        <p className="small">
-          Cuotas iguales, con redondeo de centavos a favor del cliente. Estos
-          importes corresponden al pago completo de esta oferta. También podés
-          combinar medios de pago al armar la propuesta.
-        </p>
-      </section>
-      <div className="d-flex flex-wrap gap-2">
-        {volver && (
+      {pagoFinal ? (
+        <section className="border-top pt-3 mb-3">
+          <h5 className="h6 fw-bold">Forma de pago elegida</h5>
+          {Number(pagoFinal.efectivo_a_abonar) > 0 && (
+            <p>
+              Efectivo: <strong>{moneda(pagoFinal.efectivo_a_abonar)}</strong>
+            </p>
+          )}
+          {Number(pagoFinal.saldo) > 0 && (
+            <p>
+              {medioSaldo === "credito"
+                ? `Crédito · ${pagoFinal.cuotas.length} cuota(s) de`
+                : medioSaldo === "debito"
+                  ? "Débito:"
+                  : "Transferencia:"}{" "}
+              <strong>{moneda(pagoFinal.cuotas[0])}</strong>
+            </p>
+          )}
+          {Number(pagoFinal.redondeo_manual) > 0 && (
+            <p>
+              Redondeo comercial aplicado: {moneda(pagoFinal.redondeo_manual)}
+            </p>
+          )}
+        </section>
+      ) : (
+        <section className="border-top pt-3 mb-3">
+          <h5 className="h6 fw-bold">
+            Formas de pago del{" "}
+            {venta ? "kit y adicionales" : "costo de instalación y adicionales"}
+          </h5>
+          <dl className="row mb-2">
+            <dt className="col-sm-6">
+              Débito, transferencia o crédito en 1 cuota
+            </dt>
+            <dd className="col-sm-6">{moneda(alternativa.total)}</dd>
+            <dt className="col-sm-6">Efectivo · 10 % de descuento</dt>
+            <dd className="col-sm-6">{moneda(alternativa.efectivo)}</dd>
+            <dt className="col-sm-6">Crédito en 3 cuotas sin interés</dt>
+            <dd className="col-sm-6">
+              <Cuotas importes={alternativa.cuotas3} />
+            </dd>
+            <dt className="col-sm-6">Crédito en 6 cuotas sin interés</dt>
+            <dd className="col-sm-6">
+              <Cuotas importes={alternativa.cuotas6} />
+            </dd>
+          </dl>
+          <p className="small">
+            Cuotas iguales, con redondeo de centavos a favor del cliente. Estos
+            importes corresponden al pago completo de esta oferta. También podés
+            combinar medios de pago al armar la propuesta.
+          </p>
+        </section>
+      )}
+      {agregar && (
+        <div className="d-flex flex-wrap gap-2">
+          {volver && (
+            <button
+              type="button"
+              className="btn btn-outline-primary"
+              onClick={volver}
+            >
+              Volver al paso 1: preparar cotización
+            </button>
+          )}
           <button
             type="button"
-            className="btn btn-outline-primary"
-            onClick={volver}
+            className="btn btn-primary"
+            onClick={() => agregar(alternativa)}
           >
-            Volver al paso 1: preparar cotización
+            {textoAccion ||
+              (ofrecida
+                ? "Volver a usar esta oferta"
+                : "Revisar pago y registrar ofrecimiento")}
           </button>
-        )}
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => agregar(alternativa)}
-        >
-          {textoAccion ||
-            (ofrecida
-              ? "Volver a usar esta oferta"
-              : "Revisar pago y registrar ofrecimiento")}
-        </button>
-      </div>
+        </div>
+      )}
       <details className="mt-3 small">
         <summary>Detalle de negociación y referencia interna</summary>
         <p className="mt-2">
