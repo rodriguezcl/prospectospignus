@@ -155,7 +155,10 @@ export function crearPdfPresupuesto(datos, logo) {
     fuente(8.5, true);
     const label = doc.splitTextToSize(texto(opcion.nombre), 81);
     fuente(8.5);
-    const importe = doc.splitTextToSize(texto(opcion.importe), 90);
+    const importe = doc.splitTextToSize(
+      texto(opcion.importe + (opcion.detalle ? ` (${opcion.detalle})` : "")),
+      90,
+    );
     const alto = Math.max(label.length, importe.length) * 4 + 2;
     espacio(alto);
     fuente(8.5, true);
@@ -163,12 +166,11 @@ export function crearPdfPresupuesto(datos, logo) {
     fuente(8.5);
     doc.text(importe, 104, y, { lineHeightFactor: 1.3 });
     y += alto;
-    if (opcion.detalle)
-      parrafo(opcion.detalle, { size: 7.5, x: 104, width: 90, gap: 1 });
   }
   if (datos.redondeoComercial) {
     const r = datos.redondeoComercial;
-    espacio(26);
+    espacio(30);
+    y += 4;
     parrafo("Condición de pago con redondeo comercial", {
       size: 8.5,
       bold: true,
