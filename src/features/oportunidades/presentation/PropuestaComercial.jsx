@@ -1,3 +1,4 @@
+import { prepararPresupuesto } from "./presupuestoPdf.js";
 import { ubicacionesMarca, ofertaEnUbicacion } from "../../productos/reglas.js";
 import { disponibilidadAdicional } from "./disponibilidadAdicional.js";
 import { unidadesAdicional, condicionesExtra } from "./unidadesAdicional.js";
@@ -41,6 +42,8 @@ export function PropuestaComercial({
   registrarVenta,
 }) {
   const [responsableSeguimiento, elegirResponsableSeguimiento] = useState("");
+  const [descargandoPdf, descargarPdf] = useState(false);
+  const [errorPdf, mostrarErrorPdf] = useState("");
   const panel = useRef(null);
   const panelPago = useRef(null);
   const panelResumen = useRef(null);
@@ -416,6 +419,26 @@ export function PropuestaComercial({
     mostrarConfiguracion(false);
     mostrarRegistro(false);
     abrirPago((n) => n + 1);
+  }
+  async function exportarPdf() {
+    descargarPdf(true);
+    mostrarErrorPdf("");
+    try {
+      const datos = prepararPresupuesto({
+        oportunidad,
+        conceptos,
+        catalogo,
+        pago,
+        referencia: revision.current.slice(0, 8).toUpperCase(),
+      });
+      const { descargarPresupuesto } =
+        await import("./descargarPresupuesto.js");
+      await descargarPresupuesto(datos);
+    } catch (e) {
+      mostrarErrorPdf(e.message || "No se pudo generar el PDF. Reintentá.");
+    } finally {
+      descargarPdf(false);
+    }
   }
   async function guardar() {
     if (!pago || !ofrecidaConfirmada) return;
@@ -1279,6 +1302,23 @@ export function PropuestaComercial({
                     medioSaldo={medioSaldo}
                   />
                 ))}
+                <div className="mb-3">
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    disabled={!pago || descargandoPdf}
+                    onClick={exportarPdf}
+                  >
+                    {descargandoPdf
+                      ? "Generando PDF…"
+                      : "Descargar presupuesto PDF"}
+                  </button>
+                  {errorPdf && (
+                    <p role="alert" className="text-danger mt-2">
+                      {errorPdf}
+                    </p>
+                  )}
+                </div>
                 {oportunidad.preparacion_compartida &&
                   (perfil.rol === "vendedor" ? (
                     <p>
