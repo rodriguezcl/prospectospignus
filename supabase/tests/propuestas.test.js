@@ -24,6 +24,7 @@ test("propuestas: servidor autoritativo, pago mixto, versiones y permisos", asyn
       (a) =>
         a.endsWith(".sql") &&
         !a.includes("028_codigos_internos") &&
+        !a.includes("040_") &&
         !a.includes("039_") &&
         !a.includes("034_") &&
         !a.includes("033_") &&

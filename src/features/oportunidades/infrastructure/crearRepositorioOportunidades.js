@@ -1,6 +1,8 @@
 function comprobar(error) {
   if (!error) return;
   const mensajes = {
+    AGENDA_CONTACTO_PENDIENTE:
+      "El prospecto tiene una actividad pendiente en Agenda. Cancelala o completala antes de liberar o reasignar la atención.",
     PROSPECTO_OCUPADO:
       "Otro vendedor está atendiendo este prospecto. Actualizá para ver al responsable.",
     PROSPECTO_TOMAR:

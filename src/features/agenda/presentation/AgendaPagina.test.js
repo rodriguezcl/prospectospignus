@@ -36,9 +36,16 @@ test("agenda: contexto, resultado y asociación opcional sin duplicar prospectos
     );
   const nueva = formulario("crear");
   assert.match(nueva, /Lugar y detalle de la actividad/);
-  assert.match(nueva, /No \/ actividad general/);
+  assert.match(nueva, /Actividad general sin contacto/);
   assert.ok(!nueva.includes('name="resultado"'));
-  assert.ok(!nueva.includes("Buscar prospecto por nombre"));
+  assert.ok(nueva.includes("Buscar prospecto por nombre o teléfono"));
+  assert.match(nueva, /no requiere cotización/);
+  const directo = formulario("editar", {
+    estado: "programada",
+    registro_id: "contacto-interno",
+  });
+  assert.match(directo, /Prospecto asociado a esta actividad/);
+  assert.ok(!directo.includes("contacto-interno"));
   for (const accion of ["finalizar", "corregir"]) {
     const html = formulario(accion, { estado: "realizada" });
     assert.match(html, /Resultado de la actividad/);

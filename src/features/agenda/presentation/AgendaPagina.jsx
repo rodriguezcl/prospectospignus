@@ -43,8 +43,17 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
   const [busqueda, setBusqueda] = useState(""),
     [coincidencias, setCoincidencias] = useState([]),
     [buscando, setBuscando] = useState(false);
-  const [vinculo, setVinculo] = useState(a?.oportunidad_id || "");
-  const [conProspecto, setConProspecto] = useState(!!a?.oportunidad_id);
+  const [vinculo, setVinculo] = useState(
+    a?.registro_id || a?.oportunidad_id || "",
+  );
+  const [tipoVinculo, setTipoVinculo] = useState(
+    a?.oportunidad_id
+      ? "negociacion"
+      : a?.registro_id || !a
+        ? "prospecto"
+        : "ninguno",
+  );
+  const conProspecto = tipoVinculo !== "ninguno";
   const [elegido, setElegido] = useState(null);
   const [busco, setBusco] = useState(false);
   const identidad = useRef(null),
@@ -61,7 +70,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
     setBuscando(true);
     setError("");
     try {
-      setCoincidencias(await gestion.prospectos(busqueda));
+      setCoincidencias(await gestion.prospectos(busqueda, tipoVinculo));
       setBusco(true);
     } catch (e) {
       setError(e.message);
@@ -78,7 +87,12 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
       const datos = Object.fromEntries(new FormData(e.currentTarget));
       if (general) {
         datos.estado = modo;
-        datos.oportunidad_id = vinculo;
+        if (conProspecto && !vinculo)
+          throw new Error(
+            "Elegí el prospecto o la negociación antes de guardar.",
+          );
+        datos.oportunidad_id = tipoVinculo === "negociacion" ? vinculo : "";
+        datos.registro_id = tipoVinculo === "prospecto" ? vinculo : "";
       }
       for (const campo of [
         "inicio_previsto",
@@ -200,13 +214,13 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                 </p>
                 <div className="mb-3">
                   <label className="d-block mb-2">
-                    ¿Querés asociarla a una negociación de Cotizaciones?
+                    Asociar actividad a
                     <select
                       className="form-select"
-                      value={conProspecto ? "si" : "no"}
+                      value={tipoVinculo}
                       disabled={buscando}
                       onChange={(e) => {
-                        setConProspecto(e.target.value === "si");
+                        setTipoVinculo(e.target.value);
                         setVinculo("");
                         setElegido(null);
                         setCoincidencias([]);
@@ -214,16 +228,25 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                         setBusqueda("");
                       }}
                     >
-                      <option value="no">No / actividad general</option>
-                      <option value="si">Sí, elegir negociación</option>
+                      <option value="ninguno">
+                        Actividad general sin contacto
+                      </option>
+                      <option value="prospecto">
+                        Prospecto (no requiere cotización)
+                      </option>
+                      <option value="negociacion">
+                        Negociación existente (opcional)
+                      </option>
                     </select>
                   </label>
                   {conProspecto && vinculo ? (
                     <div className="border rounded p-3">
                       <strong>
                         {elegido
-                          ? `${elegido.prospectos.nombre} · ${elegido.necesidad}`
-                          : "Negociación asociada a esta actividad"}
+                          ? `${elegido.nombre || elegido.prospectos?.nombre} · ${elegido.telefono || elegido.necesidad || ""}`
+                          : tipoVinculo === "prospecto"
+                            ? "Prospecto asociado a esta actividad"
+                            : "Negociación asociada a esta actividad"}
                       </strong>
                       <p className="small mb-2">
                         La actividad se guardará en relación con esta ficha.
@@ -245,7 +268,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                           onClick={() => {
                             setVinculo("");
                             setElegido(null);
-                            setConProspecto(false);
+                            setTipoVinculo("ninguno");
                           }}
                         >
                           Quitar
@@ -256,7 +279,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                     conProspecto && (
                       <>
                         <label className="d-block">
-                          Buscar por nombre del prospecto
+                          Buscar prospecto por nombre o teléfono
                           <input
                             className="form-control"
                             value={busqueda}
@@ -266,7 +289,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                               setCoincidencias([]);
                               setBusco(false);
                             }}
-                            placeholder="Buscar por nombre, mínimo 2 caracteres"
+                            placeholder="Nombre (mínimo 2 caracteres) o teléfono"
                           />
                         </label>
                         <button
@@ -275,7 +298,11 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                           disabled={buscando || busqueda.trim().length < 2}
                           onClick={buscar}
                         >
-                          {buscando ? "Buscando…" : "Buscar negociación"}
+                          {buscando
+                            ? "Buscando…"
+                            : tipoVinculo === "prospecto"
+                              ? "Buscar prospecto"
+                              : "Buscar negociación"}
                         </button>
                         <label className="d-block mt-2">
                           Elegí una ficha de los resultados
@@ -292,10 +319,18 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                               );
                             }}
                           >
-                            <option value="">Seleccionar negociación</option>
+                            <option value="">
+                              {tipoVinculo === "prospecto"
+                                ? "Seleccionar prospecto"
+                                : "Seleccionar negociación"}
+                            </option>
                             {coincidencias.map((c) => (
                               <option key={c.id} value={c.id}>
-                                {c.prospectos.nombre} · {c.necesidad}
+                                {c.nombre || c.prospectos?.nombre} ·{" "}
+                                {c.telefono || c.necesidad}
+                                {c.atencion?.vendedor_nombre
+                                  ? ` · En atención por ${c.atencion.vendedor_nombre}`
+                                  : ""}
                               </option>
                             ))}
                           </select>
@@ -304,7 +339,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                           <p className="small" role="status">
                             {coincidencias.length
                               ? `${coincidencias.length} resultados (máximo 20). Si no aparece, afiná el nombre.`
-                              : "No encontramos negociaciones con ese nombre dentro de tu acceso. Probá otro nombre o elegí actividad general."}
+                              : "No encontramos resultados. Revisá el nombre o teléfono y el tipo de vínculo seleccionado."}
                           </p>
                         )}
                       </>
@@ -312,8 +347,9 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                   )}
                   {conProspecto && (
                     <p className="small text-muted mt-2">
-                      Solo relaciona la actividad con una ficha existente. No
-                      crea una cotización ni cambia su estado comercial.
+                      {tipoVinculo === "prospecto" &&
+                        "Al agendar sobre un prospecto disponible, queda reservado para vos. "}
+                      No crea una cotización ni cambia su estado comercial.
                     </p>
                   )}
                 </div>
@@ -563,6 +599,14 @@ export function TimelineDia({
                       {n.actividad.resultado}
                     </p>
                   )}
+                  {n.actividad.registro_id && (
+                    <Link
+                      className="btn btn-outline-primary btn-sm"
+                      to={`/prospectos?registro=${n.actividad.registro_id}`}
+                    >
+                      Abrir prospecto
+                    </Link>
+                  )}
                   {n.actividad.oportunidad_id && (
                     <Link
                       className="d-block mb-2"
@@ -746,8 +790,8 @@ export function AgendaPagina({ gestion, perfil }) {
     <AgendaAutorizada gestion={gestion} perfil={perfil} />
   ) : (
     <div className="alert alert-warning">
-      Agenda está disponible para vendedores y administración. Las visitas se
-      coordinan desde Cotizaciones.
+      Agenda está disponible para vendedores y administración. Podés programar
+      visitas directamente sobre un prospecto, sin cotización.
     </div>
   );
 }
@@ -883,7 +927,9 @@ function AgendaAutorizada({ gestion, perfil }) {
             un paso obligatorio para crear un contacto.
           </p>
           <p>
-            Si encontraste una persona interesada,{" "}
+            Para agendar una visita no necesitás una cotización: elegí Registrar
+            actividad, Visita comercial y buscá el prospecto por nombre o
+            teléfono. Si todavía no existe,{" "}
             <Link to="/prospectos?nuevo=1">cargá un prospecto</Link>. Si ya
             existe, <Link to="/prospectos">buscá el prospecto</Link>.
           </p>

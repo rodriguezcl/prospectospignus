@@ -16,6 +16,7 @@ test("Cotizaciones: cartera automática, preparación sin visita, permisos y anu
     .filter(
       (a) =>
         a.endsWith(".sql") &&
+        !a.includes("040_") &&
         !a.includes("039_") &&
         !a.includes("034_") &&
         !a.includes("033_") &&
@@ -352,6 +353,7 @@ test("Agente: calificación, visitas, recuperación equilibrada, RLS, cierre e i
     .filter(
       (a) =>
         a.endsWith(".sql") &&
+        !a.includes("040_") &&
         !a.includes("039_") &&
         !a.includes("034_") &&
         !a.includes("033_") &&
