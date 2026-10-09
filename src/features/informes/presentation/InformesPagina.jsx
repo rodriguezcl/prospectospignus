@@ -385,7 +385,7 @@ export function PanelRendimiento({
               </ul>
               <nav
                 aria-label="Páginas del indicador"
-                className="d-flex gap-2 align-items-center"
+                className="d-flex flex-wrap gap-2 align-items-center"
               >
                 <button
                   className="btn btn-outline-secondary"

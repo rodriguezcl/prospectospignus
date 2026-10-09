@@ -387,3 +387,56 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
 }
+
+/* Formularios: la misma separación para etiquetas externas y envolventes. */
+label:not(.d-inline-flex):not(.d-flex)
+  > :is(.form-control, .form-select, .input-group) {
+  margin-top: 0.5rem;
+}
+/* Evitar que controles largos impongan el ancho de la página. */
+#main,
+#contenido,
+.card-body,
+fieldset,
+.row > *,
+.d-flex > label,
+.agenda-controles > label {
+  min-width: 0;
+}
+.form-control,
+.form-select,
+.input-group {
+  min-width: 0;
+  max-width: 100%;
+}
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  min-inline-size: 0;
+}
+.card-body :is(p, summary, label, legend),
+.alert {
+  overflow-wrap: anywhere;
+}
+/* La tabla puede desplazarse dentro de su marco, nunca empujar la página. */
+.table-responsive {
+  max-width: 100%;
+}
+@media (max-width: 575.98px) {
+  .card-body {
+    padding: 1rem;
+  }
+  form > .d-flex > label:has(> .form-control, > .form-select),
+  .card-body > .d-flex > label:has(> .form-control, > .form-select) {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  .btn {
+    max-width: 100%;
+    white-space: normal;
+  }
+  .form-control,
+  .form-select {
+    font-size: 1rem;
+  }
+}

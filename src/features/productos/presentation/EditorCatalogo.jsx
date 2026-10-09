@@ -586,7 +586,7 @@ export function EditorCatalogo({
             ))}
           </select>
         </Campo>
-        <div className="d-flex gap-2">
+        <div className="d-flex flex-wrap gap-2">
           <button className="btn btn-primary" type="submit">
             Guardar
           </button>

@@ -454,7 +454,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                 {error}
               </p>
             )}
-            <div className="d-flex gap-2">
+            <div className="d-flex flex-wrap gap-2">
               <button className="btn btn-primary" type="submit">
                 {ocupado ? "Guardando…" : "Guardar actividad"}
               </button>
@@ -761,7 +761,7 @@ function HistorialActividad({ actividad, gestion, cerrar }) {
             </details>
           ))
         )}
-        <div className="d-flex gap-2 mt-3">
+        <div className="d-flex flex-wrap gap-2 mt-3">
           <button
             className="btn btn-outline-secondary"
             disabled={cargando || pagina === 0}

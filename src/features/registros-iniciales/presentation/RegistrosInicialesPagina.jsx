@@ -230,7 +230,7 @@ export function RegistrosInicialesPagina({
                 {errorBaja}
               </p>
             )}
-            <div className="d-flex gap-2">
+            <div className="d-flex flex-wrap gap-2">
               <button
                 type="button"
                 className="btn btn-outline-secondary"
@@ -655,7 +655,7 @@ export function RegistrosInicialesPagina({
               )}
               <nav
                 aria-label="Páginas de registros"
-                className="d-flex gap-2 align-items-center"
+                className="d-flex flex-wrap gap-2 align-items-center"
               >
                 <button
                   className="btn btn-outline-secondary btn-sm"

@@ -434,7 +434,7 @@ export function PromocionesPagina({ gestion, perfil }) {
                 {!lista.filas.length && (
                   <p>No hay promociones para este filtro.</p>
                 )}
-                <div className="d-flex gap-3 mt-3 align-items-center">
+                <div className="d-flex flex-wrap gap-3 mt-3 align-items-center">
                   <button
                     className="btn btn-outline-secondary"
                     disabled={!pagina}

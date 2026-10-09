@@ -259,7 +259,7 @@ export function ProductosPagina({ gestion }) {
                   {error}
                 </div>
               )}
-              <div className="d-flex gap-2">
+              <div className="d-flex flex-wrap gap-2">
                 <button
                   className={`btn ${activando || habilitandoAdicional ? "btn-primary" : "btn-danger"}`}
                   disabled={ocupado}

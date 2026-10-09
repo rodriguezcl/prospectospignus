@@ -289,7 +289,7 @@ export function EstadisticasMensuales({ gestion, perfil }) {
             </div>
             <nav
               aria-label="Páginas del detalle estadístico"
-              className="d-flex gap-2 align-items-center"
+              className="d-flex flex-wrap gap-2 align-items-center"
             >
               <button
                 className="btn btn-outline-secondary"

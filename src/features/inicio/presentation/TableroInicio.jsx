@@ -471,7 +471,7 @@ export function TableroInicio({ gestion, perfil, renderRendimiento }) {
                     </table>
                   </div>
                   <nav
-                    className="d-flex gap-2 align-items-center"
+                    className="d-flex flex-wrap gap-2 align-items-center"
                     aria-label="Páginas del detalle"
                   >
                     <button

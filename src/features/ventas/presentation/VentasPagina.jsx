@@ -221,7 +221,7 @@ export function VentasPagina({ gestion, perfil }) {
               {!resultado.filas.length && (
                 <p>No hay ventas concretadas para estos filtros.</p>
               )}
-              <div className="d-flex gap-3 align-items-center">
+              <div className="d-flex flex-wrap gap-3 align-items-center">
                 <button
                   className="btn btn-outline-secondary"
                   disabled={!pagina}

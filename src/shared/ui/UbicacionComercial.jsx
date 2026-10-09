@@ -1,9 +1,14 @@
+import { useId } from "react";
 import { ubicacionesComerciales } from "../domain/ubicacionComercial.js";
 export function CampoUbicacionComercial({ valor = "" }) {
+  const id = useId();
   return (
-    <label className="d-block mb-3">
-      Ubicación del prospecto
+    <div>
+      <label className="form-label" htmlFor={id}>
+        Ubicación del prospecto
+      </label>
       <select
+        id={id}
         name="ubicacion_comercial"
         className="form-select"
         defaultValue={valor}
@@ -15,7 +20,7 @@ export function CampoUbicacionComercial({ valor = "" }) {
           </option>
         ))}
       </select>
-    </label>
+    </div>
   );
 }
 export function FiltroUbicacionComercial({ valor, cambiar }) {

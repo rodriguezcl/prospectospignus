@@ -273,7 +273,7 @@ export function FormularioOportunidad({
               <fieldset className="mb-3">
                 <legend className="h6">Servicio de interés</legend>
                 {servicios.map((servicio, indice) => (
-                  <div className="d-flex gap-2 mb-2" key={indice}>
+                  <div className="d-flex flex-wrap gap-2 mb-2" key={indice}>
                     <label className="flex-grow-1">
                       {indice > 0 ? "Otro servicio" : "Servicio"}
                       <select

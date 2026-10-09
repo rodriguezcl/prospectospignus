@@ -629,7 +629,7 @@ export function OportunidadesPagina({
             {!cargando && !lista.filas.length && (
               <p>No hay prospectos para este filtro.</p>
             )}
-            <div className="d-flex gap-3 align-items-center">
+            <div className="d-flex flex-wrap gap-3 align-items-center">
               <button
                 className="btn btn-outline-secondary"
                 disabled={!pagina || cargando}
