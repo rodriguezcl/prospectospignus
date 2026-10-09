@@ -42,3 +42,31 @@ test("valida nombre, origen, correo y límites antes de persistir", () => {
   }
   assert.equal(llamadas, 0);
 });
+
+test("ubicación independiente del origen, opcional y validada", () => {
+  for (const ubicacion_comercial of ["", "docta", "nobu", "residencial"])
+    assert.equal(
+      validarRegistro({
+        nombre: "Persona",
+        origen: "instagram",
+        ubicacion_comercial,
+      }).ubicacion_comercial,
+      ubicacion_comercial,
+    );
+  for (const ubicacion_comercial of ["otro", 4, {}])
+    assert.throws(() =>
+      validarRegistro({
+        nombre: "Persona",
+        origen: "instagram",
+        ubicacion_comercial,
+      }),
+    );
+});
+
+import { ubicacionInicialAlarma } from "../../../shared/domain/ubicacionComercial.js";
+test("sugerencia de ubicación no inventa condición de monitoreo", () => {
+  assert.equal(ubicacionInicialAlarma("docta"), "docta");
+  assert.equal(ubicacionInicialAlarma("nobu"), "nobu");
+  assert.equal(ubicacionInicialAlarma("residencial"), "");
+  assert.equal(ubicacionInicialAlarma(""), "a_definir");
+});

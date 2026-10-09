@@ -1,3 +1,8 @@
+import {
+  CampoUbicacionComercial,
+  FiltroUbicacionComercial,
+} from "../../../shared/ui/UbicacionComercial.jsx";
+import { nombreUbicacionComercial } from "../../../shared/domain/ubicacionComercial.js";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { EncabezadoPagina } from "../../../shared/ui/contenido/EncabezadoPagina.jsx";
@@ -29,6 +34,7 @@ export function RegistrosInicialesPagina({
     busqueda: "",
     origen: "",
     autor: "",
+    ubicacion_comercial: "",
   });
   const [detalle, cambiarDetalle] = useState(null);
   const [eventos, cambiarEventos] = useState([]);
@@ -175,6 +181,7 @@ export function RegistrosInicialesPagina({
   function filtrar(evento) {
     evento.preventDefault();
     cambiarFiltros({
+      ...filtros,
       ...Object.fromEntries(new FormData(evento.currentTarget)),
       pagina: 0,
     });
@@ -373,6 +380,11 @@ export function RegistrosInicialesPagina({
                         </div>
                       ))}
                       <div className="col-md-6">
+                        <CampoUbicacionComercial
+                          valor={detalle.ubicacion_comercial}
+                        />
+                      </div>
+                      <div className="col-md-6">
                         <label className="form-label" htmlFor="registro-origen">
                           Origen *
                         </label>
@@ -450,6 +462,7 @@ export function RegistrosInicialesPagina({
                             <ul>
                               {[
                                 ...camposRegistro.map((c) => c.nombre),
+                                "ubicacion_comercial",
                                 "origen",
                                 "responsable_id",
                               ]
@@ -461,21 +474,29 @@ export function RegistrosInicialesPagina({
                                   <li key={c}>
                                     {camposRegistro.find((x) => x.nombre === c)
                                       ?.etiqueta ||
-                                      (c === "origen"
-                                        ? "Origen"
-                                        : "Responsable")}
+                                      (c === "ubicacion_comercial"
+                                        ? "Ubicación del prospecto"
+                                        : c === "origen"
+                                          ? "Origen"
+                                          : "Responsable")}
                                     :{" "}
                                     {e.anterior && (
                                       <>
                                         {c === "responsable_id"
                                           ? nombrePerfil(e.anterior[c])
-                                          : e.anterior[c] || "—"}{" "}
+                                          : c === "ubicacion_comercial"
+                                            ? nombreUbicacionComercial(
+                                                e.anterior[c],
+                                              )
+                                            : e.anterior[c] || "—"}{" "}
                                         →{" "}
                                       </>
                                     )}
                                     {c === "responsable_id"
                                       ? nombrePerfil(e.nuevo[c])
-                                      : e.nuevo[c] || "—"}
+                                      : c === "ubicacion_comercial"
+                                        ? nombreUbicacionComercial(e.nuevo[c])
+                                        : e.nuevo[c] || "—"}
                                   </li>
                                 ))}
                             </ul>
@@ -493,6 +514,16 @@ export function RegistrosInicialesPagina({
         !error && (
           <section className="card">
             <div className="card-body">
+              <FiltroUbicacionComercial
+                valor={filtros.ubicacion_comercial}
+                cambiar={(valor) =>
+                  cambiarFiltros((f) => ({
+                    ...f,
+                    ubicacion_comercial: valor,
+                    pagina: 0,
+                  }))
+                }
+              />
               <form className="row g-2 mb-3" onSubmit={filtrar}>
                 <div className="col-md-4">
                   <label htmlFor="buscar-registros" className="form-label">
@@ -564,6 +595,7 @@ export function RegistrosInicialesPagina({
                       <tr>
                         <th scope="col">Nombre</th>
                         <th scope="col">Teléfono</th>
+                        <th scope="col">Ubicación</th>
                         <th scope="col">Origen</th>
                         <th scope="col">Cargado por</th>
                         <th scope="col">Creación</th>
@@ -582,6 +614,9 @@ export function RegistrosInicialesPagina({
                             )}
                           </td>
                           <td>{r.telefono || "—"}</td>
+                          <td>
+                            {nombreUbicacionComercial(r.ubicacion_comercial)}
+                          </td>
                           <td>{nombreOrigen(r.origen)}</td>
                           <td>{nombrePerfil(r.creado_por)}</td>
                           <td>{fecha(r.creado_en)}</td>

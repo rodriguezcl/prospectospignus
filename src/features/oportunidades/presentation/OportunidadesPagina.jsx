@@ -1,3 +1,5 @@
+import { FiltroUbicacionComercial } from "../../../shared/ui/UbicacionComercial.jsx";
+import { nombreUbicacionComercial } from "../../../shared/domain/ubicacionComercial.js";
 import { AtencionProspecto } from "./AtencionProspecto.jsx";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -27,6 +29,7 @@ export function OportunidadesPagina({
   const nueva = !soloRecuperacion && parametros.has("nueva");
   const negociaciones =
     soloRecuperacion || parametros.get("vista") === "negociaciones";
+  const [ubicacionComercial, filtrarUbicacion] = useState("");
   const [pagina, paginar] = useState(0);
   const [estado, filtrar] = useState(soloRecuperacion ? "recuperacion" : "");
   const [revision, revisar] = useState(0);
@@ -63,7 +66,12 @@ export function OportunidadesPagina({
     detallar(null);
     Promise.all([
       negociaciones
-        ? gestion.listar({ pagina, estado, busqueda })
+        ? gestion.listar({
+            pagina,
+            estado,
+            busqueda,
+            ubicacion_comercial: ubicacionComercial,
+          })
         : { filas: [], total: 0 },
       gestion.equipo(),
       id ? gestion.detalle(id) : null,
@@ -84,7 +92,16 @@ export function OportunidadesPagina({
     return () => {
       vigente = false;
     };
-  }, [gestion, id, pagina, estado, busqueda, revision, negociaciones]);
+  }, [
+    gestion,
+    id,
+    pagina,
+    estado,
+    busqueda,
+    revision,
+    negociaciones,
+    ubicacionComercial,
+  ]);
   async function guardar(accion, datos) {
     ocupar(true);
     fallar("");
@@ -529,6 +546,13 @@ export function OportunidadesPagina({
               </label>
               <button className="btn btn-outline-primary">Buscar</button>
             </form>
+            <FiltroUbicacionComercial
+              valor={ubicacionComercial}
+              cambiar={(valor) => {
+                filtrarUbicacion(valor);
+                paginar(0);
+              }}
+            />
             <label className="mb-3">
               Filtrar etapa
               <select
@@ -576,6 +600,9 @@ export function OportunidadesPagina({
                     <tr key={o.id}>
                       <td>
                         {o.prospectos.nombre}
+                        <small className="d-block">
+                          {nombreUbicacionComercial(o.ubicacion_comercial)}
+                        </small>
                         <small className="d-block">{o.necesidad}</small>
                       </td>
                       <td>{estados[o.estado]}</td>

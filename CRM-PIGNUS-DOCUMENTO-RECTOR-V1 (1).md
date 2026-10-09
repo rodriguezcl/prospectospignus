@@ -649,3 +649,7 @@ Por instrucción del titular, antes de contactar se debe tomar el prospecto de f
 
 ### Visita comercial previa a la cotización (09-10-2026)
 Por solicitud del titular, un vendedor puede programar una visita sobre un prospecto ya cargado sin preparar ni ofrecer una cotización. Esta actividad se gestiona desde Agenda y no cambia el estado comercial ni registra una visita realizada anticipadamente. Al guardarla, el contacto disponible queda reservado exclusivamente para ese vendedor. No puede utilizarse un contacto atendido por otro vendedor. Las actividades pendientes deben completarse o cancelarse antes de liberar o reasignar su atención. Se mantiene el circuito existente de visitas asociadas a negociaciones y se evita exigir una primera oferta para la visita directa al contacto.
+
+
+### Clasificación geográfica del prospecto (09-10-2026)
+Se permite indicar Docta, Nobu o Residencial al crear o editar un prospecto, separado del origen comercial y la dirección. Los existentes quedan Sin clasificar hasta clasificación explícita. Prospectos, Cotizaciones y Recuperación comercial ofrecen filtros rápidos por esa ubicación, combinables con los filtros existentes. La ubicación del contacto se usa como sugerencia para nuevas cotizaciones, sin reescribir condiciones de negociaciones o propuestas existentes; Residencial requiere precisar con o sin monitoreo.

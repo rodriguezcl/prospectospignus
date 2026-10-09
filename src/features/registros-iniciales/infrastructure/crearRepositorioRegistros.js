@@ -1,5 +1,5 @@
 const campos =
-  "id,nombre,telefono,correo,ubicacion,observaciones,origen,responsable_id,creado_por,creado_en,actualizado_en,version,lote_demostracion";
+  "id,nombre,telefono,correo,ubicacion,ubicacion_comercial,observaciones,origen,responsable_id,creado_por,creado_en,actualizado_en,version,lote_demostracion";
 function comprobar(error) {
   if (!error) return;
   const mensajes = {
@@ -15,7 +15,7 @@ function comprobar(error) {
   if (mensajes[error.message]) throw new Error(mensajes[error.message]);
   if (["42P01", "PGRST205", "PGRST202"].includes(error.code))
     throw new Error(
-      "Falta activar la base de prospectos en Supabase. Aplicá la migración 202610060032.",
+      "Falta activar la base de prospectos en Supabase. Aplicá la migración 202610090041.",
     );
   if (error.code === "42501")
     throw new Error(
@@ -62,7 +62,13 @@ export function crearRepositorioRegistros(cliente) {
       comprobar(perfiles.error);
       return { origenes: origenes.data, perfiles: perfiles.data };
     },
-    async listar({ pagina = 0, busqueda = "", origen = "", autor = "" } = {}) {
+    async listar({
+      pagina = 0,
+      busqueda = "",
+      origen = "",
+      autor = "",
+      ubicacion_comercial = "",
+    } = {}) {
       let consulta = cliente
         .from("registros_iniciales")
         .select(campos, { count: "exact" });
@@ -70,6 +76,11 @@ export function crearRepositorioRegistros(cliente) {
         consulta = consulta.ilike(
           "nombre",
           `%${busqueda.trim().replace(/[\\%_]/g, "\\$&")}%`,
+        );
+      if (ubicacion_comercial)
+        consulta = consulta.eq(
+          "ubicacion_comercial",
+          ubicacion_comercial === "sin_clasificar" ? "" : ubicacion_comercial,
         );
       if (origen) consulta = consulta.eq("origen", origen);
       if (autor) consulta = consulta.eq("creado_por", autor);
@@ -103,7 +114,7 @@ export function crearRepositorioRegistros(cliente) {
     },
     async guardar(id, version, datos) {
       const { data, error } = await cliente.rpc(
-        "guardar_registro_inicial_032",
+        "guardar_registro_inicial_041",
         {
           p_id: id,
           p_version: version,

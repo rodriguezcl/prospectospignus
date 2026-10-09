@@ -1,3 +1,4 @@
+import { ubicacionInicialAlarma } from "../../../shared/domain/ubicacionComercial.js";
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useState } from "react";
 import { propuestaVencida, vencimientoPropuesta } from "../domain/vigencia.js";
@@ -330,9 +331,14 @@ export function FormularioOportunidad({
                 <Campo
                   nombre="tipo_alarma"
                   titulo="Ubicación de la alarma"
-                  valor="a_definir"
+                  valor={ubicacionInicialAlarma(
+                    registroSeleccionado?.ubicacion_comercial,
+                  )}
                   opciones={[
-                    ["a_definir", "A definir en la visita"],
+                    ...(registroSeleccionado?.ubicacion_comercial ===
+                    "residencial"
+                      ? []
+                      : [["a_definir", "A definir en la visita"]]),
                     ...Object.entries(subcategorias),
                   ]}
                 />

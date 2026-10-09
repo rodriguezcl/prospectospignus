@@ -76,7 +76,7 @@ function comprobar(error) {
   };
   if (["42P01", "PGRST202", "PGRST205"].includes(error.code))
     throw new Error(
-      "Falta activar una migración del circuito comercial en Supabase. Para Prospectos/Cotizaciones se requiere la 039.",
+      "Falta activar una migración del circuito comercial en Supabase. Para Prospectos/Cotizaciones se requiere la 041.",
     );
   throw new Error(
     mensajes[error.message] ||
@@ -97,8 +97,14 @@ export function crearRepositorioOportunidades(cliente) {
         p_version: version,
         p_liberar: liberar,
       }),
-    contactos: ({ pagina = 0, busqueda = "", atencion = "" } = {}) =>
-      rpc("listar_contactos_039", {
+    contactos: ({
+      pagina = 0,
+      busqueda = "",
+      atencion = "",
+      ubicacion_comercial = "",
+    } = {}) =>
+      rpc("listar_contactos_041", {
+        p_ubicacion: ubicacion_comercial,
         p_atencion: atencion,
         p_pagina: pagina,
         p_busqueda: busqueda,
@@ -106,7 +112,9 @@ export function crearRepositorioOportunidades(cliente) {
     async contextoRegistro(id) {
       const registro = await cliente
         .from("registros_iniciales")
-        .select("id,nombre,telefono,ubicacion,responsable_id,lote_demostracion")
+        .select(
+          "id,nombre,telefono,ubicacion,ubicacion_comercial,responsable_id,lote_demostracion",
+        )
         .eq("id", id)
         .single();
       comprobar(registro.error);
@@ -145,30 +153,18 @@ export function crearRepositorioOportunidades(cliente) {
         p_condiciones: condiciones,
         p_datos: datos,
       }),
-    async listar({ pagina = 0, estado = "", busqueda = "" } = {}) {
-      let consulta = cliente
-        .from("oportunidades")
-        .select("*,prospectos!inner(nombre,telefono,direccion,captado_por)", {
-          count: "exact",
-        })
-        .order("prospectos(nombre)")
-        .order("id")
-        .range(pagina * 20, pagina * 20 + 19);
-      if (estado === "sin_asignar")
-        consulta = consulta
-          .eq("estado", "recuperacion")
-          .is("responsable_id", null);
-      else if (estado) consulta = consulta.eq("estado", estado);
-      else consulta = consulta.neq("estado", "anulada");
-      if (busqueda.trim())
-        consulta = consulta.ilike(
-          "prospectos.nombre",
-          `%${busqueda.trim().replace(/[%_]/g, "")}%`,
-        );
-      const { data, error, count } = await consulta;
-      comprobar(error);
-      return { filas: data, total: count };
-    },
+    listar: ({
+      pagina = 0,
+      estado = "",
+      busqueda = "",
+      ubicacion_comercial = "",
+    } = {}) =>
+      rpc("listar_casos_041", {
+        p_pagina: pagina,
+        p_estado: estado,
+        p_busqueda: busqueda,
+        p_ubicacion: ubicacion_comercial,
+      }),
     async detalle(id) {
       const [ficha, eventos, propuestas, puedeAnular] = await Promise.all([
         cliente

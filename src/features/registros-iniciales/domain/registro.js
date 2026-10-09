@@ -1,3 +1,4 @@
+import { ubicacionesComerciales } from "../../../shared/domain/ubicacionComercial.js";
 export const camposRegistro = [
   {
     nombre: "nombre",
@@ -37,6 +38,13 @@ export function validarRegistro(entrada) {
   if (typeof entrada.origen !== "string" || !entrada.origen.trim())
     throw new Error("Seleccioná el origen.");
   datos.origen = entrada.origen;
+  datos.ubicacion_comercial = entrada.ubicacion_comercial ?? "";
+  if (
+    typeof datos.ubicacion_comercial !== "string" ||
+    (datos.ubicacion_comercial !== "" &&
+      !Object.hasOwn(ubicacionesComerciales, datos.ubicacion_comercial))
+  )
+    throw new Error("Seleccioná una ubicación válida.");
   datos.motivo =
     typeof entrada.motivo === "string" ? entrada.motivo.trim() : "";
   if (datos.motivo.length > 500)

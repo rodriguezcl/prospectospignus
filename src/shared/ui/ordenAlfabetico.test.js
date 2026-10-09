@@ -29,7 +29,6 @@ test("consultas ordenan antes de limitar o paginar, no solo la página visible",
   for (const [crear, campo] of [
     [crearRepositorioRegistros, "nombre"],
     [crearRepositorioUsuarios, "nombre"],
-    [crearRepositorioOportunidades, "prospectos(nombre)"],
     [crearRepositorioPromociones, "titulo"],
   ]) {
     const llamadas = [];
@@ -53,4 +52,31 @@ test("consultas ordenan antes de limitar o paginar, no solo la página visible",
     );
     assert.ok(llamadas.some((c) => c[0] === "order" && c[1] === "id"));
   }
+});
+
+test("seguimiento delega filtros y paginación al servidor", async () => {
+  const llamadas = [];
+  const repo = crearRepositorioOportunidades({
+    rpc: async (nombre, args) => {
+      llamadas.push([nombre, args]);
+      return { data: { filas: [], total: 0 } };
+    },
+  });
+  await repo.listar({
+    pagina: 1,
+    estado: "recuperacion",
+    busqueda: "Mario",
+    ubicacion_comercial: "docta",
+  });
+  assert.deepEqual(llamadas, [
+    [
+      "listar_casos_041",
+      {
+        p_pagina: 1,
+        p_estado: "recuperacion",
+        p_busqueda: "Mario",
+        p_ubicacion: "docta",
+      },
+    ],
+  ]);
 });

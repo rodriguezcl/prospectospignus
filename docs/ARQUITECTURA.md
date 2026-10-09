@@ -321,3 +321,7 @@ La reserva de contacto es independiente de la autoría y del responsable comerci
 
 ## Agenda sobre contactos sin cotización (040)
 Agenda permite asociar actividades directamente a registros_iniciales mediante registro_id, excluyente con oportunidad_id. Búsqueda por nombre o teléfono normalizado, bajo RLS. gestionar_actividad_040 reutiliza estados, fechas, idempotencia y auditoría existentes; reserva atómicamente el contacto para el vendedor y rechaza otro titular. No crea negociaciones ni ofertas. Una actividad pendiente impide liberar o transferir la reserva; se cancela o completa previamente. El borrado administrativo cancela actividades pendientes y conserva historial. Requiere aplicar 039 y 040 antes de publicar el frontend.
+
+
+## Ubicación de prospectos (041)
+registros_iniciales incorpora ubicacion_comercial independiente de dirección y origen: Docta, Nobu, Residencial o vacío (Sin clasificar). No se deducen ubicaciones por nombres ni se alteran propuestas históricas. Alta y edición mantienen versión, idempotencia y auditoría, y clientes anteriores preservan el valor al editar si omiten el campo. Las solapas filtran en servidor antes de paginar: Prospectos por consulta RLS y Cotizaciones/Recuperación por RPC SECURITY INVOKER 041 con totales coherentes. Los casos se clasifican por el contacto actual, sin modificar la ubicación contratada de una propuesta. Docta/Nobu se sugieren al iniciar cotización; Residencial exige elegir la condición de monitoreo en el formulario. Aplicar 041 antes del frontend.

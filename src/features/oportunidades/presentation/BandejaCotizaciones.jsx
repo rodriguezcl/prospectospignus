@@ -1,3 +1,5 @@
+import { FiltroUbicacionComercial } from "../../../shared/ui/UbicacionComercial.jsx";
+import { nombreUbicacionComercial } from "../../../shared/domain/ubicacionComercial.js";
 import { AtencionProspecto, puedeAtender } from "./AtencionProspecto.jsx";
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -19,6 +21,7 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
     return () => clearInterval(t);
   }, []);
   const [busqueda, buscar] = useState("");
+  const [ubicacionComercial, filtrarUbicacion] = useState("");
   const [pagina, paginar] = useState(0);
   const [lista, listar] = useState({ filas: [], total: 0 });
   const [error, fallar] = useState("");
@@ -28,7 +31,12 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
     cargar(true);
     fallar("");
     gestion
-      .contactos({ pagina, busqueda, atencion })
+      .contactos({
+        pagina,
+        busqueda,
+        atencion,
+        ubicacion_comercial: ubicacionComercial,
+      })
       .then((r) => {
         if (vigente) listar(r);
       })
@@ -41,7 +49,15 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
     return () => {
       vigente = false;
     };
-  }, [gestion, pagina, busqueda, revision, atencion, actualizacion]);
+  }, [
+    gestion,
+    pagina,
+    busqueda,
+    revision,
+    atencion,
+    actualizacion,
+    ubicacionComercial,
+  ]);
   return (
     <div className="card card-body">
       <h2 className="h5">Prospectos para contactar</h2>
@@ -49,6 +65,13 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
         Tomá el prospecto antes de contactarlo. La reserva es exclusiva y se
         mantiene hasta liberarla. El listado se actualiza cada 30 segundos.
       </p>
+      <FiltroUbicacionComercial
+        valor={ubicacionComercial}
+        cambiar={(valor) => {
+          filtrarUbicacion(valor);
+          paginar(0);
+        }}
+      />
       <label className="mb-3">
         Atención
         <select
@@ -107,7 +130,8 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
                           {r.nombre}
                         </Link>
                         <small className="d-block">
-                          {r.telefono || "Sin teléfono"}
+                          {r.telefono || "Sin teléfono"} ·{" "}
+                          {nombreUbicacionComercial(r.ubicacion_comercial)}
                         </small>
                       </td>
                       <td>
