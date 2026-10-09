@@ -440,3 +440,40 @@ input[type="time"] {
     font-size: 1rem;
   }
 }
+
+/* El menú abierto también debe respetar el ancho del campo en pantallas pequeñas.
+   Los navegadores sin base-select conservan su selector nativo del dispositivo. */
+@supports (appearance: base-select) {
+  @media (max-width: 767.98px) {
+    select.form-select:not([multiple]):not([size]),
+    select.form-select:not([multiple]):not([size])::picker(select) {
+      appearance: base-select;
+    }
+    select.form-select:not([multiple]):not([size])::picker-icon {
+      display: none;
+    }
+    select.form-select:not([multiple]):not([size])::picker(select) {
+      box-sizing: border-box;
+      min-inline-size: 0;
+      inline-size: anchor-size(self-inline);
+      max-inline-size: calc(100dvw - 2rem);
+      max-block-size: min(20rem, 60dvh);
+      overflow: auto;
+      margin-block: 0.25rem;
+      border: 1px solid var(--bs-border-color, #ced4da);
+      border-radius: 0.375rem;
+      background: var(--bs-body-bg, #fff);
+      color: var(--bs-body-color, #25396f);
+    }
+    select.form-select:not([multiple]):not([size]) option {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      min-block-size: 2.75rem;
+      padding: 0.625rem 0.75rem;
+    }
+    select.form-select:not([multiple]):not([size]) option:checked {
+      background: #143f51;
+      color: #fff;
+    }
+  }
+}
