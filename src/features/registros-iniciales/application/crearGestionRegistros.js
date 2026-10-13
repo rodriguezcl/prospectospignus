@@ -1,5 +1,5 @@
 import { validarRegistro } from "../domain/registro.js";
-// Puerto de persistencia: listar, catalogos, obtener, historial y guardar.
+import { prepararVisitaInicial } from "../domain/visitaInicial.js";
 export function crearGestionRegistros(repositorio) {
   return {
     listar: (filtros) => repositorio.listar(filtros),
@@ -10,5 +10,11 @@ export function crearGestionRegistros(repositorio) {
       repositorio.eliminar(id, version, motivo),
     guardar: (id, version, entrada) =>
       repositorio.guardar(id, version, validarRegistro(entrada)),
+    guardarConVisita: (id, entrada) =>
+      repositorio.guardarConVisita(
+        id,
+        validarRegistro(entrada),
+        prepararVisitaInicial(entrada),
+      ),
   };
 }

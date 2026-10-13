@@ -653,3 +653,6 @@ Por solicitud del titular, un vendedor puede programar una visita sobre un prosp
 
 ### Clasificación geográfica del prospecto (09-10-2026)
 Se permite indicar Docta, Nobu o Residencial al crear o editar un prospecto, separado del origen comercial y la dirección. Los existentes quedan Sin clasificar hasta clasificación explícita. Prospectos, Cotizaciones y Recuperación comercial ofrecen filtros rápidos por esa ubicación, combinables con los filtros existentes. La ubicación del contacto se usa como sugerencia para nuevas cotizaciones, sin reescribir condiciones de negociaciones o propuestas existentes; Residencial requiere precisar con o sin monitoreo.
+
+### Agendar visita durante el alta del prospecto (13-10-2026)
+Por solicitud del titular, el vendedor puede marcar Agendar visita comercial al cargar un nuevo prospecto e indicar fecha y hora futura de Córdoba, finalización e indicaciones opcionales. Al guardar se crean juntos el contacto y la actividad programada en su propia Agenda; el contacto queda reservado exclusivamente para ese vendedor. Si falla cualquier parte, no se confirma ninguna. La opción es voluntaria, no exige cotización ni registra una visita realizada, y no amplía permisos de agentes o administración. Visitas posteriores se gestionan en Agenda. Los reintentos no duplican el prospecto ni la visita.

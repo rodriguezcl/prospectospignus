@@ -3,6 +3,17 @@ const campos =
 function comprobar(error) {
   if (!error) return;
   const mensajes = {
+    AGENDA_ACCESO:
+      "Solo un vendedor activo puede agendar una visita en su agenda.",
+    AGENDA_FECHA:
+      "Elegí una fecha y hora futura para la visita, con finalización posterior al inicio.",
+    AGENDA_DATOS: "Revisá la fecha, la hora y las indicaciones de la visita.",
+    AGENDA_CONFLICTO:
+      "La visita ya fue confirmada con otros datos. Recargá el prospecto antes de continuar.",
+    ALTA_VISITA_CONFLICTO:
+      "Este prospecto ya fue guardado. Recargá el listado y revisá su visita en Agenda.",
+    PROSPECTO_OCUPADO:
+      "El prospecto está reservado por otro vendedor. Recargá el listado.",
     PROSPECTO_ADMIN: "Solo administración puede eliminar prospectos.",
     PROSPECTO_MOTIVO: "Indicá un motivo de entre 5 y 500 caracteres.",
     PROSPECTO_VINCULADO:
@@ -33,6 +44,26 @@ function comprobar(error) {
 }
 export function crearRepositorioRegistros(cliente) {
   return {
+    async guardarConVisita(id, datos, visita) {
+      const { data, error } = await cliente.rpc(
+        "guardar_prospecto_con_visita_042",
+        {
+          p_id: id,
+          p_datos: datos,
+          p_visita: visita,
+        },
+      );
+      if (error?.code === "PGRST202")
+        throw new Error(
+          "Falta habilitar el alta con visita en Supabase: migración 202610130042. Los datos del formulario se conservan para reintentar.",
+        );
+      comprobar(error);
+      if (data?.id !== id || data?.visita_id !== id)
+        throw new Error(
+          "No pudimos confirmar el prospecto y su visita. Reintentá sin cambiar los datos para evitar duplicados.",
+        );
+      return data;
+    },
     async eliminar(id, version, motivo) {
       const { data, error } = await cliente.rpc("eliminar_prospecto_034", {
         p_id: id,

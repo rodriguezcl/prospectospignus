@@ -4,10 +4,11 @@ import {
 } from "../../../shared/ui/UbicacionComercial.jsx";
 import { nombreUbicacionComercial } from "../../../shared/domain/ubicacionComercial.js";
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { EncabezadoPagina } from "../../../shared/ui/contenido/EncabezadoPagina.jsx";
 import { camposRegistro } from "../domain/registro.js";
 import { IconoAccion } from "../../../shared/ui/IconoAccion.jsx";
+import { VisitaInicial } from "./VisitaInicial.jsx";
 
 const fecha = (valor) =>
   new Intl.DateTimeFormat("es-AR", {
@@ -43,6 +44,8 @@ export function RegistrosInicialesPagina({
   const [guardando, cambiarGuardando] = useState(false);
   const [error, cambiarError] = useState("");
   const [aviso, cambiarAviso] = useState("");
+  const [programarVisita, cambiarProgramarVisita] = useState(false);
+  const [visitaGuardada, cambiarVisitaGuardada] = useState(null);
   const [baja, cambiarBaja] = useState(null);
   const [errorBaja, cambiarErrorBaja] = useState("");
   const modalBaja = useRef(null);
@@ -90,6 +93,7 @@ export function RegistrosInicialesPagina({
     cambiarCargando(true);
     cambiarError("");
     cambiarDetalle(null);
+    cambiarProgramarVisita(false);
     marcarModificado(false);
     cambiarEventos([]);
     if (!gestion || !perfil) {
@@ -154,20 +158,24 @@ export function RegistrosInicialesPagina({
     cambiarGuardando(true);
     cambiarError("");
     cambiarAviso("");
+    cambiarVisitaGuardada(null);
     const actual = turno.current;
     const entrada = Object.fromEntries(new FormData(evento.currentTarget));
     entrada.origen = detalle.origen || entrada.origen;
     try {
-      const resultado = await gestion.guardar(
-        detalle.id,
-        detalle.version,
-        entrada,
-      );
+      const conVisita =
+        !detalle.version && perfil.rol === "vendedor" && programarVisita;
+      const resultado = conVisita
+        ? await gestion.guardarConVisita(detalle.id, entrada)
+        : await gestion.guardar(detalle.id, detalle.version, entrada);
       if (actual !== turno.current) return;
+      cambiarVisitaGuardada(resultado.visita_id || null);
       cambiarAviso(
-        detalle.version
-          ? "Cambios guardados."
-          : "Prospecto guardado. Ya está disponible en Cotizaciones; podés cotizar ahora o continuar después.",
+        conVisita
+          ? "Prospecto guardado y visita agendada. El contacto quedó reservado para vos."
+          : detalle.version
+            ? "Cambios guardados."
+            : "Prospecto guardado. Ya está disponible en Cotizaciones; podés cotizar ahora o continuar después.",
       );
       cambiarParametros({ registro: resultado.id });
       actualizar((v) => v + 1);
@@ -265,6 +273,14 @@ export function RegistrosInicialesPagina({
       {aviso && (
         <div className="alert alert-success" role="status">
           {aviso}
+          {visitaGuardada && seleccionado === visitaGuardada && (
+            <Link
+              className="alert-link d-inline-block ms-2"
+              to={`/agenda?id=${visitaGuardada}`}
+            >
+              Ver visita en Agenda
+            </Link>
+          )}
         </div>
       )}
       <div className="d-flex flex-wrap gap-2 mb-3">
@@ -410,13 +426,21 @@ export function RegistrosInicialesPagina({
                         <small>El origen se conserva después del alta.</small>
                       </div>
                     </div>
+                    {!detalle.version && perfil.rol === "vendedor" && (
+                      <VisitaInicial
+                        programar={programarVisita}
+                        cambiar={cambiarProgramarVisita}
+                      />
+                    )}
                     <div className="d-flex flex-wrap align-items-center gap-3 mt-3">
                       <button className="btn btn-primary" type="submit">
                         {guardando
                           ? "Guardando…"
                           : detalle.version
                             ? "Actualizar prospecto"
-                            : "Guardar prospecto"}
+                            : programarVisita
+                              ? "Guardar prospecto y agendar visita"
+                              : "Guardar prospecto"}
                       </button>
                       {administrador &&
                         !!detalle.version &&
