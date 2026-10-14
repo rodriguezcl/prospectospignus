@@ -3,6 +3,10 @@ import { ofertaEnUbicacion } from "../../productos/reglas.js";
 import { importeExacto, decimalCentavos, cuotasSinInteres } from "./dinero.js";
 
 import { precioPorCantidad, detallePacks } from "./packs.js";
+import {
+  nivelesCotizacion,
+  requiereEvaluacionRemota,
+} from "./nivelesCotizacion.js";
 
 export const subcategorias = {
   docta: "Docta Urbanización",
@@ -78,6 +82,7 @@ export function generarAlternativas({
       "La marca o el plan/kit no está habilitado para esta ubicación de la alarma.",
     );
   const venta = catalogo.esquema >= 4 && kit?.modalidad === "kit";
+  const habilitados = nivelesCotizacion(catalogo, telefonico);
   if (
     catalogo.esquema >= 4 &&
     !["alarma", "camaras"].includes(familia.servicio)
@@ -92,7 +97,7 @@ export function generarAlternativas({
   if (catalogo.esquema >= 2 && kit && !["plan", "kit"].includes(kit.modalidad))
     throw new Error("Seleccioná la modalidad del plan o kit.");
   if (venta) nivel = "telefonico";
-  if (!venta && nivel === "telefonico" && !telefonico)
+  if (!venta && familia.servicio === "alarma" && !habilitados.includes(nivel))
     throw new Error("Nivel no habilitado.");
   if (!alarma && !venta) nivel = "unico";
   if (
@@ -102,6 +107,10 @@ export function generarAlternativas({
     throw new Error("Nivel no válido.");
   if (new Set(extras.map((x) => x.item_id)).size !== extras.length)
     throw new Error("No repitas adicionales.");
+  if (requiereEvaluacionRemota(catalogo, kitId))
+    throw new Error(
+      "Calculá nuevamente para validar las condiciones vigentes.",
+    );
   let posibilidades = 1;
   const grupos = extras.map((e) => {
     const item = catalogo.items.find(
@@ -147,9 +156,11 @@ export function generarAlternativas({
         );
       if (
         (venta && (bonificados || bajos || altos)) ||
+        (!venta && altos > 0 && !habilitados.includes("alto")) ||
+        (!venta && bajos > 0 && !habilitados.includes("bajo")) ||
         (!venta &&
           telefonicos > 0 &&
-          (!telefonico || nivel !== "telefonico")) ||
+          (!habilitados.includes("telefonico") || nivel !== "telefonico")) ||
         (bonificados > 0 && (incluido || nivel === "telefonico"))
       )
         throw new Error(
@@ -200,10 +211,11 @@ export function generarAlternativas({
       ];
     const permiteBonificar = !incluido && nivel !== "telefonico";
     // Un mismo adicional puede repartir unidades pagas Alto/Bajo; la lista muestra cada distribución.
-    const niveles =
-      telefonico && nivel === "telefonico"
-        ? ["alto", "bajo", "telefonico"]
-        : ["alto", "bajo"];
+    const niveles = [
+      "alto",
+      "bajo",
+      ...(nivel === "telefonico" ? ["telefonico"] : []),
+    ].filter((n) => habilitados.includes(n));
     const estimadas = permiteBonificar
       ? ((n + 1) * (n + 2)) / 2
       : niveles.length === 3
@@ -215,7 +227,11 @@ export function generarAlternativas({
         "La selección supera 50.000 combinaciones. Reducí cantidades o separá la selección para comparar; no se generó una lista parcial.",
       );
     for (let gratis = 0; gratis <= (permiteBonificar ? n : 0); gratis++)
-      for (let altos = 0; altos <= n - gratis; altos++) {
+      for (
+        let altos = 0;
+        altos <= (niveles.includes("alto") ? n - gratis : 0);
+        altos++
+      ) {
         const restantes = n - gratis - altos;
         for (
           let telefono = 0;
@@ -223,6 +239,7 @@ export function generarAlternativas({
           telefono++
         ) {
           const bajos = restantes - telefono;
+          if (bajos && !niveles.includes("bajo")) continue;
           opciones.push({
             item_id: item.id,
             cantidad,

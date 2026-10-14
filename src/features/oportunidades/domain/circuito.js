@@ -23,6 +23,13 @@ export const acciones = {
   reactivar: "Reactivar oportunidad perdida",
   corregir_perdida: "Corregir pérdida cargada por error (mismo ciclo)",
 };
+export function puedeAtender(atencion, perfil) {
+  return Boolean(
+    perfil.rol === "administrador" ||
+    !atencion ||
+    (atencion.vendedor_id && atencion.vendedor_id === perfil.id),
+  );
+}
 export function puedeCotizar(oportunidad, perfil) {
   if (
     !oportunidad ||
@@ -31,10 +38,7 @@ export function puedeCotizar(oportunidad, perfil) {
     return false;
   if (
     oportunidad.preparacion_compartida &&
-    oportunidad.atencion &&
-    (!oportunidad.atencion.vendedor_id ||
-      (perfil.rol !== "administrador" &&
-        oportunidad.atencion.vendedor_id !== perfil.id))
+    !puedeAtender(oportunidad.atencion, perfil)
   )
     return false;
   if (oportunidad.preparacion_compartida)

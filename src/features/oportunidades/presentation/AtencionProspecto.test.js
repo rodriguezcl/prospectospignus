@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { buildSync } from "esbuild";
 import { createElement as h } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { puedeCotizar } from "../domain/circuito.js";
+import { puedeAtender, puedeCotizar } from "../domain/circuito.js";
 const resultado = buildSync({
   entryPoints: [
     fileURLToPath(new URL("./AtencionProspecto.jsx", import.meta.url)),
@@ -23,7 +23,7 @@ new Function("require", "module", "exports", resultado.outputFiles[0].text)(
   modulo,
   modulo.exports,
 );
-const { AtencionProspecto, puedeAtender } = modulo.exports;
+const { AtencionProspecto } = modulo.exports;
 const vendedor = { id: "a", rol: "vendedor" },
   otro = { id: "b", rol: "vendedor" },
   admin = { id: "c", rol: "administrador" };
@@ -77,6 +77,31 @@ test("preparación reservada impide cotizar a terceros y conserva permisos poste
       { id: "g", rol: "agente" },
     ),
     true,
+  );
+});
+
+test("administración puede preparar y calcular para un contacto disponible sin tomarlo como vendedor", () => {
+  for (const atencion of [pendiente, tomada, null]) {
+    assert.equal(puedeAtender(atencion, admin), true);
+    assert.equal(
+      puedeCotizar(
+        { estado: "cotizacion", preparacion_compartida: true, atencion },
+        admin,
+      ),
+      true,
+    );
+  }
+  assert.doesNotMatch(
+    dibujar(pendiente, admin),
+    /Tomar prospecto|Liberar prospecto/,
+  );
+  assert.equal(puedeAtender(pendiente, { id: "g", rol: "agente" }), false);
+  assert.equal(
+    puedeCotizar(
+      { estado: "ganada", preparacion_compartida: true, atencion: pendiente },
+      admin,
+    ),
+    false,
   );
 });
 

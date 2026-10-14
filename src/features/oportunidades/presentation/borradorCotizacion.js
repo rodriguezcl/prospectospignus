@@ -1,4 +1,5 @@
 import { generarAlternativas } from "../domain/alternativas.js";
+import { validarNivelesSeleccion } from "../domain/nivelesCotizacion.js";
 
 export const claveBorrador = (perfil, oportunidad) =>
   `pignus:cotizacion:1:${perfil.id}:${oportunidad.id}:${oportunidad.ciclo || 1}:${perfil.rol}:${oportunidad.estado}`;
@@ -12,6 +13,11 @@ export function seleccionBorrador(concepto) {
 export function reconstruirConceptos(conceptos, catalogo, telefonico) {
   return conceptos.map((c) => {
     const s = c.seleccion;
+    validarNivelesSeleccion(
+      catalogo,
+      { ...s, nivel_abono: c.nivel_abono },
+      telefonico,
+    );
     const opciones = generarAlternativas({
       distribucionManual: true,
       catalogo,

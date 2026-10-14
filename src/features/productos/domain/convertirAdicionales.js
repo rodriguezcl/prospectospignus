@@ -49,7 +49,13 @@ export function convertirAdicionales(catalogo, cambio) {
         i.servicio === "camaras"
           ? ["telefonico"]
           : ["alto", "bajo", "telefonico"];
-      if (requeridos.some((n) => precios[n] === undefined))
+      const visibles = Array.isArray(catalogo.niveles_habilitados)
+        ? requeridos.filter(
+            (n) =>
+              n === "telefonico" || catalogo.niveles_habilitados.includes(n),
+          )
+        : requeridos;
+      if (visibles.some((n) => precios[n] === undefined))
         throw new Error(`Completá la lista USD de ${i.nombre}.`);
       return { ...i, precios, precios_pack_2 };
     }),

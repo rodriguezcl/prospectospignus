@@ -300,6 +300,178 @@ test("atención exclusiva: avisos por agente, toma, conflictos, liberación y pr
     )
   ).rows;
   assert.equal(eventos.length, 6);
+  await t.test(
+    "administración prepara un contacto disponible y asigna al registrar, sin efectos parciales",
+    async () => {
+      const [contactoAdmin, casoAdmin, operacionAdmin, ofertaAdmin] =
+        Array.from({ length: 4 }, randomUUID);
+      await como(admin);
+      await db.query("select public.guardar_registro_inicial_041($1,0,$2)", [
+        contactoAdmin,
+        { ...datos, nombre: "Preparación administrativa" },
+      ]);
+      const preparar = () =>
+        db.query("select public.iniciar_cotizacion_032($1,0,$2,$3)", [
+          casoAdmin,
+          operacionAdmin,
+          { ...iniciar, registro_id: contactoAdmin },
+        ]);
+      const consultarReserva = async () =>
+        (
+          await db.query("select public.atencion_prospecto_039($1) dato", [
+            contactoAdmin,
+          ])
+        ).rows[0].dato;
+      const consultarCaso = async () =>
+        (
+          await db.query(
+            "select responsable_id,preparacion_compartida,version from public.oportunidades where id=$1",
+            [casoAdmin],
+          )
+        ).rows[0];
+      const guardarOferta = (cambios = {}) =>
+        db.query("select public.guardar_propuesta_030($1,$2,1,1,0,$3)", [
+          ofertaAdmin,
+          casoAdmin,
+          { ...solicitud, ...cambios },
+        ]);
+      await preparar();
+      await preparar();
+      assert.deepEqual(await consultarCaso(), {
+        responsable_id: null,
+        preparacion_compartida: true,
+        version: 1,
+      });
+      assert.equal((await consultarReserva()).vendedor_id, null);
+      assert.equal((await consultarReserva()).version, 1);
+      await assert.rejects(
+        db.query("select public.tomar_prospecto_039($1,1,false)", [
+          contactoAdmin,
+        ]),
+        /COMERCIAL_VENDEDOR/,
+      );
+      for (const responsable_seguimiento_id of [
+        undefined,
+        admin,
+        agente,
+        inactivo,
+      ])
+        await assert.rejects(
+          guardarOferta({ responsable_seguimiento_id }),
+          /COMERCIAL_VENDEDOR/,
+        );
+      await assert.rejects(
+        guardarOferta({
+          responsable_seguimiento_id: a,
+          pago: { ...solicitud.pago, base_efectivo: "99999" },
+        }),
+        /PROPUESTA_PAGO/,
+      );
+      assert.equal((await consultarReserva()).vendedor_id, null);
+      assert.equal((await consultarReserva()).version, 1);
+      assert.equal((await consultarCaso()).responsable_id, null);
+      assert.equal((await consultarCaso()).preparacion_compartida, true);
+      assert.equal(
+        (
+          await db.query(
+            "select * from public.eventos_atencion_prospectos where registro_id=$1",
+            [contactoAdmin],
+          )
+        ).rows.length,
+        0,
+      );
+      assert.equal(
+        (
+          await db.query(
+            "select * from public.eventos_oportunidades where oportunidad_id=$1 and tipo='primera_oferta_asignada'",
+            [casoAdmin],
+          )
+        ).rows.length,
+        0,
+      );
+      await guardarOferta({ responsable_seguimiento_id: a });
+      await guardarOferta({ responsable_seguimiento_id: a });
+      assert.equal((await consultarCaso()).responsable_id, a);
+      assert.equal((await consultarCaso()).preparacion_compartida, false);
+      assert.equal((await consultarReserva()).vendedor_id, a);
+      assert.equal((await consultarReserva()).version, 2);
+      const auditoria = (
+        await db.query(
+          "select actor_id,vendedor_anterior,vendedor_nuevo from public.eventos_atencion_prospectos where registro_id=$1",
+          [contactoAdmin],
+        )
+      ).rows;
+      assert.deepEqual(auditoria, [
+        { actor_id: admin, vendedor_anterior: null, vendedor_nuevo: a },
+      ]);
+    },
+  );
+  await t.test(
+    "administración respeta al vendedor que toma el contacto después de prepararlo",
+    async () => {
+      const [contactoAdmin, casoAdmin] = Array.from({ length: 2 }, randomUUID);
+      await como(admin);
+      await db.query("select public.guardar_registro_inicial_041($1,0,$2)", [
+        contactoAdmin,
+        { ...datos, nombre: "Reserva posterior a preparación" },
+      ]);
+      const parametros = [
+        casoAdmin,
+        randomUUID(),
+        { ...iniciar, registro_id: contactoAdmin },
+      ];
+      await como(agente);
+      await assert.rejects(
+        db.query(
+          "select public.iniciar_cotizacion_032($1,0,$2,$3)",
+          parametros,
+        ),
+        /PROSPECTO_TOMAR/,
+      );
+      await como(admin);
+      await db.query(
+        "select public.iniciar_cotizacion_032($1,0,$2,$3)",
+        parametros,
+      );
+      await como(b);
+      await db.query("select public.tomar_prospecto_039($1,1,false)", [
+        contactoAdmin,
+      ]);
+      await como(admin);
+      const oferta = randomUUID();
+      await assert.rejects(
+        db.query("select public.guardar_propuesta_030($1,$2,1,1,0,$3)", [
+          oferta,
+          casoAdmin,
+          { ...solicitud, responsable_seguimiento_id: a },
+        ]),
+        /PROSPECTO_OCUPADO/,
+      );
+      await db.query("select public.guardar_propuesta_030($1,$2,1,1,0,$3)", [
+        oferta,
+        casoAdmin,
+        { ...solicitud, responsable_seguimiento_id: b },
+      ]);
+      assert.equal(
+        (
+          await db.query(
+            "select responsable_id from public.oportunidades where id=$1",
+            [casoAdmin],
+          )
+        ).rows[0].responsable_id,
+        b,
+      );
+      assert.equal(
+        (
+          await db.query("select public.atencion_prospecto_039($1) dato", [
+            contactoAdmin,
+          ])
+        ).rows[0].dato.vendedor_id,
+        b,
+      );
+    },
+  );
+  await como(admin);
   await db.query(
     "select public.eliminar_prospecto_034($1,1,'Contacto de prueba')",
     [registro],

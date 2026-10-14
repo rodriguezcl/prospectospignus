@@ -1,10 +1,10 @@
 import { FiltroUbicacionComercial } from "../../../shared/ui/UbicacionComercial.jsx";
 import { nombreUbicacionComercial } from "../../../shared/domain/ubicacionComercial.js";
-import { AtencionProspecto, puedeAtender } from "./AtencionProspecto.jsx";
+import { AtencionProspecto } from "./AtencionProspecto.jsx";
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { estados } from "../domain/circuito.js";
+import { estados, puedeAtender } from "../domain/circuito.js";
 
 export function BandejaCotizaciones({ gestion, perfil, revision }) {
   const [parametros] = useSearchParams();

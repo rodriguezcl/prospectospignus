@@ -90,6 +90,12 @@ export function crearRepositorioOportunidades(cliente) {
     return data;
   }
   return {
+    evaluarSelecciones: ({ oportunidad, catalogo, selecciones }) =>
+      rpc("evaluar_selecciones_044", {
+        p_oportunidad: oportunidad,
+        p_catalogo: catalogo,
+        p_selecciones: selecciones,
+      }),
     atencion: (id) => rpc("atencion_prospecto_039", { p_registro: id }),
     tomarProspecto: ({ registro, version, liberar = false }) =>
       rpc("tomar_prospecto_039", {

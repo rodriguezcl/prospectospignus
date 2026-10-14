@@ -1,4 +1,5 @@
-import { AtencionProspecto, puedeAtender } from "./AtencionProspecto.jsx";
+import { AtencionProspecto } from "./AtencionProspecto.jsx";
+import { puedeAtender } from "../domain/circuito.js";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FormularioOportunidad } from "./FormularioOportunidad.jsx";
@@ -167,8 +168,12 @@ export function CrearProspecto({
           )}
           {!autorizado ? (
             <p>
-              Este prospecto no está disponible para que inicies una
-              negociación. Consultá al responsable o a administración.
+              {!r.lote_demostracion &&
+              contexto.atencion &&
+              !contexto.atencion.vendedor_id &&
+              perfil.rol === "vendedor"
+                ? "Tomá el prospecto con el botón «Tomar prospecto» para preparar la cotización."
+                : "Este prospecto no está disponible para que inicies una negociación. Consultá al responsable o a administración."}
             </p>
           ) : (
             (!contexto.casos.length || otra) && (

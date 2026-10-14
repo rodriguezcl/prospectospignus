@@ -8,10 +8,13 @@ import {
 } from "../domain/catalogo.js";
 import { EditorCatalogo } from "./EditorCatalogo.jsx";
 import { TablaCatalogo } from "./TablaCatalogo.jsx";
+import { ListasPrecios } from "./ListasPrecios.jsx";
+import { validarPermisosPrecios } from "../domain/permisosPrecios.js";
 const secciones = {
   marcas: "Marcas",
   productos: "Productos",
   ofertas: "Planes y kits",
+  listas: "Listas de precios",
 };
 export function ProductosPagina({ gestion }) {
   const [catalogo, setCatalogo] = useState(null),
@@ -67,12 +70,14 @@ export function ProductosPagina({ gestion }) {
     setError("");
     setAviso("");
     try {
-      const datosBase = modificarCatalogo(
-        catalogo.datos,
-        seccionDatos,
-        valor,
-        accion,
-      );
+      const datosBase =
+        seccionDatos === "permisos"
+          ? {
+              ...catalogo.datos,
+              permisos_precios_version: 1,
+              permisos_precios: validarPermisosPrecios(valor),
+            }
+          : modificarCatalogo(catalogo.datos, seccionDatos, valor, accion);
       const clave = JSON.stringify({ version: catalogo.version, datosBase });
       if (envio.current?.clave !== clave)
         envio.current = {
@@ -157,11 +162,13 @@ export function ProductosPagina({ gestion }) {
               historial se conserva.
             </div>
           )}
-          <p className="small mb-3">
-            Cada producto tiene su propia lista de referencia: pesos o dólares.
-            Podés cambiarla al editarlo. Los importes finales siempre se
-            muestran en pesos.
-          </p>
+          {seccion !== "listas" && (
+            <p className="small mb-3">
+              Cada producto tiene su propia lista de referencia: pesos o
+              dólares. Podés cambiarla al editarlo. Los importes finales siempre
+              se muestran en pesos.
+            </p>
+          )}
           <nav
             aria-label="Secciones del catálogo"
             className="d-flex flex-wrap gap-2 mb-3"
@@ -184,7 +191,7 @@ export function ProductosPagina({ gestion }) {
             ))}
           </nav>
           <div className="d-flex flex-wrap gap-2 mb-3">
-            {!edicion && !baja && (
+            {seccion !== "listas" && !edicion && !baja && (
               <button
                 className="btn btn-primary"
                 disabled={ocupado}
@@ -315,51 +322,60 @@ export function ProductosPagina({ gestion }) {
                 opción.
               </p>
             )}
-            <TablaCatalogo
-              key={seccion}
-              filas={filas}
-              marcas={catalogo.datos.marcas}
-              seccion={seccion}
-              titulo={secciones[seccion]}
-              ocupado={ocupado}
-              cambiarEstado={(i) => {
-                setError("");
-                setAviso("");
-                setEdicion(null);
-                setBaja({ grupo, valor: i, accion: "guardar" });
-              }}
-              cambiarAdicional={(i) => {
-                setError("");
-                setAviso("");
-                setEdicion(null);
-                setBaja({ grupo, valor: i, accion: "cambiar_adicional" });
-              }}
-              acciones={(i) => (
-                <div className="d-flex flex-wrap gap-2">
-                  <button
-                    className="btn btn-sm btn-outline-primary"
-                    disabled={ocupado}
-                    title={`Editar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""}`}
-                    aria-label={`Editar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""}`}
-                    onClick={() => abrir(i)}
-                  >
-                    <IconoAccion accion="editar" />
-                  </button>
-                  <button
-                    title={`Eliminar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""} del catálogo`}
-                    aria-label={`Eliminar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""} del catálogo`}
-                    className="btn btn-sm btn-outline-danger"
-                    disabled={ocupado}
-                    onClick={() => {
-                      setEdicion(null);
-                      setBaja({ grupo, valor: i, accion: "eliminar" });
-                    }}
-                  >
-                    <IconoAccion accion="eliminar" />
-                  </button>
-                </div>
-              )}
-            />
+            {seccion === "listas" ? (
+              <ListasPrecios
+                key={catalogo.version}
+                permisos={catalogo.datos.permisos_precios}
+                guardar={(permisos) => guardar("permisos", permisos)}
+                ocupado={ocupado}
+              />
+            ) : (
+              <TablaCatalogo
+                key={seccion}
+                filas={filas}
+                marcas={catalogo.datos.marcas}
+                seccion={seccion}
+                titulo={secciones[seccion]}
+                ocupado={ocupado}
+                cambiarEstado={(i) => {
+                  setError("");
+                  setAviso("");
+                  setEdicion(null);
+                  setBaja({ grupo, valor: i, accion: "guardar" });
+                }}
+                cambiarAdicional={(i) => {
+                  setError("");
+                  setAviso("");
+                  setEdicion(null);
+                  setBaja({ grupo, valor: i, accion: "cambiar_adicional" });
+                }}
+                acciones={(i) => (
+                  <div className="d-flex flex-wrap gap-2">
+                    <button
+                      className="btn btn-sm btn-outline-primary"
+                      disabled={ocupado}
+                      title={`Editar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""}`}
+                      aria-label={`Editar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""}`}
+                      onClick={() => abrir(i)}
+                    >
+                      <IconoAccion accion="editar" />
+                    </button>
+                    <button
+                      title={`Eliminar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""} del catálogo`}
+                      aria-label={`Eliminar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""} del catálogo`}
+                      className="btn btn-sm btn-outline-danger"
+                      disabled={ocupado}
+                      onClick={() => {
+                        setEdicion(null);
+                        setBaja({ grupo, valor: i, accion: "eliminar" });
+                      }}
+                    >
+                      <IconoAccion accion="eliminar" />
+                    </button>
+                  </div>
+                )}
+              />
+            )}
           </section>
         </>
       )}

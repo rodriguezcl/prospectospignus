@@ -1,7 +1,7 @@
-import { AtencionProspecto, puedeAtender } from "./AtencionProspecto.jsx";
+import { AtencionProspecto } from "./AtencionProspecto.jsx";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { estados } from "../domain/circuito.js";
+import { estados, puedeAtender } from "../domain/circuito.js";
 
 export function CasosDelRegistro({ casos }) {
   return (

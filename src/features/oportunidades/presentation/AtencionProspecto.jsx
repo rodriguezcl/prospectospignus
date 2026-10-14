@@ -56,11 +56,3 @@ export function AtencionProspecto({ atencion, perfil, gestion, actualizada }) {
     </div>
   );
 }
-
-export function puedeAtender(atencion, perfil) {
-  return Boolean(
-    !atencion ||
-    (atencion.vendedor_id &&
-      (atencion.vendedor_id === perfil.id || perfil.rol === "administrador")),
-  );
-}

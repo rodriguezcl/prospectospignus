@@ -60,8 +60,8 @@ test("productos: puerto envía versión e idempotencia, no identidad de actor", 
     operacion: "op",
     datos: { familias: [], items: [] },
   });
-  assert.deepEqual(llamadas[0], ["leer_catalogo", { p_oportunidad: null }]);
-  assert.equal(llamadas[1][0], "guardar_catalogo_038");
+  assert.deepEqual(llamadas[0], ["leer_catalogo_044", { p_oportunidad: null }]);
+  assert.equal(llamadas[1][0], "guardar_catalogo_044");
   assert.deepEqual(Object.keys(llamadas[1][1]), [
     "p_version",
     "p_operacion",

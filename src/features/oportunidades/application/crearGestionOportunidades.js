@@ -16,6 +16,7 @@ export function crearGestionOportunidades(repositorio, referencias = {}) {
     condiciones: referencias.condiciones,
     propuestas: repositorio.propuestas,
     guardarPropuesta: repositorio.guardarPropuesta,
+    evaluarSelecciones: repositorio.evaluarSelecciones,
     guardar: (entrada) => repositorio.guardar(validarOperacion(entrada)),
   };
 }

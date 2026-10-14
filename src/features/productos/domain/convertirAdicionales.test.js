@@ -1,6 +1,41 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { convertirAdicionales } from "./convertirAdicionales.js";
+
+test("USD convierte solo las tarifas visibles y no exige listas revocadas", () => {
+  const catalogo = {
+    moneda_productos_version: 1,
+    niveles_habilitados: ["alto"],
+    items: [
+      {
+        id: "producto",
+        tipo: "adicional",
+        servicio: "alarma",
+        adicional_habilitado: true,
+        moneda_referencia: "USD",
+        precios_usd: { alto: "2.5", telefonico: "1.2" },
+        precios_pack_2_usd: { alto: "4" },
+      },
+    ],
+  };
+  const convertido = convertirAdicionales(catalogo, {
+    id: "cambio",
+    venta: "1500",
+  });
+  assert.deepEqual(convertido.items[0].precios, {
+    alto: "3750.000000",
+    telefonico: "1800.000000",
+  });
+  assert.equal(convertido.items[0].precios_pack_2.alto, "6000.000000");
+  assert.throws(
+    () =>
+      convertirAdicionales(
+        { ...catalogo, niveles_habilitados: ["alto", "bajo"] },
+        { id: "cambio", venta: "1500" },
+      ),
+    /Completá la lista/,
+  );
+});
 test("USD usa únicamente su pack; la conversión nunca encarece dos individuales por redondeo", () => {
   const catalogo = {
     esquema: 7,

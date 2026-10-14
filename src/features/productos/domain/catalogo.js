@@ -1,4 +1,8 @@
 import { prepararUbicaciones } from "./ubicaciones.js";
+import {
+  permisosPreciosIniciales,
+  validarPermisosPrecios,
+} from "./permisosPrecios.js";
 export const servicios = {
   alarma: "Alarma",
   camaras: "Cámaras",
@@ -81,6 +85,12 @@ export function prepararCatalogo(datos) {
   const nuevo = prepararUbicaciones(adaptarEstructura(datos));
   nuevo.esquema = 7;
   nuevo.moneda_productos_version = 1;
+  nuevo.permisos_precios_version = 1;
+  nuevo.permisos_precios = validarPermisosPrecios(
+    nuevo.permisos_precios ?? permisosPreciosIniciales(),
+  );
+  delete nuevo.niveles_habilitados;
+  delete nuevo.calculo_remoto;
   nuevo.moneda_adicionales = "ARS";
   nuevo.familias = nuevo.familias.filter((f) => f.servicio !== "cerco");
   nuevo.items = nuevo.items.filter(

@@ -5,6 +5,8 @@ export function crearRepositorioCatalogo(cliente) {
     const { data, error } = await cliente.rpc(nombre, datos);
     if (error) {
       const mensajes = {
+        CATALOGO_PERMISOS:
+          "Revisá los niveles habilitados para vendedor y agente.",
         CATALOGO_UBICACION:
           "Revisá las ubicaciones habilitadas en marcas y planes o kits.",
         CATALOGO_PACK:
@@ -41,7 +43,7 @@ export function crearRepositorioCatalogo(cliente) {
       throw new Error(
         mensajes[error.message] ||
           (["PGRST202", "42P01"].includes(error.code)
-            ? "Falta aplicar la actualización del catálogo comercial (038)."
+            ? "Falta aplicar la actualización de listas de precios (044)."
             : "No se pudo guardar o consultar el catálogo. Revisá campos, precios y conexión."),
       );
     }
@@ -49,7 +51,7 @@ export function crearRepositorioCatalogo(cliente) {
   }
   return {
     async leerParaCotizar(oportunidad) {
-      const catalogo = await llamar("leer_catalogo", {
+      const catalogo = await llamar("leer_catalogo_044", {
         p_oportunidad: oportunidad,
       });
       if (!tieneAdicionalesUSD(catalogo.datos)) return catalogo;
@@ -62,9 +64,9 @@ export function crearRepositorioCatalogo(cliente) {
       return { ...catalogo, datos: convertirAdicionales(catalogo.datos, data) };
     },
     leer: (oportunidad = null) =>
-      llamar("leer_catalogo", { p_oportunidad: oportunidad }),
+      llamar("leer_catalogo_044", { p_oportunidad: oportunidad }),
     guardar: ({ version, operacion, datos }) =>
-      llamar("guardar_catalogo_038", {
+      llamar("guardar_catalogo_044", {
         p_version: version,
         p_operacion: operacion,
         p_datos: datos,

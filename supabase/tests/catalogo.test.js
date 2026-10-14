@@ -207,6 +207,8 @@ test("catálogo: versiones, activación, RLS y precios restringidos", async (t) 
   // Este escenario conserva los contratos históricos anteriores a 035.
   delete nuevo.ubicaciones_version;
   delete nuevo.moneda_productos_version;
+  delete nuevo.permisos_precios_version;
+  delete nuevo.permisos_precios;
   // Conserva la regresión del contrato 020/023 antes de probar su adaptación.
   nuevo.esquema = 2;
   nuevo.plantillas_version = 1;
@@ -383,6 +385,8 @@ test("catálogo: versiones, activación, RLS y precios restringidos", async (t) 
   await assert.rejects(guardar(4, clienteAnterior), /CATALOGO_ESQUEMA/);
   await assert.rejects(guardar(4, nuevo), /CATALOGO_PLANTILLA/);
   const sinPlantillas = completarGrupos(prepararCatalogo(guardado.datos), randomUUID);
+  delete sinPlantillas.permisos_precios_version;
+  delete sinPlantillas.permisos_precios;
   // Ejercita explícitamente el contrato histórico 024 antes de publicar esquema 4.
   sinPlantillas.esquema = 3;
   delete sinPlantillas.moneda_productos_version;

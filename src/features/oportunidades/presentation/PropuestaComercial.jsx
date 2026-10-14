@@ -1,6 +1,21 @@
 import { prepararPresupuesto } from "./presupuestoPdf.js";
 import { ubicacionesMarca, ofertaEnUbicacion } from "../../productos/reglas.js";
-import { disponibilidadAdicional } from "./disponibilidadAdicional.js";
+import {
+  disponibilidadAdicional,
+  extrasParaCalculo,
+} from "./disponibilidadAdicional.js";
+import {
+  nivelesCotizacion,
+  requiereEvaluacionRemota,
+  condicionesHabilitadas,
+  validarNivelesSeleccion,
+} from "../domain/nivelesCotizacion.js";
+import {
+  seleccionParaEvaluar,
+  evaluarLotes,
+  alternativaEvaluada,
+} from "./evaluacionCotizacion.js";
+import { useDisponibilidadRemota } from "./useDisponibilidadRemota.js";
 import { unidadesAdicional, condicionesExtra } from "./unidadesAdicional.js";
 import { ordenarItemsCotizacion } from "./ordenarItemsCotizacion.js";
 import { propuestaVencida, vencimientoPropuesta } from "../domain/vigencia.js";
@@ -28,7 +43,6 @@ import {
 
 const moneda = (valor) => monedaArgentina(valor, "No corresponde");
 const activo = (item) => !item.estado || item.estado === "activo";
-const niveles = ["catalogo", "alto", "medio", "bajo"];
 
 export function PropuestaComercial({
   gestion,
@@ -122,9 +136,20 @@ export function PropuestaComercial({
   const intento = useRef(null);
   const revision = useRef(crypto.randomUUID());
   const puedeEditar = puedeCotizar(oportunidad, perfil);
-  const telefonico =
+  const telefonicoAnterior =
     oportunidad.estado === "recuperacion" &&
     ["administrador", "agente"].includes(perfil.rol);
+  const telefonico = nivelesCotizacion(
+    referencias?.catalogo.datos,
+    telefonicoAnterior,
+  ).includes("telefonico");
+  const disponibilidadRemota = useDisponibilidadRemota(
+    gestion,
+    oportunidad.id,
+    referencias?.catalogo,
+    { familiaId, kitId, subcategoria, nivel, nivelAbono, telefonico },
+    extras,
+  );
 
   useEffect(() => {
     let vigente = true;
@@ -137,6 +162,19 @@ export function PropuestaComercial({
         if (vigente) {
           cargarReferencias({ catalogo, condiciones });
           guardarHistorial(propuestas);
+          const habilitados = nivelesCotizacion(
+            catalogo.datos,
+            telefonicoAnterior,
+          );
+          const telefonoCatalogo = habilitados.includes("telefonico");
+          elegirNivel((actual) =>
+            habilitados.includes(actual) ? actual : habilitados[0] || "",
+          );
+          elegirAbono((actual) =>
+            habilitados.includes(actual)
+              ? actual
+              : habilitados.find((n) => n !== "catalogo") || "",
+          );
           if (puedeEditar) {
             try {
               const b = leerBorrador(
@@ -146,14 +184,18 @@ export function PropuestaComercial({
               );
               if (b) {
                 mostrarRegistro(false);
-                mostrarConfiguracion(!b.vigente || !b.calculado);
-                restaurarSeleccion(b.seleccion);
-                if (b.vigente) {
+                const remoto = requiereEvaluacionRemota(
+                  catalogo.datos,
+                  b.seleccion.kitId,
+                );
+                mostrarConfiguracion(!b.vigente || !b.calculado || remoto);
+                restaurarSeleccion(b.seleccion, catalogo.datos);
+                if (b.vigente && !remoto) {
                   agregarConceptos(
                     reconstruirConceptos(
                       b.conceptos,
                       catalogo.datos,
-                      telefonico,
+                      telefonoCatalogo,
                     ),
                   );
                   elegirEfectivo(b.pago.baseEfectivo);
@@ -169,7 +211,7 @@ export function PropuestaComercial({
                         kitId: b.seleccion.kitId,
                         nivel: b.seleccion.nivel,
                         subcategoria: b.seleccion.subcategoria,
-                        telefonico,
+                        telefonico: telefonoCatalogo,
                         extras: Object.entries(b.seleccion.extras)
                           .filter(([, v]) => v.activo)
                           .map(([item_id, v]) => ({
@@ -184,10 +226,15 @@ export function PropuestaComercial({
                   );
                 } else
                   avisarBorrador(
-                    "El catálogo o las condiciones cambiaron. Recuperamos tu selección; revisala y calculá los precios vigentes antes de elegir una oferta.",
+                    b.vigente
+                      ? "Recuperamos tu selección. Calculá nuevamente para validar las condiciones disponibles antes de continuar."
+                      : "El catálogo o las condiciones cambiaron. Recuperamos tu selección; revisala y calculá los precios vigentes antes de elegir una oferta.",
                   );
               }
             } catch (e) {
+              mostrarConfiguracion(true);
+              agregarConceptos([]);
+              generar([]);
               avisarBorrador(
                 "No se pudo recuperar todo el borrador. " + e.message,
               );
@@ -204,15 +251,40 @@ export function PropuestaComercial({
     };
   }, [gestion, oportunidad.id, revisionReferencias]);
 
-  function restaurarSeleccion(s) {
+  function restaurarSeleccion(s, datos = referencias?.catalogo.datos) {
+    const habilitados = nivelesCotizacion(datos, telefonicoAnterior);
+    const permitidas = condicionesHabilitadas(
+      datos,
+      s.nivel,
+      s.subcategoria,
+      telefonicoAnterior,
+    );
+    const ventaRestaurada =
+      datos?.items.find((i) => i.id === s.kitId)?.modalidad === "kit";
     elegirServicio(s.servicio);
     elegirFamilia(s.familiaId);
     elegirModalidadEquipo(s.modalidadEquipo);
     elegirKit(s.kitId);
     elegirSubcategoria(s.subcategoria);
-    elegirExtras(s.extras);
-    elegirNivel(s.nivel);
-    elegirAbono(s.nivelAbono);
+    elegirExtras(
+      ventaRestaurada
+        ? s.extras
+        : Object.fromEntries(
+            Object.entries(s.extras).map(([id, extra]) => [
+              id,
+              {
+                ...extra,
+                unidades: unidadesAdicional(extra).map((c) =>
+                  permitidas.includes(c) ? c : "",
+                ),
+              },
+            ]),
+          ),
+    );
+    elegirNivel(
+      ventaRestaurada || habilitados.includes(s.nivel) ? s.nivel : "",
+    );
+    elegirAbono(habilitados.includes(s.nivelAbono) ? s.nivelAbono : "");
     elegirMeses(s.meses);
   }
   const borrador = JSON.stringify({
@@ -272,8 +344,12 @@ export function PropuestaComercial({
     elegirFamilia(valor);
     elegirKit("");
     elegirExtras({});
-    elegirNivel("catalogo");
-    elegirAbono("alto");
+    const habilitados = nivelesCotizacion(
+      referencias?.catalogo.datos,
+      telefonicoAnterior,
+    );
+    elegirNivel(habilitados[0] || "");
+    elegirAbono(habilitados.find((n) => n !== "catalogo") || "");
     elegirMeses(0);
     invalidar();
   }
@@ -299,6 +375,7 @@ export function PropuestaComercial({
       </div>
     );
   const catalogo = referencias.catalogo.datos;
+  const nivelesHabilitados = nivelesCotizacion(catalogo, telefonicoAnterior);
   const condiciones = referencias.condiciones.datos;
   const familias = ordenarAlfabeticamente(
     catalogo.familias,
@@ -328,7 +405,8 @@ export function PropuestaComercial({
     (servicio === "camaras" || modalidadEquipo === "kit");
   const disponibilidad =
     !venta && servicio === "alarma" && kit
-      ? disponibilidadAdicional(
+      ? disponibilidadRemota ||
+        disponibilidadAdicional(
           { catalogo, familiaId, kitId, subcategoria, nivel, telefonico },
           extras,
         )
@@ -375,24 +453,45 @@ export function PropuestaComercial({
         catalogo: actualizado,
         condiciones: condicionesActuales,
       });
-      generar(
-        generarAlternativas({
-          distribucionManual: true,
-          catalogo: actualizado.datos,
-          familiaId,
-          kitId,
-          subcategoria,
-          nivel,
-          telefonico,
-          extras: Object.entries(extras)
-            .filter(([, v]) => v.activo)
-            .map(([item_id, v]) => ({
-              item_id,
-              cantidad: v.cantidad,
-              ...condicionesExtra(v),
-            })),
-        }),
-      );
+      const parametros = {
+        catalogo: actualizado.datos,
+        familiaId,
+        kitId,
+        subcategoria,
+        nivel,
+        nivelAbono,
+        telefonico: nivelesCotizacion(
+          actualizado.datos,
+          telefonicoAnterior,
+        ).includes("telefonico"),
+      };
+      if (
+        conAbono &&
+        (!nivelAbono ||
+          !nivelesCotizacion(actualizado.datos, telefonicoAnterior).includes(
+            nivelAbono,
+          ))
+      )
+        throw new Error(
+          "Seleccioná un nivel del abono habilitado para tu rol.",
+        );
+      if (requiereEvaluacionRemota(actualizado.datos, kitId)) {
+        const seleccion = seleccionParaEvaluar(parametros, extras);
+        const [resultado] = await evaluarLotes(
+          gestion,
+          oportunidad.id,
+          actualizado.version,
+          [seleccion],
+        );
+        generar([alternativaEvaluada(resultado, seleccion)]);
+      } else
+        generar(
+          generarAlternativas({
+            ...parametros,
+            distribucionManual: true,
+            extras: extrasParaCalculo(extras),
+          }),
+        );
 
       mostrarConfiguracion(false);
       mostrarRegistro(false);
@@ -616,10 +715,16 @@ export function PropuestaComercial({
                   elegirCuotas(1);
                   if (
                     !propuestaVencida(ultima) &&
+                    !requiereEvaluacionRemota(catalogo, s.kit_id) &&
                     ultima.catalogo_version === referencias.catalogo.version &&
                     ultima.condiciones_version ===
                       referencias.condiciones.version
                   ) {
+                    validarNivelesSeleccion(
+                      catalogo,
+                      { ...s, nivel_abono: c.nivel_abono },
+                      telefonico,
+                    );
                     generar(
                       generarAlternativas({
                         distribucionManual: true,
@@ -639,7 +744,7 @@ export function PropuestaComercial({
                   } else {
                     mostrarConfiguracion(true);
                     avisarBorrador(
-                      "Recuperamos la selección del primer plan o kit. Los precios o condiciones cambiaron: calculá una nueva oferta. La propuesta original se conserva.",
+                      "Recuperamos la selección del primer plan o kit. Calculá una nueva oferta con las condiciones vigentes. La propuesta original se conserva.",
                     );
                   }
                 } catch (e) {
@@ -872,10 +977,8 @@ export function PropuestaComercial({
                           invalidar();
                         }}
                       >
-                        {[
-                          ...niveles,
-                          ...(telefonico ? ["telefonico"] : []),
-                        ].map((n) => (
+                        <option value="">Seleccioná un nivel</option>
+                        {nivelesHabilitados.map((n) => (
                           <option key={n} value={n}>
                             {n === "catalogo"
                               ? "Catálogo"
@@ -885,6 +988,12 @@ export function PropuestaComercial({
                           </option>
                         ))}
                       </select>
+                      {!nivelesHabilitados.length && (
+                        <span className="small d-block mt-1" role="status">
+                          No tenés niveles de precio habilitados para planes.
+                          Solicitá a administración que revise tus permisos.
+                        </span>
+                      )}
                     </label>
                   )}
                 </div>
@@ -900,6 +1009,71 @@ export function PropuestaComercial({
                     . Cargá abajo solo cantidades adicionales.
                   </p>
                 )}
+                {venta && (
+                  <p className="small text-muted">
+                    Precio del kit: Telefónico. Los adicionales se suman también
+                    a precio Telefónico. Los componentes incluidos no se cobran
+                    nuevamente.
+                  </p>
+                )}
+                {conAbono && (
+                  <fieldset className="my-3">
+                    <legend className="h6">Abono mensual</legend>
+                    <div className="row g-3">
+                      <label className="col-md-6">
+                        Nivel del abono (independiente)
+                        <select
+                          className="form-select"
+                          value={nivelAbono}
+                          onChange={(e) => {
+                            elegirAbono(e.target.value);
+                            invalidar();
+                          }}
+                        >
+                          <option value="">Seleccioná una condición</option>
+                          {nivelesHabilitados
+                            .filter((n) => n !== "catalogo")
+                            .map((n) => (
+                              <option key={n} value={n}>
+                                {n === "telefonico"
+                                  ? "Telefónico"
+                                  : n[0].toUpperCase() + n.slice(1)}{" "}
+                                ·{" "}
+                                {kit?.abonos[n] == null
+                                  ? "Precio sin cargar"
+                                  : moneda(kit.abonos[n])}
+                              </option>
+                            ))}
+                        </select>
+                        {!nivelesHabilitados.some((n) => n !== "catalogo") && (
+                          <span className="small d-block mt-1" role="status">
+                            No tenés niveles de abono habilitados. Solicitá a
+                            administración que revise tus permisos.
+                          </span>
+                        )}
+                      </label>
+                      <label className="col-md-6">
+                        Abono congelado
+                        <select
+                          className="form-select"
+                          value={meses}
+                          onChange={(e) => {
+                            elegirMeses(Number(e.target.value));
+                            invalidar();
+                          }}
+                        >
+                          <option value={0}>Sin congelamiento</option>
+                          {permiteCongelar &&
+                            condiciones.meses_congelamiento.map((n) => (
+                              <option key={n} value={n}>
+                                {n} meses desde activación (no gratis)
+                              </option>
+                            ))}
+                        </select>
+                      </label>
+                    </div>
+                  </fieldset>
+                )}
                 <fieldset className="my-3">
                   <legend className="h6">Adicionales (opcional)</legend>
                   {disponibilidad && (
@@ -908,10 +1082,15 @@ export function PropuestaComercial({
                       las condiciones de todos los adicionales.
                     </p>
                   )}
+                  {disponibilidad?.pendiente && (
+                    <p className="small text-muted" role="status">
+                      Actualizando condiciones disponibles…
+                    </p>
+                  )}
                   {disponibilidad?.errorActual && (
                     <p role="alert" className="text-danger">
-                      {disponibilidad.errorActual} Podés pasar unidades a precio
-                      Alto o quitar adicionales para revisar la selección.
+                      {disponibilidad.errorActual} Revisá las condiciones
+                      habilitadas o quitá adicionales para ajustar la selección.
                     </p>
                   )}
                   {adicionales.map((i) => (
@@ -1001,18 +1180,26 @@ export function PropuestaComercial({
                                   ],
                                   [
                                     "altos",
-                                    "Precio Alto · " + moneda(i.precios.alto),
-                                    true,
+                                    "Precio Alto" +
+                                      (nivelesHabilitados.includes("alto")
+                                        ? " · " + moneda(i.precios.alto)
+                                        : ""),
+                                    nivelesHabilitados.includes("alto"),
                                   ],
                                   [
                                     "bajos",
-                                    "Precio Bajo · " + moneda(i.precios.bajo),
-                                    true,
+                                    "Precio Bajo" +
+                                      (nivelesHabilitados.includes("bajo")
+                                        ? " · " + moneda(i.precios.bajo)
+                                        : ""),
+                                    nivelesHabilitados.includes("bajo"),
                                   ],
                                   [
                                     "telefonicos",
-                                    "Precio Telefónico · " +
-                                      moneda(i.precios.telefonico),
+                                    "Precio Telefónico" +
+                                      (telefonico
+                                        ? " · " + moneda(i.precios.telefonico)
+                                        : ""),
                                     telefonico && nivel === "telefonico",
                                   ],
                                 ];
@@ -1101,66 +1288,6 @@ export function PropuestaComercial({
                     </div>
                   ))}
                 </fieldset>
-                <details className="my-3" open>
-                  <summary>
-                    Ajustar condiciones · precios y congelamiento
-                  </summary>
-                  {venta && (
-                    <p>
-                      Precio del kit: Telefónico. Los adicionales se suman
-                      también a precio Telefónico. Los componentes incluidos no
-                      se cobran nuevamente.
-                    </p>
-                  )}
-                  {conAbono && (
-                    <div className="row g-3 mb-3">
-                      <label className="col-md-6">
-                        Nivel del abono (independiente)
-                        <select
-                          className="form-select"
-                          value={nivelAbono}
-                          onChange={(e) => {
-                            elegirAbono(e.target.value);
-                            invalidar();
-                          }}
-                        >
-                          {[
-                            "alto",
-                            "medio",
-                            "bajo",
-                            ...(telefonico ? ["telefonico"] : []),
-                          ].map((n) => (
-                            <option key={n} value={n}>
-                              {n} ·{" "}
-                              {kit?.abonos[n] == null
-                                ? "Precio sin cargar"
-                                : moneda(kit.abonos[n])}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label className="col-md-6">
-                        Abono congelado
-                        <select
-                          className="form-select"
-                          value={meses}
-                          onChange={(e) => {
-                            elegirMeses(Number(e.target.value));
-                            invalidar();
-                          }}
-                        >
-                          <option value={0}>Sin congelamiento</option>
-                          {permiteCongelar &&
-                            condiciones.meses_congelamiento.map((n) => (
-                              <option key={n} value={n}>
-                                {n} meses desde activación (no gratis)
-                              </option>
-                            ))}
-                        </select>
-                      </label>
-                    </div>
-                  )}
-                </details>
                 <button
                   type="button"
                   className="btn btn-primary"
