@@ -432,7 +432,7 @@ export function RegistrosInicialesPagina({
                         cambiar={cambiarProgramarVisita}
                       />
                     )}
-                    <div className="d-flex flex-wrap align-items-center gap-3 mt-3">
+                    <div className="acciones-registro pie-acciones">
                       <button className="btn btn-primary" type="submit">
                         {guardando
                           ? "Guardando…"
@@ -610,43 +610,60 @@ export function RegistrosInicialesPagina({
                 </p>
               ) : (
                 <div className="table-responsive">
-                  <table className="table">
+                  <table className="table tabla-adaptable tabla-prospectos">
                     <caption>
                       Ordenados del más reciente al más antiguo. Fechas de
                       Argentina.
                     </caption>
                     <thead>
                       <tr>
-                        <th scope="col">Nombre</th>
-                        <th scope="col">Teléfono</th>
+                        <th scope="col">Prospecto</th>
                         <th scope="col">Ubicación</th>
-                        <th scope="col">Origen</th>
-                        <th scope="col">Cargado por</th>
-                        <th scope="col">Creación</th>
-                        <th scope="col">Acciones</th>
+                        <th scope="col">Origen y alta</th>
+                        <th scope="col">Atención</th>
+                        <th scope="col">Gestión comercial</th>
+                        <th scope="col">Contacto</th>
                       </tr>
                     </thead>
                     <tbody>
                       {lista.registros.map((r) => (
                         <tr key={r.id}>
-                          <td>
-                            {r.nombre}{" "}
+                          <td data-label="Prospecto">
+                            <strong>{r.nombre}</strong>{" "}
                             {r.lote_demostracion && (
                               <span className="badge bg-warning text-dark">
                                 DEMO
                               </span>
                             )}
+                            <small className="d-block mt-1">
+                              {r.telefono || "Sin teléfono"}
+                            </small>
                           </td>
-                          <td>{r.telefono || "—"}</td>
-                          <td>
+                          <td data-label="Ubicación">
                             {nombreUbicacionComercial(r.ubicacion_comercial)}
                           </td>
-                          <td>{nombreOrigen(r.origen)}</td>
-                          <td>{nombrePerfil(r.creado_por)}</td>
-                          <td>{fecha(r.creado_en)}</td>
-                          <td>
-                            <div className="d-flex flex-wrap align-items-center gap-2">
-                              {renderContinuacion?.(r)}
+                          <td data-label="Origen y alta">
+                            {nombreOrigen(r.origen)}
+                            <small className="d-block mt-1">
+                              {nombrePerfil(r.creado_por)}
+                            </small>
+                            <small className="d-block text-muted">
+                              {fecha(r.creado_en)}
+                            </small>
+                          </td>
+                          {renderContinuacion?.(r, ({ atencion, acciones }) => (
+                            <>
+                              <td data-label="Atención">{atencion}</td>
+                              <td data-label="Gestión comercial">{acciones}</td>
+                            </>
+                          )) || (
+                            <>
+                              <td data-label="Atención">—</td>
+                              <td data-label="Gestión comercial">—</td>
+                            </>
+                          )}
+                          <td data-label="Contacto" className="celda-acciones">
+                            <div className="acciones-registro acciones-contacto">
                               <button
                                 className="btn btn-sm btn-outline-primary"
                                 onClick={() => {

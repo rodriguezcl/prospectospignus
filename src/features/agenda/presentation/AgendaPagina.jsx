@@ -599,26 +599,28 @@ export function TimelineDia({
                       {n.actividad.resultado}
                     </p>
                   )}
-                  {n.actividad.registro_id && (
-                    <Link
-                      className="btn btn-outline-primary btn-sm"
-                      to={`/prospectos?registro=${n.actividad.registro_id}`}
-                    >
-                      Abrir prospecto
-                    </Link>
-                  )}
-                  {n.actividad.oportunidad_id && (
-                    <Link
-                      className="d-block mb-2"
-                      to={`/cotizaciones?id=${n.actividad.oportunidad_id}`}
-                    >
-                      Abrir negociación
-                      {n.actividad.origen === "visita"
-                        ? " / reprogramar visita"
-                        : ""}
-                    </Link>
-                  )}
-                  <div className="d-flex flex-wrap gap-2">
+                  <div className="acciones-registro mb-3">
+                    {n.actividad.registro_id && (
+                      <Link
+                        className="btn btn-outline-primary btn-sm"
+                        to={`/prospectos?registro=${n.actividad.registro_id}`}
+                      >
+                        Abrir prospecto
+                      </Link>
+                    )}
+                    {n.actividad.oportunidad_id && (
+                      <Link
+                        className="btn btn-outline-primary btn-sm"
+                        to={`/cotizaciones?id=${n.actividad.oportunidad_id}`}
+                      >
+                        Abrir negociación
+                        {n.actividad.origen === "visita"
+                          ? " / reprogramar visita"
+                          : ""}
+                      </Link>
+                    )}
+                  </div>
+                  <div className="acciones-registro pie-acciones">
                     {vendedor && n.actividad.estado === "programada" && (
                       <>
                         <button
@@ -634,7 +636,7 @@ export function TimelineDia({
                             aria-label="Editar o reprogramar actividad"
                             onClick={() => seleccionar(n.actividad, "editar")}
                           >
-                            <IconoAccion accion="editar" />
+                            <IconoAccion accion="editar" /> Editar / reprogramar
                           </button>
                         )}
                       </>

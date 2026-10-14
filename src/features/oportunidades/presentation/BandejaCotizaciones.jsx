@@ -1,10 +1,11 @@
+import { AccionesNegociaciones } from "./ContinuarRegistro.jsx";
 import { FiltroUbicacionComercial } from "../../../shared/ui/UbicacionComercial.jsx";
 import { nombreUbicacionComercial } from "../../../shared/domain/ubicacionComercial.js";
 import { AtencionProspecto } from "./AtencionProspecto.jsx";
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { estados, puedeAtender } from "../domain/circuito.js";
+import { estados } from "../domain/circuito.js";
 
 export function BandejaCotizaciones({ gestion, perfil, revision }) {
   const [parametros] = useSearchParams();
@@ -114,10 +115,11 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
         !error && (
           <>
             <div className="table-responsive">
-              <table className="table align-middle bandeja-cotizaciones">
+              <table className="table tabla-adaptable bandeja-cotizaciones">
                 <thead>
                   <tr>
                     <th>Prospecto</th>
+                    <th>Atención</th>
                     <th>Cotizaciones y seguimiento</th>
                     <th>Acciones</th>
                   </tr>
@@ -125,7 +127,7 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
                 <tbody>
                   {lista.filas.map((r) => (
                     <tr key={r.id}>
-                      <td>
+                      <td data-label="Prospecto">
                         <Link to={`/prospectos?registro=${r.id}`}>
                           {r.nombre}
                         </Link>
@@ -134,13 +136,15 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
                           {nombreUbicacionComercial(r.ubicacion_comercial)}
                         </small>
                       </td>
-                      <td>
+                      <td data-label="Atención">
                         <AtencionProspecto
                           atencion={r.atencion}
                           perfil={perfil}
                           gestion={gestion}
                           actualizada={() => actualizar((n) => n + 1)}
                         />
+                      </td>
+                      <td data-label="Cotizaciones y seguimiento">
                         {r.casos.length ? (
                           <ul className="list-unstyled mb-0">
                             {r.casos.map((c) => (
@@ -162,34 +166,12 @@ export function BandejaCotizaciones({ gestion, perfil, revision }) {
                           </span>
                         )}
                       </td>
-                      <td>
-                        <div className="d-flex flex-column align-items-start gap-2">
-                          {r.casos
-                            .filter((c) => c.accesible !== false)
-                            .map((c) => (
-                              <Link
-                                key={c.id}
-                                className="btn btn-primary btn-sm text-nowrap"
-                                title={`${c.necesidad} · ${estados[c.estado]}`}
-                                aria-label={`Abrir negociación: ${c.necesidad} · ${estados[c.estado]}`}
-                                to={`/cotizaciones?id=${c.id}`}
-                              >
-                                {["ganada", "perdida", "anulada"].includes(
-                                  c.estado,
-                                )
-                                  ? "Ver negociación"
-                                  : "Abrir negociación"}
-                              </Link>
-                            ))}
-                          {puedeAtender(r.atencion, perfil) && (
-                            <Link
-                              className="btn btn-outline-secondary btn-sm text-nowrap"
-                              to={`/cotizaciones?nueva=si&registro=${r.id}`}
-                            >
-                              {r.casos.length ? "Nueva cotización" : "Cotizar"}
-                            </Link>
-                          )}
-                        </div>
+                      <td data-label="Acciones" className="celda-acciones">
+                        <AccionesNegociaciones
+                          registro={r}
+                          contexto={r}
+                          perfil={perfil}
+                        />
                       </td>
                     </tr>
                   ))}

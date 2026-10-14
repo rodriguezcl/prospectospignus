@@ -186,7 +186,7 @@ export function UsuariosPagina({ gestion }) {
       </section>
       <section className="card">
         <div className="card-body">
-          <div className="d-flex justify-content-between align-items-center mb-3">
+          <div className="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-3">
             <h2 className="h5 mb-0">Cuentas del equipo</h2>
             <button
               ref={botonActualizar}
@@ -224,7 +224,7 @@ export function UsuariosPagina({ gestion }) {
             <p>No hay cuentas para mostrar.</p>
           ) : (
             <div className="table-responsive">
-              <table className="table">
+              <table className="table tabla-adaptable">
                 <caption>Hasta 200 cuentas, ordenadas de la A a la Z.</caption>
                 <thead>
                   <tr>
@@ -238,29 +238,31 @@ export function UsuariosPagina({ gestion }) {
                 <tbody>
                   {cuentas.map((cuenta) => (
                     <tr key={cuenta.id}>
-                      <td>{cuenta.nombre}</td>
-                      <td>{cuenta.correo}</td>
-                      <td>
+                      <td data-label="Nombre">{cuenta.nombre}</td>
+                      <td data-label="Correo">{cuenta.correo}</td>
+                      <td data-label="Rol">
                         {cuenta.rol === "administrador"
                           ? "Administrador"
                           : cuenta.rol === "agente"
                             ? "Agente"
                             : "Vendedor"}
                       </td>
-                      <td>{cuenta.activo ? "Activa" : "Inactiva"}</td>
-                      <td>
+                      <td data-label="Estado">
+                        {cuenta.activo ? "Activa" : "Inactiva"}
+                      </td>
+                      <td data-label="Acciones">
                         {cuenta.lote_demostracion ? (
                           <small>
                             DEMO · retiro mediante limpieza del lote
                           </small>
                         ) : (
-                          <div className="d-flex gap-2 flex-wrap">
+                          <div className="acciones-registro">
                             {[
-                              ["editar", "Editar"],
                               [
                                 cuenta.activo ? "desactivar" : "reactivar",
                                 cuenta.activo ? "Desactivar" : "Reactivar",
                               ],
+                              ["editar", "Editar"],
                               ["eliminar", "Eliminar"],
                             ].map(([accion, etiqueta]) => (
                               <button

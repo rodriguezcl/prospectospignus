@@ -22,8 +22,8 @@ export function AtencionProspecto({ atencion, perfil, gestion, actualizada }) {
     }
   }
   return (
-    <div className="my-2">
-      <p className="mb-2">
+    <div className="atencion-prospecto">
+      <p className="mb-0 small">
         {atencion.vendedor_id
           ? `En atención por ${atencion.vendedor_nombre}${mio ? " (vos)" : ""}`
           : "Disponible para contactar"}

@@ -282,46 +282,49 @@ export function PromocionesPagina({ gestion, perfil }) {
                 .filter((a) => a.estado !== "retirado")
                 .map((a) => (
                   <li
-                    className="border-bottom py-2 d-flex flex-wrap gap-2 align-items-center"
+                    className="adjunto-promocion border-bottom py-3"
                     key={a.id}
                   >
                     <span>
                       {a.nombre} · {(a.bytes / 1048576).toFixed(1)} MB{" "}
                       {a.estado === "pendiente" ? "· Carga pendiente" : ""}
                     </span>
-                    {a.estado === "disponible" && (
-                      <button
-                        className="btn btn-sm btn-outline-primary"
-                        disabled={ocupado}
-                        onClick={() => descargar(a)}
-                      >
-                        Descargar {a.nombre}
-                      </button>
-                    )}
-                    {admin && detalle.estado === "borrador" && (
-                      <>
-                        {a.estado === "pendiente" && (
+                    <div className="acciones-registro">
+                      {a.estado === "disponible" && (
+                        <button
+                          className="btn btn-sm btn-outline-primary"
+                          aria-label={`Descargar ${a.nombre}`}
+                          disabled={ocupado}
+                          onClick={() => descargar(a)}
+                        >
+                          Descargar
+                        </button>
+                      )}
+                      {admin && detalle.estado === "borrador" && (
+                        <>
+                          {a.estado === "pendiente" && (
+                            <button
+                              className="btn btn-sm btn-outline-secondary"
+                              disabled={ocupado}
+                              onClick={() =>
+                                archivo(() => gestion.confirmar(a.id))
+                              }
+                            >
+                              Confirmar carga
+                            </button>
+                          )}
                           <button
-                            className="btn btn-sm btn-outline-secondary"
+                            className="btn btn-sm btn-outline-danger"
                             disabled={ocupado}
                             onClick={() =>
-                              archivo(() => gestion.confirmar(a.id))
+                              guardar("retirar_archivo", { id: a.id })
                             }
                           >
-                            Confirmar carga
+                            Retirar adjunto
                           </button>
-                        )}
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          disabled={ocupado}
-                          onClick={() =>
-                            guardar("retirar_archivo", { id: a.id })
-                          }
-                        >
-                          Retirar adjunto
-                        </button>
-                      </>
-                    )}
+                        </>
+                      )}
+                    </div>
                   </li>
                 ))}
             </ul>
@@ -347,7 +350,7 @@ export function PromocionesPagina({ gestion, perfil }) {
                     />
                   </label>
                 )}
-                <div className="d-flex flex-wrap gap-2">
+                <div className="acciones-registro pie-acciones">
                   {detalle.estado === "borrador" ? (
                     <button
                       className="btn btn-success"

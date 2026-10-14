@@ -22,12 +22,14 @@ const periodo = (valor) =>
 export function FilasVentas({ filas, gestion, perfil }) {
   return filas.map((v) => (
     <tr key={v.id}>
-      <td>
+      <td data-label="Prospecto / necesidad">
         {v.nombre}
         <small className="d-block">{v.necesidad}</small>
       </td>
-      <td>{v.responsable_nombre || "No informado"}</td>
-      <td>
+      <td data-label="Responsable al cierre">
+        {v.responsable_nombre || "No informado"}
+      </td>
+      <td data-label="Cierre · Córdoba">
         {v.cerrado_en ? (
           fecha(v.cerrado_en)
         ) : (
@@ -37,7 +39,7 @@ export function FilasVentas({ filas, gestion, perfil }) {
           </>
         )}
       </td>
-      <td>
+      <td data-label="Información comercial">
         <details className="detalle-secundario">
           <summary>Condiciones y confirmación</summary>
           <p>
@@ -50,8 +52,13 @@ export function FilasVentas({ filas, gestion, perfil }) {
           <small className="d-block">{fecha(v.confirmado_en)}</small>
         </details>
       </td>
-      <td>
-        <Link to={`/cotizaciones?id=${v.id}`}>Ver ficha e historial</Link>
+      <td data-label="Detalle">
+        <Link
+          className="btn btn-sm btn-outline-primary mb-2"
+          to={`/cotizaciones?id=${v.id}`}
+        >
+          Ver ficha e historial
+        </Link>
         {gestion && (
           <DetalleVenta id={v.id} gestion={gestion} perfil={perfil} />
         )}
@@ -199,7 +206,7 @@ export function VentasPagina({ gestion, perfil }) {
             <>
               <h2 className="h4">{resultado.total} ventas concretadas</h2>
               <div className="table-responsive">
-                <table className="table align-middle">
+                <table className="table tabla-adaptable">
                   <thead>
                     <tr>
                       <th>Prospecto / necesidad</th>

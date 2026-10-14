@@ -16,9 +16,8 @@ test("agenda: aislamiento, concurrencia, historial, recordatorios e integración
     .filter(
       (a) =>
         a.endsWith(".sql") &&
-        !a.includes("041_") &&
-        !a.includes("040_") &&
-        !a.includes("039_") &&
+        // Escenario histórico; agenda-prospectos cubre atención exclusiva y visitas directas.
+        Number(a.slice(8, 12)) < 39 &&
         !a.includes("034_") &&
         !a.includes("033_") &&
         !a.includes("032_"),

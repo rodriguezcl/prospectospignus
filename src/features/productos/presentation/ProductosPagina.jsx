@@ -350,7 +350,7 @@ export function ProductosPagina({ gestion }) {
                   setBaja({ grupo, valor: i, accion: "cambiar_adicional" });
                 }}
                 acciones={(i) => (
-                  <div className="d-flex flex-wrap gap-2">
+                  <div className="acciones-registro acciones-contacto">
                     <button
                       className="btn btn-sm btn-outline-primary"
                       disabled={ocupado}

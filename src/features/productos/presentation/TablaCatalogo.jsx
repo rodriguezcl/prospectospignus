@@ -161,8 +161,7 @@ export function TablaCatalogo({
       </div>
       <p className="small text-muted mb-2" role="status">
         {visibles.length} de {filas.length} registros · {columnaOrden.titulo}{" "}
-        {orden.direccion === 1 ? "A–Z" : "Z–A"}. Ordená haciendo clic en los
-        encabezados.
+        {orden.direccion === 1 ? "A–Z" : "Z–A"}.
       </p>
       {!filas.length ? (
         <p>No hay registros en esta sección.</p>
@@ -175,7 +174,30 @@ export function TablaCatalogo({
           aria-label={`Tabla de ${titulo.toLowerCase()}`}
           tabIndex={0}
         >
-          <table className="table table-hover align-middle">
+          <div className="orden-tabla-movil mb-3">
+            <label>
+              Ordenar por
+              <select
+                className="form-select"
+                value={columnaOrden.campo}
+                onChange={(e) => ordenar({ ...orden, campo: e.target.value })}
+              >
+                {columnas.map((c) => (
+                  <option key={c.campo} value={c.campo}>
+                    {c.titulo}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              className="btn btn-outline-secondary align-self-end"
+              onClick={() => ordenar({ ...orden, direccion: -orden.direccion })}
+            >
+              {orden.direccion === 1 ? "Ascendente ↑" : "Descendente ↓"}
+            </button>
+          </div>
+          <table className="table table-hover tabla-adaptable">
             <caption className="visually-hidden">{titulo}</caption>
             <thead>
               <tr>
@@ -222,11 +244,17 @@ export function TablaCatalogo({
                 <tr key={i.id}>
                   {columnas.map((c) =>
                     c.campo === "nombre" ? (
-                      <th scope="row" key={c.campo} className="fw-semibold">
+                      <th
+                        scope="row"
+                        data-label={c.titulo}
+                        key={c.campo}
+                        className="fw-semibold"
+                      >
                         {c.valor(i)}
                       </th>
                     ) : (
                       <td
+                        data-label={c.titulo}
                         key={c.campo}
                         className={
                           c.campo === "codigo" ? "text-nowrap" : undefined
@@ -261,7 +289,9 @@ export function TablaCatalogo({
                       </td>
                     ),
                   )}
-                  <td>{acciones(i)}</td>
+                  <td data-label="Acciones" className="celda-acciones">
+                    {acciones(i)}
+                  </td>
                 </tr>
               ))}
             </tbody>

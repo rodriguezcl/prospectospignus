@@ -549,7 +549,7 @@ export function FormularioOportunidad({
               propuesta ofrecida para confirmar la venta.
             </p>
           )}
-          <div className="d-flex flex-wrap align-items-center gap-2">
+          <div className="acciones-registro pie-acciones">
             <button
               className="btn btn-primary"
               type="submit"

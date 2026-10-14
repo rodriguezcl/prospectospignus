@@ -673,109 +673,112 @@ export function PropuestaComercial({
               : ""}
             . Efectivo: {moneda(historial[0].detalle.pago.efectivo_a_abonar)}.
           </p>
-          {puedeEditar && (
-            <button
-              type="button"
-              className="btn btn-outline-primary"
-              onClick={() => {
-                try {
-                  const ultima = historial[0],
-                    c = ultima.detalle.conceptos[0],
-                    s = c.seleccion;
-                  const item = catalogo.items.find((i) => i.id === s.kit_id);
-                  if (!item)
-                    throw new Error("El plan o kit ya no está disponible.");
-                  restaurarSeleccion({
-                    servicio: item.servicio,
-                    familiaId: s.familia_id,
-                    modalidadEquipo: item.modalidad,
-                    kitId: s.kit_id,
-                    subcategoria:
-                      s.ubicacion_alarma || s.subcategoria || "sin_monitoreo",
-                    extras: Object.fromEntries(
-                      s.extras.map((e) => [
-                        e.item_id,
-                        {
-                          activo: true,
-                          cantidad: e.cantidad,
-                          bajos: e.bajos,
-                          bonificados: e.bonificados,
-                          telefonicos: e.telefonicos,
-                        },
-                      ]),
-                    ),
-                    nivel: s.nivel,
-                    nivelAbono: c.nivel_abono || "alto",
-                    meses: c.meses_congelamiento || 0,
-                  });
-                  invalidar();
-                  agregarConceptos([]);
-                  elegirEfectivo("0");
-                  elegirMedio("debito");
-                  elegirCuotas(1);
-                  if (
-                    !propuestaVencida(ultima) &&
-                    !requiereEvaluacionRemota(catalogo, s.kit_id) &&
-                    ultima.catalogo_version === referencias.catalogo.version &&
-                    ultima.condiciones_version ===
-                      referencias.condiciones.version
-                  ) {
-                    validarNivelesSeleccion(
-                      catalogo,
-                      { ...s, nivel_abono: c.nivel_abono },
-                      telefonico,
-                    );
-                    generar(
-                      generarAlternativas({
-                        distribucionManual: true,
-                        catalogo,
-                        familiaId: s.familia_id,
-                        kitId: s.kit_id,
-                        nivel: s.nivel,
-                        subcategoria: s.ubicacion_alarma || s.subcategoria,
-                        telefonico,
-                        extras: s.extras,
-                      }),
-                    );
-                    mostrarConfiguracion(false);
-                    avisarBorrador(
-                      "Propuesta recuperada para preparar una nueva revisión. La propuesta original se conserva.",
-                    );
-                  } else {
-                    mostrarConfiguracion(true);
-                    avisarBorrador(
-                      "Recuperamos la selección del primer plan o kit. Calculá una nueva oferta con las condiciones vigentes. La propuesta original se conserva.",
-                    );
-                  }
-                } catch (e) {
-                  fallar(e.message);
-                }
-              }}
-            >
-              {propuestaVencida(historial[0])
-                ? "Recalcular cotización vencida"
-                : "Seguir negociando"}
-            </button>
-          )}
-          {registrarVenta &&
-            historial[0].ciclo === (oportunidad.ciclo || 1) && (
+          <div className="acciones-registro pie-acciones">
+            {puedeEditar && (
               <button
                 type="button"
-                className="btn btn-primary ms-2"
-                onClick={registrarVenta}
+                className="btn btn-outline-primary"
+                onClick={() => {
+                  try {
+                    const ultima = historial[0],
+                      c = ultima.detalle.conceptos[0],
+                      s = c.seleccion;
+                    const item = catalogo.items.find((i) => i.id === s.kit_id);
+                    if (!item)
+                      throw new Error("El plan o kit ya no está disponible.");
+                    restaurarSeleccion({
+                      servicio: item.servicio,
+                      familiaId: s.familia_id,
+                      modalidadEquipo: item.modalidad,
+                      kitId: s.kit_id,
+                      subcategoria:
+                        s.ubicacion_alarma || s.subcategoria || "sin_monitoreo",
+                      extras: Object.fromEntries(
+                        s.extras.map((e) => [
+                          e.item_id,
+                          {
+                            activo: true,
+                            cantidad: e.cantidad,
+                            bajos: e.bajos,
+                            bonificados: e.bonificados,
+                            telefonicos: e.telefonicos,
+                          },
+                        ]),
+                      ),
+                      nivel: s.nivel,
+                      nivelAbono: c.nivel_abono || "alto",
+                      meses: c.meses_congelamiento || 0,
+                    });
+                    invalidar();
+                    agregarConceptos([]);
+                    elegirEfectivo("0");
+                    elegirMedio("debito");
+                    elegirCuotas(1);
+                    if (
+                      !propuestaVencida(ultima) &&
+                      !requiereEvaluacionRemota(catalogo, s.kit_id) &&
+                      ultima.catalogo_version ===
+                        referencias.catalogo.version &&
+                      ultima.condiciones_version ===
+                        referencias.condiciones.version
+                    ) {
+                      validarNivelesSeleccion(
+                        catalogo,
+                        { ...s, nivel_abono: c.nivel_abono },
+                        telefonico,
+                      );
+                      generar(
+                        generarAlternativas({
+                          distribucionManual: true,
+                          catalogo,
+                          familiaId: s.familia_id,
+                          kitId: s.kit_id,
+                          nivel: s.nivel,
+                          subcategoria: s.ubicacion_alarma || s.subcategoria,
+                          telefonico,
+                          extras: s.extras,
+                        }),
+                      );
+                      mostrarConfiguracion(false);
+                      avisarBorrador(
+                        "Propuesta recuperada para preparar una nueva revisión. La propuesta original se conserva.",
+                      );
+                    } else {
+                      mostrarConfiguracion(true);
+                      avisarBorrador(
+                        "Recuperamos la selección del primer plan o kit. Calculá una nueva oferta con las condiciones vigentes. La propuesta original se conserva.",
+                      );
+                    }
+                  } catch (e) {
+                    fallar(e.message);
+                  }
+                }}
               >
-                Registrar venta
+                {propuestaVencida(historial[0])
+                  ? "Recalcular cotización vencida"
+                  : "Seguir negociando"}
               </button>
             )}
-          {derivar && (
-            <button
-              type="button"
-              className="btn btn-outline-primary ms-2"
-              onClick={derivar}
-            >
-              Derivar a Recuperación comercial
-            </button>
-          )}
+            {registrarVenta &&
+              historial[0].ciclo === (oportunidad.ciclo || 1) && (
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={registrarVenta}
+                >
+                  Registrar venta
+                </button>
+              )}
+            {derivar && (
+              <button
+                type="button"
+                className="btn btn-outline-primary"
+                onClick={derivar}
+              >
+                Derivar a Recuperación comercial
+              </button>
+            )}
+          </div>
         </section>
       )}
       {puedeEditar && (

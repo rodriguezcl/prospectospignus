@@ -102,8 +102,9 @@ export function RutasAplicacion() {
                   key={perfil?.id}
                   gestion={registros}
                   perfil={perfil}
-                  renderContinuacion={(registro) => (
+                  renderContinuacion={(registro, presentar) => (
                     <ContinuarRegistro
+                      presentar={presentar}
                       key={`${registro.id}-${registro.version}`}
                       registro={registro}
                       gestion={oportunidades}

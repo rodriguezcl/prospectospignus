@@ -39,9 +39,42 @@ const { OportunidadesPagina } = cargar(
 const { FilasVentas } = cargar(
   "../src/features/ventas/presentation/VentasPagina.jsx",
 );
-const { CasosDelRegistro } = cargar(
+const { CasosDelRegistro, AccionesNegociaciones } = cargar(
   "../src/features/oportunidades/presentation/ContinuarRegistro.jsx",
 );
+test("acciones comerciales: un selector para varias negociaciones conserva destinos y reservas", () => {
+  const perfil = { id: "v", rol: "vendedor" };
+  const registro = { id: "r", nombre: "Contacto" };
+  const atencion = { vendedor_id: "v" };
+  const casos = [
+    { id: "a", necesidad: "Alarma", estado: "cotizacion" },
+    { id: "b", necesidad: "Cámaras", estado: "visita" },
+    { id: "privada", necesidad: "Reservada", accesible: false },
+  ];
+  const html = dibujar(AccionesNegociaciones, {
+    perfil,
+    registro,
+    contexto: { atencion, casos },
+  });
+  assert.match(html, /Ver negociaciones \(2\)/);
+  assert.match(html, /href="\/cotizaciones\?id=a"/);
+  assert.match(html, /href="\/cotizaciones\?id=b"/);
+  assert.doesNotMatch(html, /Reservada|id=privada/);
+  assert.match(html, /Cotizar otra necesidad/);
+  const ocupado = dibujar(AccionesNegociaciones, {
+    perfil,
+    registro,
+    contexto: { atencion: { vendedor_id: "otro" }, casos: [] },
+  });
+  assert.doesNotMatch(ocupado, /Cotizar|<button/);
+  const sinCasos = dibujar(AccionesNegociaciones, {
+    perfil,
+    registro,
+    contexto: { atencion, casos: [] },
+  });
+  assert.match(sinCasos, />Cotizar<\/a>/);
+  assert.doesNotMatch(sinCasos, /Ver negociaciones|Abrir negociación/);
+});
 const { CrearProspecto } = cargar(
   "../src/features/oportunidades/presentation/CrearProspecto.jsx",
 );
@@ -81,7 +114,7 @@ test("simpleza: menú conserva rutas y límites por rol; solo pendientes se plie
     const html = dibujar(MenuLateral, { grupos, abierto: true });
     assert.equal(html.includes('href="/usuarios"'), rol === "administrador");
     assert.equal(html.includes('href="/productos"'), rol === "administrador");
-    assert.equal(html.includes('Catálogo comercial'), rol === "administrador");
+    assert.equal(html.includes("Catálogo comercial"), rol === "administrador");
     assert.equal(html.includes('href="/agenda"'), rol !== "agente");
     assert.equal(html.includes('href="/recuperacion"'), rol !== "vendedor");
     assert.equal(

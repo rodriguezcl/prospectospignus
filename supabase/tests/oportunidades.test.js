@@ -16,9 +16,8 @@ test("Cotizaciones: cartera automática, preparación sin visita, permisos y anu
     .filter(
       (a) =>
         a.endsWith(".sql") &&
-        !a.includes("041_") &&
-        !a.includes("040_") &&
-        !a.includes("039_") &&
+        // Contrato histórico anterior a atención exclusiva (039). La suite atencion-prospectos cubre el vigente.
+        Number(a.slice(8, 12)) < 39 &&
         !a.includes("034_") &&
         !a.includes("033_") &&
         !a.includes("032_prospectos_compartidos"),
@@ -354,9 +353,8 @@ test("Agente: calificación, visitas, recuperación equilibrada, RLS, cierre e i
     .filter(
       (a) =>
         a.endsWith(".sql") &&
-        !a.includes("041_") &&
-        !a.includes("040_") &&
-        !a.includes("039_") &&
+        // Contrato histórico anterior a atención exclusiva (039). La suite atencion-prospectos cubre el vigente.
+        Number(a.slice(8, 12)) < 39 &&
         !a.includes("034_") &&
         !a.includes("033_") &&
         !a.includes("032_prospectos_compartidos"),

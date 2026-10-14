@@ -5,7 +5,7 @@ import { estados, puedeAtender } from "../domain/circuito.js";
 
 export function CasosDelRegistro({ casos }) {
   return (
-    <ul>
+    <ul className="negociaciones-selector">
       {casos.map((c) => (
         <li key={c.id}>
           {c.accesible !== false ? (
@@ -24,9 +24,8 @@ export function CasosDelRegistro({ casos }) {
     </ul>
   );
 }
-export function ContinuarRegistro({ registro, gestion, perfil }) {
+export function ContinuarRegistro({ registro, gestion, perfil, presentar }) {
   const [revisionAtencion, revisarAtencion] = useState(0);
-  const selector = useRef(null);
   const [contexto, setContexto] = useState(null),
     [error, setError] = useState("");
   useEffect(() => {
@@ -45,38 +44,69 @@ export function ContinuarRegistro({ registro, gestion, perfil }) {
       vigente = false;
     };
   }, [gestion, registro.id, registro.version, revisionAtencion]);
-  if (error)
-    return (
-      <p role="alert">
-        No pudimos consultar las negociaciones asociadas. {error}
-      </p>
-    );
-  if (!contexto) return <p role="status">Buscando negociaciones asociadas…</p>;
+  const contenido = error
+    ? {
+        atencion: (
+          <p role="alert">
+            No pudimos consultar las negociaciones asociadas. {error}
+          </p>
+        ),
+      }
+    : !contexto
+      ? {
+          atencion: <p role="status">Buscando negociaciones asociadas…</p>,
+        }
+      : {
+          atencion: (
+            <AtencionProspecto
+              atencion={contexto.atencion}
+              perfil={perfil}
+              gestion={gestion}
+              actualizada={() => revisarAtencion((n) => n + 1)}
+            />
+          ),
+          acciones: (
+            <AccionesNegociaciones
+              registro={registro}
+              contexto={contexto}
+              perfil={perfil}
+            />
+          ),
+        };
+  return presentar ? (
+    presentar(contenido)
+  ) : (
+    <div className="seguimiento-prospecto">
+      {contenido.atencion}
+      {contenido.acciones}
+    </div>
+  );
+}
+
+export function AccionesNegociaciones({ registro, contexto, perfil }) {
+  const selector = useRef(null);
+  const accesibles = contexto.casos.filter((c) => c.accesible !== false);
   return (
-    <>
-      <AtencionProspecto
-        atencion={contexto.atencion}
-        perfil={perfil}
-        gestion={gestion}
-        actualizada={() => revisarAtencion((n) => n + 1)}
-      />
-      {contexto.casos.filter((c) => c.accesible !== false).length === 1 && (
+    <div className="acciones-registro acciones-comerciales">
+      {accesibles.length === 1 && (
         <Link
-          className="btn btn-sm btn-outline-primary"
-          to={`/cotizaciones?id=${contexto.casos.find((c) => c.accesible !== false).id}`}
+          className="btn btn-sm btn-primary"
+          to={`/cotizaciones?id=${accesibles[0].id}`}
+          title={`${accesibles[0].necesidad} · ${estados[accesibles[0].estado]}`}
         >
-          Abrir negociación
+          {["ganada", "perdida", "anulada"].includes(accesibles[0].estado)
+            ? "Ver negociación"
+            : "Abrir negociación"}
         </Link>
       )}
-      {contexto.casos.filter((c) => c.accesible !== false).length > 1 && (
+      {accesibles.length > 1 && (
         <>
           <button
             type="button"
-            className="btn btn-sm btn-outline-primary"
+            className="btn btn-sm btn-primary"
             onClick={() => selector.current.showModal()}
           >
-            Ver negociaciones (
-            {contexto.casos.filter((c) => c.accesible !== false).length})
+            Ver negociaciones ({accesibles.length})
           </button>
           <dialog
             ref={selector}
@@ -85,9 +115,7 @@ export function ContinuarRegistro({ registro, gestion, perfil }) {
             style={{ maxWidth: "min(720px, 95vw)", maxHeight: "80vh" }}
           >
             <h2 className="h5">Negociaciones de {registro.nombre}</h2>
-            <CasosDelRegistro
-              casos={contexto.casos.filter((c) => c.accesible !== false)}
-            />
+            <CasosDelRegistro casos={accesibles} />
             <button
               type="button"
               className="btn btn-outline-secondary"
@@ -101,12 +129,12 @@ export function ContinuarRegistro({ registro, gestion, perfil }) {
       {!registro.lote_demostracion &&
         puedeAtender(contexto.atencion, perfil) && (
           <Link
-            className="btn btn-sm btn-outline-primary"
+            className={`btn btn-sm ${accesibles.length ? "btn-outline-primary" : "btn-primary"}`}
             to={`/cotizaciones?nueva=si&registro=${registro.id}`}
           >
             {contexto.casos.length ? "Cotizar otra necesidad" : "Cotizar"}
           </Link>
         )}
-    </>
+    </div>
   );
 }

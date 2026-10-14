@@ -141,7 +141,7 @@ export function FormularioGestionCuenta({
               />
             </>
           )}
-          <div className="d-flex gap-2 flex-wrap">
+          <div className="acciones-registro pie-acciones">
             <button
               type="submit"
               className={`btn ${accion === "eliminar" ? "btn-danger" : "btn-primary"}`}

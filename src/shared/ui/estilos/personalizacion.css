@@ -376,9 +376,7 @@ button:focus-visible {
 /* Las acciones de la bandeja conservan su tamaño natural, sin ocupar media tabla. */
 .bandeja-cotizaciones th:last-child,
 .bandeja-cotizaciones td:last-child {
-  width: 1%;
-  white-space: nowrap;
-  padding-inline-start: 1.5rem;
+  width: 15rem;
 }
 
 .bandeja-cotizaciones td:last-child .btn {
@@ -386,6 +384,195 @@ button:focus-visible {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Acciones de gestión: orden estable y áreas táctiles separadas. */
+.acciones-registro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.acciones-registro > .btn,
+.tabla-adaptable .btn:not(.btn-link) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  white-space: normal;
+  line-height: 1.35;
+}
+.acciones-contacto {
+  flex-wrap: nowrap;
+}
+.acciones-contacto > .btn {
+  flex-shrink: 0;
+}
+.acciones-comerciales {
+  align-items: stretch;
+  flex-direction: column;
+}
+.acciones-comerciales:empty {
+  display: none;
+}
+.seguimiento-prospecto {
+  display: grid;
+  gap: 0.75rem;
+}
+.atencion-prospecto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.pie-acciones {
+  border-top: 1px solid var(--bs-border-color, #dce3ed);
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+.adjunto-promocion {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+}
+.adjunto-promocion > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.tabla-adaptable > tbody > tr > :is(td, th) {
+  vertical-align: top;
+  padding-block: 1rem;
+  overflow-wrap: anywhere;
+}
+.tabla-adaptable .celda-acciones {
+  width: 1%;
+}
+.tabla-adaptable button.badge {
+  min-height: 2rem;
+  min-width: 2.5rem;
+}
+.tabla-prospectos th:nth-child(1) {
+  width: 20%;
+}
+.tabla-prospectos th:nth-child(2) {
+  width: 10%;
+}
+.tabla-prospectos th:nth-child(3) {
+  width: 20%;
+}
+.tabla-prospectos th:nth-child(4) {
+  width: 18%;
+}
+.tabla-prospectos th:nth-child(5) {
+  width: 22%;
+}
+.tabla-prospectos th:nth-child(6) {
+  width: 10%;
+}
+.negociaciones-selector {
+  list-style: none;
+  padding: 0;
+}
+.negociaciones-selector li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--bs-border-color, #dce3ed);
+}
+.negociaciones-selector a {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+.orden-tabla-movil {
+  display: none;
+}
+.table-responsive:has(> .tabla-adaptable) {
+  container-type: inline-size;
+}
+@container (max-width: 56rem) {
+  .orden-tabla-movil {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .tabla-adaptable,
+  .tabla-adaptable > tbody,
+  .tabla-adaptable > caption {
+    display: block;
+    width: 100%;
+  }
+  .tabla-adaptable > thead {
+    display: none;
+  }
+  .tabla-adaptable .celda-acciones,
+  .bandeja-cotizaciones td:last-child {
+    width: auto;
+  }
+  .tabla-adaptable > tbody > tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.75rem 1rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--bs-border-color, #dce3ed);
+    border-radius: 0.5rem;
+  }
+  .tabla-adaptable > tbody > tr > :is(td, th) {
+    display: block;
+    width: auto;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    white-space: normal;
+    box-shadow: none;
+  }
+  .tabla-adaptable > tbody > tr > :first-child,
+  .tabla-adaptable > tbody > tr > :last-child,
+  .tabla-adaptable td[data-label="Gestión comercial"],
+  .tabla-adaptable td[data-label="Atención"],
+  .tabla-adaptable td[data-label="Información comercial"],
+  .tabla-adaptable td[data-label="Cotizaciones y seguimiento"] {
+    grid-column: 1 / -1;
+  }
+  .tabla-adaptable [data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+    opacity: 0.8;
+  }
+  .tabla-adaptable > tbody > tr > :last-child {
+    border-top: 1px solid var(--bs-border-color, #dce3ed);
+    padding-top: 0.75rem;
+  }
+  .acciones-registro > .btn,
+  .tabla-adaptable .btn:not(.btn-link),
+  .tabla-adaptable button.badge {
+    min-height: 2.75rem;
+  }
+  .acciones-comerciales {
+    flex-direction: row;
+  }
+  .acciones-comerciales > .btn {
+    flex: 1 1 12rem;
+  }
+}
+@media (max-width: 575.98px) {
+  .acciones-registro > .btn {
+    min-height: 2.75rem;
+  }
+  .adjunto-promocion {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pie-acciones > .btn {
+    flex: 1 1 12rem;
+  }
+}
+@container (max-width: 18rem) {
+  .tabla-adaptable > tbody > tr {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* Formularios: la misma separación para etiquetas externas y envolventes. */

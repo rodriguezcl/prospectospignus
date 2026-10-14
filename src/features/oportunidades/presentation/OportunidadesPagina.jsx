@@ -585,7 +585,7 @@ export function OportunidadesPagina({
               </p>
             )}
             <div className="table-responsive">
-              <table className="table">
+              <table className="table tabla-adaptable">
                 <thead>
                   <tr>
                     <th>Prospecto / necesidad</th>
@@ -598,28 +598,33 @@ export function OportunidadesPagina({
                 <tbody>
                   {lista.filas.map((o) => (
                     <tr key={o.id}>
-                      <td>
+                      <td data-label="Prospecto / necesidad">
                         {o.prospectos.nombre}
                         <small className="d-block">
                           {nombreUbicacionComercial(o.ubicacion_comercial)}
                         </small>
                         <small className="d-block">{o.necesidad}</small>
                       </td>
-                      <td>{estados[o.estado]}</td>
-                      <td>
+                      <td data-label="Etapa">{estados[o.estado]}</td>
+                      <td data-label="Responsable">
                         {o.preparacion_compartida
                           ? "Sin asignar · compartida"
                           : nombre(o.responsable_id)}
                       </td>
-                      <td>
+                      <td data-label="Próxima acción · Córdoba">
                         {mostrarFecha(o.proxima_accion_en)}
                         {o.proxima_accion_en &&
                           new Date(o.proxima_accion_en) < new Date() && (
                             <span className="d-block text-danger">Vencida</span>
                           )}
                       </td>
-                      <td>
-                        <Link to={`${rutaBandeja}?id=${o.id}`}>Abrir</Link>
+                      <td data-label="Detalle">
+                        <Link
+                          className="btn btn-sm btn-outline-primary"
+                          to={`${rutaBandeja}?id=${o.id}`}
+                        >
+                          Abrir
+                        </Link>
                       </td>
                     </tr>
                   ))}

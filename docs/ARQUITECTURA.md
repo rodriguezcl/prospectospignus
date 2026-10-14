@@ -1,5 +1,11 @@
 # Constitución arquitectónica de Prospectos Pignus
 
+## Acciones y listados adaptables (14-10-2026)
+
+Prospectos separa datos de contacto, origen/alta, atención exclusiva, gestión comercial y edición. La composición de app entrega el presentador de las celdas a `ContinuarRegistro`, que consulta una sola vez el contexto por registro. Prospectos y Cotizaciones comparten el selector de negociaciones: un acceso directo para una, un diálogo para varias y ninguna acción de apertura si no existen casos accesibles. Los permisos de atención se conservan.
+
+Presentación utiliza `acciones-registro` para agrupar botones, `acciones-contacto` para mantener edición y eliminación juntas y `pie-acciones` para separar acciones del contenido. Las tablas de gestión con `tabla-adaptable` y etiquetas `data-label` pasan a fichas en móvil; Catálogo conserva ordenamiento con controles visibles en esa vista. Las tablas analíticas mantienen su comparación por columnas y desplazamiento dentro del contenedor. No hay cambios de datos ni migraciones.
+
 ## Dólar informativo en cabecera (05-10-2026)
 
 La feature `dolar` consulta el endpoint público de DolarAPI `/v1/dolares/oficial`, sin credenciales ni datos comerciales. App conecta el adaptador HTTP con la presentación mediante el puerto `consultar`. Muestra venta en pesos y fecha/hora de la fuente en horario argentino. Consulta cada cinco minutos mientras la pestaña está visible, con tiempo límite de diez segundos y cancelación al desmontar. Si falla conserva el último dato identificado como no actualizado; sin datos muestra no disponible. El seguimiento guarda en localStorage la última cotización y los avisos sin leer, separados por usuario y navegador. La primera consulta establece referencia; solo una fecha posterior con venta mayor genera aviso. Bajas actualizan la referencia, respuestas repetidas o atrasadas no duplican avisos. Marcar leída elimina únicamente el aviso local. Con almacenamiento bloqueado se conserva en memoria durante la sesión. No monitorea con la plataforma cerrada ni sincroniza entre dispositivos. App agrega estos avisos a la campana existente, que pasa a rojo mientras haya pendientes. No modifica precios, propuestas o cálculos comerciales. No requiere migraciones ni claves de API.
