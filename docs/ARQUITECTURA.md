@@ -4,7 +4,7 @@
 
 El estado «En atención por…» abre un diálogo para liberar la reserva cuando el usuario es su titular o administración. La tabla no muestra un segundo botón de liberación. El diálogo mantiene los errores del servidor y solo se cierra tras liberar correctamente; no amplía permisos ni modifica las restricciones de seguimiento o actividades pendientes.
 
-Las acciones de fila de Prospectos, Cotizaciones, Recuperación, Catálogo, Usuarios y Ventas usan `AccionListado`: enlace o botón semántico con texto visible y nombre accesible. Las acciones comerciales permanecen en una fila horizontal, con etiquetas cortas en una sola línea (Abrir, Ver varias, Cotizar, Editar, Eliminar). Los botones de acción comparten 88 × 44 px, incluidos Cancelar y Liberar en el diálogo de atención. El nombre accesible conserva el contexto completo. No cambian permisos, destinos ni confirmaciones.
+Las acciones de fila de Prospectos, Cotizaciones, Recuperación, Catálogo, Usuarios y Ventas usan `AccionListado`: enlace o botón semántico con texto visible y nombre accesible. Las acciones comerciales permanecen en una fila horizontal con los textos Ver última cotización y Nueva cotización; Ver varias conserva el selector si hay varias negociaciones. Ambos botones comerciales miden 176 × 44 px y su grupo permite desplazamiento horizontal en espacios estrechos. Las demás acciones comparten 88 × 44 px, incluidos Cancelar y Liberar. Prospectos oculta la columna Origen y alta del listado, conservando filtros y datos en la ficha. El nombre accesible conserva el contexto completo. No cambian permisos, destinos ni confirmaciones.
 
 ## Acciones y listados adaptables (14-10-2026)
 

@@ -86,8 +86,6 @@ export function RegistrosInicialesPagina({
   const nombrePerfil = (id) =>
     catalogos.perfiles.find((p) => p.id === id)?.nombre ||
     (id ? "Otro integrante" : "Sin asignar");
-  const nombreOrigen = (codigo) =>
-    catalogos.origenes.find((o) => o.codigo === codigo)?.nombre || codigo;
 
   useEffect(() => {
     const actual = ++turno.current;
@@ -620,7 +618,6 @@ export function RegistrosInicialesPagina({
                       <tr>
                         <th scope="col">Prospecto</th>
                         <th scope="col">Ubicación</th>
-                        <th scope="col">Origen y alta</th>
                         <th scope="col">Atención</th>
                         <th scope="col">Gestión comercial</th>
                         <th scope="col">Contacto</th>
@@ -642,15 +639,6 @@ export function RegistrosInicialesPagina({
                           </td>
                           <td data-label="Ubicación">
                             {nombreUbicacionComercial(r.ubicacion_comercial)}
-                          </td>
-                          <td data-label="Origen y alta">
-                            {nombreOrigen(r.origen)}
-                            <small className="d-block mt-1">
-                              {nombrePerfil(r.creado_por)}
-                            </small>
-                            <small className="d-block text-muted">
-                              {fecha(r.creado_en)}
-                            </small>
                           </td>
                           {renderContinuacion?.(r, ({ atencion, acciones }) => (
                             <>

@@ -412,6 +412,9 @@ button:focus-visible {
   align-items: stretch;
   flex-direction: row;
   flex-wrap: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+  padding-block: 0.25rem;
 }
 .btn.accion-listado,
 .acciones-registro > .btn.accion-listado {
@@ -424,8 +427,9 @@ button:focus-visible {
   white-space: nowrap;
   line-height: 1.35;
 }
-.acciones-comerciales > .accion-listado {
-  min-width: 0;
+.acciones-registro.acciones-comerciales > .accion-listado {
+  flex: 0 0 11rem;
+  width: 11rem;
   overflow-wrap: normal;
 }
 .acciones-comerciales:empty {
@@ -476,22 +480,19 @@ button:focus-visible {
   min-width: 2.5rem;
 }
 .tabla-prospectos th:nth-child(1) {
-  width: 18%;
+  width: 20%;
 }
 .tabla-prospectos th:nth-child(2) {
   width: 8%;
 }
 .tabla-prospectos th:nth-child(3) {
-  width: 14%;
+  width: 18%;
 }
 .tabla-prospectos th:nth-child(4) {
-  width: 14%;
+  width: 36%;
 }
 .tabla-prospectos th:nth-child(5) {
-  width: 24%;
-}
-.tabla-prospectos th:nth-child(6) {
-  width: 22%;
+  width: 18%;
 }
 .negociaciones-selector {
   list-style: none;

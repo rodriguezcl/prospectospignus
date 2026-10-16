@@ -60,19 +60,19 @@ test("acciones comerciales: un selector para varias negociaciones conserva desti
   assert.match(html, /href="\/cotizaciones\?id=a"/);
   assert.match(html, /href="\/cotizaciones\?id=b"/);
   assert.doesNotMatch(html, /Reservada|id=privada/);
-  assert.match(html, /Cotizar otra necesidad/);
+  assert.match(html, /Nueva cotización/);
   const ocupado = dibujar(AccionesNegociaciones, {
     perfil,
     registro,
     contexto: { atencion: { vendedor_id: "otro" }, casos: [] },
   });
-  assert.doesNotMatch(ocupado, /Cotizar|<button/);
+  assert.doesNotMatch(ocupado, /Nueva cotización|<button/);
   const sinCasos = dibujar(AccionesNegociaciones, {
     perfil,
     registro,
     contexto: { atencion, casos: [] },
   });
-  assert.match(sinCasos, /aria-label="Cotizar"/);
+  assert.match(sinCasos, /aria-label="Nueva cotización"/);
   assert.doesNotMatch(sinCasos, /Ver negociaciones|Abrir negociación/);
 });
 const { CrearProspecto } = cargar(

@@ -91,14 +91,10 @@ export function AccionesNegociaciones({ registro, contexto, perfil }) {
     <div className="acciones-registro acciones-comerciales">
       {accesibles.length === 1 && (
         <AccionListado
-          texto="Abrir"
+          texto="Ver última cotización"
           className="btn-primary"
           to={`/cotizaciones?id=${accesibles[0].id}`}
-          etiqueta={
-            ["ganada", "perdida", "anulada"].includes(accesibles[0].estado)
-              ? "Ver negociación"
-              : "Abrir negociación"
-          }
+          etiqueta="Ver última cotización"
         />
       )}
       {accesibles.length > 1 && (
@@ -129,10 +125,8 @@ export function AccionesNegociaciones({ registro, contexto, perfil }) {
       {!registro.lote_demostracion &&
         puedeAtender(contexto.atencion, perfil) && (
           <AccionListado
-            texto="Cotizar"
-            etiqueta={
-              contexto.casos.length ? "Cotizar otra necesidad" : "Cotizar"
-            }
+            texto="Nueva cotización"
+            etiqueta="Nueva cotización"
             className={
               accesibles.length ? "btn-outline-primary" : "btn-primary"
             }
