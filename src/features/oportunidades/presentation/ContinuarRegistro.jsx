@@ -1,4 +1,5 @@
 import { AtencionProspecto } from "./AtencionProspecto.jsx";
+import { AccionListado } from "../../../shared/ui/AccionListado.jsx";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { estados, puedeAtender } from "../domain/circuito.js";
@@ -89,25 +90,26 @@ export function AccionesNegociaciones({ registro, contexto, perfil }) {
   return (
     <div className="acciones-registro acciones-comerciales">
       {accesibles.length === 1 && (
-        <Link
-          className="btn btn-sm btn-primary"
+        <AccionListado
+          texto="Abrir"
+          className="btn-primary"
           to={`/cotizaciones?id=${accesibles[0].id}`}
-          title={`${accesibles[0].necesidad} · ${estados[accesibles[0].estado]}`}
-        >
-          {["ganada", "perdida", "anulada"].includes(accesibles[0].estado)
-            ? "Ver negociación"
-            : "Abrir negociación"}
-        </Link>
+          etiqueta={
+            ["ganada", "perdida", "anulada"].includes(accesibles[0].estado)
+              ? "Ver negociación"
+              : "Abrir negociación"
+          }
+        />
       )}
       {accesibles.length > 1 && (
         <>
-          <button
-            type="button"
-            className="btn btn-sm btn-primary"
+          <AccionListado
+            texto="Ver varias"
+            etiqueta={`Ver negociaciones (${accesibles.length})`}
+            aria-haspopup="dialog"
+            className="btn-primary"
             onClick={() => selector.current.showModal()}
-          >
-            Ver negociaciones ({accesibles.length})
-          </button>
+          />
           <dialog
             ref={selector}
             aria-label={`Negociaciones de ${registro.nombre}`}
@@ -116,24 +118,26 @@ export function AccionesNegociaciones({ registro, contexto, perfil }) {
           >
             <h2 className="h5">Negociaciones de {registro.nombre}</h2>
             <CasosDelRegistro casos={accesibles} />
-            <button
-              type="button"
-              className="btn btn-outline-secondary"
+            <AccionListado
+              etiqueta="Cerrar"
+              className="btn-outline-secondary"
               onClick={() => selector.current.close()}
-            >
-              Cerrar
-            </button>
+            />
           </dialog>
         </>
       )}
       {!registro.lote_demostracion &&
         puedeAtender(contexto.atencion, perfil) && (
-          <Link
-            className={`btn btn-sm ${accesibles.length ? "btn-outline-primary" : "btn-primary"}`}
+          <AccionListado
+            texto="Cotizar"
+            etiqueta={
+              contexto.casos.length ? "Cotizar otra necesidad" : "Cotizar"
+            }
+            className={
+              accesibles.length ? "btn-outline-primary" : "btn-primary"
+            }
             to={`/cotizaciones?nueva=si&registro=${registro.id}`}
-          >
-            {contexto.casos.length ? "Cotizar otra necesidad" : "Cotizar"}
-          </Link>
+          />
         )}
     </div>
   );

@@ -17,7 +17,7 @@ function cargar(ruta) {
     format: "cjs",
     jsx: "automatic",
     loader: { ".css": "empty" },
-    external: ["react", "react/jsx-runtime", "react-router-dom"],
+    external: ["react", "react/jsx-runtime", "react-dom", "react-router-dom"],
   });
   const modulo = { exports: {} };
   new Function("require", "module", "exports", resultado.outputFiles[0].text)(
@@ -72,7 +72,7 @@ test("acciones comerciales: un selector para varias negociaciones conserva desti
     registro,
     contexto: { atencion, casos: [] },
   });
-  assert.match(sinCasos, />Cotizar<\/a>/);
+  assert.match(sinCasos, /aria-label="Cotizar"/);
   assert.doesNotMatch(sinCasos, /Ver negociaciones|Abrir negociación/);
 });
 const { CrearProspecto } = cargar(

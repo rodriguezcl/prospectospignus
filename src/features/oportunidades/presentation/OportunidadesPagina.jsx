@@ -1,4 +1,5 @@
 import { FiltroUbicacionComercial } from "../../../shared/ui/UbicacionComercial.jsx";
+import { AccionListado } from "../../../shared/ui/AccionListado.jsx";
 import { nombreUbicacionComercial } from "../../../shared/domain/ubicacionComercial.js";
 import { AtencionProspecto } from "./AtencionProspecto.jsx";
 import { useEffect, useRef, useState } from "react";
@@ -619,12 +620,11 @@ export function OportunidadesPagina({
                           )}
                       </td>
                       <td data-label="Detalle">
-                        <Link
-                          className="btn btn-sm btn-outline-primary"
+                        <AccionListado
+                          texto="Abrir"
+                          etiqueta={`Abrir negociación de ${o.nombre}`}
                           to={`${rutaBandeja}?id=${o.id}`}
-                        >
-                          Abrir
-                        </Link>
+                        />
                       </td>
                     </tr>
                   ))}

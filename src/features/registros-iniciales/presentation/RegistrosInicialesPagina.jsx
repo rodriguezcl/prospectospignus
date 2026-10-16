@@ -1,3 +1,4 @@
+import { AccionListado } from "../../../shared/ui/AccionListado.jsx";
 import {
   CampoUbicacionComercial,
   FiltroUbicacionComercial,
@@ -456,7 +457,7 @@ export function RegistrosInicialesPagina({
                             }
                             onClick={() => solicitarBaja(detalle)}
                           >
-                            <IconoAccion accion="eliminar" /> Eliminar prospecto
+                            <IconoAccion texto="Eliminar" /> Eliminar prospecto
                           </button>
                         )}
                     </div>
@@ -664,27 +665,22 @@ export function RegistrosInicialesPagina({
                           )}
                           <td data-label="Contacto" className="celda-acciones">
                             <div className="acciones-registro acciones-contacto">
-                              <button
-                                className="btn btn-sm btn-outline-primary"
+                              <AccionListado
+                                texto="Editar"
+                                etiqueta={`Editar ${r.nombre}`}
                                 onClick={() => {
                                   cambiarAviso("");
                                   cambiarParametros({ registro: r.id });
                                 }}
-                                aria-label={`Editar ${r.nombre}`}
-                              >
-                                Editar
-                              </button>
+                              />
                               {administrador && !r.lote_demostracion && (
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-outline-danger"
+                                <AccionListado
+                                  texto="Eliminar"
+                                  className="btn-outline-danger"
                                   disabled={guardando}
-                                  title={`Eliminar ${r.nombre}`}
-                                  aria-label={`Eliminar ${r.nombre}`}
+                                  etiqueta={`Eliminar ${r.nombre}`}
                                   onClick={() => solicitarBaja(r)}
-                                >
-                                  <IconoAccion accion="eliminar" />
-                                </button>
+                                />
                               )}
                             </div>
                           </td>

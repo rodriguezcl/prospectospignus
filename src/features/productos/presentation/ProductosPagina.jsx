@@ -1,4 +1,4 @@
-import { IconoAccion } from "../../../shared/ui/IconoAccion.jsx";
+import { AccionListado } from "../../../shared/ui/AccionListado.jsx";
 import { useEffect, useRef, useState } from "react";
 import { EncabezadoPagina } from "../../../shared/ui/contenido/EncabezadoPagina.jsx";
 import {
@@ -351,27 +351,22 @@ export function ProductosPagina({ gestion }) {
                 }}
                 acciones={(i) => (
                   <div className="acciones-registro acciones-contacto">
-                    <button
-                      className="btn btn-sm btn-outline-primary"
+                    <AccionListado
+                      texto="Editar"
                       disabled={ocupado}
-                      title={`Editar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""}`}
-                      aria-label={`Editar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""}`}
+                      etiqueta={`Editar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""}`}
                       onClick={() => abrir(i)}
-                    >
-                      <IconoAccion accion="editar" />
-                    </button>
-                    <button
-                      title={`Eliminar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""} del catálogo`}
-                      aria-label={`Eliminar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""} del catálogo`}
-                      className="btn btn-sm btn-outline-danger"
+                    />
+                    <AccionListado
+                      texto="Eliminar"
+                      etiqueta={`Eliminar ${i.nombre}${i.codigo ? ` · ${i.codigo}` : ""} del catálogo`}
+                      className="btn-outline-danger"
                       disabled={ocupado}
                       onClick={() => {
                         setEdicion(null);
                         setBaja({ grupo, valor: i, accion: "eliminar" });
                       }}
-                    >
-                      <IconoAccion accion="eliminar" />
-                    </button>
+                    />
                   </div>
                 )}
               />

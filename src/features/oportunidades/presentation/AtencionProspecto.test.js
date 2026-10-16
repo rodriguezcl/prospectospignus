@@ -50,6 +50,10 @@ test("disponibles se toman antes de cotizar; solo titular y administración libe
   assert.equal(puedeAtender(tomada, otro), false);
   assert.match(dibujar(tomada, vendedor), /Liberar prospecto/);
   assert.match(dibujar(tomada, admin), /Liberar prospecto/);
+  const html = dibujar(tomada, admin);
+  assert.match(html, /aria-haspopup="dialog"[^>]*>En atención por Ana<\/button>/);
+  assert.doesNotMatch(html.split("<dialog")[0], /Liberar prospecto/);
+  assert.match(html, /<dialog[\s\S]*Liberar prospecto[\s\S]*<\/dialog>/);
   assert.doesNotMatch(dibujar(tomada, otro), /<button/);
   assert.doesNotMatch(
     dibujar(pendiente, { id: "g", rol: "agente" }),

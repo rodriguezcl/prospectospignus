@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AccionListado } from "../../../shared/ui/AccionListado.jsx";
 import { Link, useLocation } from "react-router-dom";
 import { DetalleVenta } from "./DetalleVenta.jsx";
 
@@ -53,12 +54,12 @@ export function FilasVentas({ filas, gestion, perfil }) {
         </details>
       </td>
       <td data-label="Detalle">
-        <Link
-          className="btn btn-sm btn-outline-primary mb-2"
+        <AccionListado
+          texto="Historial"
+          etiqueta="Ver ficha e historial"
+          className="btn-outline-primary mb-2"
           to={`/cotizaciones?id=${v.id}`}
-        >
-          Ver ficha e historial
-        </Link>
+        />
         {gestion && (
           <DetalleVenta id={v.id} gestion={gestion} perfil={perfil} />
         )}

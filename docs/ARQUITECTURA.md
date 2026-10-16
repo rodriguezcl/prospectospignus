@@ -1,5 +1,11 @@
 # Constitución arquitectónica de Prospectos Pignus
 
+## Acciones con texto en listados (16-10-2026)
+
+El estado «En atención por…» abre un diálogo para liberar la reserva cuando el usuario es su titular o administración. La tabla no muestra un segundo botón de liberación. El diálogo mantiene los errores del servidor y solo se cierra tras liberar correctamente; no amplía permisos ni modifica las restricciones de seguimiento o actividades pendientes.
+
+Las acciones de fila de Prospectos, Cotizaciones, Recuperación, Catálogo, Usuarios y Ventas usan `AccionListado`: enlace o botón semántico con texto visible y nombre accesible. Las acciones comerciales permanecen en una fila horizontal, con etiquetas cortas en una sola línea (Abrir, Ver varias, Cotizar, Editar, Eliminar). Los botones de acción comparten 88 × 44 px, incluidos Cancelar y Liberar en el diálogo de atención. El nombre accesible conserva el contexto completo. No cambian permisos, destinos ni confirmaciones.
+
 ## Acciones y listados adaptables (14-10-2026)
 
 Prospectos separa datos de contacto, origen/alta, atención exclusiva, gestión comercial y edición. La composición de app entrega el presentador de las celdas a `ContinuarRegistro`, que consulta una sola vez el contexto por registro. Prospectos y Cotizaciones comparten el selector de negociaciones: un acceso directo para una, un diálogo para varias y ninguna acción de apertura si no existen casos accesibles. Los permisos de atención se conservan.
