@@ -3,6 +3,10 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { PGlite } from "@electric-sql/pglite";
+import {
+  prepararCatalogo,
+  modificarCatalogo,
+} from "../../src/features/productos/domain/catalogo.js";
 
 test("listas por rol: lectura, cálculo privado, uso autorizado e historial", async (t) => {
   const db = new PGlite();
@@ -633,6 +637,54 @@ test("listas por rol: lectura, cálculo privado, uso autorizado e historial", as
       await assert.rejects(
         evaluar([seleccion], compartida.caso),
         /permission denied/,
+      );
+    },
+  );
+  await t.test(
+    "tipología del producto: guardar, recuperar, editar y conservar historial",
+    async () => {
+      await como(admin);
+      const original = await leer();
+      assert.equal(
+        original.datos.items.find((i) => i.id === sensor).tipologia,
+        undefined,
+      );
+      for (const tipologia of ["interior", "exterior", null]) {
+        const anterior = await leer();
+        const datos = prepararCatalogo(anterior.datos);
+        const producto = datos.items.find((i) => i.id === sensor);
+        const siguiente = modificarCatalogo(datos, "items", {
+          ...producto,
+          tipologia,
+        });
+        const operacion = randomUUID();
+        const guardarTipologia = () =>
+          db.query("select public.guardar_catalogo_044($1,$2,$3) r", [
+            anterior.version,
+            operacion,
+            siguiente,
+          ]);
+        const guardada = (await guardarTipologia()).rows[0].r;
+        assert.equal((await guardarTipologia()).rows[0].r, guardada);
+        const recuperado = (await leer()).datos.items.find(
+          (i) => i.id === sensor,
+        );
+        assert.equal(recuperado.tipologia, tipologia);
+        assert.deepEqual(recuperado.precios, producto.precios);
+        assert.deepEqual(
+          recuperado.marcas_compatibles,
+          producto.marcas_compatibles,
+        );
+      }
+      const historico = (
+        await db.query(
+          "select datos from public.versiones_catalogo where version=$1",
+          [original.version],
+        )
+      ).rows[0].datos;
+      assert.equal(
+        historico.items.find((i) => i.id === sensor).tipologia,
+        undefined,
       );
     },
   );

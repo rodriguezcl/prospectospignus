@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { servicios } from "../domain/catalogo.js";
+import { servicios, tipologiasProducto } from "../domain/catalogo.js";
 
 const comparar = new Intl.Collator("es-AR", {
   sensitivity: "base",
@@ -38,10 +38,12 @@ export function TablaCatalogo({
   const productos = seccion !== "marcas";
   const nombresMarcas = new Map(marcas.map((m) => [m.id, m.nombre]));
   const columnas = [
+    ...(productos
+      ? [{ campo: "codigo", titulo: "Código", valor: (i) => i.codigo }]
+      : []),
     { campo: "nombre", titulo: "Nombre", valor: (i) => i.nombre },
     ...(productos
       ? [
-          { campo: "codigo", titulo: "Código", valor: (i) => i.codigo },
           {
             campo: "marca",
             titulo: "Marca",
@@ -71,15 +73,9 @@ export function TablaCatalogo({
     ...(seccion === "productos"
       ? [
           {
-            campo: "compatibilidad",
-            titulo: "Marcas compatibles",
-            valor: (i) =>
-              i.marcas_compatibles?.length
-                ? i.marcas_compatibles
-                    .map((id) => nombresMarcas.get(id) || "Marca no disponible")
-                    .sort(comparar.compare)
-                    .join(", ")
-                : nombresMarcas.get(i.marca_id) || "—",
+            campo: "tipologia",
+            titulo: "Tipología",
+            valor: (i) => tipologiasProducto[i.tipologia] || "Sin definir",
           },
           {
             campo: "moneda_referencia",

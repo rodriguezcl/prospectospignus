@@ -1,5 +1,9 @@
 # Constitución arquitectónica de Prospectos Pignus
 
+## Tipología de productos (03-11-2026)
+
+Catálogo comercial permite clasificar cada producto como Interior o Exterior mediante el campo opcional `tipologia`. La ausencia de clasificación se presenta como Sin definir; no se infiere del nombre ni se modifican los registros existentes. Se conserva en el documento JSON del catálogo versionado mediante las RPC actuales, sin migración. Es información descriptiva administrativa y no modifica precios, compatibilidades ni condiciones para cotizar. El listado muestra Código antes de Nombre y reemplaza la columna Marcas compatibles por Tipología; la configuración de compatibilidades permanece en el editor.
+
 ## Acciones con texto en listados (16-10-2026)
 
 El estado «En atención por…» abre un diálogo para liberar la reserva cuando el usuario es su titular o administración. La tabla no muestra un segundo botón de liberación. El diálogo mantiene los errores del servidor y solo se cierra tras liberar correctamente; no amplía permisos ni modifica las restricciones de seguimiento o actividades pendientes.

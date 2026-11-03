@@ -7,6 +7,10 @@ export const servicios = {
   alarma: "Alarma",
   camaras: "Cámaras",
 };
+export const tipologiasProducto = {
+  interior: "Interior",
+  exterior: "Exterior",
+};
 export const estados = ["borrador", "activo", "inactivo"];
 export const esMarcaComponentes = (marca) =>
   marca?.nombre?.trim().toUpperCase() === "COMPONENTES";

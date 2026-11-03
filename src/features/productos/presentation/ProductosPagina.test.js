@@ -268,6 +268,14 @@ test("catálogo: editor ofrece modalidad, marca, tipo y componentes sin campo fa
   assert.match(editado, /adicional-inactivo/);
   assert.match(editado, /max="2"/);
   const extra = render({ ...valor, tipo: "adicional" }, false);
+  assert.match(extra, /Tipología/);
+  assert.match(extra, /value="" selected="">Sin definir/);
+  assert.doesNotMatch(alta, /Tipología/);
+  const exterior = render(
+    { ...valor, tipo: "adicional", tipologia: "exterior" },
+    false,
+  );
+  assert.match(exterior, /value="exterior" selected="">Exterior/);
   assert.doesNotMatch(extra, /Clase de producto|Mano de obra|Cerco/);
   assert.match(extra, /Precio alto/);
   assert.match(extra, /Precio bajo/);

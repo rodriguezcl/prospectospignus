@@ -9,6 +9,7 @@ import { enfocarPanel } from "../../../shared/ui/enfocarPanel.js";
 import { CampoImporte } from "../../../shared/ui/CampoImporte.jsx";
 import {
   servicios,
+  tipologiasProducto,
   estados,
   nivelesPrecios,
   esMarcaComponentes,
@@ -140,6 +141,7 @@ export function EditorCatalogo({
                 ),
                 ...(!oferta
                   ? {
+                      tipologia: item.tipologia || null,
                       ...Object.fromEntries(
                         ["precios_pack_2", "precios_pack_2_usd"].map(
                           (campo) => [
@@ -376,6 +378,20 @@ export function EditorCatalogo({
               )}
             {!oferta && (
               <>
+                <Campo titulo="Tipología">
+                  <select
+                    className="form-select"
+                    value={item.tipologia || ""}
+                    onChange={(e) => cambiar("tipologia", e.target.value)}
+                  >
+                    <option value="">Sin definir</option>
+                    {Object.entries(tipologiasProducto).map(([id, nombre]) => (
+                      <option key={id} value={id}>
+                        {nombre}
+                      </option>
+                    ))}
+                  </select>
+                </Campo>
                 <Campo titulo="Se vende por">
                   <select
                     className="form-select"
