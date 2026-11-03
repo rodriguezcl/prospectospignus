@@ -33,6 +33,7 @@ export function TablaCatalogo({
 }) {
   const [busqueda, buscar] = useState("");
   const [segmento, filtrarSegmento] = useState("");
+  const [marca, filtrarMarca] = useState("");
   const [orden, ordenar] = useState({ campo: "nombre", direccion: 1 });
   const productos = seccion !== "marcas";
   const nombresMarcas = new Map(marcas.map((m) => [m.id, m.nombre]));
@@ -100,6 +101,7 @@ export function TablaCatalogo({
   const visibles = filas
     .filter((i) => {
       if (productos && segmento && i.servicio !== segmento) return false;
+      if (productos && marca && i.marca_id !== marca) return false;
       const texto = textoBuscable(columnas.map((c) => c.valor(i)).join(" "));
       return terminos.every((termino) => texto.includes(termino));
     })
@@ -111,12 +113,12 @@ export function TablaCatalogo({
         comparar.compare(a.codigo ?? "", b.codigo ?? "") ||
         comparar.compare(a.id, b.id),
     );
-  const filtros = Boolean(busqueda || segmento);
+  const filtros = Boolean(busqueda || segmento || marca);
 
   return (
     <>
       <div className="row g-3 align-items-end mb-3">
-        <label className={productos ? "col-12 col-md-7" : "col-12 col-md-9"}>
+        <label className={productos ? "col-12 col-lg-4" : "col-12 col-md-9"}>
           Buscar en {titulo.toLocaleLowerCase("es-AR")}
           <input
             type="search"
@@ -129,7 +131,26 @@ export function TablaCatalogo({
           />
         </label>
         {productos && (
-          <label className="col-12 col-sm-7 col-md-3">
+          <label className="col-12 col-sm-6 col-lg-3">
+            Marca
+            <select
+              className="form-select mt-1"
+              value={marca}
+              onChange={(e) => filtrarMarca(e.target.value)}
+            >
+              <option value="">Todas las marcas</option>
+              {[...marcas]
+                .sort((a, b) => comparar.compare(a.nombre, b.nombre))
+                .map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.nombre}
+                  </option>
+                ))}
+            </select>
+          </label>
+        )}
+        {productos && (
+          <label className="col-12 col-sm-6 col-lg-3">
             Segmento
             <select
               className="form-select mt-1"
@@ -153,6 +174,7 @@ export function TablaCatalogo({
             onClick={() => {
               buscar("");
               filtrarSegmento("");
+              filtrarMarca("");
             }}
           >
             Limpiar
@@ -166,7 +188,7 @@ export function TablaCatalogo({
       {!filas.length ? (
         <p>No hay registros en esta sección.</p>
       ) : !visibles.length ? (
-        <p>No hay coincidencias. Cambiá la búsqueda o el segmento.</p>
+        <p>No hay coincidencias. Cambiá la búsqueda, la marca o el segmento.</p>
       ) : (
         <div
           className="table-responsive"
