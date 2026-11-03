@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/ui/Modal.jsx";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { vigencia } from "../domain/promocion.js";
@@ -100,6 +101,7 @@ export function PromocionesPagina({ gestion, perfil }) {
     [ocupado, ocupar] = useState(false),
     [error, fallar] = useState(""),
     [mensaje, informar] = useState("");
+  const [confirmacion, confirmar] = useState(null);
   const nuevoId = useRef(crypto.randomUUID()),
     intento = useRef(null);
   useEffect(() => {
@@ -146,6 +148,7 @@ export function PromocionesPagina({ gestion, perfil }) {
         operacion: intento.current.operacion,
       });
       intento.current = null;
+      confirmar(null);
       nuevoId.current = crypto.randomUUID();
       navegar({ id: resultado });
       revisar((n) => n + 1);
@@ -216,7 +219,7 @@ export function PromocionesPagina({ gestion, perfil }) {
           Actualizar
         </button>
       </div>
-      {error && (
+      {error && !nueva && !id && (
         <p className="alert alert-danger" role="alert">
           {error}
         </p>
@@ -230,7 +233,12 @@ export function PromocionesPagina({ gestion, perfil }) {
       {!cargando &&
         nueva &&
         (admin ? (
-          <div className="card">
+          <Modal
+            titulo="Nueva promoción"
+            cerrar={() => navegar({})}
+            ocupado={ocupado}
+            error={error}
+          >
             <div className="card-body">
               <h2 className="h4">Crear borrador</h2>
               <p>
@@ -242,162 +250,187 @@ export function PromocionesPagina({ gestion, perfil }) {
                 ocupado={ocupado}
               />
             </div>
-          </div>
+          </Modal>
         ) : (
           <p>No tenés permiso para crear promociones.</p>
         ))}
-      {!cargando && !nueva && detalle && (
-        <div className="card">
-          <div className="card-body">
-            <h2>{detalle.titulo}</h2>
-            <p>
-              <span className="badge bg-secondary">{vigencia(detalle)}</span> ·{" "}
-              {detalle.desde} al {detalle.hasta} · Córdoba
-            </p>
-            <p>
-              Destinatarios:{" "}
-              {detalle.destinatarios === "ambos"
-                ? "Vendedores y agentes"
-                : detalle.destinatarios === "agente"
-                  ? "Agentes"
-                  : "Vendedores"}
-            </p>
-            <p className="texto-con-saltos">{detalle.descripcion}</p>
-            <h3 className="h5">Condiciones</h3>
-            <p className="texto-con-saltos">{detalle.condiciones}</p>
-            {admin && detalle.estado === "borrador" && (
-              <details className="mb-3">
-                <summary>Editar información del borrador</summary>
-                <FormularioPromocion
-                  key={`${detalle.id}-${detalle.version}`}
-                  promocion={detalle}
-                  guardar={(datos) => guardar("editar", datos)}
-                  ocupado={ocupado}
-                />
-              </details>
-            )}
-            <h3 className="h5">PDF e imágenes</h3>
-            <ul className="list-unstyled">
-              {ordenarAlfabeticamente(detalle.archivos_promociones)
-                .filter((a) => a.estado !== "retirado")
-                .map((a) => (
-                  <li
-                    className="adjunto-promocion border-bottom py-3"
-                    key={a.id}
-                  >
-                    <span>
-                      {a.nombre} · {(a.bytes / 1048576).toFixed(1)} MB{" "}
-                      {a.estado === "pendiente" ? "· Carga pendiente" : ""}
-                    </span>
-                    <div className="acciones-registro">
-                      {a.estado === "disponible" && (
-                        <button
-                          className="btn btn-sm btn-outline-primary"
-                          aria-label={`Descargar ${a.nombre}`}
-                          disabled={ocupado}
-                          onClick={() => descargar(a)}
-                        >
-                          Descargar
-                        </button>
-                      )}
-                      {admin && detalle.estado === "borrador" && (
-                        <>
-                          {a.estado === "pendiente" && (
+      {id && !nueva && (
+        <Modal
+          titulo="Promoción"
+          cerrar={() => navegar({})}
+          ocupado={ocupado}
+          error={error}
+        >
+          {cargando ? (
+            <p role="status">Cargando promoción…</p>
+          ) : (
+            detalle && (
+              <div className="card-body">
+                {mensaje && (
+                  <p className="alert alert-success" role="status">
+                    {mensaje}
+                  </p>
+                )}
+                <h2>{detalle.titulo}</h2>
+                <p>
+                  <span className="badge bg-secondary">
+                    {vigencia(detalle)}
+                  </span>{" "}
+                  · {detalle.desde} al {detalle.hasta} · Córdoba
+                </p>
+                <p>
+                  Destinatarios:{" "}
+                  {detalle.destinatarios === "ambos"
+                    ? "Vendedores y agentes"
+                    : detalle.destinatarios === "agente"
+                      ? "Agentes"
+                      : "Vendedores"}
+                </p>
+                <p className="texto-con-saltos">{detalle.descripcion}</p>
+                <h3 className="h5">Condiciones</h3>
+                <p className="texto-con-saltos">{detalle.condiciones}</p>
+                {admin && detalle.estado === "borrador" && (
+                  <details className="mb-3">
+                    <summary>Editar información del borrador</summary>
+                    <FormularioPromocion
+                      key={`${detalle.id}-${detalle.version}`}
+                      promocion={detalle}
+                      guardar={(datos) => guardar("editar", datos)}
+                      ocupado={ocupado}
+                    />
+                  </details>
+                )}
+                <h3 className="h5">PDF e imágenes</h3>
+                <ul className="list-unstyled">
+                  {ordenarAlfabeticamente(detalle.archivos_promociones)
+                    .filter((a) => a.estado !== "retirado")
+                    .map((a) => (
+                      <li
+                        className="adjunto-promocion border-bottom py-3"
+                        key={a.id}
+                      >
+                        <span>
+                          {a.nombre} · {(a.bytes / 1048576).toFixed(1)} MB{" "}
+                          {a.estado === "pendiente" ? "· Carga pendiente" : ""}
+                        </span>
+                        <div className="acciones-registro">
+                          {a.estado === "disponible" && (
                             <button
-                              className="btn btn-sm btn-outline-secondary"
+                              className="btn btn-sm btn-outline-primary"
+                              aria-label={`Descargar ${a.nombre}`}
                               disabled={ocupado}
-                              onClick={() =>
-                                archivo(() => gestion.confirmar(a.id))
-                              }
+                              onClick={() => descargar(a)}
                             >
-                              Confirmar carga
+                              Descargar
                             </button>
                           )}
-                          <button
-                            className="btn btn-sm btn-outline-danger"
-                            disabled={ocupado}
-                            onClick={() =>
-                              guardar("retirar_archivo", { id: a.id })
-                            }
-                          >
-                            Retirar adjunto
-                          </button>
-                        </>
+                          {admin && detalle.estado === "borrador" && (
+                            <>
+                              {a.estado === "pendiente" && (
+                                <button
+                                  className="btn btn-sm btn-outline-secondary"
+                                  disabled={ocupado}
+                                  onClick={() =>
+                                    archivo(() => gestion.confirmar(a.id))
+                                  }
+                                >
+                                  Confirmar carga
+                                </button>
+                              )}
+                              <button
+                                className="btn btn-sm btn-outline-danger"
+                                disabled={ocupado}
+                                onClick={() =>
+                                  guardar("retirar_archivo", { id: a.id })
+                                }
+                              >
+                                Retirar adjunto
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                </ul>
+                {!detalle.archivos_promociones.some(
+                  (a) => a.estado !== "retirado",
+                ) && <p>Sin archivos adjuntos.</p>}
+                {admin && (
+                  <>
+                    {detalle.estado === "borrador" && (
+                      <label className="d-block mb-3">
+                        Subir PDF, JPG, PNG o WebP · hasta 20 MB · máximo 10
+                        adjuntos
+                        <input
+                          className="form-control"
+                          type="file"
+                          accept="application/pdf,image/jpeg,image/png,image/webp"
+                          disabled={ocupado}
+                          onChange={(e) => {
+                            const f = e.target.files[0];
+                            e.target.value = "";
+                            if (f) archivo(() => gestion.subir(detalle, f));
+                          }}
+                        />
+                      </label>
+                    )}
+                    <div className="acciones-registro pie-acciones">
+                      {detalle.estado === "borrador" ? (
+                        <button
+                          className="btn btn-success"
+                          disabled={ocupado}
+                          onClick={() => guardar("publicar")}
+                        >
+                          Publicar y notificar
+                        </button>
+                      ) : (
+                        <button
+                          className="btn btn-outline-primary"
+                          disabled={ocupado}
+                          onClick={() => confirmar("borrador")}
+                        >
+                          Pasar a borrador para editar
+                        </button>
+                      )}
+                      {detalle.estado !== "archivada" && (
+                        <button
+                          className="btn btn-outline-secondary"
+                          disabled={ocupado}
+                          onClick={() => confirmar("archivar")}
+                        >
+                          Archivar
+                        </button>
                       )}
                     </div>
-                  </li>
-                ))}
-            </ul>
-            {!detalle.archivos_promociones.some(
-              (a) => a.estado !== "retirado",
-            ) && <p>Sin archivos adjuntos.</p>}
-            {admin && (
-              <>
-                {detalle.estado === "borrador" && (
-                  <label className="d-block mb-3">
-                    Subir PDF, JPG, PNG o WebP · hasta 20 MB · máximo 10
-                    adjuntos
-                    <input
-                      className="form-control"
-                      type="file"
-                      accept="application/pdf,image/jpeg,image/png,image/webp"
-                      disabled={ocupado}
-                      onChange={(e) => {
-                        const f = e.target.files[0];
-                        e.target.value = "";
-                        if (f) archivo(() => gestion.subir(detalle, f));
-                      }}
-                    />
-                  </label>
+                  </>
                 )}
-                <div className="acciones-registro pie-acciones">
-                  {detalle.estado === "borrador" ? (
-                    <button
-                      className="btn btn-success"
-                      disabled={ocupado}
-                      onClick={() => guardar("publicar")}
-                    >
-                      Publicar y notificar
-                    </button>
-                  ) : (
-                    <button
-                      className="btn btn-outline-primary"
-                      disabled={ocupado}
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            "La promoción dejará de estar disponible para el equipo hasta volver a publicarla. ¿Continuar?",
-                          )
-                        )
-                          guardar("borrador");
-                      }}
-                    >
-                      Pasar a borrador para editar
-                    </button>
-                  )}
-                  {detalle.estado !== "archivada" && (
-                    <button
-                      className="btn btn-outline-secondary"
-                      disabled={ocupado}
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            "¿Archivar la promoción y retirarla de la consulta del equipo?",
-                          )
-                        )
-                          guardar("archivar");
-                      }}
-                    >
-                      Archivar
-                    </button>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+              </div>
+            )
+          )}
+        </Modal>
       )}
-      {!id && !nueva && (
+      {confirmacion && (
+        <Modal
+          titulo="Confirmar acción"
+          cerrar={() => confirmar(null)}
+          ocupado={ocupado}
+          error={error}
+        >
+          <p>
+            {confirmacion === "archivar"
+              ? "¿Archivar la promoción y retirarla de la consulta del equipo?"
+              : "La promoción dejará de estar disponible para el equipo hasta volver a publicarla."}
+          </p>
+          <button
+            className="btn btn-primary"
+            disabled={ocupado}
+            onClick={() => guardar(confirmacion)}
+          >
+            Confirmar
+          </button>
+        </Modal>
+      )}
+      {
         <div className="card">
           <div className="card-body">
             <label className="mb-3">
@@ -460,7 +493,7 @@ export function PromocionesPagina({ gestion, perfil }) {
             )}
           </div>
         </div>
-      )}
+      }
       {(id || nueva) && <Link to="/promociones">Volver al listado</Link>}
     </section>
   );

@@ -1,4 +1,5 @@
 import { AccionListado } from "../../../shared/ui/AccionListado.jsx";
+import { Modal } from "../../../shared/ui/Modal.jsx";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { EncabezadoPagina } from "../../../shared/ui/contenido/EncabezadoPagina.jsx";
 import { FormularioGestionCuenta } from "./FormularioGestionCuenta.jsx";
@@ -10,6 +11,7 @@ export function UsuariosPagina({ gestion }) {
   const [error, cambiarError] = useState("");
   const [aviso, cambiarAviso] = useState("");
   const [seleccion, cambiarSeleccion] = useState(null);
+  const [creando, cambiarCreando] = useState(false);
   const botonActualizar = useRef(null);
   const operacionEnCurso = useRef(false);
   const formulario = useRef(null);
@@ -47,6 +49,7 @@ export function UsuariosPagina({ gestion }) {
       const usuario = await gestion.crear(datos);
       if (!vigente.current) return;
       formulario.current.reset();
+      cambiarCreando(false);
       cambiarAviso(
         `Cuenta creada para ${usuario.correo}. Entregá la contraseña por un canal privado; el usuario podrá cambiarla desde su cuenta.`,
       );
@@ -80,7 +83,6 @@ export function UsuariosPagina({ gestion }) {
       operacionEnCurso.current = false;
       if (vigente.current) {
         cambiarGuardando(false);
-        requestAnimationFrame(() => botonActualizar.current?.focus());
       }
     }
   }
@@ -91,7 +93,7 @@ export function UsuariosPagina({ gestion }) {
         titulo="Usuarios"
         descripcion="Creá y administrá las cuentas del equipo y su acceso."
       />
-      {error && !seleccion && (
+      {error && !seleccion && !creando && (
         <div className="alert alert-danger" role="alert">
           {error}
         </div>
@@ -101,89 +103,100 @@ export function UsuariosPagina({ gestion }) {
           {aviso}
         </div>
       )}
-      <section className="card">
-        <div className="card-body">
-          <details className="detalle-secundario">
-            <summary>Crear cuenta</summary>
-            <form ref={formulario} onSubmit={crear} aria-busy={guardando}>
-              <fieldset disabled={guardando || !!seleccion}>
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <label className="form-label" htmlFor="nombre-usuario">
-                      Nombre completo
-                    </label>
-                    <input
-                      id="nombre-usuario"
-                      name="nombre"
-                      onBlur={(e) => {
-                        e.target.value = e.target.value.trim().toUpperCase();
-                      }}
-                      className="form-control"
-                      required
-                      minLength={2}
-                      maxLength={100}
-                      autoComplete="off"
-                    />
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label" htmlFor="correo-usuario">
-                      Correo electrónico
-                    </label>
-                    <input
-                      id="correo-usuario"
-                      name="correo"
-                      type="email"
-                      className="form-control"
-                      required
-                      maxLength={254}
-                      autoComplete="off"
-                    />
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label" htmlFor="clave-usuario">
-                      Contraseña inicial
-                    </label>
-                    <input
-                      id="clave-usuario"
-                      name="clave"
-                      type="password"
-                      className="form-control"
-                      required
-                      minLength={10}
-                      maxLength={128}
-                      autoComplete="new-password"
-                      aria-describedby="ayuda-clave"
-                    />
-                    <small id="ayuda-clave">
-                      Entre 10 y 128 caracteres. Compartila únicamente con su
-                      titular.
-                    </small>
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label" htmlFor="rol-usuario">
-                      Rol
-                    </label>
-                    <select
-                      id="rol-usuario"
-                      name="rol"
-                      className="form-select"
-                      defaultValue="vendedor"
-                    >
-                      <option value="vendedor">Vendedor</option>
-                      <option value="agente">Agente</option>
-                      <option value="administrador">Administrador</option>
-                    </select>
-                    <small>El administrador puede crear otras cuentas.</small>
-                  </div>
+      <button
+        className="btn btn-primary mb-3"
+        onClick={() => {
+          cambiarError("");
+          cambiarCreando(true);
+        }}
+      >
+        Crear cuenta
+      </button>
+      {creando && (
+        <Modal
+          titulo="Crear cuenta"
+          cerrar={() => cambiarCreando(false)}
+          ocupado={guardando}
+          error={error}
+        >
+          <form ref={formulario} onSubmit={crear} aria-busy={guardando}>
+            <fieldset disabled={guardando || !!seleccion}>
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label className="form-label" htmlFor="nombre-usuario">
+                    Nombre completo
+                  </label>
+                  <input
+                    id="nombre-usuario"
+                    name="nombre"
+                    onBlur={(e) => {
+                      e.target.value = e.target.value.trim().toUpperCase();
+                    }}
+                    className="form-control"
+                    required
+                    minLength={2}
+                    maxLength={100}
+                    autoComplete="off"
+                  />
                 </div>
-                <button type="submit" className="btn btn-primary mt-3">
-                  {guardando ? "Creando cuenta…" : "Crear cuenta"}
-                </button>
-              </fieldset>
-            </form>
-          </details>
-        </div>
-      </section>
+                <div className="col-md-6">
+                  <label className="form-label" htmlFor="correo-usuario">
+                    Correo electrónico
+                  </label>
+                  <input
+                    id="correo-usuario"
+                    name="correo"
+                    type="email"
+                    className="form-control"
+                    required
+                    maxLength={254}
+                    autoComplete="off"
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label" htmlFor="clave-usuario">
+                    Contraseña inicial
+                  </label>
+                  <input
+                    id="clave-usuario"
+                    name="clave"
+                    type="password"
+                    className="form-control"
+                    required
+                    minLength={10}
+                    maxLength={128}
+                    autoComplete="new-password"
+                    aria-describedby="ayuda-clave"
+                  />
+                  <small id="ayuda-clave">
+                    Entre 10 y 128 caracteres. Compartila únicamente con su
+                    titular.
+                  </small>
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label" htmlFor="rol-usuario">
+                    Rol
+                  </label>
+                  <select
+                    id="rol-usuario"
+                    name="rol"
+                    className="form-select"
+                    defaultValue="vendedor"
+                  >
+                    <option value="vendedor">Vendedor</option>
+                    <option value="agente">Agente</option>
+                    <option value="administrador">Administrador</option>
+                  </select>
+                  <small>El administrador puede crear otras cuentas.</small>
+                </div>
+              </div>
+              <button type="submit" className="btn btn-primary mt-3">
+                {guardando ? "Creando cuenta…" : "Crear cuenta"}
+              </button>
+            </fieldset>
+          </form>
+        </Modal>
+      )}
       <section className="card">
         <div className="card-body">
           <div className="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-3">
@@ -206,17 +219,22 @@ export function UsuariosPagina({ gestion }) {
             </p>
           </details>
           {seleccion && (
-            <FormularioGestionCuenta
-              key={`${seleccion.cuenta.id}-${seleccion.accion}`}
-              {...seleccion}
+            <Modal
+              titulo="Administrar cuenta"
+              cerrar={() => cambiarSeleccion(null)}
               ocupado={guardando}
-              error={error}
-              confirmar={gestionar}
-              cancelar={() => {
-                cambiarSeleccion(null);
-                requestAnimationFrame(() => botonActualizar.current?.focus());
-              }}
-            />
+            >
+              <FormularioGestionCuenta
+                key={`${seleccion.cuenta.id}-${seleccion.accion}`}
+                {...seleccion}
+                ocupado={guardando}
+                error={error}
+                confirmar={gestionar}
+                cancelar={() => {
+                  cambiarSeleccion(null);
+                }}
+              />
+            </Modal>
           )}
           {cargando ? (
             <p role="status">Cargando cuentas…</p>

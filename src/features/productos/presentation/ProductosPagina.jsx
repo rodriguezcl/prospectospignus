@@ -1,4 +1,5 @@
 import { AccionListado } from "../../../shared/ui/AccionListado.jsx";
+import { Modal } from "../../../shared/ui/Modal.jsx";
 import { useEffect, useRef, useState } from "react";
 import { EncabezadoPagina } from "../../../shared/ui/contenido/EncabezadoPagina.jsx";
 import {
@@ -25,6 +26,7 @@ export function ProductosPagina({ gestion }) {
     [aviso, setAviso] = useState(""),
     [ocupado, setOcupado] = useState(false);
   const envio = useRef(null);
+  const [editandoListas, editarListas] = useState(false);
   const confirmacion = useRef(null);
   useEffect(() => {
     if (baja) confirmacion.current?.showModal();
@@ -98,6 +100,7 @@ export function ProductosPagina({ gestion }) {
       setAviso(
         `Cambio guardado · versión ${version}. El historial se conserva.`,
       );
+      editarListas(false);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -133,7 +136,7 @@ export function ProductosPagina({ gestion }) {
         titulo="Catálogo comercial"
         descripcion="Marcas, productos y ofertas: planes en comodato o kits de venta de equipos."
       />
-      {error && (
+      {error && !edicion && !baja && !editandoListas && (
         <div role="alert" className="alert alert-danger">
           {error}
         </div>
@@ -191,7 +194,7 @@ export function ProductosPagina({ gestion }) {
             ))}
           </nav>
           <div className="d-flex flex-wrap gap-2 mb-3">
-            {seccion !== "listas" && !edicion && !baja && (
+            {seccion !== "listas" && (
               <button
                 className="btn btn-primary"
                 disabled={ocupado}
@@ -214,17 +217,38 @@ export function ProductosPagina({ gestion }) {
             <span>Versión {catalogo.version}</span>
           </div>
           {edicion && (
-            <EditorCatalogo
-              apertura={edicion}
-              key={`${seccion}-${edicion.valor?.id || "nuevo"}`}
-              datos={catalogo.datos}
-              grupo={edicion.grupo}
-              valor={edicion.valor}
-              oferta={seccion === "ofertas"}
+            <Modal
+              titulo={
+                (edicion.valor ? "Editar " : "Crear ") +
+                (edicion.grupo === "marcas"
+                  ? "marca"
+                  : seccion === "ofertas"
+                    ? "plan o kit"
+                    : "producto")
+              }
+              cerrar={() => {
+                setEdicion(null);
+                setError("");
+              }}
               ocupado={ocupado}
-              guardar={(valor) => guardar(edicion.grupo, valor)}
-              cancelar={() => setEdicion(null)}
-            />
+              error={error}
+            >
+              <EditorCatalogo
+                enModal
+                apertura={edicion}
+                key={`${seccion}-${edicion.valor?.id || "nuevo"}`}
+                datos={catalogo.datos}
+                grupo={edicion.grupo}
+                valor={edicion.valor}
+                oferta={seccion === "ofertas"}
+                ocupado={ocupado}
+                guardar={(valor) => guardar(edicion.grupo, valor)}
+                cancelar={() => {
+                  setEdicion(null);
+                  setError("");
+                }}
+              />
+            </Modal>
           )}
           {baja && (
             <dialog
@@ -323,12 +347,35 @@ export function ProductosPagina({ gestion }) {
               </p>
             )}
             {seccion === "listas" ? (
-              <ListasPrecios
-                key={catalogo.version}
-                permisos={catalogo.datos.permisos_precios}
-                guardar={(permisos) => guardar("permisos", permisos)}
-                ocupado={ocupado}
-              />
+              <>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    setError("");
+                    editarListas(true);
+                  }}
+                >
+                  Editar permisos de precios
+                </button>
+                {editandoListas && (
+                  <Modal
+                    titulo="Listas de precios"
+                    cerrar={() => {
+                      editarListas(false);
+                      setError("");
+                    }}
+                    ocupado={ocupado}
+                    error={error}
+                  >
+                    <ListasPrecios
+                      key={catalogo.version}
+                      permisos={catalogo.datos.permisos_precios}
+                      guardar={(permisos) => guardar("permisos", permisos)}
+                      ocupado={ocupado}
+                    />
+                  </Modal>
+                )}
+              </>
             ) : (
               <TablaCatalogo
                 key={seccion}

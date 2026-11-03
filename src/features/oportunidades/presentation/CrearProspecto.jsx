@@ -13,6 +13,7 @@ export function CrearProspecto({
   guardar,
   ocupado,
   cancelar,
+  enModal = false,
 }) {
   const [revisionAtencion, revisarAtencion] = useState(0);
   const [busqueda, buscar] = useState(""),
@@ -75,7 +76,7 @@ export function CrearProspecto({
     r && !r.lote_demostracion && puedeAtender(contexto.atencion, perfil);
   return (
     <>
-      <h2 className="h4">Preparar cotización</h2>
+      {!enModal && <h2 className="h4">Preparar cotización</h2>}
       {error && (
         <p role="alert" className="alert alert-danger">
           {error}

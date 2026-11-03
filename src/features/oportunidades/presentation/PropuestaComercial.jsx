@@ -605,6 +605,7 @@ export function PropuestaComercial({
   return (
     <details
       ref={panel}
+      aria-busy={ocupado}
       tabIndex={-1}
       className="detalle-secundario my-4"
       open={abierto || undefined}

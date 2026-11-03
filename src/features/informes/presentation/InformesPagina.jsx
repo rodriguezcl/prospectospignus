@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/ui/Modal.jsx";
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -347,7 +348,7 @@ export function PanelRendimiento({
         </>
       )}
       {seleccion && (
-        <section className="card card-body" aria-label="Detalle del indicador">
+        <Modal titulo="Detalle del indicador" cerrar={() => seleccionar(null)}>
           <div className="d-flex justify-content-between gap-2">
             <h2 className="h5">
               {seleccion.tipo === "ventas" ? "Ventas" : "Casos visitados"} ·{" "}
@@ -405,7 +406,7 @@ export function PanelRendimiento({
               </nav>
             </>
           )}
-        </section>
+        </Modal>
       )}
     </section>
   );

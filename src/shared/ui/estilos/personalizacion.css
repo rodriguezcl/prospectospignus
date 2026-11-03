@@ -686,3 +686,61 @@ input[type="time"] {
     }
   }
 }
+/* Formularios y acciones sobre el contexto actual, también en móvil. */
+.modal-pignus {
+  width: min(72rem, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  border: 1px solid var(--bs-border-color, #dce7f1);
+  border-radius: 0.75rem;
+  color: var(--bs-body-color, #123b50);
+  background: var(--bs-body-bg, #fff);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.modal-pignus::backdrop {
+  background: rgb(0 0 0 / 50%);
+}
+.modal-pignus-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: inherit;
+  border-bottom: 1px solid var(--bs-border-color, #dce7f1);
+}
+.modal-pignus-cabecera h2 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.modal-pignus-cabecera button {
+  flex-shrink: 0;
+}
+.modal-pignus-contenido {
+  padding: 1.25rem;
+  min-width: 0;
+}
+.modal-pignus-contenido > .card {
+  margin-bottom: 0;
+  box-shadow: none;
+}
+.modal-pignus :is(input, select, textarea) {
+  max-width: 100%;
+  min-width: 0;
+}
+@media (max-width: 575.98px) {
+  .modal-pignus {
+    width: calc(100vw - 1rem);
+    max-width: calc(100vw - 1rem);
+    max-height: calc(100dvh - 1rem);
+  }
+  .modal-pignus-cabecera,
+  .modal-pignus-contenido {
+    padding: 0.75rem;
+  }
+}

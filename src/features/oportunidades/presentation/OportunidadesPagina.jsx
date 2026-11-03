@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/ui/Modal.jsx";
 import { FiltroUbicacionComercial } from "../../../shared/ui/UbicacionComercial.jsx";
 import { AccionListado } from "../../../shared/ui/AccionListado.jsx";
 import { nombreUbicacionComercial } from "../../../shared/domain/ubicacionComercial.js";
@@ -17,7 +18,6 @@ import { CrearProspecto } from "./CrearProspecto.jsx";
 import { BandejaCotizaciones } from "./BandejaCotizaciones.jsx";
 import { AnularCotizacion } from "./AnularCotizacion.jsx";
 import { ContextoRecuperacion } from "./ContextoRecuperacion.jsx";
-import { enfocarPanel } from "../../../shared/ui/enfocarPanel.js";
 
 export function OportunidadesPagina({
   gestion,
@@ -44,19 +44,11 @@ export function OportunidadesPagina({
   const [ocupado, ocupar] = useState(false);
   const [apertura, abrirCotizador] = useState(0);
   const [derivando, abrirDerivacion] = useState(false);
-  const panelDerivacion = useRef(null);
-  const panelCierre = useRef(null);
   const [cerrando, abrirCierre] = useState(false);
-  useEffect(() => {
-    if (cerrando) enfocarPanel(panelCierre.current);
-  }, [cerrando]);
   useEffect(() => abrirCierre(false), [id, revision]);
   useEffect(() => {
     abrirDerivacion(false);
   }, [id]);
-  useEffect(() => {
-    if (derivando) enfocarPanel(panelDerivacion.current);
-  }, [derivando]);
   useEffect(() => abrirCotizador(0), [id]);
   const intento = useRef(null);
   const idNuevo = useRef(crypto.randomUUID());
@@ -229,7 +221,7 @@ export function OportunidadesPagina({
           </Link>
         </p>
       )}
-      {error && (
+      {error && !nueva && !id && (
         <p role="alert" className="alert alert-danger">
           {error}
         </p>
@@ -240,10 +232,16 @@ export function OportunidadesPagina({
         </p>
       )}
       {cargando && <p role="status">Cargando cotizaciones…</p>}
-      {!cargando && nueva && (
-        <div className="card">
+      {nueva && (
+        <Modal
+          titulo="Preparar cotización"
+          cerrar={() => navegar({})}
+          ocupado={ocupado}
+          error={error}
+        >
           <div className="card-body">
             <CrearProspecto
+              enModal
               key={parametros.get("registro") || "buscar"}
               gestion={gestion}
               registroId={parametros.get("registro")}
@@ -258,274 +256,308 @@ export function OportunidadesPagina({
               ocupado={ocupado}
             />
           </div>
-        </div>
+        </Modal>
       )}
-      {!cargando && detalle && !nueva && (
-        <div className="card">
-          <div className="card-body">
-            <h2 className="h4">
-              {detalle.prospectos.nombre} · {estados[detalle.estado]}
-            </h2>
-            <p>
-              {detalle.prospectos.telefono} · {detalle.prospectos.direccion}
+      {id && !nueva && (
+        <Modal
+          titulo="Negociación y cotización"
+          cerrar={() =>
+            navegar(
+              soloRecuperacion
+                ? {}
+                : negociaciones
+                  ? { vista: "negociaciones" }
+                  : {},
+            )
+          }
+          ocupado={ocupado}
+          error={error}
+        >
+          {mensaje && (
+            <p className="alert alert-success" role="status">
+              {mensaje}
             </p>
-            <p>{detalle.necesidad}</p>
-            {derivando && opciones.includes("derivar") && (
-              <section
-                className="border rounded p-3 my-3"
-                ref={panelDerivacion}
-                tabIndex={-1}
-                aria-label="Derivar a Recuperación comercial"
-              >
-                <h3 className="h5">Derivar a Recuperación comercial</h3>
-                {detalle.propuestas?.some((p) => p.ciclo === detalle.ciclo) ? (
-                  <FormularioOportunidad
-                    oportunidad={detalle}
-                    perfil={perfil}
-                    equipo={equipo}
-                    opciones={["derivar"]}
-                    guardar={guardar}
-                    ocupado={ocupado}
-                  />
-                ) : (
-                  <p>
-                    Primero elegí la oferta presentada al prospecto y marcala
-                    como <strong>Ofrecida</strong> en el cotizador. Así el
-                    agente recibirá los precios y condiciones exactos.
-                  </p>
-                )}
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary mt-2"
-                  disabled={ocupado}
-                  onClick={() => abrirDerivacion(false)}
-                >
-                  Volver al cotizador
-                </button>
-              </section>
-            )}
-            <ContextoRecuperacion oportunidad={detalle} />
-            {soloRecuperacion && puedeCotizar(detalle, perfil) && (
-              <Link
-                className="btn btn-primary mb-3"
-                onClick={() => abrirCotizador((n) => n + 1)}
-                to={`${rutaBandeja}?id=${detalle.id}&cotizar=si`}
-              >
-                Preparar propuesta
-              </Link>
-            )}
-            {detalle.estado === "anulada" && (
-              <p className="alert alert-warning">
-                Anulada por error de carga: {detalle.motivo_anulacion}. El
-                contacto y el historial se conservan.
-              </p>
-            )}
-            {detalle.estado === "ganada" && (
-              <p className="alert alert-success">
-                Venta concretada. No la vuelvas a cargar.{" "}
-                {perfil.rol === "administrador" ||
-                detalle.cerrado_por === perfil.id ? (
-                  <Link to="/ventas">Consultar en Ventas concretadas</Link>
-                ) : (
-                  "El cierre se consulta por su responsable y administración."
-                )}
-              </p>
-            )}
-            {detalle.periodo_historico && (
-              <p className="alert alert-info">
-                Importación histórica de {detalle.periodo_historico.slice(0, 7)}
-                . Fechas de visita, canal de aceptación y motivo individual no
-                informados. El historial conserva el resultado original del mes.
-              </p>
-            )}
-            {cerrando && opciones.includes("ganar") && (
-              <section
-                ref={panelCierre}
-                tabIndex={-1}
-                className="card card-body mb-3"
-              >
-                <h3 className="h5">Registrar venta</h3>
-                <FormularioOportunidad
-                  oportunidad={detalle}
-                  perfil={perfil}
-                  equipo={equipo}
-                  opciones={["ganar"]}
-                  guardar={guardar}
-                  ocupado={ocupado}
-                />
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary align-self-start"
-                  onClick={() => abrirCierre(false)}
-                >
-                  Volver al cotizador
-                </button>
-              </section>
-            )}
-            <AtencionProspecto
-              atencion={detalle.atencion}
-              perfil={perfil}
-              gestion={gestion}
-              actualizada={() => revisar((n) => n + 1)}
-            />
-            <PropuestaComercial
-              key={`propuesta-${detalle.id}-${detalle.version}`}
-              gestion={gestion}
-              oportunidad={detalle}
-              perfil={perfil}
-              equipo={equipo}
-              abierto={true}
-              apertura={apertura}
-              derivar={
-                opciones.includes("derivar")
-                  ? () => abrirDerivacion(true)
-                  : undefined
-              }
-              registrarVenta={
-                opciones.includes("ganar")
-                  ? () => {
-                      abrirDerivacion(false);
-                      abrirCierre(true);
-                    }
-                  : undefined
-              }
-              actualizada={() => {
-                informar("Propuesta ofrecida guardada.");
-                revisar((n) => n + 1);
-              }}
-            />
-            <details className="my-3">
-              <summary>Datos de seguimiento y responsables</summary>
-              <dl>
-                <dt>Ciclo comercial</dt>
-                <dd>{detalle.ciclo || 1}</dd>
-                {detalle.responsable_historico_id && (
-                  <>
-                    <dt>Vendedor del histórico</dt>
-                    <dd>{nombre(detalle.responsable_historico_id)}</dd>
-                  </>
-                )}
-                <dt>Responsable actual</dt>
-                <dd>
-                  {detalle.preparacion_compartida
-                    ? "Sin asignar · primera oferta pendiente"
-                    : nombre(detalle.responsable_id)}
-                </dd>
-                <dt>Captador / vendedor de visita / responsable al cierre</dt>
-                <dd>
-                  {detalle.prospectos.captado_por
-                    ? nombre(detalle.prospectos.captado_por)
-                    : "No informado"}{" "}
-                  /{" "}
-                  {detalle.vendedor_visita_id
-                    ? nombre(detalle.vendedor_visita_id)
-                    : "No informado"}{" "}
-                  /{" "}
-                  {detalle.cerrado_por
-                    ? nombre(detalle.cerrado_por)
-                    : "Sin cierre"}
-                </dd>
-                <dt>Próxima acción · Córdoba</dt>
-                <dd>
-                  {mostrarFecha(detalle.proxima_accion_en)}
-                  {detalle.proxima_accion_en &&
-                  new Date(detalle.proxima_accion_en) < new Date()
-                    ? " · Vencida"
-                    : ""}
-                </dd>
-                <dt>Último resumen</dt>
-                <dd className="texto-con-saltos">{detalle.resumen}</dd>
-                {detalle.interes_comercial && (
-                  <>
-                    <dt>Medio de contacto inicial</dt>
-                    <dd>
-                      {{
-                        whatsapp: "WhatsApp",
-                        llamada: "Llamada",
-                        presencial: "Presencial",
-                        correo: "Correo electrónico",
-                        otro: "Otro",
-                      }[detalle.canal_contacto] || "Sin registrar"}
-                    </dd>
-                    <dt>Observaciones para la visita</dt>
-                    <dd className="texto-con-saltos">
-                      {detalle.observaciones_visita || "Sin observaciones"}
-                    </dd>
-                  </>
-                )}
-                <dt>Condiciones finales</dt>
-                <dd className="texto-con-saltos">
-                  {detalle.condiciones || "Sin registrar"}
-                </dd>
-              </dl>
-            </details>
-            <details className="my-3">
-              <summary>Seguimiento, visitas y cierre de la negociación</summary>
-              {opciones.length ? (
-                <FormularioOportunidad
-                  key={`${detalle.id}-${detalle.version}`}
-                  oportunidad={detalle}
-                  perfil={perfil}
-                  equipo={equipo}
-                  opciones={opciones}
-                  guardar={guardar}
-                  ocupado={ocupado}
-                />
-              ) : (
+          )}
+          {cargando ? (
+            <p role="status">Cargando negociación…</p>
+          ) : (
+            detalle && (
+              <div className="card-body">
+                <h2 className="h4">
+                  {detalle.prospectos.nombre} · {estados[detalle.estado]}
+                </h2>
                 <p>
-                  {detalle.preparacion_compartida
-                    ? "La primera oferta registrada confirma el seguimiento comercial. Respetá la reserva de atención del prospecto."
-                    : "Consulta de solo lectura: el caso está cerrado o pertenece a otro responsable."}
+                  {detalle.prospectos.telefono} · {detalle.prospectos.direccion}
                 </p>
-              )}
-            </details>
-            {detalle.puede_anular && (
-              <AnularCotizacion guardar={guardar} ocupado={ocupado} />
-            )}
-            {!detalle.puede_anular &&
-              perfil.rol === "vendedor" &&
-              detalle.responsable_id === perfil.id &&
-              detalle.estado !== "anulada" && (
-                <p className="small text-muted">
-                  Si esta negociación se cargó por error y ya tiene actividad,
-                  pedí a administración que la anule.
-                </p>
-              )}
-            <details className="mt-4">
-              <summary>Historial · últimos 100 eventos</summary>
-              {detalle.eventos.map((e) => (
-                <article className="border-bottom py-3" key={e.id}>
-                  <strong>{acciones[e.tipo] || e.tipo}</strong>
-                  <p>
-                    {mostrarFecha(e.ocurrido_en)} · {nombre(e.actor_id)} ·
-                    versión {e.nuevo.version}
+                <p>{detalle.necesidad}</p>
+                {derivando && opciones.includes("derivar") && (
+                  <Modal
+                    titulo="Derivar a Recuperación comercial"
+                    cerrar={() => abrirDerivacion(false)}
+                    ocupado={ocupado}
+                    error={error}
+                  >
+                    <h3 className="h5">Derivar a Recuperación comercial</h3>
+                    {detalle.propuestas?.some(
+                      (p) => p.ciclo === detalle.ciclo,
+                    ) ? (
+                      <FormularioOportunidad
+                        oportunidad={detalle}
+                        perfil={perfil}
+                        equipo={equipo}
+                        opciones={["derivar"]}
+                        guardar={guardar}
+                        ocupado={ocupado}
+                      />
+                    ) : (
+                      <p>
+                        Primero elegí la oferta presentada al prospecto y
+                        marcala como <strong>Ofrecida</strong> en el cotizador.
+                        Así el agente recibirá los precios y condiciones
+                        exactos.
+                      </p>
+                    )}
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary mt-2"
+                      disabled={ocupado}
+                      onClick={() => abrirDerivacion(false)}
+                    >
+                      Volver al cotizador
+                    </button>
+                  </Modal>
+                )}
+                <ContextoRecuperacion oportunidad={detalle} />
+                {soloRecuperacion && puedeCotizar(detalle, perfil) && (
+                  <Link
+                    className="btn btn-primary mb-3"
+                    onClick={() => abrirCotizador((n) => n + 1)}
+                    to={`${rutaBandeja}?id=${detalle.id}&cotizar=si`}
+                  >
+                    Preparar propuesta
+                  </Link>
+                )}
+                {detalle.estado === "anulada" && (
+                  <p className="alert alert-warning">
+                    Anulada por error de carga: {detalle.motivo_anulacion}. El
+                    contacto y el historial se conservan.
                   </p>
-                  <p>
-                    {estados[e.anterior?.estado] || "Inicio"} →{" "}
-                    {estados[e.nuevo.estado]} · {nombre(e.nuevo.responsable_id)}
+                )}
+                {detalle.estado === "ganada" && (
+                  <p className="alert alert-success">
+                    Venta concretada. No la vuelvas a cargar.{" "}
+                    {perfil.rol === "administrador" ||
+                    detalle.cerrado_por === perfil.id ? (
+                      <Link to="/ventas">Consultar en Ventas concretadas</Link>
+                    ) : (
+                      "El cierre se consulta por su responsable y administración."
+                    )}
                   </p>
-                  <p className="texto-con-saltos">{e.nuevo.resumen}</p>
-                  <p className="texto-con-saltos">{e.nuevo.condiciones}</p>
-                  {e.solicitud?.datos?.objecion && (
-                    <p>Objeción: {e.solicitud.datos.objecion}</p>
+                )}
+                {detalle.periodo_historico && (
+                  <p className="alert alert-info">
+                    Importación histórica de{" "}
+                    {detalle.periodo_historico.slice(0, 7)}. Fechas de visita,
+                    canal de aceptación y motivo individual no informados. El
+                    historial conserva el resultado original del mes.
+                  </p>
+                )}
+                {cerrando && opciones.includes("ganar") && (
+                  <Modal
+                    titulo="Registrar venta"
+                    cerrar={() => abrirCierre(false)}
+                    ocupado={ocupado}
+                    error={error}
+                  >
+                    <h3 className="h5">Registrar venta</h3>
+                    <FormularioOportunidad
+                      oportunidad={detalle}
+                      perfil={perfil}
+                      equipo={equipo}
+                      opciones={["ganar"]}
+                      guardar={guardar}
+                      ocupado={ocupado}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary align-self-start"
+                      onClick={() => abrirCierre(false)}
+                    >
+                      Volver al cotizador
+                    </button>
+                  </Modal>
+                )}
+                <AtencionProspecto
+                  atencion={detalle.atencion}
+                  perfil={perfil}
+                  gestion={gestion}
+                  actualizada={() => revisar((n) => n + 1)}
+                />
+                <PropuestaComercial
+                  key={`propuesta-${detalle.id}-${detalle.version}`}
+                  gestion={gestion}
+                  oportunidad={detalle}
+                  perfil={perfil}
+                  equipo={equipo}
+                  abierto={true}
+                  apertura={apertura}
+                  derivar={
+                    opciones.includes("derivar")
+                      ? () => abrirDerivacion(true)
+                      : undefined
+                  }
+                  registrarVenta={
+                    opciones.includes("ganar")
+                      ? () => {
+                          abrirDerivacion(false);
+                          abrirCierre(true);
+                        }
+                      : undefined
+                  }
+                  actualizada={() => {
+                    informar("Propuesta ofrecida guardada.");
+                    revisar((n) => n + 1);
+                  }}
+                />
+                <details className="my-3">
+                  <summary>Datos de seguimiento y responsables</summary>
+                  <dl>
+                    <dt>Ciclo comercial</dt>
+                    <dd>{detalle.ciclo || 1}</dd>
+                    {detalle.responsable_historico_id && (
+                      <>
+                        <dt>Vendedor del histórico</dt>
+                        <dd>{nombre(detalle.responsable_historico_id)}</dd>
+                      </>
+                    )}
+                    <dt>Responsable actual</dt>
+                    <dd>
+                      {detalle.preparacion_compartida
+                        ? "Sin asignar · primera oferta pendiente"
+                        : nombre(detalle.responsable_id)}
+                    </dd>
+                    <dt>
+                      Captador / vendedor de visita / responsable al cierre
+                    </dt>
+                    <dd>
+                      {detalle.prospectos.captado_por
+                        ? nombre(detalle.prospectos.captado_por)
+                        : "No informado"}{" "}
+                      /{" "}
+                      {detalle.vendedor_visita_id
+                        ? nombre(detalle.vendedor_visita_id)
+                        : "No informado"}{" "}
+                      /{" "}
+                      {detalle.cerrado_por
+                        ? nombre(detalle.cerrado_por)
+                        : "Sin cierre"}
+                    </dd>
+                    <dt>Próxima acción · Córdoba</dt>
+                    <dd>
+                      {mostrarFecha(detalle.proxima_accion_en)}
+                      {detalle.proxima_accion_en &&
+                      new Date(detalle.proxima_accion_en) < new Date()
+                        ? " · Vencida"
+                        : ""}
+                    </dd>
+                    <dt>Último resumen</dt>
+                    <dd className="texto-con-saltos">{detalle.resumen}</dd>
+                    {detalle.interes_comercial && (
+                      <>
+                        <dt>Medio de contacto inicial</dt>
+                        <dd>
+                          {{
+                            whatsapp: "WhatsApp",
+                            llamada: "Llamada",
+                            presencial: "Presencial",
+                            correo: "Correo electrónico",
+                            otro: "Otro",
+                          }[detalle.canal_contacto] || "Sin registrar"}
+                        </dd>
+                        <dt>Observaciones para la visita</dt>
+                        <dd className="texto-con-saltos">
+                          {detalle.observaciones_visita || "Sin observaciones"}
+                        </dd>
+                      </>
+                    )}
+                    <dt>Condiciones finales</dt>
+                    <dd className="texto-con-saltos">
+                      {detalle.condiciones || "Sin registrar"}
+                    </dd>
+                  </dl>
+                </details>
+                <details className="my-3">
+                  <summary>
+                    Seguimiento, visitas y cierre de la negociación
+                  </summary>
+                  {opciones.length ? (
+                    <FormularioOportunidad
+                      key={`${detalle.id}-${detalle.version}`}
+                      oportunidad={detalle}
+                      perfil={perfil}
+                      equipo={equipo}
+                      opciones={opciones}
+                      guardar={guardar}
+                      ocupado={ocupado}
+                    />
+                  ) : (
+                    <p>
+                      {detalle.preparacion_compartida
+                        ? "La primera oferta registrada confirma el seguimiento comercial. Respetá la reserva de atención del prospecto."
+                        : "Consulta de solo lectura: el caso está cerrado o pertenece a otro responsable."}
+                    </p>
                   )}
-                </article>
-              ))}
-            </details>
-            <Link to={rutaBandeja} className="d-inline-block mt-3">
-              Volver a la bandeja
-            </Link>
-          </div>
-        </div>
+                </details>
+                {detalle.puede_anular && (
+                  <AnularCotizacion guardar={guardar} ocupado={ocupado} />
+                )}
+                {!detalle.puede_anular &&
+                  perfil.rol === "vendedor" &&
+                  detalle.responsable_id === perfil.id &&
+                  detalle.estado !== "anulada" && (
+                    <p className="small text-muted">
+                      Si esta negociación se cargó por error y ya tiene
+                      actividad, pedí a administración que la anule.
+                    </p>
+                  )}
+                <details className="mt-4">
+                  <summary>Historial · últimos 100 eventos</summary>
+                  {detalle.eventos.map((e) => (
+                    <article className="border-bottom py-3" key={e.id}>
+                      <strong>{acciones[e.tipo] || e.tipo}</strong>
+                      <p>
+                        {mostrarFecha(e.ocurrido_en)} · {nombre(e.actor_id)} ·
+                        versión {e.nuevo.version}
+                      </p>
+                      <p>
+                        {estados[e.anterior?.estado] || "Inicio"} →{" "}
+                        {estados[e.nuevo.estado]} ·{" "}
+                        {nombre(e.nuevo.responsable_id)}
+                      </p>
+                      <p className="texto-con-saltos">{e.nuevo.resumen}</p>
+                      <p className="texto-con-saltos">{e.nuevo.condiciones}</p>
+                      {e.solicitud?.datos?.objecion && (
+                        <p>Objeción: {e.solicitud.datos.objecion}</p>
+                      )}
+                    </article>
+                  ))}
+                </details>
+                <Link to={rutaBandeja} className="d-inline-block mt-3">
+                  Volver a la bandeja
+                </Link>
+              </div>
+            )
+          )}
+        </Modal>
       )}
-      {!nueva && !id && !negociaciones && (
+      {!negociaciones && (
         <BandejaCotizaciones
           gestion={gestion}
           perfil={perfil}
           revision={revision}
         />
       )}
-      {!nueva && !id && negociaciones && (
+      {negociaciones && (
         <div className="card">
           <div className="card-body">
             <form

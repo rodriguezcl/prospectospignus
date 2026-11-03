@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/ui/Modal.jsx";
 import { AccionListado } from "../../../shared/ui/AccionListado.jsx";
 import {
   CampoUbicacionComercial,
@@ -102,16 +103,15 @@ export function RegistrosInicialesPagina({
     }
     async function cargar() {
       try {
-        const [catalogo, resultado] = await Promise.all([
+        const [catalogo, resultado, listado] = await Promise.all([
           gestion.catalogos(),
           seleccionado
             ? Promise.all([
                 gestion.obtener(seleccionado),
                 gestion.historial(seleccionado),
               ])
-            : nuevo
-              ? Promise.resolve(null)
-              : gestion.listar(filtros),
+            : Promise.resolve(null),
+          gestion.listar(filtros),
         ]);
         if (actual !== turno.current) return;
         cambiarCatalogos(catalogo);
@@ -129,7 +129,7 @@ export function RegistrosInicialesPagina({
             observaciones: "",
             origen: "",
           });
-        else cambiarLista(resultado);
+        cambiarLista(listado);
       } catch (fallo) {
         if (actual === turno.current) cambiarError(fallo.message);
       } finally {
@@ -176,7 +176,8 @@ export function RegistrosInicialesPagina({
             ? "Cambios guardados."
             : "Prospecto guardado. Ya está disponible en Cotizaciones; podés cotizar ahora o continuar después.",
       );
-      cambiarParametros({ registro: resultado.id });
+      marcarModificado(false);
+      cambiarParametros({});
       actualizar((v) => v + 1);
     } catch (fallo) {
       if (actual === turno.current) cambiarError(fallo.message);
@@ -258,13 +259,7 @@ export function RegistrosInicialesPagina({
           </form>
         </dialog>
       )}
-      {(nuevo || seleccionado) && (
-        <p className="text-muted small">
-          Guardá los datos del contacto. Aparecerá automáticamente en
-          Cotizaciones, sin convertirlo ni volver a cargarlo.
-        </p>
-      )}
-      {error && (
+      {error && !nuevo && !seleccionado && (
         <div className="alert alert-danger" role="alert">
           {error}
         </div>
@@ -272,7 +267,7 @@ export function RegistrosInicialesPagina({
       {aviso && (
         <div className="alert alert-success" role="status">
           {aviso}
-          {visitaGuardada && seleccionado === visitaGuardada && (
+          {visitaGuardada && (
             <Link
               className="alert-link d-inline-block ms-2"
               to={`/agenda?id=${visitaGuardada}`}
@@ -283,428 +278,433 @@ export function RegistrosInicialesPagina({
         </div>
       )}
       <div className="d-flex flex-wrap gap-2 mb-3">
-        {seleccionado || nuevo ? (
-          <button
-            className="btn btn-outline-primary"
-            disabled={guardando}
-            onClick={() => {
-              cambiarAviso("");
-              cambiarParametros({});
-            }}
-          >
-            {aviso
-              ? "Continuar después · volver al listado"
-              : "Volver al listado"}
-          </button>
-        ) : (
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              cambiarAviso("");
-              cambiarParametros({ nuevo: "1" });
-            }}
-          >
-            Nuevo prospecto
-          </button>
-        )}
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            cambiarAviso("");
+            cambiarParametros({ nuevo: "1" });
+          }}
+        >
+          Nuevo prospecto
+        </button>
         <button
           className="btn btn-outline-secondary"
           disabled={guardando || cargando}
           onClick={() => actualizar((v) => v + 1)}
         >
-          Recargar {detalle ? "(descarta cambios sin guardar)" : ""}
+          Recargar
         </button>
       </div>
-      {cargando ? (
-        <p role="status">Cargando registros…</p>
-      ) : seleccionado || nuevo ? (
-        detalle && (
-          <>
-            <section className="card">
-              <div className="card-body">
-                <h2 className="h5">
-                  {detalle.version ? "Detalle y edición" : "Cargar prospecto"}
-                </h2>
-                {detalle.lote_demostracion && (
-                  <p className="alert alert-warning">
-                    DEMO · Persona y teléfono ficticios. No contactar. La
-                    dirección es una referencia pública, no un domicilio
-                    personal.
-                  </p>
-                )}
-                {!!detalle.version && (
-                  <p>
-                    Cargado por {nombrePerfil(detalle.creado_por)} ·{" "}
-                    {fecha(detalle.creado_en)} · Versión {detalle.version}
-                  </p>
-                )}
-                <form
-                  key={`${detalle.id}-${detalle.version}-${revision}`}
-                  onSubmit={guardar}
-                  onChange={() => marcarModificado(true)}
-                  aria-busy={guardando}
-                >
-                  <fieldset disabled={guardando || !!detalle.lote_demostracion}>
-                    <div className="row g-3">
-                      {camposRegistro.map((campo) => (
-                        <div
-                          className={
-                            campo.nombre === "observaciones"
-                              ? "col-12"
-                              : "col-md-6"
-                          }
-                          key={campo.nombre}
-                        >
-                          <label
-                            className="form-label"
-                            htmlFor={`registro-${campo.nombre}`}
-                          >
-                            {campo.etiqueta}
-                            {campo.requerido ? " *" : ""}
-                          </label>
-                          {campo.nombre === "observaciones" ? (
-                            <textarea
-                              id={`registro-${campo.nombre}`}
-                              name={campo.nombre}
-                              className="form-control"
-                              rows={3}
-                              maxLength={campo.limite}
-                              defaultValue={detalle[campo.nombre]}
-                            />
-                          ) : (
-                            <input
-                              id={`registro-${campo.nombre}`}
-                              name={campo.nombre}
-                              type={campo.tipo || "text"}
-                              onBlur={
-                                campo.nombre === "nombre"
-                                  ? (e) => {
-                                      e.target.value = e.target.value
-                                        .trim()
-                                        .toUpperCase();
-                                    }
-                                  : undefined
-                              }
-                              className="form-control"
-                              required={campo.requerido}
-                              minLength={campo.requerido ? 2 : undefined}
-                              maxLength={campo.limite}
-                              defaultValue={detalle[campo.nombre]}
-                            />
-                          )}
-                        </div>
-                      ))}
-                      <div className="col-md-6">
-                        <CampoUbicacionComercial
-                          valor={detalle.ubicacion_comercial}
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label" htmlFor="registro-origen">
-                          Origen *
-                        </label>
-                        <select
-                          id="registro-origen"
-                          name="origen"
-                          className="form-select"
-                          required
-                          disabled={!!detalle.version}
-                          defaultValue={detalle.origen}
-                        >
-                          <option value="">Seleccionar origen</option>
-                          {catalogos.origenes
-                            .filter(
-                              (o) => o.activo || o.codigo === detalle.origen,
-                            )
-                            .map((o) => (
-                              <option key={o.codigo} value={o.codigo}>
-                                {o.nombre}
-                              </option>
-                            ))}
-                        </select>
-                        <small>El origen se conserva después del alta.</small>
-                      </div>
-                    </div>
-                    {!detalle.version && perfil.rol === "vendedor" && (
-                      <VisitaInicial
-                        programar={programarVisita}
-                        cambiar={cambiarProgramarVisita}
-                      />
+      {cargando && !seleccionado && !nuevo && (
+        <p role="status">Cargando prospectos…</p>
+      )}
+      {(seleccionado || nuevo) && (
+        <Modal
+          titulo={nuevo ? "Nuevo prospecto" : "Editar prospecto"}
+          cerrar={() => cambiarParametros({})}
+          ocupado={guardando}
+          error={error}
+        >
+          {cargando ? (
+            <p role="status">Cargando prospecto…</p>
+          ) : (
+            detalle && (
+              <>
+                <section className="card">
+                  <div className="card-body">
+                    {detalle.lote_demostracion && (
+                      <p className="alert alert-warning">
+                        DEMO · Persona y teléfono ficticios. No contactar. La
+                        dirección es una referencia pública, no un domicilio
+                        personal.
+                      </p>
                     )}
-                    <div className="acciones-registro pie-acciones">
-                      <button className="btn btn-primary" type="submit">
-                        {guardando
-                          ? "Guardando…"
-                          : detalle.version
-                            ? "Actualizar prospecto"
-                            : programarVisita
-                              ? "Guardar prospecto y agendar visita"
-                              : "Guardar prospecto"}
-                      </button>
-                      {administrador &&
-                        !!detalle.version &&
-                        !detalle.lote_demostracion && (
-                          <button
-                            type="button"
-                            className="btn btn-danger"
-                            disabled={guardando || modificado}
-                            title={
-                              modificado
-                                ? "Guardá los cambios antes de eliminar"
-                                : "Eliminar " + detalle.nombre
-                            }
-                            onClick={() => solicitarBaja(detalle)}
-                          >
-                            <IconoAccion texto="Eliminar" /> Eliminar prospecto
-                          </button>
-                        )}
-                    </div>
-                  </fieldset>
-                </form>
-              </div>
-            </section>
-            {!!detalle.version && (
-              <section className="card">
-                <div className="card-body">
-                  <details className="detalle-secundario">
-                    <summary>Historial (últimos 50 eventos)</summary>
-                    <ul className="list-unstyled">
-                      {eventos.map((e) => (
-                        <li className="border-bottom py-2" key={e.id}>
-                          <strong>
-                            {e.tipo === "registro_creado"
-                              ? "Prospecto creado"
-                              : "Prospecto actualizado"}
-                          </strong>{" "}
-                          · {fecha(e.ocurrido_en)} · {nombrePerfil(e.actor_id)}
-                          {e.motivo && (
-                            <p className="mb-1">Motivo: {e.motivo}</p>
-                          )}
-                          <details>
-                            <summary>Ver cambios</summary>
-                            <ul>
-                              {[
-                                ...camposRegistro.map((c) => c.nombre),
-                                "ubicacion_comercial",
-                                "origen",
-                                "responsable_id",
-                              ]
-                                .filter(
-                                  (c) =>
-                                    !e.anterior || e.anterior[c] !== e.nuevo[c],
-                                )
-                                .map((c) => (
-                                  <li key={c}>
-                                    {camposRegistro.find((x) => x.nombre === c)
-                                      ?.etiqueta ||
-                                      (c === "ubicacion_comercial"
-                                        ? "Ubicación del prospecto"
-                                        : c === "origen"
-                                          ? "Origen"
-                                          : "Responsable")}
-                                    :{" "}
-                                    {e.anterior && (
-                                      <>
-                                        {c === "responsable_id"
-                                          ? nombrePerfil(e.anterior[c])
-                                          : c === "ubicacion_comercial"
-                                            ? nombreUbicacionComercial(
-                                                e.anterior[c],
-                                              )
-                                            : e.anterior[c] || "—"}{" "}
-                                        →{" "}
-                                      </>
-                                    )}
-                                    {c === "responsable_id"
-                                      ? nombrePerfil(e.nuevo[c])
-                                      : c === "ubicacion_comercial"
-                                        ? nombreUbicacionComercial(e.nuevo[c])
-                                        : e.nuevo[c] || "—"}
-                                  </li>
-                                ))}
-                            </ul>
-                          </details>
-                        </li>
-                      ))}
-                    </ul>
-                  </details>
-                </div>
-              </section>
-            )}
-          </>
-        )
-      ) : (
-        !error && (
-          <section className="card">
-            <div className="card-body">
-              <FiltroUbicacionComercial
-                valor={filtros.ubicacion_comercial}
-                cambiar={(valor) =>
-                  cambiarFiltros((f) => ({
-                    ...f,
-                    ubicacion_comercial: valor,
-                    pagina: 0,
-                  }))
-                }
-              />
-              <form className="row g-2 mb-3" onSubmit={filtrar}>
-                <div className="col-md-4">
-                  <label htmlFor="buscar-registros" className="form-label">
-                    Buscar por nombre
-                  </label>
-                  <input
-                    id="buscar-registros"
-                    name="busqueda"
-                    className="form-control"
-                    maxLength={150}
-                    defaultValue={filtros.busqueda}
-                  />
-                </div>
-                <div className="col-md-3">
-                  <label htmlFor="filtrar-origen" className="form-label">
-                    Origen
-                  </label>
-                  <select
-                    id="filtrar-origen"
-                    name="origen"
-                    className="form-select"
-                    defaultValue={filtros.origen}
-                  >
-                    <option value="">Todos</option>
-                    {catalogos.origenes.map((o) => (
-                      <option key={o.codigo} value={o.codigo}>
-                        {o.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="col-md-3">
-                  <label htmlFor="filtrar-autor" className="form-label">
-                    Cargado por
-                  </label>
-                  <select
-                    id="filtrar-autor"
-                    name="autor"
-                    className="form-select"
-                    defaultValue={filtros.autor}
-                  >
-                    <option value="">Todos</option>
-                    {catalogos.perfiles.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="col-md-2 align-self-end">
-                  <button className="btn btn-outline-primary" type="submit">
-                    Filtrar
-                  </button>
-                </div>
-              </form>
-              <p role="status">{lista.total} prospectos</p>
-              {!lista.registros.length ? (
-                <p>
-                  No hay registros con estos filtros. Podés crear uno nuevo.
-                </p>
-              ) : (
-                <div className="table-responsive">
-                  <table className="table tabla-adaptable tabla-prospectos">
-                    <caption>
-                      Ordenados del más reciente al más antiguo. Fechas de
-                      Argentina.
-                    </caption>
-                    <thead>
-                      <tr>
-                        <th scope="col">Prospecto</th>
-                        <th scope="col">Ubicación</th>
-                        <th scope="col">Atención</th>
-                        <th scope="col">Gestión comercial</th>
-                        <th scope="col">Contacto</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {lista.registros.map((r) => (
-                        <tr key={r.id}>
-                          <td data-label="Prospecto">
-                            <strong>{r.nombre}</strong>{" "}
-                            {r.lote_demostracion && (
-                              <span className="badge bg-warning text-dark">
-                                DEMO
-                              </span>
-                            )}
-                            <small className="d-block mt-1">
-                              {r.telefono || "Sin teléfono"}
-                            </small>
-                          </td>
-                          <td data-label="Ubicación">
-                            {nombreUbicacionComercial(r.ubicacion_comercial)}
-                          </td>
-                          {renderContinuacion?.(r, ({ atencion, acciones }) => (
-                            <>
-                              <td data-label="Atención">{atencion}</td>
-                              <td data-label="Gestión comercial">{acciones}</td>
-                            </>
-                          )) || (
-                            <>
-                              <td data-label="Atención">—</td>
-                              <td data-label="Gestión comercial">—</td>
-                            </>
-                          )}
-                          <td data-label="Contacto" className="celda-acciones">
-                            <div className="acciones-registro acciones-contacto">
-                              <AccionListado
-                                texto="Editar"
-                                etiqueta={`Editar ${r.nombre}`}
-                                onClick={() => {
-                                  cambiarAviso("");
-                                  cambiarParametros({ registro: r.id });
-                                }}
-                              />
-                              {administrador && !r.lote_demostracion && (
-                                <AccionListado
-                                  texto="Eliminar"
-                                  className="btn-outline-danger"
-                                  disabled={guardando}
-                                  etiqueta={`Eliminar ${r.nombre}`}
-                                  onClick={() => solicitarBaja(r)}
+                    {!!detalle.version && (
+                      <p>
+                        Cargado por {nombrePerfil(detalle.creado_por)} ·{" "}
+                        {fecha(detalle.creado_en)} · Versión {detalle.version}
+                      </p>
+                    )}
+                    <form
+                      key={`${detalle.id}-${detalle.version}-${revision}`}
+                      onSubmit={guardar}
+                      onChange={() => marcarModificado(true)}
+                      aria-busy={guardando}
+                    >
+                      <fieldset
+                        disabled={guardando || !!detalle.lote_demostracion}
+                      >
+                        <div className="row g-3">
+                          {camposRegistro.map((campo) => (
+                            <div
+                              className={
+                                campo.nombre === "observaciones"
+                                  ? "col-12"
+                                  : "col-md-6"
+                              }
+                              key={campo.nombre}
+                            >
+                              <label
+                                className="form-label"
+                                htmlFor={`registro-${campo.nombre}`}
+                              >
+                                {campo.etiqueta}
+                                {campo.requerido ? " *" : ""}
+                              </label>
+                              {campo.nombre === "observaciones" ? (
+                                <textarea
+                                  id={`registro-${campo.nombre}`}
+                                  name={campo.nombre}
+                                  className="form-control"
+                                  rows={3}
+                                  maxLength={campo.limite}
+                                  defaultValue={detalle[campo.nombre]}
+                                />
+                              ) : (
+                                <input
+                                  id={`registro-${campo.nombre}`}
+                                  name={campo.nombre}
+                                  type={campo.tipo || "text"}
+                                  onBlur={
+                                    campo.nombre === "nombre"
+                                      ? (e) => {
+                                          e.target.value = e.target.value
+                                            .trim()
+                                            .toUpperCase();
+                                        }
+                                      : undefined
+                                  }
+                                  className="form-control"
+                                  required={campo.requerido}
+                                  minLength={campo.requerido ? 2 : undefined}
+                                  maxLength={campo.limite}
+                                  defaultValue={detalle[campo.nombre]}
                                 />
                               )}
                             </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-              <nav
-                aria-label="Páginas de registros"
-                className="d-flex flex-wrap gap-2 align-items-center"
+                          ))}
+                          <div className="col-md-6">
+                            <CampoUbicacionComercial
+                              valor={detalle.ubicacion_comercial}
+                            />
+                          </div>
+                          <div className="col-md-6">
+                            <label
+                              className="form-label"
+                              htmlFor="registro-origen"
+                            >
+                              Origen *
+                            </label>
+                            <select
+                              id="registro-origen"
+                              name="origen"
+                              className="form-select"
+                              required
+                              disabled={!!detalle.version}
+                              defaultValue={detalle.origen}
+                            >
+                              <option value="">Seleccionar origen</option>
+                              {catalogos.origenes
+                                .filter(
+                                  (o) =>
+                                    o.activo || o.codigo === detalle.origen,
+                                )
+                                .map((o) => (
+                                  <option key={o.codigo} value={o.codigo}>
+                                    {o.nombre}
+                                  </option>
+                                ))}
+                            </select>
+                            <small>
+                              El origen se conserva después del alta.
+                            </small>
+                          </div>
+                        </div>
+                        {!detalle.version && perfil.rol === "vendedor" && (
+                          <VisitaInicial
+                            programar={programarVisita}
+                            cambiar={cambiarProgramarVisita}
+                          />
+                        )}
+                        <div className="acciones-registro pie-acciones">
+                          <button className="btn btn-primary" type="submit">
+                            {guardando
+                              ? "Guardando…"
+                              : detalle.version
+                                ? "Actualizar prospecto"
+                                : programarVisita
+                                  ? "Guardar prospecto y agendar visita"
+                                  : "Guardar prospecto"}
+                          </button>
+                          {administrador &&
+                            !!detalle.version &&
+                            !detalle.lote_demostracion && (
+                              <button
+                                type="button"
+                                className="btn btn-danger"
+                                disabled={guardando || modificado}
+                                title={
+                                  modificado
+                                    ? "Guardá los cambios antes de eliminar"
+                                    : "Eliminar " + detalle.nombre
+                                }
+                                onClick={() => solicitarBaja(detalle)}
+                              >
+                                <IconoAccion texto="Eliminar" /> Eliminar
+                                prospecto
+                              </button>
+                            )}
+                        </div>
+                      </fieldset>
+                    </form>
+                  </div>
+                </section>
+                {!!detalle.version && (
+                  <section className="card">
+                    <div className="card-body">
+                      <details className="detalle-secundario">
+                        <summary>Historial (últimos 50 eventos)</summary>
+                        <ul className="list-unstyled">
+                          {eventos.map((e) => (
+                            <li className="border-bottom py-2" key={e.id}>
+                              <strong>
+                                {e.tipo === "registro_creado"
+                                  ? "Prospecto creado"
+                                  : "Prospecto actualizado"}
+                              </strong>{" "}
+                              · {fecha(e.ocurrido_en)} ·{" "}
+                              {nombrePerfil(e.actor_id)}
+                              {e.motivo && (
+                                <p className="mb-1">Motivo: {e.motivo}</p>
+                              )}
+                              <details>
+                                <summary>Ver cambios</summary>
+                                <ul>
+                                  {[
+                                    ...camposRegistro.map((c) => c.nombre),
+                                    "ubicacion_comercial",
+                                    "origen",
+                                    "responsable_id",
+                                  ]
+                                    .filter(
+                                      (c) =>
+                                        !e.anterior ||
+                                        e.anterior[c] !== e.nuevo[c],
+                                    )
+                                    .map((c) => (
+                                      <li key={c}>
+                                        {camposRegistro.find(
+                                          (x) => x.nombre === c,
+                                        )?.etiqueta ||
+                                          (c === "ubicacion_comercial"
+                                            ? "Ubicación del prospecto"
+                                            : c === "origen"
+                                              ? "Origen"
+                                              : "Responsable")}
+                                        :{" "}
+                                        {e.anterior && (
+                                          <>
+                                            {c === "responsable_id"
+                                              ? nombrePerfil(e.anterior[c])
+                                              : c === "ubicacion_comercial"
+                                                ? nombreUbicacionComercial(
+                                                    e.anterior[c],
+                                                  )
+                                                : e.anterior[c] || "—"}{" "}
+                                            →{" "}
+                                          </>
+                                        )}
+                                        {c === "responsable_id"
+                                          ? nombrePerfil(e.nuevo[c])
+                                          : c === "ubicacion_comercial"
+                                            ? nombreUbicacionComercial(
+                                                e.nuevo[c],
+                                              )
+                                            : e.nuevo[c] || "—"}
+                                      </li>
+                                    ))}
+                                </ul>
+                              </details>
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    </div>
+                  </section>
+                )}
+              </>
+            )
+          )}
+        </Modal>
+      )}
+      {(!error || seleccionado || nuevo) && (
+        <section className="card">
+          <div className="card-body">
+            <FiltroUbicacionComercial
+              valor={filtros.ubicacion_comercial}
+              cambiar={(valor) =>
+                cambiarFiltros((f) => ({
+                  ...f,
+                  ubicacion_comercial: valor,
+                  pagina: 0,
+                }))
+              }
+            />
+            <form className="row g-2 mb-3" onSubmit={filtrar}>
+              <div className="col-md-4">
+                <label htmlFor="buscar-registros" className="form-label">
+                  Buscar por nombre
+                </label>
+                <input
+                  id="buscar-registros"
+                  name="busqueda"
+                  className="form-control"
+                  maxLength={150}
+                  defaultValue={filtros.busqueda}
+                />
+              </div>
+              <div className="col-md-3">
+                <label htmlFor="filtrar-origen" className="form-label">
+                  Origen
+                </label>
+                <select
+                  id="filtrar-origen"
+                  name="origen"
+                  className="form-select"
+                  defaultValue={filtros.origen}
+                >
+                  <option value="">Todos</option>
+                  {catalogos.origenes.map((o) => (
+                    <option key={o.codigo} value={o.codigo}>
+                      {o.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-3">
+                <label htmlFor="filtrar-autor" className="form-label">
+                  Cargado por
+                </label>
+                <select
+                  id="filtrar-autor"
+                  name="autor"
+                  className="form-select"
+                  defaultValue={filtros.autor}
+                >
+                  <option value="">Todos</option>
+                  {catalogos.perfiles.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-2 align-self-end">
+                <button className="btn btn-outline-primary" type="submit">
+                  Filtrar
+                </button>
+              </div>
+            </form>
+            <p role="status">{lista.total} prospectos</p>
+            {!lista.registros.length ? (
+              <p>No hay registros con estos filtros. Podés crear uno nuevo.</p>
+            ) : (
+              <div className="table-responsive">
+                <table className="table tabla-adaptable tabla-prospectos">
+                  <caption>
+                    Ordenados del más reciente al más antiguo. Fechas de
+                    Argentina.
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Prospecto</th>
+                      <th scope="col">Ubicación</th>
+                      <th scope="col">Atención</th>
+                      <th scope="col">Gestión comercial</th>
+                      <th scope="col">Contacto</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lista.registros.map((r) => (
+                      <tr key={r.id}>
+                        <td data-label="Prospecto">
+                          <strong>{r.nombre}</strong>{" "}
+                          {r.lote_demostracion && (
+                            <span className="badge bg-warning text-dark">
+                              DEMO
+                            </span>
+                          )}
+                          <small className="d-block mt-1">
+                            {r.telefono || "Sin teléfono"}
+                          </small>
+                        </td>
+                        <td data-label="Ubicación">
+                          {nombreUbicacionComercial(r.ubicacion_comercial)}
+                        </td>
+                        {renderContinuacion?.(r, ({ atencion, acciones }) => (
+                          <>
+                            <td data-label="Atención">{atencion}</td>
+                            <td data-label="Gestión comercial">{acciones}</td>
+                          </>
+                        )) || (
+                          <>
+                            <td data-label="Atención">—</td>
+                            <td data-label="Gestión comercial">—</td>
+                          </>
+                        )}
+                        <td data-label="Contacto" className="celda-acciones">
+                          <div className="acciones-registro acciones-contacto">
+                            <AccionListado
+                              texto="Editar"
+                              etiqueta={`Editar ${r.nombre}`}
+                              onClick={() => {
+                                cambiarAviso("");
+                                cambiarParametros({ registro: r.id });
+                              }}
+                            />
+                            {administrador && !r.lote_demostracion && (
+                              <AccionListado
+                                texto="Eliminar"
+                                className="btn-outline-danger"
+                                disabled={guardando}
+                                etiqueta={`Eliminar ${r.nombre}`}
+                                onClick={() => solicitarBaja(r)}
+                              />
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <nav
+              aria-label="Páginas de registros"
+              className="d-flex flex-wrap gap-2 align-items-center"
+            >
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                disabled={filtros.pagina === 0}
+                onClick={() =>
+                  cambiarFiltros((f) => ({ ...f, pagina: f.pagina - 1 }))
+                }
               >
-                <button
-                  className="btn btn-outline-secondary btn-sm"
-                  disabled={filtros.pagina === 0}
-                  onClick={() =>
-                    cambiarFiltros((f) => ({ ...f, pagina: f.pagina - 1 }))
-                  }
-                >
-                  Anterior
-                </button>
-                <span>Página {filtros.pagina + 1}</span>
-                <button
-                  className="btn btn-outline-secondary btn-sm"
-                  disabled={(filtros.pagina + 1) * 20 >= lista.total}
-                  onClick={() =>
-                    cambiarFiltros((f) => ({ ...f, pagina: f.pagina + 1 }))
-                  }
-                >
-                  Siguiente
-                </button>
-              </nav>
-            </div>
-          </section>
-        )
+                Anterior
+              </button>
+              <span>Página {filtros.pagina + 1}</span>
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                disabled={(filtros.pagina + 1) * 20 >= lista.total}
+                onClick={() =>
+                  cambiarFiltros((f) => ({ ...f, pagina: f.pagina + 1 }))
+                }
+              >
+                Siguiente
+              </button>
+            </nav>
+          </div>
+        </section>
       )}
     </>
   );

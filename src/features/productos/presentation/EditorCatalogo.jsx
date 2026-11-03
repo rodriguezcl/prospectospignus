@@ -30,11 +30,12 @@ export function EditorCatalogo({
   guardar,
   cancelar,
   apertura,
+  enModal = false,
 }) {
   const titulo = useRef(null);
   useEffect(() => {
-    enfocarPanel(titulo.current);
-  }, [apertura]);
+    if (!enModal) enfocarPanel(titulo.current);
+  }, [apertura, enModal]);
   const [item, editar] = useState(() =>
     structuredClone(
       valor ||
@@ -166,15 +167,17 @@ export function EditorCatalogo({
         });
       }}
     >
-      <h2
-        className="h4"
-        ref={titulo}
-        tabIndex={-1}
-        style={{ scrollMarginTop: "1rem" }}
-      >
-        {valor ? "Editar" : "Crear"}{" "}
-        {grupo === "marcas" ? "marca" : oferta ? "plan o kit" : "producto"}
-      </h2>
+      {!enModal && (
+        <h2
+          className="h4"
+          ref={titulo}
+          tabIndex={-1}
+          style={{ scrollMarginTop: "1rem" }}
+        >
+          {valor ? "Editar" : "Crear"}{" "}
+          {grupo === "marcas" ? "marca" : oferta ? "plan o kit" : "producto"}
+        </h2>
+      )}
       <fieldset disabled={ocupado}>
         {oferta && (
           <p>

@@ -127,11 +127,8 @@ test("simpleza: menú conserva rutas y límites por rol; solo pendientes se plie
 });
 test("simpleza: alta de cuenta a demanda sin perder validación ni gestión", () => {
   const html = dibujar(UsuariosPagina, { gestion: {} });
-  assert.match(
-    html,
-    /<details class="detalle-secundario"><summary>Crear cuenta<\/summary>/,
-  );
-  assert.match(html, /minLength="10"/);
+  assert.match(html, /<button[^>]*>Crear cuenta<\/button>/);
+  assert.doesNotMatch(html, /id="clave-usuario"/);
   assert.match(html, /Cuentas del equipo/);
   assert.match(html, /Permisos y eliminación/);
 });

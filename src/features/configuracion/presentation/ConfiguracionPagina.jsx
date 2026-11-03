@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/ui/Modal.jsx";
 import { useEffect, useState, useRef } from "react";
 import { EncabezadoPagina } from "../../../shared/ui/contenido/EncabezadoPagina.jsx";
 export function ConfiguracionPagina({ gestion }) {
@@ -7,6 +8,14 @@ export function ConfiguracionPagina({ gestion }) {
     [aviso, setAviso] = useState(""),
     [ocupado, setOcupado] = useState(false);
   const operacion = useRef(null);
+  const [editando, editar] = useState(false);
+  const respaldo = useRef(null);
+  function cerrar() {
+    setValor(respaldo.current);
+    setMeses(respaldo.current.datos.meses_congelamiento.join(", "));
+    setError("");
+    editar(false);
+  }
   useEffect(() => {
     let vigente = true;
     gestion
@@ -83,6 +92,7 @@ export function ConfiguracionPagina({ gestion }) {
       setValor({ version, datos });
       operacion.current = null;
       setAviso("Condiciones guardadas. No cambian acuerdos ya aceptados.");
+      editar(false);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -95,7 +105,7 @@ export function ConfiguracionPagina({ gestion }) {
         titulo="Configuración"
         descripcion="Condiciones comerciales"
       />
-      {error && (
+      {error && !editando && (
         <div role="alert" className="alert alert-danger">
           {error}
         </div>
@@ -113,82 +123,101 @@ export function ConfiguracionPagina({ gestion }) {
         Actualizar condiciones
       </button>
       {valor && (
-        <form onSubmit={guardar} className="card card-body">
-          <fieldset disabled={ocupado}>
-            <h2 className="h4">Formas de pago</h2>
-            <p>
-              Débito y transferencia: mismo total. Efectivo: 10 % acumulable con
-              bonificaciones. Crédito: 1, 3 o 6 cuotas sin interés. El descuento
-              no afecta el abono.
-            </p>
-            <h2 className="h4">Redondeo comercial</h2>
-            <label className="d-block mb-3">
-              Porcentaje máximo de redondeo
-              <input
-                className="form-control"
-                type="number"
-                min="0"
-                max="100"
-                step="0.01"
-                required
-                value={valor.datos.redondeo_maximo_porcentaje ?? "1"}
-                onChange={(e) => {
-                  setValor({
-                    ...valor,
-                    datos: {
-                      ...valor.datos,
-                      redondeo_maximo_porcentaje: e.target.value,
-                    },
-                  });
-                  operacion.current = null;
-                }}
-              />
-            </label>
-            <p>
-              Por defecto: 1 %. Se aplica al total inicial después del descuento
-              por pago, sin abono. Con 0 % se deshabilita la rebaja manual. No
-              modifica propuestas ya ofrecidas.
-            </p>
-            <h2 className="h4">Congelamiento del abono</h2>
-            <label className="d-block mb-3">
-              Plazos disponibles en meses
-              <input
-                className="form-control"
-                value={meses}
-                onChange={(e) => {
-                  setMeses(e.target.value);
-                  operacion.current = null;
-                }}
-                placeholder="4, 6"
-              />
-            </label>
-            {["vendedor", "agente"].map((rol) => (
-              <label className="d-block mb-3" key={rol}>
+        <button
+          className="btn btn-primary ms-2 mb-3"
+          onClick={() => {
+            respaldo.current = structuredClone(valor);
+            setError("");
+            editar(true);
+          }}
+        >
+          Editar condiciones
+        </button>
+      )}
+      {valor && editando && (
+        <Modal
+          titulo="Condiciones comerciales"
+          cerrar={cerrar}
+          ocupado={ocupado}
+          error={error}
+        >
+          <form onSubmit={guardar} className="card card-body">
+            <fieldset disabled={ocupado}>
+              <h2 className="h4">Formas de pago</h2>
+              <p>
+                Débito y transferencia: mismo total. Efectivo: 10 % acumulable
+                con bonificaciones. Crédito: 1, 3 o 6 cuotas sin interés. El
+                descuento no afecta el abono.
+              </p>
+              <h2 className="h4">Redondeo comercial</h2>
+              <label className="d-block mb-3">
+                Porcentaje máximo de redondeo
                 <input
-                  type="checkbox"
-                  className="form-check-input me-2"
-                  checked={valor.datos[`congelamiento_${rol}`]}
+                  className="form-control"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  required
+                  value={valor.datos.redondeo_maximo_porcentaje ?? "1"}
                   onChange={(e) => {
                     setValor({
                       ...valor,
                       datos: {
                         ...valor.datos,
-                        [`congelamiento_${rol}`]: e.target.checked,
+                        redondeo_maximo_porcentaje: e.target.value,
                       },
                     });
                     operacion.current = null;
                   }}
                 />
-                Puede ofrecer congelamiento: {rol}
               </label>
-            ))}
-            <p>
-              Desde la instalación efectiva. No son meses gratis. Facturación e
-              IPC automáticos siguen fuera de alcance.
-            </p>
-            <button className="btn btn-primary">Guardar condiciones</button>
-          </fieldset>
-        </form>
+              <p>
+                Por defecto: 1 %. Se aplica al total inicial después del
+                descuento por pago, sin abono. Con 0 % se deshabilita la rebaja
+                manual. No modifica propuestas ya ofrecidas.
+              </p>
+              <h2 className="h4">Congelamiento del abono</h2>
+              <label className="d-block mb-3">
+                Plazos disponibles en meses
+                <input
+                  className="form-control"
+                  value={meses}
+                  onChange={(e) => {
+                    setMeses(e.target.value);
+                    operacion.current = null;
+                  }}
+                  placeholder="4, 6"
+                />
+              </label>
+              {["vendedor", "agente"].map((rol) => (
+                <label className="d-block mb-3" key={rol}>
+                  <input
+                    type="checkbox"
+                    className="form-check-input me-2"
+                    checked={valor.datos[`congelamiento_${rol}`]}
+                    onChange={(e) => {
+                      setValor({
+                        ...valor,
+                        datos: {
+                          ...valor.datos,
+                          [`congelamiento_${rol}`]: e.target.checked,
+                        },
+                      });
+                      operacion.current = null;
+                    }}
+                  />
+                  Puede ofrecer congelamiento: {rol}
+                </label>
+              ))}
+              <p>
+                Desde la instalación efectiva. No son meses gratis. Facturación
+                e IPC automáticos siguen fuera de alcance.
+              </p>
+              <button className="btn btn-primary">Guardar condiciones</button>
+            </fieldset>
+          </form>
+        </Modal>
       )}
     </>
   );

@@ -1,5 +1,7 @@
 export function enfocarPanel(elemento) {
   if (!elemento) return;
+  const modal = elemento.closest("dialog");
+  if (modal && !modal.open) return;
   // Destino de navegación, no control interactivo: evita enmarcar todo el panel.
   if (
     elemento.matches("section, article, div, details, h1, h2, h3, h4, h5, h6")

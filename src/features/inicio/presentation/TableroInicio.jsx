@@ -1,5 +1,6 @@
+import { Modal } from "../../../shared/ui/Modal.jsx";
 import { ordenarAlfabeticamente } from "../../../shared/ui/ordenAlfabetico.js";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { construirTablero, mesCordoba } from "../domain/tablero.js";
 import { GraficoRegistros } from "./GraficoRegistros.jsx";
@@ -150,7 +151,6 @@ export function TableroInicio({ gestion, perfil, renderRendimiento }) {
   const [revision, recargar] = useState(0);
   const [detalle, cambiarDetalle] = useState(null);
   const [pagina, paginar] = useState(0);
-  const referenciaDetalle = useRef(null);
   const admin = perfil.rol === "administrador";
   useEffect(() => {
     let vigente = true;
@@ -181,9 +181,6 @@ export function TableroInicio({ gestion, perfil, renderRendimiento }) {
       vigente = false;
     };
   }, [gestion, mes, responsable, revision, perfil.id, perfil.rol]);
-  useEffect(() => {
-    if (detalle) referenciaDetalle.current?.focus();
-  }, [detalle]);
   const seleccionar = (titulo, filas, registros = false) => {
     cambiarDetalle({ titulo, filas, registros });
     paginar(0);
@@ -396,23 +393,10 @@ export function TableroInicio({ gestion, perfil, renderRendimiento }) {
             </div>
           </section>
           {detalle && (
-            <section
-              ref={referenciaDetalle}
-              tabIndex={-1}
-              className="card card-body detalle-tablero"
-              aria-label={detalle.titulo}
+            <Modal
+              titulo={`${detalle.titulo} · ${detalle.filas.length}`}
+              cerrar={() => cambiarDetalle(null)}
             >
-              <div className="d-flex justify-content-between gap-2 align-items-start">
-                <h2 className="h5">
-                  {detalle.titulo} · {detalle.filas.length}
-                </h2>
-                <button
-                  className="btn btn-outline-secondary btn-sm"
-                  onClick={() => cambiarDetalle(null)}
-                >
-                  Cerrar detalle
-                </button>
-              </div>
               {!detalle.filas.length ? (
                 <p>No hay registros en esta selección.</p>
               ) : (
@@ -492,7 +476,7 @@ export function TableroInicio({ gestion, perfil, renderRendimiento }) {
                   </nav>
                 </>
               )}
-            </section>
+            </Modal>
           )}
         </>
       )}

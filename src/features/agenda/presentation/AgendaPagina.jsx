@@ -57,11 +57,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
   const [elegido, setElegido] = useState(null);
   const [busco, setBusco] = useState(false);
   const identidad = useRef(null),
-    intento = useRef(null),
-    titulo = useRef(null);
-  useEffect(() => {
-    enfocarPanel(titulo.current);
-  }, []);
+    intento = useRef(null);
   const general = ["crear", "editar"].includes(accion);
   const realizadas =
     ["finalizar", "corregir"].includes(accion) ||
@@ -129,19 +125,13 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
     cancelar: "Cancelar actividad",
   };
   return (
-    <section
-      className="card agenda-formulario"
-      aria-labelledby="titulo-formulario-agenda"
+    <Modal
+      titulo={nombres[accion]}
+      cerrar={cerrar}
+      ocupado={ocupado}
+      error={error}
     >
       <div className="card-body">
-        <h2
-          id="titulo-formulario-agenda"
-          className="h4"
-          tabIndex={-1}
-          ref={titulo}
-        >
-          {nombres[accion]}
-        </h2>
         {a && (
           <p>
             {a.titulo} · {mostrar(a.inicio_previsto || a.inicio_real)}
@@ -449,11 +439,6 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
                 Cotizaciones. Revisá también esa ficha si corresponde.
               </p>
             )}
-            {error && (
-              <p className="alert alert-danger" role="alert">
-                {error}
-              </p>
-            )}
             <div className="d-flex flex-wrap gap-2">
               <button className="btn btn-primary" type="submit">
                 {ocupado ? "Guardando…" : "Guardar actividad"}
@@ -469,7 +454,7 @@ export function FormularioActividad({ seleccion, guardar, cerrar, gestion }) {
           </fieldset>
         </form>
       </div>
-    </section>
+    </Modal>
   );
 }
 
@@ -1071,12 +1056,17 @@ function AgendaAutorizada({ gestion, perfil }) {
         />
       )}
       {historial && (
-        <HistorialActividad
-          key={historial.id}
-          actividad={historial}
-          gestion={gestion}
+        <Modal
+          titulo="Historial de actividad"
           cerrar={() => setHistorial(null)}
-        />
+        >
+          <HistorialActividad
+            key={historial.id}
+            actividad={historial}
+            gestion={gestion}
+            cerrar={() => setHistorial(null)}
+          />
+        </Modal>
       )}
       {cargando && !actualizacion && <p role="status">Cargando agenda…</p>}
       {vendedor && actualizacion && (
@@ -1100,3 +1090,4 @@ function AgendaAutorizada({ gestion, perfil }) {
     </div>
   );
 }
+import { Modal } from "../../../shared/ui/Modal.jsx";
